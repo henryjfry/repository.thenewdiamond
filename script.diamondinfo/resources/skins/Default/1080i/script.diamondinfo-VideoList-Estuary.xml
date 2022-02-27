@@ -246,7 +246,8 @@
 							<posx>162</posx>
 							<width>30</width>
 							<height>84</height>
-							<posy>12</posy>
+							<!--- MOVE LABELS UP/DOWN--->
+							<posy>38</posy>
 							<textcolor>black</textcolor>
 							<align>center</align>
 							<font>font10</font>
@@ -376,7 +377,8 @@
 							<posx>270</posx>
 							<width>30</width>
 							<height>84</height>
-							<posy>119</posy>
+							<!--- MOVE LABELS UP/DOWN--->
+							<posy>146</posy>
 							<textcolor>black</textcolor>
 							<align>center</align>
 							<font>font10</font>
