@@ -8,6 +8,12 @@ from lib.libs.addonsettings import settings
 from lib.libs.mediainfo import get_basetype
 from lib.libs.pykodi import localize as L, log
 
+import sys
+if sys.version_info[0] >= 3:
+    unicode = bytes
+    basestring = bytes
+
+
 # TODO: Failed movie set matching, missing or updated uniqueid, processeditems label mismatch
 
 REPORT_NAME = 'artwork-report'
@@ -111,7 +117,12 @@ def report_item(mediaitem, forcedreport=False, manual=False, downloaded_size=0):
             else "{0} '{1}' of '{2}'".format(mediaitem.mediatype, mediaitem.label, mediaitem.showtitle)
         message = "== {0}: ".format(get_datetime()) if forcedreport else ""
         message += L(PROCESSING_MANUALLY if manual else PROCESSING)
-        write(reportfile, message.format(itemtitle))
+        try:
+            write(reportfile, message.format(itemtitle))
+        except UnicodeEncodeError:
+            itemtitle = itemtitle.encode("ascii", "ignore")
+            itemtitle = itemtitle.decode()
+            write(reportfile, message.format(itemtitle))
         message = L(NO_IDS_MESSAGE) if mediaitem.missingid \
             else L(MISSING_LABEL).format(', '.join(mediaitem.missingart)) if mediaitem.missingart \
             else L(NO_MISSING_ARTWORK)

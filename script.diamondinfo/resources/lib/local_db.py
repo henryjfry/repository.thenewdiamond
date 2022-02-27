@@ -226,8 +226,79 @@ def merge_with_local_tvshow_info(online_list=[], library_first=True, sortkey=Fal
 			xbmcgui.Window(10000).setProperty('tvshow_imdb_list.JSON', json.dumps(tvshow_imdb_list))
 	local_items = []
 	remote_items = []
+
+	#import sqlite3
+	#from resources.lib.library import db_path
+	#from resources.lib.TheMovieDB import single_tvshow_info
+
 	for online_item in online_list:
-		#xbmc.log(str(online_item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		#xbmc.log(str(online_item)+'===>PHIL', level=xbmc.LOGINFO)
+		"""
+		con = sqlite3.connect(db_path())
+		cur = con.cursor()
+		#if online_item['imdb_id'] == '':
+		#	tv_show = single_tvshow_info(tvshow_id=online_item['id'])
+		#	online_item['imdb_id'] = tv_show['imdb_id']
+
+		sql_query = '''
+		select episode_view.*,imdb.imdb,tvrage.tvrage,tvdb.tvdb,tvmaze.tvmaze,tmdb.tmdb from (
+		SELECT * FROM episode_view ) as episode_view
+		left join
+		(SELECT media_id, value as imdb FROM uniqueid where media_type = \'tvshow\' and type = \'imdb\' ) as imdb
+		on imdb.media_id = episode_view.idshow
+		left join
+		(SELECT media_id,  value as tvrage FROM uniqueid where media_type = \'tvshow\' and type = \'tvrage\' ) as tvrage
+		on tvrage.media_id = episode_view.idshow
+		left join
+		(SELECT media_id,  value as tvdb FROM uniqueid where media_type = \'tvshow\' and type = \'tvdb\' ) as tvdb
+		on tvdb.media_id = episode_view.idshow
+		left join
+		(SELECT media_id,  value as tvmaze FROM uniqueid where media_type = \'tvshow\' and type = \'tvmaze\' ) as tvmaze
+		on tvmaze.media_id = episode_view.idshow
+		left join
+		(SELECT media_id, value as tmdb FROM uniqueid where media_type = \'tvshow\' and type = \'tmdb\' ) as tmdb
+		on tmdb.media_id = episode_view.idshow
+		where (imdb = \'%s\' or tmdb = \'%s\')
+		order by cast(episode_view.c12 as int),cast(episode_view.c13 as int)
+		limit 1
+		''' % (online_item['imdb_id'], online_item['id'])
+		sql_result = cur.execute(sql_query).fetchall()
+		column_dict = {}
+		for i in cur.description:
+				column_dict[i[0]] = cur.description.index(i)
+		idShow = 0
+		try:
+			#xbmc.log(str(sql_result[0][column_dict['strTitle']])+'===>PHIL', level=xbmc.LOGINFO)
+			online_item['title'] = sql_result[0][column_dict['strTitle']]
+			idShow = sql_result[0][column_dict['idShow']]
+			if online_item['imdb_id'] == '':
+				online_item['imdb_id'] = sql_result[0][column_dict['imdb_id']]
+		except: pass
+
+		if idShow > 0:
+			local_item = get_tvshow_from_db(idShow)
+			#xbmc.log(str(local_item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+			if local_item:
+				try:
+					diff = abs(int(local_item['year']) - int(online_item['year']))
+					if diff > 1:
+						remote_items.append(online_item)
+						continue
+				except:
+					pass
+				online_item.update(local_item)
+				if library_first:
+					local_items.append(online_item)
+				else:
+					remote_items.append(online_item)
+			else:
+				remote_items.append(online_item)
+			continue
+		xbmc.log(str(online_item['title'].lower())+'===>PHIL', level=xbmc.LOGINFO)
+		#xbmc.log(str(online_item)+'===>PHIL', level=xbmc.LOGINFO)
+		con.close()
+		"""
+
 		found = False
 		if 'imdb_id' in online_item and online_item['imdb_id'] in tvshow_imdb_list:
 			index = tvshow_imdb_list.index(online_item['imdb_id'])
@@ -311,7 +382,7 @@ def merge_with_local_tvshow_info(online_list=[], library_first=True, sortkey=Fal
 				remote_items.append(online_item)
 		else:
 			remote_items.append(online_item)
-	
+
 	if sortkey:
 		local_items = sorted(local_items, key=lambda k: k[sortkey], reverse=True)
 		remote_items = sorted(remote_items, key=lambda k: k[sortkey], reverse=True)

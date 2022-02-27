@@ -59,10 +59,20 @@ def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
         year = Utils.get_year(Utils.fetch(movie, 'release_date'))
         trailer = 'plugin://'+str(addon_ID())+'?info=playtrailer&&id=%s' % str(tmdb_id)
         path = 'plugin://'+str(addon_ID())+'?info='+str(addon_ID_short())+'&&id=%s&year=%s' % (str(tmdb_id), str(year))
+        original_title = Utils.fetch(movie, 'original_title')
+        original_title2 = ''
+        try:
+            for i in movie['alternative_titles']['titles']:
+                if i['type'] == 'original title' and i['iso_3166_1'] in {'US','UK'}:
+                    original_title2 = i['title']
+            if original_title2 != original_title and original_title2 != '':
+                original_title = original_title2
+        except KeyError:
+            pass
         listitem = {
             'title': Utils.fetch(movie, 'title'),
             'Label': Utils.fetch(movie, 'title'),
-            'OriginalTitle': Utils.fetch(movie, 'original_title'),
+            'OriginalTitle': original_title,
             'id': tmdb_id,
             'imdb_id': Utils.fetch(movie, 'imdb_id'),
             'path': path,
@@ -1404,9 +1414,18 @@ def get_trakt(trakt_type=None,info=None,limit=0):
                 result_type = False
                 pass
         if listitems == None and result_type != False:
-            listitems = handle_tmdb_multi_search(response[result_type])
+            #listitems = handle_tmdb_multi_search(response[result_type])
+            listitems = []
+            if result_type == 'movie_results':
+                listitems.append(single_movie_info(response[result_type][0]['id']))
+            else:
+                listitems.append(single_tvshow_info(response[result_type][0]['id']))
         elif result_type != False:
-            listitems += handle_tmdb_multi_search(response[result_type])
+            #listitems += handle_tmdb_multi_search(response[result_type])
+            if result_type == 'movie_results':
+                listitems.append(single_movie_info(response[result_type][0]['id']))
+            else:
+                listitems.append(single_tvshow_info(response[result_type][0]['id']))
     #Utils.show_busy()
         if x + 1 == int(limit) and limit != 0:
             break

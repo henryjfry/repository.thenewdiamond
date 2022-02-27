@@ -154,6 +154,7 @@ def get_tmdb_window(window_type):
             else:
                 dbid = 0
             item_id = self.listitem.getProperty('id')
+            self_type = 'tv'
             if xbmc.getInfoLabel('listitem.DBTYPE') == 'movie':
                 self_type = 'movie'
             elif xbmc.getInfoLabel('listitem.DBTYPE') in ['tv', 'tvshow', 'season', 'episode']:
@@ -291,6 +292,8 @@ def get_tmdb_window(window_type):
                 self.page = 1
                 self.mode='tastedive&' + str(media_type)
                 self.search_str = TheMovieDB.get_tastedive_data(query=search_str, limit=limit, media_type=media_type)
+                if self.search_str == []:
+                    self.search_str = TheMovieDB.get_tastedive_data(query=self.listitem.getProperty('originaltitle'), limit=limit, media_type=media_type)
                 self.filter_label='TasteDive Similar ('+str(search_str)+'):'
                 #return wm.open_video_list(mode='tastedive&' + str(media_type), listitems=[], search_str=response, filter_label='TasteDive Similar ('+str(search_str)+'):')
                 self.fetch_data()
@@ -695,6 +698,19 @@ def get_tmdb_window(window_type):
                 response3 = []
                 for i in response:
                     response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=50, media_type='movie')
+                    original_title = i['original_title']
+                    original_title2 = ''
+                    try:
+                        for ix in i['alternative_titles']['titles']:
+                            if ix['type'] == 'original title' and ix['iso_3166_1'] in {'US','UK'}:
+                                original_title2 = ix['title']
+                        if original_title2 != original_title and original_title2 != '':
+                            original_title = original_title2
+                    except:
+                        pass
+
+                    if response2 == [] and original_title != i['title']:
+                        response2 = TheMovieDB.get_tastedive_data(query=original_title, limit=50, media_type='movie')
                     for x in response2:
                         if x not in response3:
                             response3.append(x)
@@ -712,7 +728,9 @@ def get_tmdb_window(window_type):
                 response = TheMovieDB.get_trakt(trakt_type='tv',info='trakt_watched',limit=50)
                 response3 = []
                 for i in response:
-                    response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=50, media_type='tv')
+                    #try: response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=50, media_type='tv')
+                    #except: response2 = TheMovieDB.get_tastedive_data(query=i['name'], limit=50, media_type='tv')
+                    response2 = TheMovieDB.get_tastedive_data(query=i['name'], limit=50, media_type='tv')
                     for x in response2:
                         if x not in response3:
                             response3.append(x)
@@ -1270,7 +1288,7 @@ def get_tmdb_window(window_type):
                 fetch_data_dict['self.filter_label'] = self.filter_label
                 fetch_data_dict['self.page'] = self.page
                 fetch_data_dict['self.search_str'] = self.search_str
-                url = 'discover/%s?sort_by=%s&%slanguage=%s&page=%i&include_adult=%s&' % (self.type, sort_by, self.filter_url, xbmcaddon.Addon().getSetting('LanguageID'), int(self.page), xbmcaddon.Addon().getSetting('include_adults'))
+                url = 'discover/%s?sort_by=%s&%slanguage=%s&page=%i&append_to_response=external_ids&include_adult=%s&' % (self.type, sort_by, self.filter_url, xbmcaddon.Addon().getSetting('LanguageID'), int(self.page), xbmcaddon.Addon().getSetting('include_adults'))
             if force:
                 response = TheMovieDB.get_tmdb_data(url=url, cache_days=0)
             else:

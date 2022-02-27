@@ -342,13 +342,15 @@ def get_art_fanart_movie(tmdb_id, fanart_api, show_file_path, art_path,tmdb_api)
 
         if not d1.__contains__('moviebackground'):
             try: 
-                d1['moviebackground'] = str('https://image.tmdb.org/t/p/original') + response.json()['backdrop_path']
+                #d1['moviebackground'] = str('https://image.tmdb.org/t/p/original') + response.json()['backdrop_path']
+                d1['moviebackground'] = str('https://image.tmdb.org/t/p/w500') + response.json()['backdrop_path']
             except:
                 pass
 
         if not d1.__contains__('movieposter'):
             try:
-                d1['movieposter'] = str('https://image.tmdb.org/t/p/original') + response.json()['poster_path']
+                #d1['movieposter'] = str('https://image.tmdb.org/t/p/original') + response.json()['poster_path']
+                d1['movieposter'] = str('https://image.tmdb.org/t/p/w500') + response.json()['poster_path']
             except:
                 pass
 
@@ -487,13 +489,15 @@ def get_art_fanart_tv(tvdb_id, fanart_api, show_file_path, art_path,tmdb_id,tmdb
 
         if not d1.__contains__('showbackground'):
             try: 
-                d1['showbackground'] = str('https://image.tmdb.org/t/p/original') + response.json()['backdrop_path']
+                d1['showbackground'] = str('https://image.tmdb.org/t/p/w500') + response.json()['backdrop_path']
+                #d1['showbackground'] = str('https://image.tmdb.org/t/p/original') + response.json()['backdrop_path']
             except:
                 pass
 
         if not d1.__contains__('tvposter'):
             try:
-                d1['tvposter'] = str('https://image.tmdb.org/t/p/original') + response.json()['poster_path']
+                d1['tvposter'] = str('https://image.tmdb.org/t/p/w500') + response.json()['poster_path']
+                #d1['tvposter'] = str('https://image.tmdb.org/t/p/original') + response.json()['poster_path']
             except:
                 pass
             
@@ -502,7 +506,8 @@ def get_art_fanart_tv(tvdb_id, fanart_api, show_file_path, art_path,tmdb_id,tmdb
             try:
                 for k in response.json()['seasons']:
                     try:
-                        d1['seasonposters'][int(k['season_number'])] = str('https://image.tmdb.org/t/p/original') + k['poster_path']
+                        d1['seasonposters'][int(k['season_number'])] = str('https://image.tmdb.org/t/p/w500') + k['poster_path']
+                        #d1['seasonposters'][int(k['season_number'])] = str('https://image.tmdb.org/t/p/original') + k['poster_path']
                     except:
                         pass
             except:
@@ -618,7 +623,7 @@ def next_episode_show1(tmdb_id_num=None,dbid_num=None):
     url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
     return url
 
-def next_episode_show(tmdb_id_num=None,dbid_num=None):
+def next_episode_show2(tmdb_id_num=None,dbid_num=None):
     import sqlite3
     import re
 
@@ -647,6 +652,140 @@ def next_episode_show(tmdb_id_num=None,dbid_num=None):
     episode = i[6]
     con.close()
 
+    url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
+    return url
+
+def next_episode_show3(tmdb_id_num=None,dbid_num=None):
+    import sqlite3
+    import re
+
+    temp_dbid = dbid_num
+    tmdb_id=tmdb_id_num
+    regex = re.compile('[^0-9a-zA-Z]')
+
+    con = sqlite3.connect('/home/osmc/.kodi/userdata/Database/MyVideos119.db')
+    cur = con.cursor()
+
+    temp_show_id = temp_dbid
+    sql_result = cur.execute("select strFilename,playCount,lastPlayed,c00, strtitle, cast(c12 as int) as c12, cast(c13 as int) as c13, c05, strPath from episode_view where idshow = "+str(temp_show_id)+" order by cast(c12 as int) desc, cast(c13 as int) desc").fetchall()
+    lastPlayed = 0
+    for i in sql_result:
+        if i[2] == None:
+            ep_index = sql_result.index(i)
+        try: 
+            if time.mktime(time.strptime(i[2], '%Y-%m-%d %H:%M:%S')) > lastPlayed and lastPlayed != 0:
+                ep_index = sql_result.index(i)-1
+                break
+            lastPlayed = time.mktime(time.strptime(i[2], '%Y-%m-%d %H:%M:%S'))
+        except: 
+            lastPlayed = 0
+
+    i = sql_result[ep_index]
+    episode_title = i[3]
+    episode_title = regex.sub(' ', episode_title.replace('\'','').replace('&','and')).replace('  ',' ')
+    tvshow_title = i[4]
+    tvshow_title = regex.sub(' ', tvshow_title.replace('\'','').replace('&','and')).replace('  ',' ')
+    season = i[5]
+    episode = i[6]
+    con.close()
+    url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
+    return url
+
+def next_episode_show(tmdb_id_num=None,dbid_num=None):
+    import sqlite3
+    import re
+
+    temp_dbid = dbid_num
+    tmdb_id=tmdb_id_num
+    regex = re.compile('[^0-9a-zA-Z]')
+
+    con = sqlite3.connect('/home/osmc/.kodi/userdata/Database/MyVideos119.db')
+    cur = con.cursor()
+
+    temp_show_id = temp_dbid
+    sql_var = (
+    """
+    select * from 
+    (select c00, strtitle, cast(c12 as int) as c12, cast(c13 as int) as c13, c05, strPath, strFilename,ROW_NUMBER() OVER (PARTITION BY idshow ORDER BY cast(c12 as int), cast(c13 as int)) as EN,lastplayed,playcount from episode_view 
+    where idshow = {temp_show_id}) as ep_nums
+    left join
+
+    (select max(en)+1 as en from 
+    (select c00, strtitle, cast(c12 as int) as c12, cast(c13 as int) as c13, c05, strPath, strFilename,ROW_NUMBER() OVER (PARTITION BY idshow ORDER BY cast(c12 as int), cast(c13 as int)) as EN,lastplayed,playcount from episode_view 
+    where idshow = {temp_show_id}) as max_ep_num
+    where playcount is not null and playcount <> 0
+    group by strtitle) as max_ep_num
+    on max_ep_num.en = ep_nums.en
+
+    left join
+
+    (select (en)+1 as en, lastPlayed, lastPlayed_num from 
+    (select *,ROW_NUMBER() OVER (ORDER BY lastPlayed desc) as lastPlayed_num from 
+    (select c00, strtitle, cast(c12 as int) as c12, cast(c13 as int) as c13, c05, strPath, strFilename,ROW_NUMBER() OVER (PARTITION BY idshow ORDER BY cast(c12 as int), cast(c13 as int)) as EN,lastplayed,playcount from episode_view 
+    where idshow = {temp_show_id}) as max_lastPlayed
+    ) as max_lastPlayed
+    where en  <> 1 and lastPlayed_num = 1 and lastPlayed is not null and lastPlayed is not 'None') as max_lastPlayed
+    on max_lastPlayed.en = ep_nums.en
+
+    where max_lastPlayed.en is not null or max_ep_num.en is not null
+    --order by ep_nums.en desc
+    --order by lastPlayed_num
+    order by lastPlayed_num desc
+
+    """.format(temp_show_id=temp_show_id)
+    )
+    sql_result = cur.execute(sql_var).fetchall()
+
+    #xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>PHIL', level=xbmc.LOGFATAL)
+    tmdb_id = ''
+    url = ''
+    nfo = ''
+    try: 
+        episode_title = sql_result[0][0]
+        episode_title = regex.sub(' ', episode_title.replace('\'','').replace('&','and')).replace('  ',' ')
+        tvshow_title = sql_result[0][1]
+        tvshow_title = regex.sub(' ', tvshow_title.replace('\'','').replace('&','and')).replace('  ',' ')
+        season = sql_result[0][2]
+        episode = sql_result[0][3]
+        nfo = sql_result[0][5].replace(sql_result[0][5].split('/')[9]+'/','')+'tvshow.nfo'
+        file_path = str(sql_result[0][5]) + str(sql_result[0][6])
+        #file_path = str(sql_result[0][6])
+        #xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>PHIL', level=xbmc.LOGFATAL)
+    except: 
+        sql_result2 = None
+        cur.execute("select c00 from tvshow where idshow = '"+str(temp_show_id)+"'")
+        sql_result2 = cur.fetchall()
+        tvshow_title = sql_result2[0][0]
+        tvshow_title = regex.sub(' ', tvshow_title.replace('\'','').replace('&','and')).replace('  ',' ')
+        season = 1
+        episode = 1
+        sql_result2 = None
+        cur.execute("select strpath, strFilename,c00 from episode_view where c12 = 1 and c13 = 1 and idshow = '"+str(temp_show_id)+"'")
+        sql_result2 = cur.fetchall()
+        try: nfo = sql_result2[0][0].replace(sql_result2[0][0].split('/')[9]+'/','')+'tvshow.nfo'
+        except: nfo = ''
+        episode_title = sql_result2[0][2]
+        episode_title = regex.sub(' ', episode_title.replace('\'','').replace('&','and')).replace('  ',' ')
+        file_path = str(sql_result2[0][0]) + str(sql_result2[0][1])
+        #file_path = str(sql_result2[0][1])
+        #xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>PHIL', level=xbmc.LOGFATAL)
+
+    tvdb_id = ''
+    if nfo != '':
+        f = open(str(nfo), 'r')
+        for line in f:
+            if 'https://www.themoviedb.org/tv/' in line:
+                tmdb_id = line.replace('https://www.themoviedb.org/tv/','')
+                break
+        f.close()
+        url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
+        try:
+            tvdb_id = nfo.split('/')[-2]
+        except:
+            tvdb_id = ''
+    con.close()
+    xbmc.log(str(sql_result)+'===>PHIL', level=xbmc.LOGINFO)
+    xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
     url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
     return url
 
@@ -741,10 +880,34 @@ def trakt_next_episode_rewatch(tmdb_id_num=None):
                     next_season_to_watch = i['number']
                     next_ep_to_watch = j['number']
     except:
-        xbmc.executebuiltin('Dialog.Close(busydialog)')
-        xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
-        xbmcgui.Dialog().notification(heading='Trakt Next Episode Rewatch', message='Not REWATCHING!', icon=icon_path(),time=1000,sound=False)
-        return
+        last_watched_at = ''
+        next_season_to_watch  = ''
+        next_ep_to_watch = ''
+        import sqlite3
+        import ast
+        addon = xbmcaddon.Addon()
+        addon_path = addon.getAddonInfo('path')
+        addonID = addon.getAddonInfo('id')
+        addonUserDataFolder = xbmcvfs.translatePath("special://profile/addon_data/"+addonID)
+        con = sqlite3.connect(str(Path(addonUserDataFolder + '/trakt_tv_watched.db')))
+        cur = con.cursor()
+        sql_query = "select * from trakt where trakt  like '%" + str(title) + "%'"
+        sql_result = cur.execute(sql_query).fetchall()
+        response1 = ast.literal_eval(sql_result[0][1].replace('\'\'','"'))
+        try:
+            for i in response1['seasons']:
+                for j in i['episodes']:
+                    if last_watched_at == '':
+                        last_watched_at = j['last_watched_at']
+                    if last_watched_at != '' and last_watched_at <= j['last_watched_at']:
+                        last_watched_at  = j['last_watched_at']
+                        next_season_to_watch = i['number']
+                        next_ep_to_watch = j['number']
+        except:
+            xbmc.executebuiltin('Dialog.Close(busydialog)')
+            xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+            xbmcgui.Dialog().notification(heading='Trakt Next Episode Rewatch', message='Not REWATCHING!', icon=icon_path(),time=1000,sound=False)
+            return
 
     next_flag = 'false'
     for i in response1['seasons']:
@@ -1556,7 +1719,10 @@ def trakt_calendar_list():
         if count < i['show']['aired_episodes'] and i['show']['aired_episodes'] - count == 1:
             #response2 = requests.get('https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', headers=headers).json()
             response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=1)
-            air_date = datetime(*(time.strptime(response2['next_episode']['first_aired'], '%Y-%m-%dT%H:%M:%S.%fZ')[0:6])).strftime('%Y-%m-%d')
+            try:
+                air_date = datetime(*(time.strptime(response2['next_episode']['first_aired'], '%Y-%m-%dT%H:%M:%S.%fZ')[0:6])).strftime('%Y-%m-%d')
+            except TypeError:
+                continue
             today = datetime.today().strftime('%Y-%m-%d')
             day_diff = str(-1* (datetime.today() - datetime(*(time.strptime(response2['next_episode']['first_aired'], '%Y-%m-%dT%H:%M:%S.%fZ')[0:6]))).days)
             if int(day_diff) > -10 and int(day_diff) <= 7:

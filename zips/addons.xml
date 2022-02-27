@@ -267,7 +267,7 @@ v1.1.25
     </extension>
 </addon>
 
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="3.48" provider-name="fryhenryj">
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="3.49" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -578,7 +578,7 @@ v1.1.25
     </extension>
 </addon>
 
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="3.48" provider-name="fryhenryj">
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="3.49" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -859,7 +859,7 @@ v1.0.25 (marcelveldt)
 	</extension>
 </addon>
 
-<addon id="script.artwork.beef" name="Artwork Beef" version="0.28.6" provider-name="rmrector">
+<addon id="script.artwork.beef" name="Artwork Beef" version="0.28.7" provider-name="rmrector">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0" />
 		<import addon="xbmc.json" version="6.20.0" />

@@ -179,6 +179,18 @@ def start_info_actions(infos, params):
 			response3 = []
 			for i in response:
 				response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=30, media_type='movie')
+
+				original_title = i['original_title']
+				original_title2 = ''
+				try:
+					for ix in i['alternative_titles']['titles']:
+						if ix['type'] == 'original title' and ix['iso_3166_1'] in {'US','UK'}:
+							original_title2 = ix['title']
+					if original_title2 != original_title and original_title2 != '':
+						original_title = original_title2
+				except:
+					pass
+
 				for x in response2:
 					if x not in response3:
 						response3.append(x)
@@ -201,6 +213,7 @@ def start_info_actions(infos, params):
 
 		elif info == 'test_route':
 			from resources.lib import library
+			#import mediainfo
 			#from resources.lib import TheMovieDB
 			#import xbmcvfs, xbmcaddon
 			#title = 'Game of Thrones'
