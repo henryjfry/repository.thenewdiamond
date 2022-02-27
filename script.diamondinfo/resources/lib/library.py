@@ -253,7 +253,7 @@ def setup_xml_filenames():
                     with fileinput.FileInput(filename, inplace=True, backup='.bak') as file:
                         for line in file:
                             print(line.replace(old_addonID, str(addon_ID())), end='')
-                if old_name != new_name:
+                if old_name != new_name and not os.path.exists(new_path):
                     os.rename(old_path, new_path)
     settings_xml = Path(str(main_file_path()) + '/resources/settings.xml')
     filename = settings_xml
