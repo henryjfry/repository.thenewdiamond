@@ -40,6 +40,10 @@ def tmdb_traktapi_path():
 def tmdb_traktapi_new_path():
     tmdb_traktapi_new_path = Path(main_file_path().replace(addon_ID(),'plugin.video.themoviedb.helper') + 'resources/lib/trakt/api.py')
     return tmdb_traktapi_new_path
+
+def tmdb_traktapi_new_path2():
+    tmdb_traktapi_new_path = Path(main_file_path().replace(addon_ID(),'plugin.video.themoviedb.helper') + 'resources/lib/api/trakt/api.py')
+    return tmdb_traktapi_new_path
     
 def basedir_tv_path():
     root_dir = xbmcaddon.Addon(addon_ID()).getSetting('library_folder')
@@ -1657,6 +1661,7 @@ def trak_auth():
     tmdb_settings = tmdb_settings_path()
     tmdb_traktapi = tmdb_traktapi_path()
     tmdb_traktapi2 = tmdb_traktapi_new_path()
+    tmdb_traktapi3 = tmdb_traktapi_new_path2()
 
     tree = ET.parse(tmdb_settings)
     root = tree.getroot()
@@ -1673,12 +1678,20 @@ def trak_auth():
             if 'self.client_secret = ' in line:
                 client_secret = line.replace('self.client_secret = ','').replace('\'','').replace('    ','').replace('\n', '')
     except:
-        inFile = open(tmdb_traktapi2)
-        for line in inFile:
-            if 'CLIENT_ID = ' in line:
-                client_id = line.replace('CLIENT_ID = ','').replace('\'','').replace('    ','').replace('\n', '')
-            if 'CLIENT_SECRET = ' in line:
-                client_secret = line.replace('CLIENT_SECRET = ','').replace('\'','').replace('    ','').replace('\n', '')
+        try:
+            inFile = open(tmdb_traktapi2)
+            for line in inFile:
+                if 'CLIENT_ID = ' in line:
+                    client_id = line.replace('CLIENT_ID = ','').replace('\'','').replace('    ','').replace('\n', '')
+                if 'CLIENT_SECRET = ' in line:
+                    client_secret = line.replace('CLIENT_SECRET = ','').replace('\'','').replace('    ','').replace('\n', '')
+        except:
+            inFile = open(tmdb_traktapi3)
+            for line in inFile:
+                if 'CLIENT_ID = ' in line:
+                    client_id = line.replace('CLIENT_ID = ','').replace('\'','').replace('    ','').replace('\n', '')
+                if 'CLIENT_SECRET = ' in line:
+                    client_secret = line.replace('CLIENT_SECRET = ','').replace('\'','').replace('    ','').replace('\n', '')
 
     inFile.close()
 
