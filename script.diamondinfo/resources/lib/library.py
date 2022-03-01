@@ -788,8 +788,8 @@ def next_episode_show(tmdb_id_num=None,dbid_num=None):
         except:
             tvdb_id = ''
     con.close()
-    xbmc.log(str(sql_result)+'===>PHIL', level=xbmc.LOGINFO)
-    xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
+    #xbmc.log(str(sql_result)+'===>PHIL', level=xbmc.LOGINFO)
+    #xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
     url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
     return url
 

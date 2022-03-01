@@ -9,6 +9,8 @@ import xbmcaddon
 ADDON = xbmcaddon.Addon()
 ADDON_VERSION = ADDON.getAddonInfo('version')
 
+
 xbmc.log("version %s started" % ADDON_VERSION)
 ADDON.openSettings()
 xbmc.log('finished')
+

@@ -513,10 +513,10 @@ def get_tvshow_window(window_type):
 
 			if selection_text == 'Unhide on Trakt Calendar':
 				response_collect = trakt_calendar_hide_show(tmdb_id_num=item_id,unhide=True)
-				xbmc.log(str(response_collect)+'===>PHIL', level=xbmc.LOGINFO)
+				xbmc.log(str(response_collect)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			if selection_text == 'Hide on Trakt Calendar':
 				response_collect = trakt_calendar_hide_show(tmdb_id_num=item_id,unhide=False)
-				xbmc.log(str(response_collect)+'===>PHIL', level=xbmc.LOGINFO)
+				xbmc.log(str(response_collect)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 
 
 		#@ch.click(9)

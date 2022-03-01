@@ -16,12 +16,12 @@ ADDON_VERSION = ADDON.getAddonInfo('version')
 
 import sys
 if sys.version_info[0] >= 3:
-    unicode = bytes
-    basestring = bytes
+    unicode = str
 
 def get_kodi_json(method, params):
     json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "%s", "params": %s, "id": 1}' % (method, params))
-    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    try: json_query = unicode(json_query, 'utf-8', errors='ignore')
+    except: pass
     return json.loads(json_query)
 
 
@@ -38,9 +38,21 @@ def start_info_actions(infos, params):
                 window = xbmcgui.Window(10103)
             except Exception:
                 return None
-            window.setFocusId(300)
-            get_kodi_json(method="Input.SendText",
-                          params='{"text":"%s", "done":false}' % params.get("id"))
+            if int(xbmc.getInfoLabel('System.BuildVersion')[:2]) > 17:
+                xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+            else:
+                xbmc.executebuiltin('Dialog.Close(busydialog)')
+            xbmc.sleep(500)
+            #window.setFocusId(312)
+            search_str = str(params.get("id"))
+            #xbmc.sleep(300)
+            #get_kodi_json(method="Input.SendText",
+            #              params='{"text":"%s", "done":false}' % params.get("id"))
+            kodi_params = str('{"jsonrpc": "2.0", "method": "Input.SendText", "params": {"text": "'+str(search_str)+'", "done": false}, "id": 1}')
+
+            response = xbmc.executeJSONRPC(kodi_params)
+            #window.setFocusId(300)
+            #response = xbmc.executeJSONRPC(kodi_params)
             return None
             # xbmc.executebuiltin("SendClick(103,32)")
         pass_list_to_skin(data=listitems,
@@ -70,7 +82,7 @@ def create_listitems(data=None):
         for (key, value) in result.items():
             if not value:
                 continue
-            value = unicode(value, encoding='utf8')
+            value = unicode(value)
             if key.lower() in ["label"]:
                 listitem.setLabel(value)
             elif key.lower() in ["search_string"]:

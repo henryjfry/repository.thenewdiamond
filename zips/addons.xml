@@ -267,8 +267,8 @@ v1.1.25
     </extension>
 </addon>
 
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="3.53" provider-name="fryhenryj">
-	<requires>
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="3.58" provider-name="fryhenryj">
+"""""""	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
 		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
@@ -338,6 +338,20 @@ v1.1.25
     <source>https://github.com/PythonCharmers/python-future</source>
     <website>http://python-future.org</website>
   </extension>
+</addon>
+
+<addon id="script.module.metalibrary" name="Meta Library" version="2019.02.20" provider-name="aenema">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0" />
+	</requires>
+	<extension point="xbmc.python.module" library="lib" />
+	<extension point="xbmc.python.pluginsource" library="lib/default.py" />
+	<extension point="xbmc.addon.metadata">
+		<platform>all</platform>
+		<summary lang="en">meta database for fast Images.</summary>
+		<description lang="en">Meta DB</description>
+        <source>unknown</source>
+	</extension>
 </addon>
 
 <addon id="script.module.futures"
@@ -578,8 +592,8 @@ v1.1.25
     </extension>
 </addon>
 
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="3.53" provider-name="fryhenryj">
-	<requires>
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="3.58" provider-name="fryhenryj">
+"""""""	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
 		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
@@ -818,7 +832,7 @@ v1.0.25 (marcelveldt)
   </extension>
 </addon>
 
-<addon id="plugin.program.autocompletion" name="AutoCompletion for virtual keyboard" version="2.0.4" provider-name="henryjfry">
+<addon id="plugin.program.autocompletion" name="AutoCompletion for virtual keyboard" version="2.0.5" provider-name="henryjfry">
     <requires>
         <import addon="xbmc.python" version="3.0.0" />
         <import addon="script.module.simplejson" version="3.3.0"/>
@@ -943,12 +957,12 @@ v0.28.0 (2020-02-08)
 	</extension>
 </addon>
 
-<addon id="repository.newdiamond" name="New DiamondInfo_Mod Repo" version="2.1" provider-name="fryhenryj">
+<addon id="repository.newdiamond" name="New DiamondInfo_Mod Repo" version="2.2" provider-name="fryhenryj">
     <extension point="xbmc.addon.repository" name="newdiamondinfo_mod">
         <dir>
-            <info compressed="false">https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/zips/addons.xml</info>
-            <checksum>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/zips/addons.xml.md5</checksum>
-            <datadir zip="true">https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/zips/</datadir>
+            <info compressed="false">https://henryjfry.github.io/repository.thenewdiamond/zips/addons.xml</info>
+            <checksum>https://henryjfry.github.io/repository.thenewdiamond/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://henryjfry.github.io/repository.thenewdiamond/zips/</datadir>
         </dir>
     </extension>
     <extension point="xbmc.addon.metadata">
@@ -985,7 +999,7 @@ v0.28.0 (2020-02-08)
   </extension>
 </addon>
 
-  <addon id="script.artwork.downloader" name="Artwork Downloader" version="15.6" provider-name="Martijn (With @burekas fixes)">
+  <addon id="script.artwork.downloader" name="Artwork Downloader" version="15.5.0.1" provider-name="Martijn (With @burekas fixes)">
   <requires>
     <import addon="xbmc.python"                 version="3.0.0"/>
     <import addon="xbmc.json"                   version="6.0.0"/>

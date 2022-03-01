@@ -23,6 +23,8 @@ class WindowManager(object):
             self.osAndroid_path = '-android'
         else:
             self.osAndroid_path = ''
+    if 'estuary' in str(Utils.SKIN_DIR):
+             Utils.SKIN_DIR = 'skin.estuary'
 
     def add_to_stack(self, window):
         if Utils.window_stack_enable == 'true':

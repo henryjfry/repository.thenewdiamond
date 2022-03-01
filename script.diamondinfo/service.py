@@ -34,7 +34,7 @@ class MyMonitor(xbmc.Monitor):
 
         if sender == addon_ID_short():
             command_info = json.loads(data)
-            #xbmc.log(str(command_info)+'onNotification===>PHIL', level=xbmc.LOGINFO)
+            #xbmc.log(str(command_info)+'onNotification===>OPEN_INFO', level=xbmc.LOGINFO)
             container = command_info['command_params']['container']
             position = command_info['command_params']['position']
             xbmc.sleep(550)
@@ -312,7 +312,7 @@ class PlayerMonitor(xbmc.Player):
             response = self.trakt_scrobble_tmdb(tmdb_id=trakt_method['tmdb_id'], percent=percentage,action='start')
         elif trakt_method['function'] == 'trakt_scrobble_tv':
             response = self.trakt_scrobble_tv(title=trakt_method['title'], season=trakt_method['season'], episode=trakt_method['episode'], percent=percentage,action='start')
-        xbmc.log(str(response)+'onPlayBackResumed===>PHIL', level=xbmc.LOGINFO)
+        xbmc.log(str(response)+'onPlayBackResumed===>OPEN_INFO', level=xbmc.LOGINFO)
 
     def onPlayBackPaused(self):
         global resume_position
@@ -335,7 +335,7 @@ class PlayerMonitor(xbmc.Player):
             response = self.trakt_scrobble_tmdb(tmdb_id=trakt_method['tmdb_id'], percent=percentage,action='pause')
         elif trakt_method['function'] == 'trakt_scrobble_tv':
             response = self.trakt_scrobble_tv(title=trakt_method['title'], season=trakt_method['season'], episode=trakt_method['episode'], percent=percentage,action='pause')
-        xbmc.log(str(response)+'onPlayBackPaused===>PHIL', level=xbmc.LOGINFO)
+        xbmc.log(str(response)+'onPlayBackPaused===>OPEN_INFO', level=xbmc.LOGINFO)
 
 
     def onPlayBackEnded(self):
