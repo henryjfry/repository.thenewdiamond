@@ -31,6 +31,19 @@ def prepare_diamond():
 	for i in remove_pycache:
 		print('remove', i)
 		remove(i)
+		
+	repo_source = '/home/osmc/repository.thenewdiamond/'
+
+	remove_pycache = []
+	for i in os.walk(diamond_source):
+		for j in i[1]:
+			if j == '__pycache__':
+				pycache_path = i[0] + '/' + j
+				remove_pycache.append(pycache_path)
+
+	for i in remove_pycache:
+		print('remove', i)
+		remove(i)
 
 	shutil.copytree(diamond_source, diamond_dest)
 
