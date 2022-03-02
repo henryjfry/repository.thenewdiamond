@@ -48,10 +48,11 @@ def report_startup():
     with _get_file() as reportfile:
         reportfile.seek(0, os.SEEK_SET)
         newline = str(str("= ") + str(L(RUNNING_VERSION))).format(settings.useragent)
-        line_exists = any(newline in line for line in reportfile)
+        try: line_exists = any(newline in line for line in reportfile)
+        except: line_exists = any(newline in line.encode("ascii", "ignore").decode()  for line in reportfile)
         if not line_exists:
             reportfile.seek(0, os.SEEK_END)
-            write(reportfile, newline)
+            write(reportfile, newline.encode("ascii", "ignore").decode())
             finish_chunk(reportfile)
 
 def report_start(medialist):
@@ -149,7 +150,8 @@ def get_datetime():
     return pykodi.get_infolabel('System.Date(yyyy-mm-dd)') + ' ' + pykodi.get_infolabel('System.Time(hh:mm:ss xx)')
 
 def write(reportfile, line):
-    reportfile.write(line + '\n')
+    try: reportfile.write(line + '\n')
+    except: reportfile.write(line.encode("ascii", "ignore").decode() + '\n')
 
 def finish_chunk(reportfile):
     reportfile.write('\n')
