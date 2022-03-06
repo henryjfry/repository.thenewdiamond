@@ -110,7 +110,7 @@ def db_path():
         return filelist[-1]
 
 def icon_path():
-    icon_path = Path(main_file_path().replace(addon_ID(),'plugin.video.themoviedb.helper') + 'resources/icons/tmdb/tv.png')
+    icon_path = Path(main_file_path() + 'icon2.png')
     return str(icon_path)
 
 def tmdb_api_key():
