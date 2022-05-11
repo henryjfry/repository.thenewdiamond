@@ -187,6 +187,22 @@ def get_tmdb_window(window_type):
             listitems += ['TMDBHelper Context']
             listitems += ['TasteDive Similar Items']
 
+            try:
+                bluray_cmd = None
+                if self_type == 'movie' and 'Collection' in str(self.filter_label):
+                    import os
+                    addon = xbmcaddon.Addon()
+                    addon_path = addon.getAddonInfo('path')
+                    addonID = addon.getAddonInfo('id')
+                    addonUserDataFolder = xbmcvfs.translatePath("special://profile/addon_data/"+addonID)
+                    if os.path.exists(str(Path(addonUserDataFolder + '/custom_for_me'))):
+                        bluray_cmd = 'plugin://service.next_playlist/play_bluray?title='+str(self.listitem.getProperty('Title'))+'&amp;year='+str(self.listitem.getProperty('year'))+'&amp;tmdb='+str(item_id)
+                        listitems += ['Play Bluray']
+            except:
+                    pass
+
+
+
             if xbmcaddon.Addon(addon_ID()).getSetting('context_menu') == 'true':
                 selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
             else:
@@ -278,6 +294,12 @@ def get_tmdb_window(window_type):
                     xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,sync_trakt,tmdb_type=tv,tmdb_id='+str(item_id))
                 else:
                     xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,sync_trakt,tmdb_type=movie,tmdb_id='+str(item_id))
+            if selection_text == 'Play Bluray':
+                if bluray_cmd:
+                    #xbmc.executebuiltin('RunPlugin(%s)' % (bluray_cmd))
+                    url = bluray_cmd
+                    PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+
             if selection_text == 'TasteDive Similar Items':
                 search_str = self.listitem.getProperty('title')
                 limit = 100
@@ -525,6 +547,12 @@ def get_tmdb_window(window_type):
             self.add_filter('certification', cert, 'Certification', cert)
             self.mode = 'filter'
             self.page = 1
+            self.update()
+
+        @ch.click(50139)
+        def set_page_number(self):
+            page = xbmcgui.Dialog().input(heading='Page Number', type=xbmcgui.INPUT_NUMERIC)
+            self.page = int(page)
             self.update()
 
         @ch.click(5013)

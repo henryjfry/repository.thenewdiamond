@@ -1294,7 +1294,7 @@ def trakt_trending_shows(cache_days=None):
     import json
 
     headers = trak_auth()
-    url = 'https://api.trakt.tv/shows/trending?limit=300'
+    url = 'https://api.trakt.tv/shows/trending?limit=600'
     #response = requests.get(url, headers=headers).json()
     if cache_days:
         response = get_trakt_data(url, cache_days)
@@ -1313,7 +1313,7 @@ def trakt_popular_movies(cache_days=None):
     #import requests
     #import json
     #headers = trak_auth()
-    url = 'https://api.trakt.tv/movies/popular?limit=300'
+    url = 'https://api.trakt.tv/movies/popular?limit=600'
     #response = requests.get(url, headers=headers).json()
     if cache_days:
         response = get_trakt_data(url, cache_days)
@@ -1332,7 +1332,7 @@ def trakt_popular_shows(cache_days=None):
     #import requests
     #import json
     #headers = trak_auth()
-    url = 'https://api.trakt.tv/shows/popular?limit=300'
+    url = 'https://api.trakt.tv/shows/popular?limit=600'
     #response = requests.get(url, headers=headers).json()
     if cache_days:
         response = get_trakt_data(url, cache_days)

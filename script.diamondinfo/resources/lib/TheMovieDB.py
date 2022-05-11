@@ -1099,6 +1099,9 @@ def get_imdb_list_ids(list_str=None, limit=0):
     import time
     movies = []
     curr_time = time.time()
+    if str(list_str) == 'ls_top_1000':
+        movies = imdb_top_1000()
+        return movies
     imdb_url = 'https://www.imdb.com/list/title/'+str(list_str)+'/_ajax'
     imdb_response = requests.get(imdb_url)
 
@@ -1154,6 +1157,72 @@ def get_imdb_list_ids(list_str=None, limit=0):
     del list_container
     del imdb_response
     return movies
+
+def imdb_top_1000():
+    imdb_1 = 'https://www.imdb.com/search/title/?count=250&groups=top_1000&countries=%21in&sort=user_rating'
+    imdb_2 = 'https://www.imdb.com/search/title/?groups=top_1000&countries=%21in&sort=user_rating,desc&count=250&start=251&ref_=adv_nxt'
+    imdb_3 = 'https://www.imdb.com/search/title/?groups=top_1000&countries=%21in&sort=user_rating,desc&count=250&start=501&ref_=adv_nxt'
+    imdb_4 = 'https://www.imdb.com/search/title/?groups=top_1000&countries=%21in&sort=user_rating,desc&count=250&start=751&ref_=adv_nxt'
+
+    import requests
+    imdb_response = requests.get(imdb_1)
+    list_container = str(imdb_response.text,).split('<')
+
+    movies = []
+
+    x = 0
+    for i in list_container:
+        x = x + 1
+        if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
+            if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
+                imdb = i.split('/')[2]
+                title = list_container[x].split('"')[1]
+                year = list_container[x+9].split('(')[1].split(')')[0]
+                movies.append(imdb)
+
+    imdb_response = requests.get(imdb_2)
+    list_container = str(imdb_response.text,).split('<')
+
+    x = 0
+    for i in list_container:
+        x = x + 1
+        if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
+            if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
+                imdb = i.split('/')[2]
+                title = list_container[x].split('"')[1]
+                year = list_container[x+9].split('(')[1].split(')')[0]
+                movies.append(imdb)
+
+    imdb_response = requests.get(imdb_3)
+    list_container = str(imdb_response.text,).split('<')
+
+    x = 0
+    for i in list_container:
+        x = x + 1
+        if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
+            if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
+                imdb = i.split('/')[2]
+                title = list_container[x].split('"')[1]
+                year = list_container[x+9].split('(')[1].split(')')[0]
+                movies.append(imdb)
+
+    imdb_response = requests.get(imdb_4)
+    list_container = str(imdb_response.text,).split('<')
+
+    x = 0
+    for i in list_container:
+        x = x + 1
+        if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
+            if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
+                imdb = i.split('/')[2]
+                title = list_container[x].split('"')[1]
+                year = list_container[x+9].split('(')[1].split(')')[0]
+                movies.append(imdb)
+
+    del list_container
+    del imdb_response
+    return movies
+
 
 def get_trakt_userlists():
     trakt_userlist = xbmcaddon.Addon().getSetting('trakt_userlist')

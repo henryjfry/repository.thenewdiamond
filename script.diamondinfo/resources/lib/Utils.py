@@ -338,7 +338,8 @@ def read_from_file(path='', raw=False):
 		return False
 
 def notify(header='', message='', icon=xbmcaddon.Addon().getAddonInfo('icon'), time=5000, sound=True):
-	xbmcgui.Dialog().notification(heading=header, message=message, icon=icon, time=time, sound=sound)
+	if not xbmc.Player().isPlaying():
+		xbmcgui.Dialog().notification(heading=header, message=message, icon=icon, time=time, sound=sound)
 
 def get_kodi_json(method, params):
 	json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "%s", "params": %s, "id": 1}' % (method, params))
