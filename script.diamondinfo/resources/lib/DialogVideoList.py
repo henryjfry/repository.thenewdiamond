@@ -997,12 +997,16 @@ def get_tmdb_window(window_type):
                 rated = 'Rated movies'
                 starred = 'Starred movies'
 
-            if self.mode == 'search' and self.search_str[:2] == 'ls' and self.search_str[:2].isnumeric():
+
+            test_number = 0
+            try: test_number = int(self.search_str[2:])
+            except: test_number = None
+            if self.mode == 'search' and self.search_str[:2] == 'ls' and test_number:
                 from resources.lib.TheMovieDB import get_imdb_list_ids
                 self.search_str = get_imdb_list_ids(list_str=self.search_str,limit=0)
                 self.mode = 'imdb2'
 
-            if self.mode == 'search' and self.search_str[:2] == 'ur' and self.search_str[:2].isnumeric():
+            if self.mode == 'search' and self.search_str[:2] == 'ur' and test_number:
                 data = TheMovieDB.get_imdb_userlists_search(imdb_id=self.search_str)
                 listitems = []
                 imdb_list = []
