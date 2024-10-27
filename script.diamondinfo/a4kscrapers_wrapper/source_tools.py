@@ -1637,6 +1637,11 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 					part_number_title, part_number_release, part_match_title, part_match_release = parts_check(simple_info, pack_path)
 					#tools.log(simple_info,'simple_info')
 					#tools.log(pack_path,'pack_path')
+					#tools.log(ep_title,'ep_title')
+					if len(clean_title(ep_title)) == 0 and len(clean_title(episode_title)) != 0:
+						ep_number_match_only = True
+					else:
+						ep_number_match_only = False
 					#tools.log(part_number_title, part_number_release, part_match_title, part_match_release)
 					if episode_title:
 						#tools.log(distance.jaro_similarity(ep_title, episode_title))
@@ -1651,7 +1656,16 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 						#tools.log(ep_title2, 'ep_title2')
 						#tools.log(guess_episode, 'guess_episode')
 						#tools.log(i, 'i')
-						if ep_title == episode_title or distance.jaro_similarity(ep_title, episode_title) > 0.925:
+						#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+						if ep_title == episode_title or distance.jaro_similarity(ep_title, episode_title) > 0.925 or ep_number_match_only:
+							if guess_episode == i and guess_season == int(meta[meta_source]['episodes'][int(i)-1]['season']):
+								match = True
+							elif ep_adj_number > 0 and guess_episode < i and i - guess_episode <= ep_adj_number and guess_season == int(meta[meta_source]['episodes'][int(i)-1]['season']):
+								match = True
+							elif part_number_title == part_number_release:
+								match = True
+						elif len(clean_title(episode_title)) == len(episode_title) and distance.jaro_similarity(ep_title, episode_title) > 0.9:
+							#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 							if guess_episode == i and guess_season == int(meta[meta_source]['episodes'][int(i)-1]['season']):
 								match = True
 							elif ep_adj_number > 0 and guess_episode < i and i - guess_episode <= ep_adj_number and guess_season == int(meta[meta_source]['episodes'][int(i)-1]['season']):
