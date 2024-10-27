@@ -107,7 +107,7 @@ for line in Lines:
 		out_xml = out_xml + line_3_new 
 		item_flag = True
 		change_flag = True
-	elif line_593 in str(line):
+	if line_593 in str(line):
 		out_xml = out_xml + line_593_594_new 
 		item_flag = True
 		change_flag = True
