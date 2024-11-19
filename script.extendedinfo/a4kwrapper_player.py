@@ -481,6 +481,8 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		return meta_info, show_title, episode_thumb, air_date, resume_progress_seconds, runtime, rating, genre, plot, episode_id, year, episode_name, tv_maze_rating, alternate_titles, imdb_id, tvdb_id, tmdb_id, show_title_clean, show_title, info, tmdb_response, extended_tvshow_info_response
 
 	##SCRAPE CLOUD
+	tools.log('prescrape_test',prescrape_test)
+	#tools.log(sys.argv)
 	if 'cloud_scrape=False' in str(sys.argv):
 		cloud_scrape = False
 	else:

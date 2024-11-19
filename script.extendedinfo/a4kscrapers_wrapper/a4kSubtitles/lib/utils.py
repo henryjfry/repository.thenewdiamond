@@ -122,7 +122,7 @@ def get_lang_ids(languages, lang_format=kodi.xbmc.ISO_639_2):
 			if lang_id is not None:
 				lang_ids.append(lang_id)
 
-		lang_ids.sort()
+		#lang_ids.sort()
 		return lang_ids
 	except:
 		return []
@@ -245,9 +245,12 @@ def find_file_in_archive(core, namelist, exts, part_of_filename='', episode_numb
 			season, episode = __extract_season_episode(core, file_lower)
 			#tools.log(episode)
 			#tools.log(season)
-			if int(season) == int(meta.season) and int(meta.episode) == int(episode):
-				exact_file = file
-				break
+			try:
+				if int(season) == int(meta.season) and int(meta.episode) == int(episode):
+					exact_file = file
+					break
+			except TypeError:
+				exact_file = None
 
 	if exact_file is not None:
 		tools.log(exact_file)

@@ -79,6 +79,7 @@ class PlayerMonitor(xbmc.Player):
 		self.library_refresh = False
 		self.play_test = False
 		self.playing_file = None
+		self.iplayerwww = False
 		self.type = None
 		self.speed = 1
 		self.speed_time = 0
@@ -278,7 +279,8 @@ class PlayerMonitor(xbmc.Player):
 		self.trakt_method['percent'] = None
 
 		response = TheMovieDB.get_tmdb_data('search/movie?query=%s&year=%s&language=en-US&include_adult=%s&' % (self.player_meta['movie_title'],str(self.player_meta['movie_year']), xbmcaddon.Addon().getSetting('include_adults')), 30)
-		self.player_meta['trakt_tmdb_id'] = response['results'][0]['id']
+		try: self.player_meta['trakt_tmdb_id'] = response['results'][0]['id']
+		except IndexError: return None
 
 		response = get_trakt_data(url='https://api.trakt.tv/search/tmdb/'+str(self.player_meta['trakt_tmdb_id'])+'?type=movie', cache_days=7)
 		trakt = response[0]['movie']['ids']['trakt']
@@ -686,7 +688,10 @@ class PlayerMonitor(xbmc.Player):
 	def onPlayBackStopped(self):
 		log(str('onPlayBackStopped'))
 
-		self.trakt_meta_scrobble(action='pause')
+		if self.iplayerwww == False:
+			self.trakt_meta_scrobble(action='pause')
+		else:
+			return
 		trakt_meta = self.get_trakt_scrobble_details()
 		for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
 			self.clearProperty(i)
@@ -837,6 +842,10 @@ class PlayerMonitor(xbmc.Player):
 		json_object  = json.loads(json_result)
 		self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 		self.player_meta['timestamp']= json_object['result']['VideoPlayer.Duration']
+		if 'iplayerwww' in str(json_object['result']['Player.Filenameandpath']):
+			self.iplayerwww = True
+		else:
+			self.iplayerwww = False
 		try: self.player_meta['resume_duration'] = functools.reduce(lambda x, y: x*60+y, [int(i) for i in (self.player_meta['timestamp'].replace(':',',')).split(',')])
 		except: self.player_meta['resume_duration'] = 60
 
@@ -1194,6 +1203,8 @@ class PlayerMonitor(xbmc.Player):
 
 		if self.type == 'movie':
 			self.trakt_watched = False
+			if self.iplayerwww:
+				self.trakt_watched = True
 			self.player_meta['percentage']  = 0
 			self.library_refresh = False
 
@@ -1297,8 +1308,11 @@ class PlayerMonitor(xbmc.Player):
 				self.trakt_scrobble_details()
 
 			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlayingVideo()==1:
-				if int(self.player_meta['dbID']) > 0:
-					self.SetMovieDetails2(self.player_meta['dbID'], self.player_meta['resume_duration'])
+				try:
+					if int(self.player_meta['dbID']) > 0:
+						self.SetMovieDetails2(self.player_meta['dbID'], self.player_meta['resume_duration'])
+				except TypeError: 
+					return
 				log(str('STARTING...library.trakt_watched_movies_full'))
 				library.trakt_refresh_all()
 				self.library_refresh = True
@@ -1308,6 +1322,8 @@ class PlayerMonitor(xbmc.Player):
 
 		if self.type == 'episode':
 			self.trakt_watched  = False
+			if self.iplayerwww:
+				self.trakt_watched = True
 			self.player_meta['percentage'] = 0
 			self.library_refresh = False
 			self.prescrape_test = None
@@ -1426,6 +1442,7 @@ class PlayerMonitor(xbmc.Player):
 			if self.player_meta['percentage'] > 33 and prescrape == False and self.player_meta['diamond_player'] == True:
 				#next_ep_play_details = next_ep_play(show_title=next_ep_details['next_ep_show'], show_season=next_ep_details['next_ep_season'], show_episode=next_ep_details['next_ep_episode'], tmdb=next_ep_details['tmdb_id'])
 				xbmcgui.Window(10000).clearProperty('diamond_download_link')
+				tools.log('next_ep_play!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				kodi_send_command = 'RunScript(%s,info=a4kwrapper_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,prescrape=True)' % (addon_ID(), next_ep_details['next_ep_show'], next_ep_details['next_ep_season'], next_ep_details['next_ep_episode'], next_ep_details['tmdb_id'])
 				xbmc.executebuiltin(kodi_send_command)
 				prescrape = True
@@ -1439,6 +1456,7 @@ class PlayerMonitor(xbmc.Player):
 
 
 			if self.player_meta['percentage'] > 33 and 'http' in str(prescrape) and self.player_meta['diamond_player'] == True:
+				tools.log('next_ep_play!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				next_ep_play_details = next_ep_play(show_title=next_ep_details['next_ep_show'], show_season=next_ep_details['next_ep_season'], show_episode=next_ep_details['next_ep_episode'], tmdb=next_ep_details['tmdb_id'],auto_rd=False,prescrape_test=self.prescrape_test)
 				try: 
 					prescrape = 'Done'

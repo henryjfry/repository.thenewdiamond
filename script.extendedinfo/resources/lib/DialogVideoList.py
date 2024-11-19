@@ -1249,9 +1249,16 @@ def get_tmdb_window(window_type):
 							response3.append(x)
 					"""
 
+				#xbmc.log(str(str(response3)+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
+				item_list = []
+				response2 = []
+				for i in response3:
+					if not i['item_id'] in item_list:
+						item_list.append(i['item_id'])
+						response2.append(i)
 				self.mode = mode='tastedive&' + str('movie')
 				self.type = 'movie'
-				self.search_str = response3
+				self.search_str = response2
 				self.filter_label='TasteDive Based on Recently Watched Movies:'
 				self.fetch_data()
 				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
@@ -1270,9 +1277,17 @@ def get_tmdb_window(window_type):
 						#if x not in response3:
 						if not str("'item_id': %s" % (x['item_id'])) in str(response3):
 							response3.append(x)
+
+				item_list = []
+				response2 = []
+				for i in response3:
+					if not i['item_id'] in item_list:
+						item_list.append(i['item_id'])
+						response2.append(i)
+
 				self.mode = mode='tastedive&' + str('tv')
 				self.type = 'tv'
-				self.search_str = response3
+				self.search_str = response2
 				self.filter_label='TasteDive Based on Recently Watched TV:'
 				self.fetch_data()
 				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)

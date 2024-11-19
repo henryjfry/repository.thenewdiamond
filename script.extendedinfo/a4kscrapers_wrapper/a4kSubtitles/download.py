@@ -2,7 +2,7 @@
 #from resources.lib.modules.globals import g
 
 subtitles_exts = ['.srt', '.sub']
-subtitles_exts_secondary = ['.smi', '.ssa', '.aqt', '.jss', '.ass', '.rt', '.txt']
+subtitles_exts_secondary = ['.smi', '.ssa', '.aqt', '.jss', '.ass', '.rt']
 subtitles_exts_all = subtitles_exts + subtitles_exts_secondary
 
 try:
@@ -18,7 +18,10 @@ def __download(core, filepath, request):
 	#tools.log(filepath)
 	request['stream'] = True
 
-	with core.request.execute(core, request) as r:
+	response = core.request.execute(core, request)
+	if response.status_code >= 400:
+		raise Exception('Failed to download subtitle (HTTP: %s)' % response.status_code)
+	with response as r:
 		with open(filepath, 'wb') as f:
 			core.shutil.copyfileobj(r.raw, f)
 	return filepath
@@ -237,7 +240,11 @@ def download(core, params):
 		
 		if actions_args.get('gzip', False) or 'gzip' in download_filepath:
 			tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
-			filepath = __extract_gzip(core, archivepath, filename)
+			try: filepath = __extract_gzip(core, archivepath, filename)
+			except Exception as e:
+				if 'Not a gzipped file' in str(e):
+					filepath = core.os.path.join(core.utils.temp_dir, filename + '.srt')
+					return filepath
 		else:
 			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			episodeid = actions_args.get('episodeid', '')

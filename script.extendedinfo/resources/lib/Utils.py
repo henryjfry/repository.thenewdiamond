@@ -109,7 +109,10 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 	); 
 	""" % (folder)
 	sql_result = cur.execute(sql_query).fetchall()
-	connection.commit()
+	try: 
+		connection.commit()
+	except:
+		connection.commit()
 	sql_query = """
 	INSERT INTO %s (url,cache_val,cache_type,expire)
 	VALUES( '%s','%s','%s',%s);
