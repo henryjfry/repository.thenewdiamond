@@ -2181,14 +2181,9 @@ getSources.check_rd_cloud(meta)
 	for i in range(1,99):
 		#tools.log('torrent', i)
 		result = rd_api.list_torrents_page(int(i))
-		if '[204]' in str(result):
-			break
-		for x in result:
-			#tools.log('torrent', i, x)
-			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
-			if x['status'] == 'downloading':
-				continue
 
+		items_changed = False
+		for x in result:
 			if x['status'] != 'downloaded':
 				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				added_timestamp = time.mktime(time.strptime(x['added'], "%Y-%m-%dT%H:%M:%S.000Z"))
@@ -2202,10 +2197,22 @@ getSources.check_rd_cloud(meta)
 						if 'error' in str(response):
 							response = rd_api.delete_torrent(torr_id)
 							tools.log('torrent_delete_torrent', i, x,response)
+							items_changed = True
 					else:
 						torr_id = x['id']
 						response = rd_api.delete_torrent(torr_id)
+						items_changed = True
 						tools.log('torrent_delete_torrent', i, x,response)
+
+		if items_changed:
+			result = rd_api.list_torrents_page(int(i))
+		if '[204]' in str(result):
+			break
+		for x in result:
+			#tools.log('torrent', i, x)
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+			if x['status'] == 'downloading':
+				continue
 
 			file_info1 = tools.get_info(x['filename'])
 			file_info2 = tools.get_info(source_tools.clean_title(x['filename']))
