@@ -1734,6 +1734,7 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False):
 		idx = 0
 
 	while download_link == None:
+		torr_id = None
 		try: 
 			torrent = sources_list[idx]
 		except: 
@@ -1789,7 +1790,11 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False):
 				#continue
 				return None, meta
 			except:
-				rd_api.delete_torrent(torr_id)
+				if torr_id:
+					rd_api.delete_torrent(torr_id)
+				else:
+					tools.log('NONE___EXCEPTION_auto_scrape_rd')
+					return None, meta
 				if curr_idx >= len(uncached):
 					return None, meta
 				uncached.pop(curr_idx)
@@ -2183,6 +2188,25 @@ getSources.check_rd_cloud(meta)
 			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			if x['status'] == 'downloading':
 				continue
+
+			if x['status'] != 'downloaded':
+				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+				added_timestamp = time.mktime(time.strptime(x['added'], "%Y-%m-%dT%H:%M:%S.000Z"))
+				current_timestamp = time.time()
+				time_diff_seconds = current_timestamp - added_timestamp
+				if time_diff_seconds > 200:
+					if x['status'] == 'waiting_files_selection':
+						torr_id = x['id']
+						response = rd_api.torrent_select_all(torr_id)
+						tools.log('torrent_torrent_select_all', i, x,response)
+						if 'error' in str(response):
+							response = rd_api.delete_torrent(torr_id)
+							tools.log('torrent_delete_torrent', i, x,response)
+					else:
+						torr_id = x['id']
+						response = rd_api.delete_torrent(torr_id)
+						tools.log('torrent_delete_torrent', i, x,response)
+
 			file_info1 = tools.get_info(x['filename'])
 			file_info2 = tools.get_info(source_tools.clean_title(x['filename']))
 			source_list = []
@@ -2217,7 +2241,7 @@ getSources.check_rd_cloud(meta)
 					#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 					test2 = source_tools.run_show_filters(simple_info, release_title = x['filename'])
 			#tools.log(test2, test)
-			if not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
+			if (len(x['links']) >= meta['tvmaze_seasons_episode_tot'] or len(x['links']) >= meta['tmdb_seasons_episode_tot']) and not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
 				simple_info['imdb_id'] = meta['episode_meta']['imdbnumber']
 				test2['show_match'] = source_tools.filter_movie_title(x['filename'], source_tools.clean_title(x['filename']), simple_info['show_title'], simple_info)
 
