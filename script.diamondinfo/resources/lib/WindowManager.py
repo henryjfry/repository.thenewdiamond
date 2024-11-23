@@ -224,15 +224,21 @@ class WindowManager(object):
 		order by inc_id desc limit 1
 		"""
 		sql_result = cur.execute(sql_result).fetchall()
-
+		try: curr_window_number = int(xbmcgui.Window(10000).getProperty('diamond_window_number'))
+		except: curr_window_number = None
 
 		if len(sql_result) == 0:
 			return
 		window = sql_result[0][1]
 		window_number = int(sql_result[0][0])
+		if curr_window_number:
+			if int(window_number) < int(curr_window_number):
+				xbmc.log('window_number < curr_window_number___________________WM_pop_window_stack_table===>OPENINFO', level=xbmc.LOGINFO)
+				return
 		window = '{' + unquote_plus(window).replace('function=',"'function': '").replace('&params=',"', 'params': ") + '}'
 		window = eval(window)
 		self.curr_window = window
+		xbmcgui.Window(10000).setProperty('diamond_window_number', str(window_number))
 
 		sql_result = """
 		DELETE FROM window_stack
@@ -938,7 +944,10 @@ class SelectDialog(xbmcgui.WindowXMLDialog):
 	def background_tasks(self):
 		while not self.closed:
 			curr_time = time.time()
-			self.getControl(1).setLabel(self.list.getSelectedItem().getProperty('label2'))
+			try: self.getControl(1).setLabel(self.list.getSelectedItem().getProperty('label2'))
+			except AttributeError: #
+				self.closed = True
+				return
 			if self.autoclose != 0 and self.autoclose_time <= curr_time:
 				self.index = self.list.getSelectedPosition()
 				self.closed = True

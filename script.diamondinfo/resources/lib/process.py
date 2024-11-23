@@ -356,7 +356,7 @@ def start_info_actions(infos, params):
 				return
 			xbmc.log(str('start...')+'play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
 			time_start = time.time()
-			time_end = time_start + 90
+			time_end = time_start + 145
 			tmdb_plugin_flag = False
 			tmdb_helper_finished = 0
 			plugin_finished = 0
@@ -462,7 +462,7 @@ def start_info_actions(infos, params):
 				return
 			xbmc.log(str('start...')+'play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
 			home_count = 0
-			for i in range(1, int((90 * 1000)/1000)):
+			for i in range(1, int((145 * 1000)/1000)):
 				window_id = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"GUI.GetProperties","params":{"properties":["currentwindow", "currentcontrol"]},"id":1}')
 				window_id = json.loads(window_id)
 				xbmc.sleep(1000)

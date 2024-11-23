@@ -936,8 +936,12 @@ class PlayerMonitor(xbmc.Player):
 
 
 		if 'tt' in str(self.player_meta['imdb_id']) and self.type == 'episode':
-			self.player_meta['tmdb_id'] = TheMovieDB.get_show_tmdb_id(imdb_id=self.player_meta['imdb_id'])
-			self.player_meta['trakt_tmdb_id'] = self.player_meta['tmdb_id']
+			try:
+				self.player_meta['tmdb_id'] = TheMovieDB.get_show_tmdb_id(imdb_id=self.player_meta['imdb_id'])
+				self.player_meta['trakt_tmdb_id'] = self.player_meta['tmdb_id']
+			except:
+				self.player_meta['tmdb_id'] = None
+				self.player_meta['imdb_id'] = None
 
 
 		if self.type == 'episode' and (self.player_meta['tmdb_id'] == None or str(self.player_meta['tmdb_id']) == ''):
@@ -1021,16 +1025,16 @@ class PlayerMonitor(xbmc.Player):
 			#currentsubtitle_forced = curr_sub_audio_json['result']['currentsubtitle']['isforced']
 			
 			lang_toggle = False
-			#tools.log('languages',languages, 'audio_languages', audio_languages, 'subtitle_languages', subtitle_languages,   'current_sub_language2',current_sub_language2,'current_audio_language',current_audio_language,'sub_audio_json',sub_audio_json,'curr_sub_audio_json',curr_sub_audio_json)
+			tools.log('languages',languages, 'audio_languages', audio_languages, 'subtitle_languages', subtitle_languages,   'current_sub_language2',current_sub_language2,'current_audio_language',current_audio_language,'sub_audio_json',sub_audio_json,'curr_sub_audio_json',curr_sub_audio_json)
 			if languages[0] == 'English':
-				if current_audio_language != 'eng':
+				if current_audio_language != 'eng' or not 'eng' in str(curr_sub_audio_json['result']['currentaudiostream']).lower():
 					if self.type == 'movie':
 						tools.log('languages',languages, 'audio_languages', audio_languages, 'subtitle_languages', subtitle_languages,   'current_sub_language2',current_sub_language2,'current_audio_language',current_audio_language,'sub_audio_json',sub_audio_json,'curr_sub_audio_json',curr_sub_audio_json)
 					if 'dts' in current_audio_language.lower() and self.type == 'movie':
 						tools.log('UNKNOWN_MOVIE_AUDIO_DTS')
 					else:
 						for i in sub_audio_json['result']['audiostreams']:
-							if i['language'] == 'eng':
+							if i['language'] == 'eng' or 'eng' in i['name'].lower() and not 'commentary' in str(i).lower():
 								resume_position = player.getTime()
 								player.setAudioStream(i['index'])
 								player.seekTime(resume_position-5)

@@ -1039,9 +1039,11 @@ def trakt_in_lists(type=None,imdb_id=None,return_var='movies'):
 	#import json
 	#headers = trak_auth()
 	if type == 'movie':
-		url = 'https://api.trakt.tv/movies/%s/lists/all/popular' % (imdb_id)
+		#url = 'https://api.trakt.tv/movies/%s/lists/all/popular' % (imdb_id)
+		url = 'https://api.trakt.tv/movies/%s/lists/personal/popular' % (imdb_id)
 	else:
-		url = 'https://api.trakt.tv/shows/%s/lists/all/popular' % (imdb_id)
+		#url = 'https://api.trakt.tv/shows/%s/lists/all/popular' % (imdb_id)
+		url = 'https://api.trakt.tv/shows/%s/lists/personal/popular' % (imdb_id)
 	response = get_trakt_data(url, 1)
 	trakt_list = []
 	for i in response:

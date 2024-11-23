@@ -1723,7 +1723,7 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False):
 		from resources.lib.WindowManager import wm
 		listitem, selection = wm.open_selectdialog_autoclose(listitems=listitems, autoclose=30, autoselect=0)
 		if selection == -1:
-			return
+			return None, meta
 		from resources.lib.Utils import show_busy
 		show_busy()
 		#tools.log(selection)
@@ -2217,6 +2217,10 @@ getSources.check_rd_cloud(meta)
 					#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 					test2 = source_tools.run_show_filters(simple_info, release_title = x['filename'])
 			#tools.log(test2, test)
+			if not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
+				simple_info['imdb_id'] = meta['episode_meta']['imdbnumber']
+				test2['show_match'] = source_tools.filter_movie_title(x['filename'], source_tools.clean_title(x['filename']), simple_info['show_title'], simple_info)
+
 			if ': True' in str(test) or ': True' in str(test2):
 				torr_id = x['id']
 				torr_info = rd_api.torrent_info(torr_id)
@@ -2228,7 +2232,7 @@ getSources.check_rd_cloud(meta)
 
 				if download_type != 'movie':
 					if daily_show_flag:
-						#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+						tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 						download_link, new_meta = cloud_single_ep(rd_api, meta, torr_id, torr_info)
 					else:
 						download_link, new_meta = cloud_get_ep_season(rd_api, meta, torr_id, torr_info)
@@ -3358,7 +3362,7 @@ class Sources(object):
 		self.runtime = 0
 		#self.host_domains = []
 		#self.host_names = []
-		self.timeout = 45
+		self.timeout = 145
 		#self.window = SourceWindowAdapter(self.item_information, self)
 
 		#self.silent = g.get_bool_runtime_setting('tempSilent')

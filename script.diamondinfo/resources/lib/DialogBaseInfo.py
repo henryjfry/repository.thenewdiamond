@@ -193,6 +193,7 @@ class DialogBaseInfo(object):
 			#self.close()
 			self.close()
 			log('wm.pop_stack()',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+			xbmcgui.Window(10000).clearProperty('diamond_window_number')
 			wm.pop_stack()
 
 	@ch.action('previousmenu', '*')
