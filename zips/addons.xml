@@ -189,11 +189,11 @@ v1.0.25 (marcelveldt)
 
 <addon id="script.module.dateutil"
        name="python-dateutil"
-       version="2.8.1+matrix.1"
-       provider-name="Paul Ganssle, Gustavo Niemeyer">
+       version="2.8.2"
+       provider-name="Paul Ganssle, Gustavo Niemeyer, Tomi Pieviläinen, Yaron de Leeuw">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
-    <import addon="script.module.six" version="1.14.0+matrix.1"/>
+    <import addon="script.module.six" version="1.15.0+matrix.1"/>
   </requires>
   <extension point="xbmc.python.module"
              library="lib" />
@@ -347,24 +347,20 @@ v1.0.25 (marcelveldt)
 	</extension>
 </addon>
 
-<addon id="script.module.typing_extensions"
-       name="typing_extensions"
-       version="3.7.4.3"
-       provider-name="guido, ilevkivskyi, Razzeee">
+<addon id="script.module.typing_extensions" name="typing_extensions" version="4.7.1" provider-name="Python Software Foundation">
   <requires>
-    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="xbmc.python" version="3.0.0" />
   </requires>
-  <extension point="xbmc.python.module"
-             library="lib" />
+  <extension point="xbmc.python.module" library="lib" />
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Typing Extensions – Backported and Experimental Type Hints for Python</summary>
-    <description lang="en_GB">Packed for Kodi from https://github.com/python/typing/blob/master/typing_extensions/</description>
+    <summary lang="en_GB">Backported and Experimental Type Hints for Python 3.7+</summary>
+    <description lang="en_GB">Backported and Experimental Type Hints for Python 3.7+</description>
     <platform>all</platform>
     <license>PSF-2.0</license>
-    <source>https://github.com/Razzeee/script.module.typing_extensions</source>
-    <email></email>
+    <website>https://typing-extensions.readthedocs.io/en/latest/</website>
+    <source>https://github.com/python/typing_extensions</source>
     <assets>
-      <icon>icon.png</icon>
+      <icon>resources/icon.png</icon>
     </assets>
   </extension>
 </addon>
@@ -1130,25 +1126,22 @@ provider-name="jurialmunkey">
   </extension>
 </addon>
 
-<addon id="script.module.arrow"
-       name="arrow"
-       version="0.15.5+matrix.1"
-       provider-name="crsmithdev, Razzeee">
+<addon id="script.module.arrow" name="arrow" version="1.2.3" provider-name="Chris Smith">
   <requires>
-    <import addon="xbmc.python" version="3.0.0"/>
-    <import addon="script.module.dateutil" version="2.8.1+matrix.1"/>
+    <import addon="xbmc.python" version="3.0.0" />
+    <import addon="script.module.dateutil" version="2.8.2" />
+    <import addon="script.module.typing_extensions" version="4.7.1" />
   </requires>
-  <extension point="xbmc.python.module"
-             library="lib" />
+  <extension point="xbmc.python.module" library="lib" />
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Arrow: better dates and times for Python</summary>
-    <description lang="en_GB">Packed for Kodi from https://github.com/crsmithdev/arrow</description>
+    <summary lang="en_GB">Better dates and times for Python</summary>
+    <description lang="en_GB">Better dates and times for Python</description>
+    <license>Apache-2.0</license>
     <platform>all</platform>
-    <license>Apache2</license>
-    <source>https://github.com/Razzeee/script.module.arrow</source>
-    <email>beenje AT gmail.com</email>
+    <website>https://arrow.readthedocs.io/en/latest/</website>
+    <source>https://github.com/arrow-py/arrow</source>
     <assets>
-      <icon>icon.png</icon>
+      <icon>resources/icon.png</icon>
     </assets>
   </extension>
 </addon>
