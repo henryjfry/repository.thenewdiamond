@@ -352,6 +352,24 @@ v1.0.25 (marcelveldt)
 	</extension>
 </addon>
 
+<addon id="script.module.myconnpy" name="mysql-connector-python" version="8.0.33" provider-name="Oracle and/or its affiliates">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">MySQL driver written in Python</summary>
+    <description lang="en_GB">MySQL driver written in Python which does not depend on MySQL C client libraries and implements the DB API v2.0 specification (PEP-249)</description>
+    <license>GPLv2</license>
+    <platform>all</platform>
+    <website>https://dev.mysql.com/doc/connector-python/en/</website>
+    <source>https://dev.mysql.com/downloads/connector/python/</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
 <addon id="script.module.musicbrainz"
        name="Musicbrainz NGS webservice python bindings"
        version="0.7.0"
@@ -472,6 +490,35 @@ v0.28.0 (2020-02-08)
 	</extension>
 </addon>
 
+<addon id="repository.nixgates" name="Nixgates Repo" version="2.2.0" provider-name="Nixgates">
+	<extension point="xbmc.addon.repository" name="Nixgates Repo">
+		<dir minversion="18.0">
+			<info compressed="false">https://raw.githubusercontent.com/nixgates/nixgates/master/repo/zips/addons.xml</info>
+			<checksum>https://raw.githubusercontent.com/nixgates/nixgates/master/repo/zips/addons.xml.md5</checksum>
+			<datadir zip="true">https://raw.githubusercontent.com/nixgates/nixgates/master/repo/zips/</datadir>
+		</dir>
+		<dir minversion="18.0" maxversion="18.9.0">
+			<info compressed="false">https://raw.githubusercontent.com/nixgates/nixgates/master/leia/zips/addons.xml</info>
+			<checksum>https://raw.githubusercontent.com/nixgates/nixgates/master/leia/zips/addons.xml.md5</checksum>
+			<datadir zip="true">https://raw.githubusercontent.com/nixgates/nixgates/master/leia/zips/</datadir>
+		</dir>
+		<dir minversion="18.9.0">
+			<info compressed="false">https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/addons.xml</info>
+			<checksum>https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/addons.xml.md5</checksum>
+			<datadir zip="true">https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/</datadir>
+		</dir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Nixgates</summary>
+		<description>Nixgates Repository</description>
+		<platform>all</platform>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.png</fanart>
+		</assets>
+	</extension>
+</addon>
+
 <addon id="script.module.addon.signals"
     name="Addon Signals"
     version="0.0.6+matrix.1"
@@ -492,7 +539,7 @@ v0.28.0 (2020-02-08)
     </extension>
 </addon>
 
-<addon id="repository.jurialmunkey" name="jurialmunkey Alpha Repository" version="2.2" provider-name="jurialmunkey">
+<addon id="repository.jurialmunkey" name="jurialmunkey Alpha Repository" version="3.4" provider-name="jurialmunkey">
     <extension point="xbmc.addon.repository" name="jurialmunkey Alpha Repository">
         <dir>
             <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/repo/zips/addons.xml</info>
@@ -504,10 +551,20 @@ v0.28.0 (2020-02-08)
             <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/leia/zips/addons.xml.md5</checksum>
             <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/leia/zips/</datadir>
         </dir>
-        <dir minversion="18.9.0">
+        <dir minversion="18.9.0" maxversion="19.9.0">
             <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/matrix/zips/addons.xml</info>
             <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/matrix/zips/addons.xml.md5</checksum>
             <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/matrix/zips/</datadir>
+        </dir>
+        <dir minversion="19.9.1" maxversion="20.9.0">
+            <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/nexusrepo/zips/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/nexusrepo/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/nexusrepo/zips/</datadir>
+        </dir>
+        <dir minversion="20.9.1">
+            <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/omega/zips/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/omega/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/omega/zips/</datadir>
         </dir>
     </extension>
     <extension point="xbmc.addon.metadata">
@@ -697,11 +754,12 @@ v1.1.25
 </addon>
 
 <addon id="plugin.video.themoviedb.helper"
-version="4.4.62"
+version="4.4.63"
 name="TheMovieDb Helper"
 provider-name="jurialmunkey">
 <requires>
   <import addon="xbmc.python" version="3.0.0"/>
+  <import addon="script.module.myconnpy" version="0.0.1"/>
   <import addon="script.module.certifi" version="0.0.1"/>
   <import addon="script.module.unidecode" version="0.0.1"/>
   <import addon="script.module.six" version="0.0.1"/>
