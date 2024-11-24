@@ -2185,7 +2185,7 @@ getSources.check_rd_cloud(meta)
 		items_changed = False
 		for x in result:
 			if x['status'] != 'downloaded':
-				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+				#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				added_timestamp = time.mktime(time.strptime(x['added'], "%Y-%m-%dT%H:%M:%S.000Z"))
 				current_timestamp = time.time()
 				time_diff_seconds = current_timestamp - added_timestamp
@@ -2193,16 +2193,16 @@ getSources.check_rd_cloud(meta)
 					if x['status'] == 'waiting_files_selection':
 						torr_id = x['id']
 						response = rd_api.torrent_select_all(torr_id)
-						tools.log('torrent_torrent_select_all', i, x,response)
+						#tools.log('torrent_torrent_select_all', i, x,response)
 						if 'error' in str(response):
 							response = rd_api.delete_torrent(torr_id)
-							tools.log('torrent_delete_torrent', i, x,response)
+							#tools.log('torrent_delete_torrent', i, x,response)
 							items_changed = True
 					else:
 						torr_id = x['id']
 						response = rd_api.delete_torrent(torr_id)
 						items_changed = True
-						tools.log('torrent_delete_torrent', i, x,response)
+						#tools.log('torrent_delete_torrent', i, x,response)
 
 		if items_changed:
 			result = rd_api.list_torrents_page(int(i))
@@ -2248,9 +2248,10 @@ getSources.check_rd_cloud(meta)
 					#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 					test2 = source_tools.run_show_filters(simple_info, release_title = x['filename'])
 			#tools.log(test2, test)
-			if (len(x['links']) >= meta['tvmaze_seasons_episode_tot'] or len(x['links']) >= meta['tmdb_seasons_episode_tot']) and not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
-				simple_info['imdb_id'] = meta['episode_meta']['imdbnumber']
-				test2['show_match'] = source_tools.filter_movie_title(x['filename'], source_tools.clean_title(x['filename']), simple_info['show_title'], simple_info)
+			if download_type != 'movie':
+				if (len(x['links']) >= meta['tvmaze_seasons_episode_tot'] or len(x['links']) >= meta['tmdb_seasons_episode_tot']) and not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
+					simple_info['imdb_id'] = meta['episode_meta']['imdbnumber']
+					test2['show_match'] = source_tools.filter_movie_title(x['filename'], source_tools.clean_title(x['filename']), simple_info['show_title'], simple_info)
 
 			if ': True' in str(test) or ': True' in str(test2):
 				torr_id = x['id']
