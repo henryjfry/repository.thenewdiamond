@@ -663,6 +663,24 @@ v1.1.25
 	</extension>
 </addon>
 
+<addon id="script.module.unidecode" name="Unidecode" version="1.3.6" provider-name="Tomaz Solc">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">ASCII transliterations of Unicode text</summary>
+    <description lang="en_GB">Unidecode, lossy ASCII transliterations of Unicode text</description>
+    <license>GPL-2.0-or-later</license>
+    <platform>all</platform>
+    <website>https://pypi.org/project/Unidecode</website>
+    <source>https://pypi.org/project/Unidecode</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
 <addon id="repository.aenemapy" name="Aenemapy Addons Repository" version="2021.04.23" provider-name="aenemapy">
     <extension point="xbmc.addon.repository" name="Aenemapy Addons Repository">
 	<dir minversion="16.0">
@@ -679,12 +697,13 @@ v1.1.25
 </addon>
 
 <addon id="plugin.video.themoviedb.helper"
-version="4.4.61"
+version="4.4.62"
 name="TheMovieDb Helper"
 provider-name="jurialmunkey">
 <requires>
   <import addon="xbmc.python" version="3.0.0"/>
   <import addon="script.module.certifi" version="0.0.1"/>
+  <import addon="script.module.unidecode" version="0.0.1"/>
   <import addon="script.module.six" version="0.0.1"/>
   <import addon="script.module.kodi-six" version="0.0.1"/>
   <import addon="script.module.beautifulsoup4" version="0.0.1"/>
