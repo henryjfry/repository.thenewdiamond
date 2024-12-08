@@ -384,10 +384,13 @@ class RealDebrid:
 			#return self.get_url("torrents/instantAvailability" + hash_string)
 			magnet = 'magnet:?xt=urn:btih:' + hash_list
 			response = self.add_magnet(magnet)
-			torr_id = response['id']
+			try: torr_id = response['id']
+			except: return {}
 			response = self.torrent_select_all(torr_id)
 			response = self.torrent_info(torr_id)
-			if response['status'] == 'downloaded':
+			try: RD_STATUS = response['status']
+			except: RD_STATUS = 'error'
+			if RD_STATUS == 'downloaded':
 				hash_dict = {hash_list: {'rd':[]}}
 				for x in response['files']:
 					if x['selected'] == 1:
@@ -398,8 +401,10 @@ class RealDebrid:
 				#return self.cache_check_results
 				return hash_dict
 			else:
+				hash_dict = {i: {'d':[]}}
 				response = self.delete_torrent(torr_id)
-				return {}
+				hash_dict[i]['d'].append({x['id']:{'filename':x['path'],'filesize':x['bytes']}})
+				return hash_dict
 
 	def _check_hash_thread(self, hashes):
 		hash_string = "/" + "/".join(hashes)
@@ -409,12 +414,16 @@ class RealDebrid:
 			magnet = 'magnet:?xt=urn:btih:' + i
 			response = self.add_magnet(magnet)
 			#tools.log(response)
-			torr_id = response['id']
+			try: torr_id = response['id']
+			except: continue
 			response = self.torrent_select_all(torr_id)
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			#tools.log(response)
 			response = self.torrent_info(torr_id)
 			#tools.log(response)
-			if response['status'] == 'downloaded':
+			try: RD_STATUS = response['status']
+			except: RD_STATUS = 'error'
+			if RD_STATUS == 'downloaded':
 				hash_dict = {i: {'rd':[]}}
 				for x in response['files']:
 					if x['selected'] == 1:
@@ -423,7 +432,10 @@ class RealDebrid:
 				#tools.log(hash_dict)
 				self.cache_check_results.update(hash_dict)
 			else:
+				hash_dict = {i: {'d':[]}}
 				response = self.delete_torrent(torr_id)
+				hash_dict[i]['d'].append({1:{'filename':'','filesize':99}})
+				self.cache_check_results.update(hash_dict)
 		#response = self.get_url("torrents/instantAvailability" + hash_string)
 		#self.cache_check_results.update(response)
 

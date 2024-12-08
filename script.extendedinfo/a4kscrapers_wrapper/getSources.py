@@ -777,17 +777,33 @@ def run_tv_search():
 	elif result == 4:#'Add to downloader list (whole pack)': 4,
 
 		tools.log(torrent)
+		#response = rd_api.add_magnet(torrent['magnet'])
+		response = None
+		while response == None:
+			response = rd_api.add_magnet(torrent['magnet'])
+			for idx, i in enumerate(sources_list):
+				if i['hash'] == torrent['hash']:
+					break
+			sources_list.pop(idx)
+			if response.get('error',False):
+				tools.log(response)
+				torrent = choose_torrent(sources_list)
+				#result = tools.selectFromDict(torrent_choices, 'Torrent')
+				#if not result:
+				#	tools.log('EXIT')
+				#	return
+				response = None
+		tools.log(response)
+		torr_id = response['id']
+		response = rd_api.torrent_select_all(torr_id)
+		torr_info = rd_api.torrent_info(torr_id)
+		
 
 		meta['download_type'] = 'pack'
 		#meta['download_type'] = 'episode'
 
 		meta['magnet'] = torrent['magnet']
 
-		response = rd_api.add_magnet(torrent['magnet'])
-		#tools.log(response)
-		torr_id = response['id']
-		response = rd_api.torrent_select_all(torr_id)
-		torr_info = rd_api.torrent_info(torr_id)
 		#tools.log(torr_info)
 
 		#for i in torr_info['links']:
@@ -796,7 +812,9 @@ def run_tv_search():
 		#	download_id = rd_api.UNRESTRICT_FILE_ID
 		#	log(download_link, download_id)
 		download_link, new_meta = cloud_get_ep_season(rd_api, meta, torr_id, torr_info)
-
+		if download_link == '' or download_link == None:
+			tools.log('UNCACHED')
+			return
 			
 		stream_link = download_link
 		#file_name = unquote(stream_link).split('/')[-1]
@@ -4063,6 +4081,8 @@ class TorrentCacheCheck:
 							self._handle_episode_rd_worker(i, real_debrid_cache, info)
 						else:
 							self._handle_movie_rd_worker(i, real_debrid_cache)
+					#i['debrid_provider'] = 'real_debrid'
+					#self.store_torrent(i)
 				except KeyError:
 					pass
 		#except Exception:

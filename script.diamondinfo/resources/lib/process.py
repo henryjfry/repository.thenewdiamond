@@ -522,6 +522,10 @@ def start_info_actions(infos, params):
 
 
 		elif info == 'test_route':
+			from resources.lib.con_man_fix import list_and_select_wifi
+			list_and_select_wifi()
+			Utils.hide_busy()
+			return
 			#from resources.lib.library import trakt_collection_movies
 			#movies = trakt_collection_movies()
 			#for i in movies:

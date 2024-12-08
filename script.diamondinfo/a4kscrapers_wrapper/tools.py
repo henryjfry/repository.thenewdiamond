@@ -159,11 +159,19 @@ class global_var:
 		self.VIDEO_META = None
 		self.tools_stop_downloader = None
 
-
+def setup_userdata():
+	import shutil
+	if not os.path.exists(ADDON_USERDATA_PATH):
+		os.mkdir(ADDON_USERDATA_PATH)
+	blank_settings_xml = os.path.join(folder,'blank_settings_xml')
+	if not os.path.exists(SETTING_XML):
+		shutil.copy(blank_settings_xml, SETTING_XML)
 
 db_con = None
 def test_db():
 	import sqlite3
+	if not os.path.exists(ADDON_USERDATA_PATH):
+		setup_userdata()
 	cache_path = os.path.join(ADDON_USERDATA_PATH, 'cache.db')
 	db_con = sqlite3.connect(cache_path, check_same_thread=False)
 	return db_con
@@ -291,13 +299,6 @@ def findReplace(directory, find, replace, filePattern):
 			with open(filepath, "w") as f:
 				f.write(s)
 
-def setup_userdata():
-	import shutil
-	if not os.path.exists(ADDON_USERDATA_PATH):
-		os.mkdir(ADDON_USERDATA_PATH)
-	blank_settings_xml = os.path.join(folder,'blank_settings_xml')
-	if not os.path.exists(SETTING_XML):
-		shutil.copy(blank_settings_xml, SETTING_XML)
 
 def set_setting(setting_name, setting_value):
 	#setting_line = '    <setting id="%s">%s</setting>' % (setting_name, setting_value)
