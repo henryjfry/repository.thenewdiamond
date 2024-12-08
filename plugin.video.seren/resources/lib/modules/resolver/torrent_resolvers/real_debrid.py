@@ -34,7 +34,12 @@ class RealDebridResolver(TorrentResolverBase):
 	def _fetch_source_files(self, torrent, item_information):
 		try: hash_check = self.debrid_module.check_hash(torrent["hash"])[torrent["hash"]]
 		except: hash_check = self.debrid_module.check_hash(torrent["hash"])
-		self.torrent_id = hash_check["torrent_id"]
+		#g.log(str(hash_check))
+		try: 
+			self.torrent_id = hash_check["torrent_id"]
+		except KeyError: 
+			g.log(str(hash_check))
+			return []
 		return self._get_selected_files(hash_check["torrent_info"])
 
 	def resolve_stream_url(self, file_info):
