@@ -1290,14 +1290,18 @@ class GlobalVariables:
 
 		#item.setInfo("video", info)
 		info_tag = ListItemInfoTag(item, 'video')
-		studio = []
-		for i in info['studio']:
+		try:
+			studio = []
+			for i in info['studio']:
 				studio.append(i)
-		info['studio'] = studio
-		country = []
-		for i in info['country']:
+			info['studio'] = studio
+		except: pass
+		try: 
+			country = []
+			for i in info['country']:
 				country.append(i)
-		info['country'] = country
+			info['country'] = country
+		except: pass
 		info_tag.set_info(info)
 
 		bulk_add = params.pop("bulk_add", False)

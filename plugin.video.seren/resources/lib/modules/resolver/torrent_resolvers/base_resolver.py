@@ -73,6 +73,8 @@ class TorrentResolverBase(ApiBase):
 		return [i for i in folder_details if source_utils.is_file_ext_valid(i["path"])]
 
 	def _user_selection(self, folder_details):
+		if folder_details == [] or folder_details == None or  folder_details == {}:
+			return None
 		folder_details = self._filter_non_playable_files(folder_details)
 		folder_details = sorted(folder_details, key=lambda k: k['path'].split("/")[-1])
 		selection = xbmcgui.Dialog().select(
@@ -81,8 +83,17 @@ class TorrentResolverBase(ApiBase):
 		return folder_details[selection] if selection >= 0 else None
 
 	def _finalize_resolving(self, item_information, torrent, identified_file, folder_details):
+		#g.log('_finalize_resolving')
 		if identified_file is None:
+			#g.log('_finalize_resolving1')
+			#g.log(torrent)
+			#g.log(folder_details)
+			if folder_details == [] or folder_details == None or  folder_details == {}:
+				return None
+			if torrent == [] or torrent == None or torrent == {}:
+				return None
 			self._do_post_processing(item_information, torrent, identified_file)
+			#g.log('_finalize_resolving2')
 			return None
 		stream_link = self.resolve_stream_url(identified_file)
 		self._do_post_processing(item_information, torrent, identified_file)

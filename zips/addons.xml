@@ -852,7 +852,7 @@ v1.1.25
   </extension>
 </addon>
 
-<addon id="plugin.video.seren" version="3.0.62c" name="Seren" provider-name="Nixgates">
+<addon id="plugin.video.seren" version="3.0.62d" name="Seren" provider-name="Nixgates">
     <requires>
         <import addon="xbmc.addon" version="17.9.910" />
         <import addon="xbmc.python" version="3.0.0" />

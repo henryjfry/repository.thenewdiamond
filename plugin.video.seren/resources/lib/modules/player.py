@@ -109,6 +109,19 @@ class SerenPlayer(xbmc.Player):
 		xbmcplugin.setResolvedUrl(g.PLUGIN_HANDLE, True, self._create_list_item(stream_link))
 
 		self._keep_alive()
+		self.resumed = False
+		self.playback_started = False
+		self.playback_error = False
+		self.playback_ended = False
+		self.playback_stopped = False
+		self.scrobbled = False
+		self.scrobble_started = False
+		self.last_attempted_scrobble_stop = 0
+		self.last_attempted_scrobble_pause = 0
+		self.marked_watched = False
+		self.dialogs_triggered = False
+		self.pre_scrape_initiated = False
+		self.playback_timestamp = 0
 
 	# region Kodi player overrides
 	def getTotalTime(self):
@@ -308,10 +321,13 @@ class SerenPlayer(xbmc.Player):
 		g.close_all_dialogs()
 
 		if self.smart_playlists and self.mediatype == "episode":
+			original_size = g.PLAYLIST.size()
 			if g.PLAYLIST.size() == 1 and not self.smart_module.is_season_final():
 				self.smart_module.build_playlist()
 			elif g.PLAYLIST.size() == g.PLAYLIST.getposition() + 1:
 				self.smart_module.append_next_season()
+				if g.PLAYLIST.size() == original_size:
+					self.smart_module.build_playlist()
 
 	def _end_playback(self):
 		self._handle_bookmark()

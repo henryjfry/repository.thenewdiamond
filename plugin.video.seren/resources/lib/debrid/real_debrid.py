@@ -300,7 +300,7 @@ class RealDebrid:
 		return self.post_url(url, post_data)
 
 	def list_torrents(self):
-		url = "torrents"
+		url = 'torrents?limit=500'
 		return self.get_url(url)
 
 	def torrent_info(self, id):

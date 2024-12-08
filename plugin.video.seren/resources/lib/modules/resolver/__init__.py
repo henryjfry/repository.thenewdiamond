@@ -99,8 +99,29 @@ class Resolver:
                         True,
                     )
 
-            elif source["type"] in ["hoster", "cloud"]:
+            elif source["type"] in ["hoster"]:
                 stream_link = self._resolve_hoster_or_cloud(source, item_information)
+            elif source["type"] in ["cloud"]:
+                stream_link = self._resolve_debrid_source(
+                    self.resolvers[source["debrid_provider"]],
+                    source,
+                    item_information,
+                    pack_select,
+                )
+
+                if (
+                    not stream_link
+                    and self.torrent_resolve_failure_style == 1
+                    and not pack_select
+                    and not silent
+                    and xbmcgui.Dialog().yesno(g.ADDON_NAME, g.get_language_string(30490))
+                ):
+                    stream_link = self._resolve_debrid_source(
+                        self.resolvers[source["debrid_provider"]],
+                        source,
+                        item_information,
+                        True,
+                    )
 
             if stream_link:
                 return stream_link, source['release_title']
