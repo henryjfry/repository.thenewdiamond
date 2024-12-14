@@ -654,17 +654,20 @@ class Sources():
 						sleep(1500)
 						try: del player
 						except: pass
+					self.playing_item = item
 					player = FenLightPlayer()
 					url, self.playback_successful, self.cancel_all_playback = None, None, False
 					self.playing_filename = item['name']
-					try:
+					#try:
+					if 1==1:
 						if self.progress_dialog.iscanceled() or monitor.abortRequested(): break
 						url = self.resolve_sources(item)
+						#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 						if url == None:
 							return self.play_file(results, source=results[source_index+1])
 						if url:
-							xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-							xbmc.log(str(item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+							#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+							#xbmc.log(str(item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 							resolve_percent = 0
 							self.progress_dialog.busy_spinner('false')
 							self.progress_dialog.update_resolver(percent=resolve_percent)
@@ -676,7 +679,7 @@ class Sources():
 							self.cancel_all_playback = True
 							player.stop()
 							break
-					except: pass
+					#except: pass
 				except: pass
 		#except: self._kill_progress_dialog()
 		if self.cancel_all_playback: return self._kill_progress_dialog()
@@ -759,12 +762,13 @@ class Sources():
 					player.stop()
 					return False
 				elif action == 'play':
-					self._make_resolve_dialog()
 					player.stop()
+					self._make_resolve_dialog()
 					return True
 				else:
 					while player.isPlayingVideo(): sleep(100)
 					if player.isPlayingVideo():
+						player.stop()
 						self._make_resolve_dialog()
 					else: return False
 					return True
@@ -786,7 +790,7 @@ class Sources():
 		return manual_function_import(*debrids[debrid_provider])
 
 	def resolve_sources(self, item, meta=None):
-		xbmc.log(str('resolve_sources')+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		#xbmc.log(str('resolve_sources')+'===>OPEN_INFO', level=xbmc.LOGINFO)
 		if meta: self.meta = meta
 		url = None
 		#try:
@@ -800,23 +804,23 @@ class Sources():
 				else: title, season, episode, pack = self.get_search_title(), None, None, False
 				if cache_provider in debrid_providers: url = self.resolve_cached(cache_provider, item['url'], item['hash'], title, season, episode, pack)
 			elif item.get('scrape_provider', None) in default_internal_scrapers:
-				xbmc.log(str('resolve_internal')+'===>OPEN_INFO', level=xbmc.LOGINFO)
+				#xbmc.log(str('resolve_internal')+'===>OPEN_INFO', level=xbmc.LOGINFO)
 				url = self.resolve_internal(item['scrape_provider'], item['id'], item['url_dl'], item.get('direct_debrid_link', False))
 			else: url = item['url']
 		#except: pass
 		return url
 
 	def resolve_cached(self, debrid_provider, item_url, _hash, title, season, episode, pack):
-		xbmc.log(str('resolve_cached')+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		#xbmc.log(str('resolve_cached')+'===>OPEN_INFO', level=xbmc.LOGINFO)
 		debrid_function = self.debrid_importer(debrid_provider)
 		store_to_cloud = store_resolved_to_cloud(debrid_provider, pack)
 		try: 
-			xbmc.log(str(item_url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+			#xbmc.log(str(item_url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			url = debrid_function().resolve_magnet(item_url, _hash, store_to_cloud, title, season, episode)
 		except: 
-			xbmc.log(str('url')+'===>OPEN_INFO', level=xbmc.LOGINFO)
+			#xbmc.log(str('url')+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			url = None
-		xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 		return url
 
 	def resolve_uncached(self, debrid_provider, item_url, pack):
