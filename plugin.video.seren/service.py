@@ -64,7 +64,7 @@ try:
 		if not g.wait_for_abort(15):  # Sleep to make sure tokens refreshed during maintenance
 			#xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncTraktActivities")')
 			g.log("plugin://plugin.video.seren/?action=syncTraktActivities")
-			TraktSyncDatabase().sync_activities()
+			TraktSyncDatabase().sync_activities(silent=True)
 		if not g.wait_for_abort(15):  # Sleep to make sure we don't possibly clobber settings
 			#xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=cleanOrphanedMetadata")')
 			g.log("plugin://plugin.video.seren/?action=cleanOrphanedMetadata")

@@ -355,7 +355,7 @@ v1.0.25 (marcelveldt)
   </extension>
 </addon>
 
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="8.68" provider-name="fryhenryj">
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="8.69" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -842,7 +842,7 @@ v1.1.25
   </extension>
 </addon>
 
-<addon id="plugin.video.seren" version="3.0.62d" name="Seren" provider-name="Nixgates">
+<addon id="plugin.video.seren" version="3.0.62e" name="Seren" provider-name="Nixgates">
     <requires>
         <import addon="xbmc.addon" version="17.9.910" />
         <import addon="xbmc.python" version="3.0.0" />
@@ -1836,7 +1836,7 @@ provider-name="jurialmunkey">
 
 </addon>
 
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="8.68" provider-name="fryhenryj">
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="8.69" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -1936,7 +1936,7 @@ provider-name="jurialmunkey">
   </extension>
 </addon>
 
-<addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.05b">
+<addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.05d">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>

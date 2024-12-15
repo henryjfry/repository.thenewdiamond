@@ -1170,6 +1170,7 @@ class GlobalVariables:
 			info = {}
 
 		self._apply_listitem_properties(item, info)
+		info_tag2 = item.getVideoInfoTag()
 		if self.studio_limit:
 			self.handle_studio_icon_skin_workaround(item, info)
 
@@ -1206,7 +1207,9 @@ class GlobalVariables:
 			and int(menu_item.get("resume_time", 0)) > 0
 		):
 			params["resume"] = str(menu_item["resume_time"])
-			item.setProperty("resumetime", str(menu_item["resume_time"]))
+			#item.setProperty("resumetime", str(menu_item["resume_time"]))
+			info_tag2.setResumePoint(float(menu_item["resume_time"]))
+			
 		if "play_count" in menu_item and menu_item.get("play_count") is not None:
 			info["playcount"] = menu_item["play_count"]
 		if "air_date" in menu_item and menu_item.get("air_date") is not None:
@@ -1215,7 +1218,8 @@ class GlobalVariables:
 		if "description" in params:
 			info["plot"] = info["overview"] = info["description"] = params.pop("description", None)
 		if menu_item.get("user_rating"):
-			item.setProperty("userrating", str(menu_item["user_rating"]))
+			#item.setProperty("userrating", str(menu_item["user_rating"]))
+			info_tag2.setUserRating(menu_item["user_rating"])
 
 		special_sort = params.pop("special_sort", None)
 		if special_sort is not None:
@@ -1256,7 +1260,7 @@ class GlobalVariables:
 			}
 		)
 
-		info_tag2 = item.getVideoInfoTag()
+		#info_tag2 = item.getVideoInfoTag()
 		for i in info:
 			if i.startswith("rating."):
 				#item.setRating(i.split(".")[1], float(info[i].get("rating", 0.0)), int(info[i].get("votes", 0)), False)

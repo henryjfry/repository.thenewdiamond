@@ -378,6 +378,9 @@ class SerenPlayer(xbmc.Player):
 		else:
 			item = xbmcgui.ListItem(path=stream_link)
 			info["FileNameAndPath"] = parse.unquote(self.playing_file)
+			info.pop('FileNameAndPath')
+			info_tag2 = item.getVideoInfoTag()
+			info_tag2.setFilenameAndPath(parse.unquote(self.playing_file))
 			info_tag = ListItemInfoTag(item, 'video')
 			studio = []
 			for i in info['studio']:

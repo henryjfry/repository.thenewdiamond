@@ -9,7 +9,7 @@
 	
     <onload>Dialog.Close(fullscreeninfo,true)</onload>
     <onload>Dialog.Close(videoosd,true)</onload>
-    <animation effect="fade" end="100" time="600">WindowOpen</animation>
+    <!---animation effect="fade" end="100" time="600">WindowOpen</animation--->
 	<controls>
 
 		<control type="group">
@@ -28,7 +28,7 @@
 				<bottom>10%</bottom>
 
 				<!-- Background -->
-				<control type="image">
+				<!---control type="image">
 					<top>0</top>
 					<right>0</right>
 					<width>100%</width>
@@ -40,13 +40,13 @@
 					<top>0</top>
 					<right>0</right>
 					<width>100%</width>
-					<control type="image">
+					<!---control type="image">
 						<width>100%</width>
 						<height>100%</height>
 						<texture colordiffuse="FF12A0C7">fenlight_common/white.png</texture>
 						<visible>String.IsEmpty(Window.Property(item.art.thumb)) + String.IsEmpty(Window.Property(item.art.landscape)) + String.IsEmpty(Window.Property(item.art.fanart))</visible>
-					</control>
-					<control type="textbox">
+					</control--->
+					<!---control type="textbox">
 						<top>10</top>
 						<right>10</right>
 						<width>230</width>
@@ -59,11 +59,11 @@
 						<scroll>true</scroll>
 						<label>$INFO[Window.Property(item.info.tvshowtitle)]</label>
 						<visible>String.IsEmpty(Window.Property(item.art.thumb)) + String.IsEmpty(Window.Property(item.art.landscape)) + String.IsEmpty(Window.Property(item.art.fanart))</visible>
-					</control>
+					</control--->
 					<control type="image">
 						<width>100%</width>
 						<height>100%</height>
-						<texture>$INFO[Window.Property(thumb)]</texture>
+						<texture background="true">$INFO[Window.Property(thumb)]</texture>
 						<aspectratio>scale</aspectratio>
 					</control>
 					<!---control type="image">
@@ -80,7 +80,7 @@
 						<aspectratio>scale</aspectratio>
 						<visible>String.IsEmpty(Window.Property(item.art.landscape)) + String.IsEmpty(Window.Property(item.art.fanart))</visible>
 					</control--->
-					<control type="progress" id="3014">
+					<!---control type="progress" id="3014">
 						<width>100%</width>
 						<bottom>0</bottom>
 						<height>5</height>
@@ -90,7 +90,7 @@
 						<lefttexture></lefttexture>
 						<texturebg colordiffuse="33FFFFFF">fenlight_common/white.png</texturebg>
 						<midtexture colordiffuse="deepskyblue">fenlight_common/white.png</midtexture>
-					</control>
+					</control--->
 					<!-- SHADOW -->
 					<control type="image">
 						<width>100%</width>
@@ -116,7 +116,7 @@
 						<label>[B][COLOR $INFO[Window(10000).Property(fenlight_light.main_highlight)]]Playing in [/COLOR] $INFO[Player.TimeRemaining()][/B]</label>
 						<visible>!Integer.IsGreater(Player.TimeRemaining,59)</visible>
 					</control>
-					<control type="label">
+					<!---control type="label">
 						<width>auto</width>
 						<height>35</height>
 						<aligny>center</aligny>
@@ -125,7 +125,7 @@
 						<shadowcolor>00000000</shadowcolor>
 						<label>Playing in... $ADDON[service.upnext 30008]</label>
 						<visible>Integer.IsGreater(Player.TimeRemaining,59)</visible>
-					</control>
+					</control--->
 
 
 

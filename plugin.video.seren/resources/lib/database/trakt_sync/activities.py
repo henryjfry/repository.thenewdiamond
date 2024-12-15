@@ -95,7 +95,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 		else:
 			last_activities_call = self.activities["last_activities_call"]
 
-		if time.time() < (last_activities_call + (5 * 60)):
+		if time.time() < (last_activities_call + (10 * 60)):
 			g.log("Activities endpoint called too frequently, skipping sync", 'info')
 			return None
 		else:
@@ -130,6 +130,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
 			self._update_all_shows_statisics()
 			self._update_all_season_statistics()
+			return True
 
 		return self.sync_errors
 
@@ -142,13 +143,11 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 		if not self.sync_errors:
 			self._update_activity_record("all_activities", update_time)
 			#xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=widgetRefresh&playing=False")')
-			if_playing = params.get('playing')
-			if if_playing is not None:
-				if_playing = False if if_playing.lower() == "false" else True if if_playing.lower() == "true" else None
-			if if_playing is not None:
-				g.trigger_widget_refresh(if_playing=if_playing)
-			else:
-				g.trigger_widget_refresh()
+			#if_playing = params.get('playing')
+			if xbmc.Player().isPlayingVideo()==1:
+				g.trigger_widget_refresh(if_playing=True)
+			if xbmc.Player().isPlayingVideo()==0:
+				g.trigger_widget_refresh(if_playing=False)
 
 	def _do_sync_acitivites(self, remote_activities):
 		total_activities = len(self._sync_activities_list)
@@ -173,6 +172,8 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
 				g.log(f"Running Activity: {activity[0]}")
 				activity[3]()
+				#if activity[0] == 'Collected Shows' or activity[0] == 'Collected Movie':
+				#	update_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=24)).isoformat(timespec="seconds").split("+", 1)[0]
 				self._update_activity_record(activity[2], update_time)
 			except ActivitySyncFailure as e:
 				g.log(f"Failed to sync activity: {activity[0]} - {e}")

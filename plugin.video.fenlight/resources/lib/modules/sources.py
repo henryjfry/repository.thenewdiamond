@@ -11,7 +11,8 @@ from modules.player import FenLightPlayer
 from modules.source_utils import get_cache_expiry, make_alias_dict
 from modules.utils import clean_file_name, string_to_float, safe_string, remove_accents, get_datetime, append_module_to_syspath, manual_function_import, manual_module_import
 # logger = kodi_utils.logger
-import xbmc
+
+import xbmc, os, urllib.parse, threading, xbmcvfs, requests
 
 get_icon, notification, sleep, xbmc_monitor = kodi_utils.get_icon, kodi_utils.notification, kodi_utils.sleep, kodi_utils.xbmc_monitor
 select_dialog, confirm_dialog, close_all_dialog = kodi_utils.select_dialog, kodi_utils.confirm_dialog, kodi_utils.close_all_dialog
@@ -45,6 +46,62 @@ int_window_prop = 'fenlight.internal_results.%s'
 scraper_timeout = 25
 filter_keys = {'hevc': '[B]HEVC[/B]', '3d': '[B]3D[/B]', 'hdr': '[B]HDR[/B]', 'dv': '[B]D/VISION[/B]', 'av1': '[B]AV1[/B]', 'enhanced_upscaled': '[B]AI ENHANCED/UPSCALED[/B]'}
 preference_values = {0:100, 1:50, 2:20, 3:10, 4:5, 5:2}
+
+
+
+class GetFileThread(threading.Thread):
+	def __init__(self, url):
+		threading.Thread.__init__(self)
+		self.url = url
+
+	def run(self):
+		self.file = get_file(self.url)
+
+def translate_path(*args):
+	return xbmcvfs.translatePath(os.path.join(*args))
+
+def get_file(url):
+	clean_url = translate_path(urllib.parse.unquote(url)).replace('image://', '')
+	clean_url = clean_url.rstrip('/')
+	cached_thumb = xbmc.getCacheThumbName(clean_url)
+	vid_cache_file = os.path.join('special://profile/Thumbnails/Video', cached_thumb[0], cached_thumb)
+	cache_file_jpg = os.path.join('special://profile/Thumbnails/', cached_thumb[0], cached_thumb[:-4] + '.jpg').replace('\\', '/')
+	cache_file_png = cache_file_jpg[:-4] + '.png'
+	if xbmcvfs.exists(cache_file_jpg):
+		log = ('cache_file_jpg Image: %s --> %s' % (url, cache_file_jpg))
+		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		return translate_path(cache_file_jpg)
+	elif xbmcvfs.exists(cache_file_png):
+		log('cache_file_png Image: %s --> %s' % (url, cache_file_png))
+		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		return cache_file_png
+	elif xbmcvfs.exists(vid_cache_file):
+		log = ('vid_cache_file Image: %s --> %s' % (url, vid_cache_file))
+		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		return vid_cache_file
+	try:
+		r = requests.get(clean_url, stream=True)
+		if r.status_code != 200:
+			return ''
+		data = r.content
+		log = ('image downloaded: %s' % clean_url)
+		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+	except Exception as e:
+		log = ('image download failed: %s' % clean_url)
+		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		return ''
+	if not data:
+		return ''
+	image = cache_file_png if url.endswith('.png') else cache_file_jpg
+	try:
+		with open(translate_path(image), 'wb') as f:
+			f.write(data)
+		return translate_path(image)
+	except Exception as e:
+		log = ('failed to save image %s' % url)
+		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		return ''
+
 
 class Sources():
 	def __init__(self):
@@ -724,7 +781,20 @@ class Sources():
 		self._make_resolve_dialog()
 		return True
 
+
+
 	def autoplay_nextep_handler(self):
+		threads = []
+		image_requests = []
+		thumb = self.meta.get('ep_thumb', None) or self.meta.get('fanart', '')
+		value = str(thumb)
+		thread = GetFileThread(value)
+		threads += [thread]
+		thread.start()
+		image_requests.append(value)
+		for x in threads:
+			x.join()
+
 		if not self.nextep_settings: return False
 		player = xbmc_player()
 		if player.isPlayingVideo():

@@ -1063,6 +1063,33 @@ class Sources:
 
 	@staticmethod
 	def _torrent_filesize(torrent, info):
+		#g.log(torrent)
+		#g.log(info)
+		
+		size = torrent.get("size", 0)
+		episode_size = torrent.get("episode_size",0)
+		
+		episode_count = info.get("episode_count",0)
+		show_episode_count = info.get("show_episode_count",0)
+		if size == episode_size and size > 0:
+			if torrent['package'] == "show":
+				size /= int(show_episode_count)
+				if size > 300 and size < 1200:
+					size = size/100
+			elif torrent['package'] == 'season':
+				size /= int(episode_count)
+				if size > 300 and size < 1200:
+					size = size/100
+			return size
+		if torrent['package'] == "single" and size != episode_size and size > 12000:
+			size2 = size/int(show_episode_count)
+			size3 = size/int(episode_count)
+			if size2 > 300 and size2 < 1200:
+				return size2/100 
+			if size3 > 300 and size3 < 1200:
+				return size3/100 
+
+
 		size = torrent.get("episode_size", torrent.get("size", 0))
 		try:
 			size = float(size)

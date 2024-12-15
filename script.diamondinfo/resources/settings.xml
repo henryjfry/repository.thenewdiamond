@@ -590,7 +590,9 @@
 
 
 	</category>
-	
+	<category label="Network Manager">
+		<setting label="Con_Man_Fix" type="action" action="RunScript(script.diamondinfo,info=con_man_fix)"/>
+	</category>
 	<category label="RSS Manager">
 		<!---setting id="rss.timeout" type="slider" label="Rss Auto Update Time (in hours)" default="24" range="1,24" option="int" /--->
 		

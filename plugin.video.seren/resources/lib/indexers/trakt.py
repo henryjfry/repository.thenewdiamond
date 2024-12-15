@@ -793,6 +793,8 @@ class TraktAPI(ApiBase):
 			"watched",
 			"collected",
 			"my_rating",
+			"plays",
+			"time",
 		]
 
 		if sort_by not in supported_sorts:
@@ -822,6 +824,12 @@ class TraktAPI(ApiBase):
 			import random
 
 			random.shuffle(items)
+		elif sort_by == "time":
+			#g.log(items)
+			#items = sorted(items, key=lambda x: x.get("time"))
+			items = sorted(items, key=self._released_sorter)
+		elif sort_by == "plays":
+			items = sorted(items, key=lambda x: x.get("plays"))
 		elif sort_by == "watched":
 			items = self._watched_sort(items)
 		elif sort_by == "collected":
