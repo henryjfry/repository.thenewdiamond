@@ -420,7 +420,7 @@ class PlayerMonitor(xbmc.Player):
 			count = count + 1
 			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
 			test_var = response.json()
-		if percent == 1 or percent >= 84: 
+		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
 				log('TRAKT_SCROBBLE_ACTION_SUCCESS')
@@ -482,7 +482,7 @@ class PlayerMonitor(xbmc.Player):
 		while response == None and count < 20:
 			count = count + 1
 			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
-		if percent == 1 or percent >= 84: 
+		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
 				log('TRAKT_SCROBBLE_ACTION_SUCCESS')

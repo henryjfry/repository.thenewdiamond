@@ -35,6 +35,13 @@ def start_info_actions(infos, params):
 			from a4kscrapers_wrapper import get_meta
 			get_meta.get_rss_cache()
 
+		if info == 'con_man_fix':
+			from resources.lib.con_man_fix import list_and_select_wifi
+			Utils.hide_busy()
+			list_and_select_wifi()
+			Utils.hide_busy()
+			return
+
 		if info == 'delete_db_expired':
 			Utils.db_delete_expired(Utils.db_con)
 
