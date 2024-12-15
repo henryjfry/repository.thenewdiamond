@@ -1599,6 +1599,40 @@ def get_trakt_playback(trakt_type=None):
 		#xbmc.log(str(response)+'===>get_trakt_playback', level=xbmc.LOGINFO)
 		return response
 
+def update_trakt_playback(trakt_type=None,tmdb_id=None,episode=None,season=None):
+	from resources.lib.library import trak_auth
+	if trakt_type == 'tv':
+		response = get_trakt_playback('tv')
+		item_id = tmdb_id
+		episode = str(episode)
+		season = str(season)
+		DBTYPE = 'episode'
+	else:
+		response = get_trakt_playback('movie')
+		item_id = tmdb_id
+		DBTYPE = 'movie'
+	for i in response:
+		if DBTYPE == 'episode':
+			if str(i['show']['ids']['tmdb']) == str(item_id):
+				if str(i['episode']['number']) == str(episode) and str(i['episode']['season']) == str(season):
+					play_id = i['id']
+					url = 'https://api.trakt.tv/sync/playback/' + str(play_id)
+					response = requests.delete(url, headers=trak_auth())
+		else:
+			if str(i['movie']['ids']['tmdb']) == str(item_id):
+				play_id = i['id']
+				url = 'https://api.trakt.tv/sync/playback/' + str(play_id)
+				response = requests.delete(url, headers=trak_auth())	
+	return response
+
+
+def get_watching_user():
+	from resources.lib.library import get_trakt_data
+	trakt_slug = xbmcaddon.Addon().getSetting('trakt_slug')
+	url = 'https://api.trakt.tv/users/%s/watching' % str(trakt_slug)
+	response = get_trakt_data(url=url, cache_days=0.0001, folder='Trakt')
+	return response
+
 def get_trakt_userlists():
 	trakt_userlist = xbmcaddon.Addon().getSetting('trakt_userlist')
 	from resources.lib.library import get_trakt_data

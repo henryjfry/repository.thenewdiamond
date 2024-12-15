@@ -9,7 +9,7 @@
 	
     <onload>Dialog.Close(fullscreeninfo,true)</onload>
     <onload>Dialog.Close(videoosd,true)</onload>
-    <!---animation effect="fade" end="100" time="600">WindowOpen</animation--->
+    <animation effect="fade" end="100" time="1600">WindowOpen</animation>
 	<controls>
 
 		<control type="group">
