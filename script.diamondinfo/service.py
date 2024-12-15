@@ -641,7 +641,7 @@ class PlayerMonitor(xbmc.Player):
 			pass
 		if self.player_meta['percentage'] > 85:
 			if self.player_meta['global_movie_flag'] == False:
-				try: 
+				try:
 					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
 					#log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:
@@ -680,7 +680,7 @@ class PlayerMonitor(xbmc.Player):
 
 		if self.player_meta['percentage'] > 85:
 			if self.player_meta['global_movie_flag'] == False:
-				try: 
+				try:
 					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
 					#log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:
@@ -1206,7 +1206,7 @@ class PlayerMonitor(xbmc.Player):
 			return
 
 		log(str(self.player_meta['diamond_player'])+'diamond_player===>OPENINFO')
-		xbmc.sleep(1000 * 15)
+		#xbmc.sleep(1000 * 15)
 		response = TheMovieDB.get_watching_user()
 		#log(response)
 		if not str(self.player_meta['tmdb_id']) in str(response):
@@ -1349,7 +1349,7 @@ class PlayerMonitor(xbmc.Player):
 				if self.player_meta['dbID'] != None:
 					self.SetEpisodeDetails2(self.player_meta['dbID'], self.player_meta['resume_duration']) ##PLAYCOUNT_LASTPLAYED
 
-				try: 
+				try:
 					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
 					#log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:

@@ -592,6 +592,20 @@
 	</category>
 	<category label="Network Manager">
 		<setting label="Con_Man_Fix" type="action" action="RunScript(script.diamondinfo,info=con_man_fix)"/>
+
+<setting label="rss_test" type="action" action="RunScript(script.diamondinfo,info=rss_test)"/>
+<setting label="delete_db_expired" type="action" action="RunScript(script.diamondinfo,info=delete_db_expired)"/>
+<setting label="clear_db" type="action" action="RunScript(script.diamondinfo,info=clear_db)"/>
+<setting label="eject_load_dvd" type="action" action="RunScript(script.diamondinfo,info=eject_load_dvd)"/>
+<setting label="test_route" type="action" action="RunScript(script.diamondinfo,info=test_route)"/>
+<setting label="setup_trakt_watched" type="action" action="RunScript(script.diamondinfo,info=setup_trakt_watched)"/>
+
+<setting label="setup_players" type="action" action="RunScript(script.diamondinfo,info=setup_players)"/>
+<setting label="estuary_fix" type="action" action="RunScript(script.diamondinfo,info=estuary_fix)"/>
+<setting label="setup_favourites" type="action" action="RunScript(script.diamondinfo,info=setup_favourites)"/>
+<setting label="patch_seren_a4k" type="action" action="RunScript(script.diamondinfo,info=patch_seren_a4k)"/>
+<setting label="patch_tmdb_helper" type="action" action="RunScript(script.diamondinfo,info=patch_tmdb_helper)"/>
+
 	</category>
 	<category label="RSS Manager">
 		<!---setting id="rss.timeout" type="slider" label="Rss Auto Update Time (in hours)" default="24" range="1,24" option="int" /--->
