@@ -365,6 +365,7 @@ class RealDebridAPI:
 
 	def display_magnet_pack(self, magnet_url, info_hash):
 		try:
+			torrent_id = None
 			torrent = self.add_magnet(magnet_url)
 			torrent_id = torrent['id']
 			self.add_torrent_select(torrent_id, 'all')

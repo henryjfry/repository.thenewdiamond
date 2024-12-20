@@ -150,7 +150,7 @@ class Sources():
 		self.get_meta()
 		self.determine_scrapers_status()
 		self.sleep_time, self.provider_sort_ranks, self.scraper_settings = 100, provider_sort_ranks(), scraping_settings()
-		self.include_prerelease_results, self.ignore_results_filter, self.limit_resolve = include_prerelease_results(), ignore_results_filter(), limit_resolve()		
+		self.include_prerelease_results, self.ignore_results_filter, self.limit_resolve = include_prerelease_results(), ignore_results_filter(), limit_resolve()
 		self.sort_function, self.quality_filter = results_sort_order(), self._quality_filter()
 		self.include_unknown_size = get_setting('fenlight.results.size_unknown', 'false') == 'true'
 		self.make_search_info()
