@@ -5,25 +5,36 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
-"Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: 2015-09-21 11:01+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE\n"
+"PO-Revision-Date: 2023-10-27 12:11+0000\n"
+"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"Language-Team: Romanian <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-youtube/ro_ro/>\n"
+"Language: ro_ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ro_RO\n"
-"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1))\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
+"X-Generator: Weblate 5.1\n"
+
+msgctxt "Addon Summary"
+msgid "Plugin for YouTube"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "YouTube is one of the biggest video-sharing websites of the world."
+msgstr ""
+
+msgctxt "Addon Disclaimer"
+msgid "This plugin is not endorsed by Google"
+msgstr ""
 
 # msgctxt "Addon Summary"
 # msgid "Plugin for YouTube"
 # msgstr ""
-
 # msgctxt "Addon Description"
 # msgid "YouTube is a one of the biggest video-sharing websites of the world."
 # msgstr ""
-
 msgctxt "#30000"
 msgid "General"
 msgstr "Generale"
@@ -36,13 +47,22 @@ msgctxt "#30002"
 msgid "Password"
 msgstr "Parolă"
 
+# empty strings from id 30003 to 30006
+msgctxt "#30007"
+msgid "Use MPEG-DASH"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Configure InputStream Adaptive"
+msgstr ""
+
 msgctxt "#30009"
 msgid "Always ask for the video quality"
 msgstr "Întreabă întotdeauna pentru calitatea video"
 
 msgctxt "#30010"
-msgid "Video quality"
-msgstr "Calitate video"
+msgid "Maximum video quality"
+msgstr ""
 
 msgctxt "#30011"
 msgid "480p"
@@ -53,16 +73,16 @@ msgid "720p (HD)"
 msgstr "720p (HD)"
 
 msgctxt "#30013"
-msgid "1080p (HD)"
-msgstr "1080p (HD)"
+msgid "1080p (FHD)"
+msgstr "1080p (FHD)"
 
 msgctxt "#30014"
-msgid "2160p (4k)"
-msgstr "2160p (4k)"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
 
 msgctxt "#30015"
-msgid "4320p (8k)"
-msgstr "4320p (8k)"
+msgid "4320p (8K)"
+msgstr "4320p (8K)"
 
 msgctxt "#30016"
 msgid "240p"
@@ -74,6 +94,10 @@ msgstr "360p"
 
 msgctxt "#30018"
 msgid "1080p Live / 720p (HD)"
+msgstr ""
+
+msgctxt "#30019"
+msgid "144p"
 msgstr ""
 
 msgctxt "#30020"
@@ -152,9 +176,11 @@ msgctxt "#30038"
 msgid "Custom History playlist id"
 msgstr ""
 
+# Kodion Common
+# empty strings from id 30039 to 30099
 msgctxt "#30100"
-msgid "Favorites"
-msgstr "Favorite"
+msgid "Favourites"
+msgstr ""
 
 msgctxt "#30101"
 msgid "Add to addon favs"
@@ -238,9 +264,8 @@ msgstr "Curăță"
 
 # YouTube
 # empty strings from id 30121 to 30199
-
 msgctxt "#30200"
-msgid "API Key"
+msgid "API"
 msgstr ""
 
 msgctxt "#30201"
@@ -265,7 +290,6 @@ msgstr ""
 
 # YouTube
 # empty strings from id 30206 to 30499
-
 msgctxt "#30500"
 msgid "Channels"
 msgstr "Canale"
@@ -472,11 +496,11 @@ msgstr "Regiune"
 
 msgctxt "#30551"
 msgid "Recommendations"
-msgstr ""
+msgstr "Recomandări"
 
 msgctxt "#30552"
 msgid "Maintenance"
-msgstr ""
+msgstr "Mentenanță"
 
 msgctxt "#30553"
 msgid "Delete function cache database"
@@ -488,7 +512,7 @@ msgstr ""
 
 msgctxt "#30555"
 msgid "Clear function cache"
-msgstr ""
+msgstr "Golește cache-ul funcției"
 
 msgctxt "#30556"
 msgid "Clear search history"
@@ -508,11 +532,11 @@ msgstr ""
 
 msgctxt "#30560"
 msgid "Subtitle language"
-msgstr ""
+msgstr "Limba subtitrării"
 
 msgctxt "#30561"
 msgid "None"
-msgstr ""
+msgstr "Nici una"
 
 msgctxt "#30562"
 msgid "All"
@@ -532,15 +556,15 @@ msgstr ""
 
 msgctxt "#30566"
 msgid "Prompt"
-msgstr ""
+msgstr "Prompt"
 
 msgctxt "#30567"
 msgid "Set as Watch Later"
-msgstr ""
+msgstr "Adaugă la 'Vezi mai târziu'"
 
 msgctxt "#30568"
 msgid "Remove as Watch Later"
-msgstr ""
+msgstr "Șterge din 'Vezi mai târziu'"
 
 msgctxt "#30569"
 msgid "Are you sure you want to remove '%s' as your Watch Later list?"
@@ -552,11 +576,11 @@ msgstr ""
 
 msgctxt "#30571"
 msgid "Set as History"
-msgstr ""
+msgstr "Adaugă la istoric"
 
 msgctxt "#30572"
 msgid "Remove as History"
-msgstr ""
+msgstr "Șterge din istoric"
 
 msgctxt "#30573"
 msgid "Are you sure you want to remove '%s' as your History list?"
@@ -576,7 +600,7 @@ msgstr ""
 
 msgctxt "#30577"
 msgid "Settings"
-msgstr ""
+msgstr "Setări"
 
 msgctxt "#30578"
 msgid "Force SSL certificate verification"
@@ -668,15 +692,15 @@ msgstr ""
 
 msgctxt "#30600"
 msgid "Configure subtitles"
-msgstr ""
+msgstr "Configurează subtitrare"
 
 msgctxt "#30601"
 msgid "%s with %s fallback"
-msgstr ""
+msgstr "%s cu rezervă %s"
 
 msgctxt "#30602"
 msgid "No auto-generated"
-msgstr ""
+msgstr "Fără subtitrări auto-generate"
 
 msgctxt "#30603"
 msgid "Age gate"
@@ -751,7 +775,7 @@ msgid "Port %s already in use. Cannot start http server."
 msgstr ""
 
 msgctxt "#30621"
-msgid "Proxy is required for mpeg-dash vods (see HTTP Server)"
+msgid "Proxy is required for mpeg-dash vods (see Advanced > HTTP Server)"
 msgstr ""
 
 msgctxt "#30622"
@@ -799,7 +823,7 @@ msgid "Enable API configuration page"
 msgstr ""
 
 msgctxt "#30633"
-msgid "http://<ipaddress>:<port>/api (see HTTP Server)"
+msgid "http://<ipaddress>:<port>/youtube/api (see Advanced > HTTP Server)"
 msgstr ""
 
 msgctxt "#30634"
@@ -967,7 +991,7 @@ msgid "Reset resume point"
 msgstr ""
 
 msgctxt "#30675"
-msgid "Use playback history (watched, resume tracking)"
+msgid "Use local playback history (watched, resume tracking)"
 msgstr ""
 
 msgctxt "#30676"
@@ -1012,7 +1036,7 @@ msgstr ""
 
 msgctxt "#30686"
 msgid "Clear data cache"
-msgstr ""
+msgstr "Golește cache de date"
 
 msgctxt "#30687"
 msgid "data cache"
@@ -1027,7 +1051,7 @@ msgid "Use for live streams"
 msgstr ""
 
 msgctxt "#30690"
-msgid "InputStream Adaptive >= 2.0.12 is required for live streams"
+msgid "InputStream Adaptive >= 2.0.12 is required for adaptive live streams"
 msgstr ""
 
 msgctxt "#30691"
@@ -1128,7 +1152,7 @@ msgstr ""
 
 msgctxt "#30715"
 msgid "Removed from playlist"
-msgstr ""
+msgstr "Șters din listă"
 
 msgctxt "#30716"
 msgid "Liked video"
@@ -1140,7 +1164,7 @@ msgstr ""
 
 msgctxt "#30718"
 msgid "Rating removed"
-msgstr ""
+msgstr "Evaluare ștearsă"
 
 msgctxt "#30719"
 msgid "Subscribed to channel"
@@ -1155,35 +1179,35 @@ msgid "Default to WEBM adaptation set (4K)"
 msgstr ""
 
 msgctxt "#30722"
-msgid "HDR"
+msgid "Enable HDR video"
 msgstr ""
 
 msgctxt "#30723"
-msgid "Proxy is required for mpeg-dash vods (see HTTP Server)[CR]> 1080p and HDR requires InputStream Adaptive >= 2.3.14"
+msgid "Proxy is required for mpeg-dash vods (see Advanced > HTTP Server)[CR]> 1080p and HDR requires InputStream Adaptive >= 2.3.14"
 msgstr ""
 
 msgctxt "#30724"
-msgid "Limit to 30fps"
+msgid "Enable high framerate video"
 msgstr ""
 
 msgctxt "#30725"
-msgid "1440p (HD)"
-msgstr ""
+msgid "1440p (QHD)"
+msgstr "1440p (QHD)"
 
 msgctxt "#30726"
 msgid "Uploads"
-msgstr ""
+msgstr "Încărcări"
 
 msgctxt "#30727"
-msgid "Adaptive (MP4/H264)"
+msgid "Enable H.264 video"
 msgstr ""
 
 msgctxt "#30728"
-msgid "Adaptive (WEBM/VP9)"
+msgid "Enable VP9 video"
 msgstr ""
 
 msgctxt "#30729"
-msgid "Remote friendly search"
+msgid ""
 msgstr ""
 
 msgctxt "#30730"
@@ -1196,16 +1220,160 @@ msgstr ""
 
 msgctxt "#30732"
 msgid "Comments"
-msgstr ""
+msgstr "Comentarii"
 
 msgctxt "#30733"
 msgid "Likes"
-msgstr ""
+msgstr "Aprecieri"
 
 msgctxt "#30734"
 msgid "Replies"
-msgstr ""
+msgstr "Răspunsuri"
 
 msgctxt "#30735"
 msgid "Edited"
 msgstr ""
+
+msgctxt "#30736"
+msgid "Hide short videos (1 minute or less)"
+msgstr ""
+
+msgctxt "#30737"
+msgid "Use alternate client details"
+msgstr ""
+
+msgctxt "#30738"
+msgid "Alternate #1"
+msgstr ""
+
+msgctxt "#30739"
+msgid "Alternate #2"
+msgstr ""
+
+msgctxt "#30740"
+msgid "HLS"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Multi-stream HLS"
+msgstr ""
+
+msgctxt "#30742"
+msgid "Adaptive HLS"
+msgstr ""
+
+msgctxt "#30743"
+msgid "MPEG-DASH"
+msgstr ""
+
+msgctxt "#30744"
+msgid "Original"
+msgstr ""
+
+msgctxt "#30745"
+msgid "Dubbed"
+msgstr ""
+
+msgctxt "#30746"
+msgid "Descriptive"
+msgstr ""
+
+msgctxt "#30747"
+msgid "Alternate"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Stream features"
+msgstr ""
+
+msgctxt "#30749"
+msgid "Enable AV1 video"
+msgstr ""
+
+msgctxt "#30750"
+msgid "Enable Vorbis audio"
+msgstr ""
+
+msgctxt "#30751"
+msgid "Enable Opus audio"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Enable AAC audio"
+msgstr ""
+
+msgctxt "#30753"
+msgid "Enable surround sound audio"
+msgstr ""
+
+msgctxt "#30754"
+msgid "Enable AC-3 audio"
+msgstr ""
+
+msgctxt "#30755"
+msgid "Enable EAC-3 audio"
+msgstr ""
+
+msgctxt "#30756"
+msgid "Enable DTS audio"
+msgstr ""
+
+msgctxt "#30757"
+msgid "Remove similar/duplicate streams"
+msgstr ""
+
+msgctxt "#30758"
+msgid "Stream selection"
+msgstr ""
+
+msgctxt "#30759"
+msgid "Quality selection"
+msgstr ""
+
+msgctxt "#30760"
+msgid "Automatic + Quality selection"
+msgstr ""
+
+msgctxt "#30761"
+msgid "Update playback history on Youtube"
+msgstr ""
+
+msgctxt "#30762"
+msgid "Multi-language"
+msgstr ""
+
+msgctxt "#30763"
+msgid "Multi-audio"
+msgstr ""
+
+#~ msgctxt "#30010"
+#~ msgid "Video quality"
+#~ msgstr "Calitate video"
+
+#~ msgctxt "#30013"
+#~ msgid "1080p (HD)"
+#~ msgstr "1080p (HD)"
+
+#~ msgctxt "#30014"
+#~ msgid "2160p (4k)"
+#~ msgstr "2160p (4k)"
+
+#~ msgctxt "#30015"
+#~ msgid "4320p (8k)"
+#~ msgstr "4320p (8k)"
+
+#~ msgctxt "#30722"
+#~ msgid "HDR"
+#~ msgstr "HDR"
+
+#~ msgctxt "#30727"
+#~ msgid "Adaptive (MP4/H264)"
+#~ msgstr "Adaptiv (MP4/H264)"
+
+#~ msgctxt "#30728"
+#~ msgid "Adaptive (WEBM/VP9)"
+#~ msgstr "Adaptiv (WEBM/VP9)"
+
+#~ msgctxt "#30100"
+#~ msgid "Favorites"
+#~ msgstr "Favorite"

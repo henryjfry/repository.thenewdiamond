@@ -7,25 +7,35 @@ msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: 2015-09-21 11:01+0000\n"
-"PO-Revision-Date: 2021-06-12 13:33+0800\n"
-"Last-Translator: Juentingshie t104340042@ntut.org.tw\n"
-"Language-Team: LANGUAGE\n"
+"PO-Revision-Date: 2021-11-13 09:30+0000\n"
+"Last-Translator: JuenTingShie <t104340042@ntut.org.tw>\n"
+"Language-Team: Chinese (Taiwan) <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-youtube/zh_tw/>\n"
+"Language: zh_tw\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_TW\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.8.1\n"
+
+msgctxt "Addon Summary"
+msgid "Plugin for YouTube"
+msgstr "YouTube附加元件"
+
+msgctxt "Addon Description"
+msgid "YouTube is one of the biggest video-sharing websites of the world."
+msgstr "Youtube 是全世界最大的影片分享網站。"
+
+msgctxt "Addon Disclaimer"
+msgid "This plugin is not endorsed by Google"
+msgstr "此附加元件未由Google支持"
 
 # msgctxt "Addon Summary"
 # msgid "Plugin for YouTube"
 # msgstr "YouTube 附加元件"
-
 # msgctxt "Addon Description"
 # msgid "YouTube is a one of the biggest video-sharing websites of the world."
 # msgstr "YouTube 是全球最大的一個影片分享網站。"
-
 # Kodion Settings
-
 msgctxt "#30000"
 msgid "General"
 msgstr "一般設定"
@@ -37,8 +47,8 @@ msgstr "帳戶"
 msgctxt "#30002"
 msgid "Password"
 msgstr "密碼"
-# empty strings from id 30003 to 30006
 
+# empty strings from id 30003 to 30006
 msgctxt "#30007"
 msgid "Use MPEG-DASH"
 msgstr "使用 MPEG-DASH"
@@ -52,8 +62,8 @@ msgid "Always ask for the video quality"
 msgstr "每次詢問影片解像度"
 
 msgctxt "#30010"
-msgid "Video quality"
-msgstr "影片解像度"
+msgid "Maximum video quality"
+msgstr ""
 
 msgctxt "#30011"
 msgid "480p"
@@ -64,16 +74,16 @@ msgid "720p (HD)"
 msgstr "720p (HD)"
 
 msgctxt "#30013"
-msgid "1080p (HD)"
-msgstr "1080p (HD)"
+msgid "1080p (FHD)"
+msgstr ""
 
 msgctxt "#30014"
-msgid "2160p (4k)"
-msgstr "2160p (4k)"
+msgid "2160p (4K)"
+msgstr ""
 
 msgctxt "#30015"
-msgid "4320p (8k)"
-msgstr "4320p (8k)"
+msgid "4320p (8K)"
+msgstr ""
 
 msgctxt "#30016"
 msgid "240p"
@@ -86,6 +96,10 @@ msgstr "360p"
 msgctxt "#30018"
 msgid "1080p Live / 720p (HD)"
 msgstr "1080p 直播 / 720p (HD)"
+
+msgctxt "#30019"
+msgid "144p"
+msgstr ""
 
 # empty strings 30019
 msgctxt "#30020"
@@ -166,7 +180,6 @@ msgstr "自定觀看歷史列表 ID"
 
 # Kodion Common
 # empty strings from id 30039 to 30099
-
 msgctxt "#30100"
 msgid "Favourites"
 msgstr "我的收藏"
@@ -225,11 +238,11 @@ msgstr "重新命名"
 
 msgctxt "#30114"
 msgid "Confirm delete"
-msgstr "確認刪除！"
+msgstr "確認刪除"
 
 msgctxt "#30115"
 msgid "Confirm remove"
-msgstr "確認移除！"
+msgstr "確認移除"
 
 msgctxt "#30116"
 msgid "Delete \"%s\"?"
@@ -253,7 +266,6 @@ msgstr "清除"
 
 # YouTube
 # empty strings from id 30121 to 30199
-
 msgctxt "#30200"
 msgid "API"
 msgstr "API"
@@ -280,7 +292,6 @@ msgstr "使用預設的 API 金鑰"
 
 # YouTube
 # empty strings from id 30206 to 30499
-
 msgctxt "#30500"
 msgid "Channels"
 msgstr "頻道"
@@ -575,7 +586,7 @@ msgstr "取消設為歷史播放清單"
 
 msgctxt "#30573"
 msgid "Are you sure you want to remove '%s' as your History list?"
-msgstr "你確定要取消 '%s' 做為歷史播放列表"
+msgstr "你確定要取消 '%s' 做為歷史播放列表?"
 
 msgctxt "#30574"
 msgid "Are you sure you want to replace your current History list with '%s'?"
@@ -747,7 +758,7 @@ msgstr "取消"
 
 msgctxt "#30616"
 msgid "Must be signed in."
-msgstr "你必須登入"
+msgstr "你必須登入。"
 
 msgctxt "#30617"
 msgid "MPEG-DASH"
@@ -766,7 +777,7 @@ msgid "Port %s already in use. Cannot start http server."
 msgstr "Port %s 已經被使用. 無法啟動 HTTP 伺服器."
 
 msgctxt "#30621"
-msgid "Proxy is required for mpeg-dash vods (see HTTP Server)"
+msgid "Proxy is required for mpeg-dash vods (see Advanced > HTTP Server)"
 msgstr "mpeg-dash 隨選視訊需要設定代理 (請看 HTTP 伺服器)"
 
 msgctxt "#30622"
@@ -783,7 +794,7 @@ msgstr "需要 Kodi 17 以上版本"
 
 msgctxt "#30625"
 msgid "InputStream Helper is already installed."
-msgstr "InputStream Helper 已經安裝"
+msgstr "InputStream Helper 已經安裝。"
 
 msgctxt "#30626"
 msgid "Delete temporary files"
@@ -814,8 +825,8 @@ msgid "Enable API configuration page"
 msgstr "啟用 API 設定頁面"
 
 msgctxt "#30633"
-msgid "http://<ipaddress>:<port>/api (see HTTP Server)"
-msgstr "http://<ipaddress>:<port>/api (請看 HTTP 伺服器)"
+msgid "http://<ipaddress>:<port>/youtube/api (see Advanced > HTTP Server)"
+msgstr "http://<ipaddress>:<port>/youtube/api (請看 HTTP 伺服器)"
 
 msgctxt "#30634"
 msgid "YouTube Add-on API Configuration"
@@ -823,23 +834,23 @@ msgstr "YouTube 附加元件 API 設定"
 
 msgctxt "#30635"
 msgid "No changes detected, API keys were not updated."
-msgstr "沒有改變, 沒有更新 APK 金鑰"
+msgstr "沒有改變, 沒有更新 API 金鑰。"
 
 msgctxt "#30636"
 msgid "Personal API keys are enabled."
-msgstr "啟用個人 API 金鑰"
+msgstr "啟用個人 API 金鑰。"
 
 msgctxt "#30637"
 msgid "Personal API keys are disabled."
-msgstr "停用個人 API 金鑰"
+msgstr "停用個人 API 金鑰。"
 
 msgctxt "#30638"
 msgid "Bookmark this page to quickly add your keys in the future."
-msgstr "把此頁加入書簽以便未來加入金鑰"
+msgstr "把此頁加入書籤以便未來加入金鑰。"
 
 msgctxt "#30639"
 msgid "Found personal API keys in api_keys.json, would you like to restore them? Choosing no will overwrite them."
-msgstr "在 api_keys.json 找到個人 API 金鑰，是否要還原? 選擇否則覆蓋現有金鑰"
+msgstr "在 api_keys.json 找到個人 API 金鑰，是否要還原? 選擇否會覆蓋現有金鑰。"
 
 msgctxt "#30640"
 msgid "Restore"
@@ -982,8 +993,8 @@ msgid "Reset resume point"
 msgstr "重設繼續播放點"
 
 msgctxt "#30675"
-msgid "Use playback history (watched, resume tracking)"
-msgstr "啟用播放歷史 (已觀看, 繼續播放)"
+msgid "Use local playback history (watched, resume tracking)"
+msgstr ""
 
 msgctxt "#30676"
 msgid "Just now"
@@ -1042,8 +1053,8 @@ msgid "Use for live streams"
 msgstr "使用在直播串流"
 
 msgctxt "#30690"
-msgid "InputStream Adaptive >= 2.0.12 is required for live streams"
-msgstr "直播串流需要 InputStream Adaptive 2.0.12 以上版本"
+msgid "InputStream Adaptive >= 2.0.12 is required for adaptive live streams"
+msgstr ""
 
 msgctxt "#30691"
 msgid "Airing now"
@@ -1170,35 +1181,35 @@ msgid "Default to WEBM adaptation set (4K)"
 msgstr "初始為WEBM adaptation(4K)"
 
 msgctxt "#30722"
-msgid "HDR"
-msgstr "HDR"
+msgid "Enable HDR video"
+msgstr ""
 
 msgctxt "#30723"
-msgid "Proxy is required for mpeg-dash vods (see HTTP Server)[CR]> 1080p and HDR requires InputStream Adaptive >= 2.3.14"
+msgid "Proxy is required for mpeg-dash vods (see Advanced > HTTP Server)[CR]> 1080p and HDR requires InputStream Adaptive >= 2.3.14"
 msgstr "mpeg-dash 隨選視訊需要設定代理 (請看 HTTP 伺服器)[CR]> 1080p 且 HDR 需要 InputStream Adaptive >= 2.3.14"
 
 msgctxt "#30724"
-msgid "Limit to 30fps"
-msgstr "限制在30fps"
+msgid "Enable high framerate video"
+msgstr ""
 
 msgctxt "#30725"
-msgid "1440p (HD)"
-msgstr "1440p (HD)"
+msgid "1440p (QHD)"
+msgstr ""
 
 msgctxt "#30726"
 msgid "Uploads"
 msgstr "上傳的影片"
 
 msgctxt "#30727"
-msgid "Adaptive (MP4/H264)"
-msgstr "動態 (MP4/H264)"
+msgid "Enable H.264 video"
+msgstr ""
 
 msgctxt "#30728"
-msgid "Adaptive (WEBM/VP9)"
-msgstr "動態 (WEBM/VP9)"
+msgid "Enable VP9 video"
+msgstr ""
 
 msgctxt "#30729"
-msgid "Remote friendly search"
+msgid ""
 msgstr "易於用遙控器的搜尋"
 
 msgctxt "#30730"
@@ -1207,7 +1218,7 @@ msgstr "播放 (詢問畫質)"
 
 msgctxt "#30731"
 msgid "The YouTube add-on now requires that you use your own API keys.[CR]For more information see the wiki: [B]https://ytaddon.page.link/keys[/B][CR][CR]Sorry for the inconvenience."
-msgstr "YouTube 附加元件現在需要使用你自己的API金鑰.[CR]更多資訊請見 wiki: [B]https://ytaddon.page.link/keys[/B][CR][CR]很抱歉造成不便"
+msgstr "YouTube 附加元件現在需要使用你自己的API金鑰.[CR]更多資訊請見 wiki: [B]https://ytaddon.page.link/keys[/B][CR][CR]很抱歉造成不便。"
 
 msgctxt "#30732"
 msgid "Comments"
@@ -1224,3 +1235,159 @@ msgstr "回覆"
 msgctxt "#30735"
 msgid "Edited"
 msgstr "已編輯"
+
+msgctxt "#30736"
+msgid "Hide short videos (1 minute or less)"
+msgstr ""
+
+msgctxt "#30737"
+msgid "Use alternate client details"
+msgstr ""
+
+msgctxt "#30738"
+msgid "Alternate #1"
+msgstr ""
+
+msgctxt "#30739"
+msgid "Alternate #2"
+msgstr ""
+
+msgctxt "#30740"
+msgid "HLS"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Multi-stream HLS"
+msgstr ""
+
+msgctxt "#30742"
+msgid "Adaptive HLS"
+msgstr ""
+
+msgctxt "#30743"
+msgid "MPEG-DASH"
+msgstr ""
+
+msgctxt "#30744"
+msgid "Original"
+msgstr ""
+
+msgctxt "#30745"
+msgid "Dubbed"
+msgstr ""
+
+msgctxt "#30746"
+msgid "Descriptive"
+msgstr ""
+
+msgctxt "#30747"
+msgid "Alternate"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Stream features"
+msgstr ""
+
+msgctxt "#30749"
+msgid "Enable AV1 video"
+msgstr ""
+
+msgctxt "#30750"
+msgid "Enable Vorbis audio"
+msgstr ""
+
+msgctxt "#30751"
+msgid "Enable Opus audio"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Enable AAC audio"
+msgstr ""
+
+msgctxt "#30753"
+msgid "Enable surround sound audio"
+msgstr ""
+
+msgctxt "#30754"
+msgid "Enable AC-3 audio"
+msgstr ""
+
+msgctxt "#30755"
+msgid "Enable EAC-3 audio"
+msgstr ""
+
+msgctxt "#30756"
+msgid "Enable DTS audio"
+msgstr ""
+
+msgctxt "#30757"
+msgid "Remove similar/duplicate streams"
+msgstr ""
+
+msgctxt "#30758"
+msgid "Stream selection"
+msgstr ""
+
+msgctxt "#30759"
+msgid "Quality selection"
+msgstr ""
+
+msgctxt "#30760"
+msgid "Automatic + Quality selection"
+msgstr ""
+
+msgctxt "#30761"
+msgid "Update playback history on Youtube"
+msgstr ""
+
+msgctxt "#30762"
+msgid "Multi-language"
+msgstr ""
+
+msgctxt "#30763"
+msgid "Multi-audio"
+msgstr ""
+
+#~ msgctxt "#30010"
+#~ msgid "Video quality"
+#~ msgstr "影片解像度"
+
+#~ msgctxt "#30013"
+#~ msgid "1080p (HD)"
+#~ msgstr "1080p (HD)"
+
+#~ msgctxt "#30014"
+#~ msgid "2160p (4k)"
+#~ msgstr "2160p (4k)"
+
+#~ msgctxt "#30015"
+#~ msgid "4320p (8k)"
+#~ msgstr "4320p (8k)"
+
+#~ msgctxt "#30675"
+#~ msgid "Use playback history (watched, resume tracking)"
+#~ msgstr "啟用播放歷史 (已觀看, 繼續播放)"
+
+#~ msgctxt "#30690"
+#~ msgid "InputStream Adaptive >= 2.0.12 is required for live streams"
+#~ msgstr "直播串流需要 InputStream Adaptive 2.0.12 以上版本"
+
+#~ msgctxt "#30722"
+#~ msgid "HDR"
+#~ msgstr "HDR"
+
+#~ msgctxt "#30724"
+#~ msgid "Limit to 30fps"
+#~ msgstr "限制在30fps"
+
+#~ msgctxt "#30725"
+#~ msgid "1440p (HD)"
+#~ msgstr "1440p (HD)"
+
+#~ msgctxt "#30727"
+#~ msgid "Adaptive (MP4/H264)"
+#~ msgstr "動態 (MP4/H264)"
+
+#~ msgctxt "#30728"
+#~ msgid "Adaptive (WEBM/VP9)"
+#~ msgstr "動態 (WEBM/VP9)"

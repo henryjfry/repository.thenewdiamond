@@ -7,15 +7,27 @@ msgstr ""
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: 2015-09-21 11:01+0000\n"
-"PO-Revision-Date: 2020-05-11 09:57+0200\n"
-"Last-Translator: Ludovic Jozeau <federandink@gmail.com>\n"
-"Language-Team: Guilouz\n"
-"Language: fr_FR\n"
+"PO-Revision-Date: 2023-08-24 22:11+0000\n"
+"Last-Translator: SlashAndRoses <contact@iandeveseleer.fr>\n"
+"Language-Team: French (France) <https://kodi.weblate.cloud/projects/kodi-add-ons-video/plugin-video-youtube/fr_fr/>\n"
+"Language: fr_fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 2.0.6\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.18.2\n"
+
+msgctxt "Addon Summary"
+msgid "Plugin for YouTube"
+msgstr "Plugin pour YouTube"
+
+msgctxt "Addon Description"
+msgid "YouTube is one of the biggest video-sharing websites of the world."
+msgstr "YouTube est l'un des plus grands sites de partage vidéos du monde."
+
+msgctxt "Addon Disclaimer"
+msgid "This plugin is not endorsed by Google"
+msgstr "Ce module n'est pas validé par Google"
 
 # msgctxt "Addon Summary"
 # msgid "Plugin for YouTube"
@@ -48,8 +60,8 @@ msgid "Always ask for the video quality"
 msgstr "Toujours demander la qualité de la vidéo"
 
 msgctxt "#30010"
-msgid "Video quality"
-msgstr "Qualité vidéo"
+msgid "Maximum video quality"
+msgstr ""
 
 msgctxt "#30011"
 msgid "480p"
@@ -60,16 +72,16 @@ msgid "720p (HD)"
 msgstr "720p (HD)"
 
 msgctxt "#30013"
-msgid "1080p (HD)"
-msgstr "1080p (HD)"
+msgid "1080p (FHD)"
+msgstr ""
 
 msgctxt "#30014"
-msgid "2160p (4k)"
-msgstr "2160p (4K)"
+msgid "2160p (4K)"
+msgstr ""
 
 msgctxt "#30015"
-msgid "4320p (8k)"
-msgstr "4320p (8K)"
+msgid "4320p (8K)"
+msgstr ""
 
 msgctxt "#30016"
 msgid "240p"
@@ -82,6 +94,10 @@ msgstr "360p"
 msgctxt "#30018"
 msgid "1080p Live / 720p (HD)"
 msgstr "1080p Live / 720p (HD)"
+
+msgctxt "#30019"
+msgid "144p"
+msgstr ""
 
 msgctxt "#30020"
 msgid "Allow 3D"
@@ -159,8 +175,10 @@ msgctxt "#30038"
 msgid "Custom History playlist id"
 msgstr "Personnaliser l'ID historique de la liste de lecture"
 
+# Kodion Common
+# empty strings from id 30039 to 30099
 msgctxt "#30100"
-msgid "Favorites"
+msgid "Favourites"
 msgstr "Favoris"
 
 msgctxt "#30101"
@@ -225,7 +243,7 @@ msgstr "Confirmer la suppression"
 
 msgctxt "#30116"
 msgid "Delete \"%s\"?"
-msgstr "Supprimer \"%s\"?"
+msgstr "Supprimer \"%s\" ?"
 
 msgctxt "#30117"
 msgid "Remove \"%s\"?"
@@ -243,9 +261,11 @@ msgctxt "#30120"
 msgid "Clear"
 msgstr "Nettoyer"
 
+# YouTube
+# empty strings from id 30121 to 30199
 msgctxt "#30200"
-msgid "API Key"
-msgstr "Clé de l’API"
+msgid "API"
+msgstr "API"
 
 msgctxt "#30201"
 msgid "API Key"
@@ -425,7 +445,7 @@ msgstr "Vidéos que vous n'aimez pas"
 
 msgctxt "#30539"
 msgid "Live"
-msgstr "Live"
+msgstr "En direct"
 
 msgctxt "#30540"
 msgid "Play with..."
@@ -593,7 +613,7 @@ msgstr "Réinitialiser le gestionnaire d'accès"
 
 msgctxt "#30581"
 msgid "Are you sure you want to reset access manager?"
-msgstr "Êtes-vous sûr de vouloir réinitialiser le gestionnaire d'accès?"
+msgstr "Êtes-vous sûr de vouloir réinitialiser le gestionnaire d'accès ?"
 
 msgctxt "#30582"
 msgid "Autoplay suggested videos"
@@ -641,7 +661,7 @@ msgstr "Moyennes (16:9)"
 
 msgctxt "#30593"
 msgid "High (4:3)"
-msgstr "Hautes (4: 3)"
+msgstr "Hautes (4:3)"
 
 msgctxt "#30594"
 msgid "Safe search"
@@ -665,7 +685,7 @@ msgstr "Clés API personnelles activées"
 
 msgctxt "#30599"
 msgid "Failed to enable personal API keys. Missing: %s"
-msgstr "Impossible d'activer les clés API personnelles. Disparu: %s"
+msgstr "Impossible d'activer les clés API personnelles. Disparu : %s"
 
 msgctxt "#30600"
 msgid "Configure subtitles"
@@ -752,7 +772,7 @@ msgid "Port %s already in use. Cannot start http server."
 msgstr "Le port %s est déjà en cours d'utilisation. Impossible de démarrer le serveur http."
 
 msgctxt "#30621"
-msgid "Proxy is required for mpeg-dash vods (see HTTP Server)"
+msgid "Proxy is required for mpeg-dash vods (see Advanced > HTTP Server)"
 msgstr "Un proxy est nécessaire pour MPEG-Dash vidéos (voir serveur HTTP)"
 
 msgctxt "#30622"
@@ -793,15 +813,15 @@ msgstr "Sauvegarder"
 
 msgctxt "#30631"
 msgid "Successfully updated: %s"
-msgstr "Mise à jour réussie: %s"
+msgstr "Mise à jour réussie : %s"
 
 msgctxt "#30632"
 msgid "Enable API configuration page"
 msgstr "Activer la page de configuration de l'API"
 
 msgctxt "#30633"
-msgid "http://<ipaddress>:<port>/api (see HTTP Server)"
-msgstr "http://<ipaddress>:<port>/api (voir serveur HTTP)"
+msgid "http://<ipaddress>:<port>/youtube/api (see Advanced > HTTP Server)"
+msgstr "http://<ipaddress>:<port>/youtube/api (voir serveur HTTP)"
 
 msgctxt "#30634"
 msgid "YouTube Add-on API Configuration"
@@ -939,10 +959,9 @@ msgctxt "#30667"
 msgid "Renamed '%s' to '%s'"
 msgstr "'%s' renommer en '%s'"
 
-#, fuzzy
 msgctxt "#30668"
 msgid "Play count minimum percent"
-msgstr "Pourcentage minimum pour compter comme vu"
+msgstr "Pourcentage minimum du nombre de lectures"
 
 msgctxt "#30669"
 msgid "Mark unwatched"
@@ -969,8 +988,8 @@ msgid "Reset resume point"
 msgstr "Réinitialiser le point de reprise de lecture"
 
 msgctxt "#30675"
-msgid "Use playback history (watched, resume tracking)"
-msgstr "Utiliser l'historique de lecture (vu, reprise de lecture)"
+msgid "Use local playback history (watched, resume tracking)"
+msgstr ""
 
 msgctxt "#30676"
 msgid "Just now"
@@ -1029,8 +1048,8 @@ msgid "Use for live streams"
 msgstr "Utiliser pour le live"
 
 msgctxt "#30690"
-msgid "InputStream Adaptive >= 2.0.12 is required for live streams"
-msgstr "InputStream Adaptive >= 2.0.12 est requis pour le live"
+msgid "InputStream Adaptive >= 2.0.12 is required for adaptive live streams"
+msgstr ""
 
 msgctxt "#30691"
 msgid "Airing now"
@@ -1084,7 +1103,6 @@ msgctxt "#30703"
 msgid "Are you sure?"
 msgstr "Êtes-vous sûr ?"
 
-#, fuzzy
 msgctxt "#30704"
 msgid "Use YouTube website urls"
 msgstr "Utiliser les URLs du site YouTube"
@@ -1095,7 +1113,7 @@ msgstr "Télécharger les sous-titres"
 
 msgctxt "#30706"
 msgid "Download subtitles before starting playback? (Default: No)"
-msgstr "Télécharger les sous-titres avant le démarrage de la lecture ? (Défaut: Non)"
+msgstr "Télécharger les sous-titres avant le démarrage de la lecture ? (Défaut : Non)"
 
 msgctxt "#30707"
 msgid "Untitled"
@@ -1158,36 +1176,36 @@ msgid "Default to WEBM adaptation set (4K)"
 msgstr "Défaut mis à WEBM adaptation (4K)"
 
 msgctxt "#30722"
-msgid "HDR"
-msgstr "HDR"
+msgid "Enable HDR video"
+msgstr ""
 
 msgctxt "#30723"
-msgid "Proxy is required for mpeg-dash vods (see HTTP Server)[CR]> 1080p and HDR requires InputStream Adaptive >= 2.3.14"
+msgid "Proxy is required for mpeg-dash vods (see Advanced > HTTP Server)[CR]> 1080p and HDR requires InputStream Adaptive >= 2.3.14"
 msgstr "Un proxy est requis pour les vods mpeg-dash (voir serveur HTTP)[CR]> 1080p et HDR nécessitent InputStream Adaptive >= 2.3.14"
 
 msgctxt "#30724"
-msgid "Limit to 30fps"
-msgstr "Limiter à 30fps"
+msgid "Enable high framerate video"
+msgstr ""
 
 msgctxt "#30725"
-msgid "1440p (HD)"
-msgstr "1440p (HD)"
+msgid "1440p (QHD)"
+msgstr ""
 
 msgctxt "#30726"
 msgid "Uploads"
 msgstr "Téléversements"
 
 msgctxt "#30727"
-msgid "Adaptive (MP4/H264)"
-msgstr "Adaptatif (MP4/H264)"
+msgid "Enable H.264 video"
+msgstr ""
 
 msgctxt "#30728"
-msgid "Adaptive (WEBM/VP9)"
-msgstr "Adaptatif (WEBM/VP9)"
+msgid "Enable VP9 video"
+msgstr ""
 
 msgctxt "#30729"
-msgid "Remote friendly search"
-msgstr ""
+msgid ""
+msgstr "Recherche conviviale à distance"
 
 msgctxt "#30730"
 msgid "Play (Ask for quality)"
@@ -1212,3 +1230,167 @@ msgstr "Réponses"
 msgctxt "#30735"
 msgid "Edited"
 msgstr "Édité"
+
+msgctxt "#30736"
+msgid "Hide short videos (1 minute or less)"
+msgstr "Cacher les vidéos courtes (1 minute ou moins)"
+
+msgctxt "#30737"
+msgid "Use alternate client details"
+msgstr "Utiliser les détails du client alternatif"
+
+msgctxt "#30738"
+msgid "Alternate #1"
+msgstr "Alternative #1"
+
+msgctxt "#30739"
+msgid "Alternate #2"
+msgstr "Alternative #2"
+
+msgctxt "#30740"
+msgid "HLS"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Multi-stream HLS"
+msgstr ""
+
+msgctxt "#30742"
+msgid "Adaptive HLS"
+msgstr ""
+
+msgctxt "#30743"
+msgid "MPEG-DASH"
+msgstr ""
+
+msgctxt "#30744"
+msgid "Original"
+msgstr ""
+
+msgctxt "#30745"
+msgid "Dubbed"
+msgstr ""
+
+msgctxt "#30746"
+msgid "Descriptive"
+msgstr ""
+
+msgctxt "#30747"
+msgid "Alternate"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Stream features"
+msgstr ""
+
+msgctxt "#30749"
+msgid "Enable AV1 video"
+msgstr ""
+
+msgctxt "#30750"
+msgid "Enable Vorbis audio"
+msgstr ""
+
+msgctxt "#30751"
+msgid "Enable Opus audio"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Enable AAC audio"
+msgstr ""
+
+msgctxt "#30753"
+msgid "Enable surround sound audio"
+msgstr ""
+
+msgctxt "#30754"
+msgid "Enable AC-3 audio"
+msgstr ""
+
+msgctxt "#30755"
+msgid "Enable EAC-3 audio"
+msgstr ""
+
+msgctxt "#30756"
+msgid "Enable DTS audio"
+msgstr ""
+
+msgctxt "#30757"
+msgid "Remove similar/duplicate streams"
+msgstr ""
+
+msgctxt "#30758"
+msgid "Stream selection"
+msgstr ""
+
+msgctxt "#30759"
+msgid "Quality selection"
+msgstr ""
+
+msgctxt "#30760"
+msgid "Automatic + Quality selection"
+msgstr ""
+
+msgctxt "#30761"
+msgid "Update playback history on Youtube"
+msgstr ""
+
+msgctxt "#30762"
+msgid "Multi-language"
+msgstr ""
+
+msgctxt "#30763"
+msgid "Multi-audio"
+msgstr ""
+
+#~ msgctxt "#30010"
+#~ msgid "Video quality"
+#~ msgstr "Qualité vidéo"
+
+#~ msgctxt "#30013"
+#~ msgid "1080p (HD)"
+#~ msgstr "1080p (HD)"
+
+#~ msgctxt "#30014"
+#~ msgid "2160p (4k)"
+#~ msgstr "2160p (4K)"
+
+#~ msgctxt "#30015"
+#~ msgid "4320p (8k)"
+#~ msgstr "4320p (8K)"
+
+#~ msgctxt "#30675"
+#~ msgid "Use playback history (watched, resume tracking)"
+#~ msgstr "Utiliser l'historique de lecture (vu, reprise de lecture)"
+
+#~ msgctxt "#30690"
+#~ msgid "InputStream Adaptive >= 2.0.12 is required for live streams"
+#~ msgstr "InputStream Adaptive >= 2.0.12 est requis pour le live"
+
+#~ msgctxt "#30722"
+#~ msgid "HDR"
+#~ msgstr "HDR"
+
+#~ msgctxt "#30724"
+#~ msgid "Limit to 30fps"
+#~ msgstr "Limiter à 30fps"
+
+#~ msgctxt "#30725"
+#~ msgid "1440p (HD)"
+#~ msgstr "1440p (HD)"
+
+#~ msgctxt "#30727"
+#~ msgid "Adaptive (MP4/H264)"
+#~ msgstr "Adaptatif (MP4/H264)"
+
+#~ msgctxt "#30728"
+#~ msgid "Adaptive (WEBM/VP9)"
+#~ msgstr "Adaptatif (WEBM/VP9)"
+
+#~ msgctxt "#30100"
+#~ msgid "Favorites"
+#~ msgstr "Favoris"
+
+#~ msgctxt "#30200"
+#~ msgid "API Key"
+#~ msgstr "Clé de l’API"
