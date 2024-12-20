@@ -1601,6 +1601,7 @@ def get_trakt_playback(trakt_type=None):
 
 def update_trakt_playback(trakt_type=None,tmdb_id=None,episode=None,season=None):
 	from resources.lib.library import trak_auth
+	import requests
 	if trakt_type == 'tv':
 		response = get_trakt_playback('tv')
 		item_id = tmdb_id
