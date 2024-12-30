@@ -721,7 +721,7 @@ class Sources():
 						url = self.resolve_sources(item)
 						#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 						if url == None:
-							return self.play_file(results, source=results[source_index+1])
+							return self.play_file(results, source=results[source_index])
 						if url:
 							#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 							#xbmc.log(str(item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
@@ -811,6 +811,7 @@ class Sources():
 					sleep(100)
 				except: pass
 			if continue_nextep:
+				default_action = 'cancel'
 				if use_window: action = self._make_nextep_dialog(default_action=default_action)
 				else: notification('[B]Next Up:[/B] %s S%02dE%02d' % (self.meta.get('title'), self.meta.get('season'), self.meta.get('episode')), 6500, self.meta.get('poster'))
 				if not action: action = default_action
