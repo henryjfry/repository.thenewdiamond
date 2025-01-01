@@ -81,7 +81,8 @@ def clear_db(connection=None,table_name=None):
 def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=None, headers=False):
 	if db_con == None:
 		connection = db_start()
-	cur = connection.cursor()
+	try: cur = connection.cursor()
+	except: connection = db_start()
 	try: url = url.encode('utf-8')
 	except: pass
 	hashed_url = hashlib.md5(url).hexdigest()

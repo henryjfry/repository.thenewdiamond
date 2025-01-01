@@ -403,7 +403,14 @@ def get_tmdb_window(window_type):
 
 		@ch.action('play', 500)
 		def context_play(self):
-			Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'))
+			try: UnWatchedEpisodes = int(self.listitem.getProperty('UnWatchedEpisodes'))
+			except: UnWatchedEpisodes = 0
+			if UnWatchedEpisodes > 2:
+				url = trakt_next_episode_normal(tmdb_id_num=self.listitem.getProperty('id'))
+				xbmc.executebuiltin('Dialog.Close(all,true)')
+				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+			else:
+				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'))
 
 		@ch.action('info', 500)
 		@ch.action('contextmenu', 500)
@@ -1505,16 +1512,19 @@ def get_tmdb_window(window_type):
 					#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 					response = get_trakt_playback('tv')
 					listitems1 = []
-					for i in response:
-						ep = extended_episode_info(i['show']['ids']['tmdb'], i['episode']['season'], i['episode']['number'])
-						ep[0]['tmdb_id'] = ep[1]['tvshow_id']
-						ep[0]['PercentPlayed'] = int(i['progress'])
-						listitems1.append(ep[0])
+					if response:
+						for i in response:
+							ep = extended_episode_info(i['show']['ids']['tmdb'], i['episode']['season'], i['episode']['number'])
+							ep[0]['tmdb_id'] = ep[1]['tvshow_id']
+							ep[0]['PercentPlayed'] = int(i['progress'])
+							listitems1.append(ep[0])
+					response = None
 					response = get_trakt_playback('movie')
-					for i in response:
-						mov = extended_movie_info(i['movie']['ids']['tmdb'])
-						mov[0]['PercentPlayed'] = int(i['progress'])
-						listitems1.append(mov[0])
+					if response:
+						for i in response:
+							mov = extended_movie_info(i['movie']['ids']['tmdb'])
+							mov[0]['PercentPlayed'] = int(i['progress'])
+							listitems1.append(mov[0])
 
 					x = 0
 					page = int(self.page)
@@ -1568,18 +1578,20 @@ def get_tmdb_window(window_type):
 				if self.search_str == 'Trakt Episodes/Movies in progress':
 					listitems1 = []
 					response = get_trakt_playback('tv')
-					for i in response:
-						for x in info['listitems']:
-							if x['tmdb_id'] == i['show']['ids']['tmdb']:
-								if x['episode'] == i['episode']['number'] and x['season'] == i['episode']['season']:
+					if response:
+						for i in response:
+							for x in info['listitems']:
+								if x['tmdb_id'] == i['show']['ids']['tmdb']:
+									if x['episode'] == i['episode']['number'] and x['season'] == i['episode']['season']:
+										x['PercentPlayed'] = int(i['progress'])
+										listitems1.append(x)
+					response = get_trakt_playback('movie')
+					if response:
+						for i in response:
+							for x in info['listitems']:
+								if x['tmdb_id'] == i['movie']['ids']['tmdb']:
 									x['PercentPlayed'] = int(i['progress'])
 									listitems1.append(x)
-					response = get_trakt_playback('movie')
-					for i in response:
-						for x in info['listitems']:
-							if x['tmdb_id'] == i['movie']['ids']['tmdb']:
-								x['PercentPlayed'] = int(i['progress'])
-								listitems1.append(x)
 					info['listitems'] = listitems1
 				reopen_window = True
 
@@ -1961,47 +1973,18 @@ def get_tmdb_window(window_type):
 			elif self.search_str == 'Trakt Episodes/Movies in progress':
 				response = get_trakt_playback('tv')
 				listitems1 = []
-				#xbmc.log(str(response)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-				for i in response:
-					#xbmc.log(str(i)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-					ep = extended_episode_info(i['show']['ids']['tmdb'], i['episode']['season'], i['episode']['number'])
-					#if ep[0]['episode'] == '':
-					#	season = extended_season_info(i['show']['ids']['tmdb'], i['episode']['season'])
-					#	ep[1]['actors'] = season[1]['actors']
-					#	ep[1]['crew'] = season[1]['crew']
-					#	#ep[1]['guest_stars'] = season[1]['guest_stars']
-					#	ep[0]['season'] = i['episode']['season']
-					#	ep[0]['episode'] = i['episode']['number']
-					#	ep[0]['Plot'] = season[1]['episodes'][i['episode']['number']-1]['Description']
-					#	ep[0]['Description'] = season[1]['episodes'][i['episode']['number']-1]['Description']
-					#	ep[0]['Votes'] = season[1]['episodes'][i['episode']['number']-1]['Votes']
-					#	ep[0]['Rating'] = season[1]['episodes'][i['episode']['number']-1]['Rating']
-					#	ep[0]['id'] = season[1]['episodes'][i['episode']['number']-1]['id']
-					#	ep[0]['production_code'] = season[1]['episodes'][i['episode']['number']-1]['production_code']
-					#	ep[0]['release_date'] = season[1]['episodes'][i['episode']['number']-1]['release_date']
-					#	ep[0]['title'] = season[1]['episodes'][i['episode']['number']-1]['title']
-					#	ep[0]['still'] = season[1]['episodes'][i['episode']['number']-1]['still'] 
-					#	ep[0]['still_original'] = season[1]['episodes'][i['episode']['number']-1]['still_original'] 
-					#	ep[0]['still_small'] = season[1]['episodes'][i['episode']['number']-1]['still_small'] 
-					#	ep[0]['thumb'] = season[1]['episodes'][i['episode']['number']-1]['thumb'] 
-					#	ep[1]['images'] = {}
-					#	ep[1]['images']['still'] = season[1]['episodes'][i['episode']['number']-1]['still'] 
-					#	ep[1]['images']['still_original'] = season[1]['episodes'][i['episode']['number']-1]['still_original'] 
-					#	ep[1]['images']['still_small'] = season[1]['episodes'][i['episode']['number']-1]['still_small'] 
-					#	ep[1]['images']['thumb'] = season[1]['episodes'][i['episode']['number']-1]['thumb'] 
-
-						#xbmc.log(str(season[1])+'===>OPEN_INFO', level=xbmc.LOGINFO)
-					#xbmc.log(str(ep)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-					ep[0]['tmdb_id'] = ep[1]['tvshow_id']
-					ep[0]['PercentPlayed'] = int(i['progress'])
-					listitems1.append(ep[0])
-					#xbmc.log(str(ep[0])+'===>OPEN_INFO', level=xbmc.LOGINFO)
+				if response:
+					for i in response:
+						ep = extended_episode_info(i['show']['ids']['tmdb'], i['episode']['season'], i['episode']['number'])
+						ep[0]['tmdb_id'] = ep[1]['tvshow_id']
+						ep[0]['PercentPlayed'] = int(i['progress'])
+						listitems1.append(ep[0])
 				response = get_trakt_playback('movie')
-				#xbmc.log(str(response)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-				for i in response:
-					mov = extended_movie_info(i['movie']['ids']['tmdb'])
-					mov[0]['PercentPlayed'] = int(i['progress'])
-					listitems1.append(mov[0])
+				if response:
+					for i in response:
+						mov = extended_movie_info(i['movie']['ids']['tmdb'])
+						mov[0]['PercentPlayed'] = int(i['progress'])
+						listitems1.append(mov[0])
 
 				x = 0
 				page = int(self.page)

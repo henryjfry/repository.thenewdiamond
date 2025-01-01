@@ -2696,7 +2696,10 @@ def download_cached_movie(rd_api, download_path, curr_download, torr_id, torr_in
 		poster_path = os.path.join(download_folder1, 'poster.png')
 	elif '.jpg' in movie_poster:
 		poster_path = os.path.join(download_folder1,'poster.jpg')
-	tools.download_progressbar(rd_api, movie_poster, poster_path)
+	try:
+		tools.download_progressbar(rd_api, movie_poster, poster_path)
+	except: 
+		tools.log('POSTER_MISSING_OR_OTHER_ERROR!!!!')
 	#sub_out = os.path.basename(tools.SUB_FILE)
 	#sub_path = os.path.join(download_folder, sub_out)
 	#shutil.copyfile(tools.SUB_FILE, sub_path)

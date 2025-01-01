@@ -84,6 +84,7 @@ class PlayerMonitor(xbmc.Player):
 		self.speed = 1
 		self.speed_time = 0
 		self.scrobble_time = 0
+		self.trakt_error = None
 
 	def getProperty(self, var_name):
 		var_value = xbmcgui.Window(10000).getProperty(var_name)
@@ -329,6 +330,7 @@ class PlayerMonitor(xbmc.Player):
 		try:
 			return response.json()
 		except:
+			response = 'ERROR'
 			return response
 
 	def trakt_scrobble_tmdb(self, tmdb_id, percent, action=None):
@@ -426,6 +428,7 @@ class PlayerMonitor(xbmc.Player):
 				log('TRAKT_SCROBBLE_ACTION_SUCCESS')
 			except: 
 				log(str(response)+'===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
+				response = 'ERROR'
 		return response
 
 	def trakt_scrobble_tv(self, title, season, episode, percent, action=None):
@@ -488,6 +491,7 @@ class PlayerMonitor(xbmc.Player):
 				log('TRAKT_SCROBBLE_ACTION_SUCCESS')
 			except: 
 				log(str(response)+'===>TRAKT_SCROBBLE_TV____OPEN_INFO')
+				response = 'ERROR'
 		return response
 
 	def trakt_meta_scrobble(self, action):
@@ -526,6 +530,8 @@ class PlayerMonitor(xbmc.Player):
 				response = self.trakt_scrobble_title(movie_title=trakt_meta.get('movie_title'), movie_year=trakt_meta.get('movie_year'), percent=self.player_meta['percentage'], action=action)
 			else:
 				response = self.trakt_scrobble_tmdb(tmdb_id=trakt_meta.get('trakt_tmdb_id'),percent=self.player_meta['percentage'],action=action)
+		if response == 'ERROR':
+			self.trakt_error = 'ERROR'
 		return self.trakt_watched 
 
 
@@ -740,6 +746,7 @@ class PlayerMonitor(xbmc.Player):
 		self.setProperty('reopen_window_var','Started')
 
 		self.player_meta['diamond_info_started'] = None
+		self.trakt_error = None
 
 		self.player_meta['diamond_info_time'] = self.getProperty('diamond_info_time')
 		self.player_meta['diamond_player_time'] = self.getProperty('diamond_player_time')
@@ -1251,17 +1258,19 @@ class PlayerMonitor(xbmc.Player):
 						self.SetMovieDetails2(self.player_meta['dbID'], self.player_meta['resume_duration'])
 				except TypeError: 
 					return
-				try: 
-					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-					#log(str(response), 'TheMovieDB.update_trakt_playback')
-				except:
-					log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
-				log(str('STARTING...library.trakt_watched_movies_full'))
-				library.trakt_refresh_all()
-				self.library_refresh = True
-				log(str('FINISHED...library.trakt_watched_movies_full'))
+				if not self.trakt_error:
+					try: 
+						response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
+						#log(str(response), 'TheMovieDB.update_trakt_playback')
+					except:
+						log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
+					log(str('STARTING...library.trakt_watched_movies_full'))
+					library.trakt_refresh_all()
+					self.library_refresh = True
+					log(str('FINISHED...library.trakt_watched_movies_full'))
 				self.playing_file = None
+				self.trakt_error = None
 				return
 
 		if self.type == 'episode':
@@ -1349,17 +1358,18 @@ class PlayerMonitor(xbmc.Player):
 				if self.player_meta['dbID'] != None:
 					self.SetEpisodeDetails2(self.player_meta['dbID'], self.player_meta['resume_duration']) ##PLAYCOUNT_LASTPLAYED
 
-				try:
-					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
-					#log(str(response), 'TheMovieDB.update_trakt_playback')
-				except:
-					log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+				if not self.trakt_error:
+					try:
+						response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
+						#log(str(response), 'TheMovieDB.update_trakt_playback')
+					except:
+						log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
 
-				log(str('STARTING...library.trakt_watched_tv_shows_full'))
-				library.trakt_refresh_all()
-				self.library_refresh = True
-				log(str('FINISHED...library.trakt_watched_tv_shows_full'))
+					log(str('STARTING...library.trakt_watched_tv_shows_full'))
+					library.trakt_refresh_all()
+					self.library_refresh = True
+					log(str('FINISHED...library.trakt_watched_tv_shows_full'))
 
 			if self.player_meta['diamond_player'] == False and self.player_meta['percentage'] > 85:
 				#log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
@@ -1402,6 +1412,7 @@ class PlayerMonitor(xbmc.Player):
 				log(str(kodi_url)+'kodi_url===>OPENINFO')
 				xbmc.executebuiltin(kodi_url)
 				self.playing_file = None
+				self.trakt_error = None
 				return
  
 class CronJobMonitor(Thread):
