@@ -307,16 +307,21 @@ class RealDebridAPI:
 		compare_title = re.sub(r'[^A-Za-z0-9]+', '.', title.replace('\'', '').replace('&', 'and').replace('%', '.percent')).lower()
 		elapsed_time, transfer_finished = 0, False
 		extensions = supported_video_extensions()
-		try:
+		#try:
+		#try:
+		if 1==1:
 			torrent = self.add_magnet(magnet_url)
-			xbmc.log(str(torrent)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+			#xbmc.log(str(torrent)+'===>add_magnet', level=xbmc.LOGINFO)
 			try: torrent_id = torrent['id']
-			except: return None
+			except: 
+				#xbmc.log('===>return None', level=xbmc.LOGINFO)
+				return None
+			
 			self.add_torrent_select(torrent_id, 'all')
 			torrent_info = self.user_cloud_info_check(torrent_id)
 			if not torrent_info['links'] or 'error' in torrent_info:
 				self.delete_torrent(torrent_id)
-				xbmc.log(str(torrent_id)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+				#xbmc.log(str(torrent_id)+'===>delete_torrent', level=xbmc.LOGINFO)
 				return None
 			sleep(1000)
 			while elapsed_time <= 4 and not transfer_finished:
@@ -325,6 +330,7 @@ class RealDebridAPI:
 				elapsed_time += 1
 				if info_hash in active_list: sleep(1000)
 				else: transfer_finished = True
+
 			if not transfer_finished:
 				self.delete_torrent(torrent_id)
 				return None
@@ -346,6 +352,9 @@ class RealDebridAPI:
 						else: match = True; break
 				if match: index = [i[0] for i in selected_files if i[1]['path'] == correct_files[0]['path']][0]
 			else:
+				if self._m2ts_check(selected_files): 
+					self.delete_torrent(torrent_id)
+					return None
 				for value in selected_files:
 					filename = re.sub(r'[^A-Za-z0-9-]+', '.', value[1]['path'].rsplit('/', 1)[1].replace('\'', '').replace('&', 'and').replace('%', '.percent')).lower()
 					filename_info = filename.replace(compare_title, '')
@@ -359,9 +368,9 @@ class RealDebridAPI:
 				if not store_to_cloud: Thread(target=self.delete_torrent, args=(torrent_id,)).start()
 				return file_url
 			else: self.delete_torrent(torrent_id)
-		except:
-			if torrent_id: self.delete_torrent(torrent_id)
-			return None
+		#except:
+		#	if torrent_id: self.delete_torrent(torrent_id)
+		#	return None
 
 	def display_magnet_pack(self, magnet_url, info_hash):
 		try:
@@ -403,8 +412,8 @@ class RealDebridAPI:
 		return [i[0] for i in sorted_list]
 
 	def _m2ts_check(self, folder_details):
-		for item in folder_details:
-			if any(i['filename'].endswith('.m2ts') for i in item.values()): return True
+		for idx, item in folder_details:
+			if item['path'].endswith('.m2ts'): return True
 		return False
 
 	def _m2ts_key_value(self, torrent_files):

@@ -649,13 +649,19 @@ class Sources():
 		return FenLightPlayer().run(link, 'video')
 
 	def play_file(self, results, source={}):
+		#xbmc.log(str('play_file')+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		#xbmc.log(str(results)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		try: source_index = results.index(source)
+		except: source_index = 0
 		self.playback_successful, self.cancel_all_playback = None, False
-		try:
+		#try:
+		if 1==1:
 			hide_busy_dialog()
 			url = None
 			results = [i for i in results if not 'Uncached' in i.get('cache_provider', '')]
 			if not source: source = results[0]
 			items = [source]
+			#xbmc.log(str(items)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			if not self.limit_resolve: 
 				source_index = results.index(source)
 				results.remove(source)
@@ -663,6 +669,8 @@ class Sources():
 				items_prev.reverse()
 				items_next = results[source_index:]
 				items = items + items_next + items_prev
+			else:
+				results.remove(source)
 			processed_items = []
 			processed_items_append = processed_items.append
 			for count, item in enumerate(items, 1):
@@ -681,22 +689,28 @@ class Sources():
 						resolve_item['resolve_display'] = '%02d. [B]%s (RETRYx%s)[/B][CR]%s[CR]%s' % (count, provider_text, retry, extra_info, display_name)
 						processed_items_append(resolve_item)
 			items = list(processed_items)
+			#xbmc.log(str(items)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			if not self.continue_resolve_check(): return self._kill_progress_dialog()
 			hide_busy_dialog()
 			self.playback_percent = self.get_playback_percent()
 			if self.playback_percent == None: return self._kill_progress_dialog()
+			#xbmc.log(str(self.resolve_dialog_made)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+			
 			if not self.resolve_dialog_made: self._make_resolve_dialog()
 			if self.background: sleep(1000)
 			monitor = xbmc_monitor()
+			url = None
 			for count, item in enumerate(items, 1):
 				try:
 					hide_busy_dialog()
+					#xbmc.log(str(self.progress_dialog)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 					if not self.progress_dialog: break
+					
 					self.progress_dialog.reset_is_cancelled()
 					self.progress_dialog.update_resolver(text=item['resolve_display'])
 					self.progress_dialog.busy_spinner()
 					if count > 1:
-						sleep(200)
+						sleep(1500)
 						try: del player
 						except: pass
 					url, self.playback_successful, self.cancel_all_playback = None, None, False
@@ -706,13 +720,16 @@ class Sources():
 					try:
 						if self.progress_dialog.iscanceled() or monitor.abortRequested(): break
 						url = self.resolve_sources(item)
+						if url == None:
+							return self.play_file(results, source=results[source_index])
 						if url:
+							#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+							#xbmc.log(str(item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 							resolve_percent = 0
 							self.progress_dialog.busy_spinner('false')
 							self.progress_dialog.update_resolver(percent=resolve_percent)
 							sleep(200)
 							player.run(url, self)
-						else: continue
 						if self.cancel_all_playback: break
 						if self.playback_successful: break
 						if count == len(items):
@@ -721,7 +738,7 @@ class Sources():
 							break
 					except: pass
 				except: pass
-		except: self._kill_progress_dialog()
+		#except: self._kill_progress_dialog()
 		if self.cancel_all_playback: return self._kill_progress_dialog()
 		if not self.playback_successful or not url: self.playback_failed_action()
 		try: del monitor
