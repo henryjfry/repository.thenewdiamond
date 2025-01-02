@@ -1750,6 +1750,7 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 		#tools.log(result_dict)
 		if len(result_dict['episode_numbers']) == 0 or abs(len(meta[meta_source]['episodes']) - len(result_dict['episode_numbers']))>=4:
 			if not (abs(len(meta[meta_source]['episodes']) - len(result_dict['episode_numbers']))>=4 and len(sorted_torr_info) == len(result_dict['episode_numbers'])):
+				tools.log(result_dict)
 				return
 
 		for i in range(min(result_dict['episode_numbers']),max(result_dict['episode_numbers'])+1):

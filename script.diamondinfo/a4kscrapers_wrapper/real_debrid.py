@@ -409,9 +409,9 @@ class RealDebrid:
 				#return self.cache_check_results
 				return hash_dict
 			else:
-				hash_dict = {i: {'d':[]}}
+				hash_dict = {hash_list: {'d':[]}}
 				response = self.delete_torrent(torr_id)
-				hash_dict[i]['d'].append({x['id']:{'filename':x['path'],'filesize':x['bytes']}})
+				hash_dict[hash_list]['d'].append({1:{'filename':'','filesize':99}})
 				return hash_dict
 
 	def _check_hash_thread(self, hashes):
