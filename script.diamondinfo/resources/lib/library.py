@@ -2072,6 +2072,7 @@ def trakt_calendar_list():
 				response_collect = requests.post('https://api.trakt.tv/sync/collection', data=values2, headers=headers)
 				xbmc.log(str(n['show']['title'] + ' episodes added: ' + str(response_collect.json()['added']))+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			except:
+				#xbmc.log(str(response_collect)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 				pass
 			curr_days = str(-1* (datetime.today() - datetime(*(time.strptime(n['first_aired'], '%Y-%m-%dT%H:%M:%S.%fZ')[0:6]))).days)
 			thumb_file_name = str(n['show']['title']) +' - S' + format(n['episode']['season'], '02d') + 'E' + format(n['episode']['number'], '02d') + '-thumb.jpg'

@@ -870,8 +870,8 @@ def run_tv_search():
 
 		download_link, new_meta = cloud_get_ep_season(rd_api, meta, torr_id, torr_info)
 		
-		#tools.log(torrent)
-		#tools.log(download_link)
+		tools.log(torrent)
+		tools.log(download_link)
 		#tools.log(new_meta)
 
 		magnet_list = tools.get_setting('magnet_list')
@@ -926,8 +926,8 @@ def run_tv_search():
 			ep_meta['magnet'] = torrent['magnet']
 			download_link, new_ep_meta = cloud_get_ep_season(rd_api, ep_meta, torr_id, torr_info)
 
-			#tools.log(download_link)
-			#tools.log(new_ep_meta)
+			tools.log(download_link)
+			tools.log(new_ep_meta)
 
 			stream_link = download_link
 			file_name = os.path.basename(stream_link)
@@ -1265,12 +1265,14 @@ def choose_torrent(sources_list):
 def cloud_get_ep_season(rd_api, meta, torr_id, torr_info):
 	from source_tools import get_guess
 	torr_info = rd_api.torrent_info_files(torr_info)
+	#tools.log(torr_info)
 	sorted_torr_info = sorted(torr_info['files_links'], key=lambda x: x['pack_path'])
 	info = meta['episode_meta']
 	simple_info = tools._build_simple_show_info(info)
 
+	#tools.log(info)
 	daily_show_flag = False
-	if info['episode_air_date'][-2:] in info['title'] and info['episode_air_date'][:4] in info['title']:
+	if info['episode_air_date'][-2:] in str(info.get('title','')) and info['episode_air_date'][:4] in str(info.get('title','')):
 		import datetime
 		if datetime.datetime.strptime(info['episode_air_date'], '%Y-%m-%d').strftime('%B %d, %Y') in info['title']:
 			daily_show_flag = True
@@ -1287,13 +1289,15 @@ def cloud_get_ep_season(rd_api, meta, torr_id, torr_info):
 		meta['episode_meta'] = info
 		simple_info['show_aliases'] = info['info']['show_aliases']
 		simple_info['episode_title'] = info['info']['title']
-		tools.log(meta['episode_meta'])
+		#tools.log(meta['episode_meta'])
 
 	result_dict = source_tools.match_episodes_season_pack(meta, sorted_torr_info)
+	#tools.log(result_dict)
 
 	download_link = None
 	new_meta = meta
 	#tools.log(simple_info, meta['episode_meta']['title'])
+	#tools.log(result_dict['concat'][0]['meta_source'])
 	try: meta_source = result_dict['concat'][0]['meta_source']
 	except: meta_source = None
 	if meta_source == None:

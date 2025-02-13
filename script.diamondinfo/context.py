@@ -16,36 +16,63 @@ if __name__ == '__main__':
 		elif xbmc.getInfoLabel('listitem.DBTYPE') in ['tv', 'tvshow', 'season', 'episode']:
 			type = 'tvshow'
 
-	remote_id = sys.listitem.getProperty('id')
+	try: imdb_id = info.getUniqueID('imdb')
+	except: imdb_id = None
+	try: tmdb_id = info.getUniqueID('tmdb')
+	except: tmdb_id = None
+	try: tvdb_id = info.getUniqueID('tvdb')
+	except: tvdb = None
+	if tmdb_id:
+		remote_id = tmdb_id
+	else:
+		remote_id = sys.listitem.getProperty('id')
 	params = {}
 	infos = []
 	if type   == 'movie':
 		base = 'RunScript('+str(addon_ID())+',info='+str(addon_ID_short())
-		url = '%s,dbid=%s,id=%s,imdb_id=%s,name=%s)' % (base, dbid, remote_id, info.getIMDBNumber(), info.getTitle())
 		infos.append(str(addon_ID_short()))
 		params['dbid'] = dbid
-		params['id'] = remote_id
-		params['imdb_id'] = info.getIMDBNumber()
+		if tmdb_id:
+			params['id'] = tmdb_id
+		else:
+			params['id'] = remote_id
+		if imdb_id:
+			params['imdb_id'] = imdb_id
+		else:
+			params['imdb_id'] = info.getIMDBNumber()
 		params['name'] = info.getTitle()
+		url = '%s,dbid=%s,id=%s,imdb_id=%s,name=%s)' % (base, params['dbid'], params['id'], params['imdb_id'], params['name'])
 		#xbmc.executebuiltin(url)
 	elif type == 'tvshow':
 		infos.append('extendedtvinfo')
 		params['dbid'] = dbid
-		params['id'] = remote_id
-		params['imdb_id'] = info.getIMDBNumber()
+		if tmdb_id:
+			params['id'] = tmdb_id
+		else:
+			params['id'] = remote_id
+		if imdb_id:
+			params['imdb_id'] = imdb_id
+		else:
+			params['imdb_id'] = info.getIMDBNumber()
 		params['name'] = info.getTitle()
 		#xbmc.executebuiltin('%sextendedtvinfo,dbid=%s,id=%s,name=%s)' % (base, dbid, remote_id, info.getTVShowTitle()))
 	elif type == 'season':
 		infos.append('seasoninfo')
 		params['dbid'] = dbid
-		params['id'] = remote_id
+		if tmdb_id:
+			params['id'] = tmdb_id
+		else:
+			params['id'] = remote_id
 		params['tvshow'] = info.getTVShowTitle()
 		params['season'] = info.getSeason()
 		#xbmc.executebuiltin('%sseasoninfo,dbid=%s,id=%s,tvshow=%s,season=%s)' % (base, dbid, remote_id, info.getTVShowTitle(), info.getSeason()))
 	elif type == 'episode':
 		infos.append('extendedepisodeinfo')
 		params['dbid'] = dbid
-		params['id'] = remote_id
+		if tmdb_id:
+			params['id'] = tmdb_id
+		else:
+			params['id'] = remote_id
 		params['tvshow'] = info.getTVShowTitle()
 		params['season'] = info.getSeason()
 		params['episode'] = info.getEpisode()

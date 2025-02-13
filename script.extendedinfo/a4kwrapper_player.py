@@ -121,7 +121,7 @@ def get_next_ep_details(show_title, season_num, ep_num, tmdb):
 	info = meta['episode_meta']
 
 	daily_show_flag = False
-	if info['episode_air_date'][-2:] in info['title'] and info['episode_air_date'][:4] in info['title']:
+	if info['episode_air_date'][-2:] in str(info.get('title','')) and info['episode_air_date'][:4] in str(info.get('title','')):
 		if datetime.datetime.strptime(info['episode_air_date'], '%Y-%m-%d').strftime('%B %d, %Y') in info['title']:
 			daily_show_flag = True
 
@@ -282,7 +282,11 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		try: 
 			info1['tvmaze_ep_id'] = info2['tvmaze_ep_id']
 		except: 
-			info1['tvmaze_ep_id'] = False
+			#tools.log(info2)
+			try: info1['tvmaze_ep_id'] = False
+			except: 
+				info1 = info2
+				info1['tvmaze_ep_id'] = False
 			tools.log('missing on TMDB!!!')
 		try: info = info2
 		except: info = info1

@@ -133,7 +133,8 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 	except:
 	#	xbmc.log(str(url)+'===>OPENINFO', level=xbmc.LOGFATAL)
 	#	xbmc.log(str(cache_val)+'===>OPENINFO', level=xbmc.LOGFATAL)
-		connection.commit()
+		try: connection.commit()
+		except: pass
 	cur.close()
 
 def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=False):

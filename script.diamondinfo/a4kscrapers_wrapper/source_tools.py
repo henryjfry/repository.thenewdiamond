@@ -1518,10 +1518,10 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 						end_index = idx
 			prev_episode = x
 
-		if start_index == end_index and start_index == -1:
-			if len(guess_episode) == 1:
-				start_index = 0
-				end_index = 0
+			if start_index == end_index and start_index == -1:
+				if len(guess_episode) == 1:
+					start_index = 0
+					end_index = 0
 
 		#tools.log(end_index, start_index)
 		#tools.log(last_abs_episode_tmdb, last_abs_episode_tvmaze)
@@ -1750,7 +1750,7 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 		#tools.log(result_dict)
 		if len(result_dict['episode_numbers']) == 0 or abs(len(meta[meta_source]['episodes']) - len(result_dict['episode_numbers']))>=4:
 			if not (abs(len(meta[meta_source]['episodes']) - len(result_dict['episode_numbers']))>=4 and len(sorted_torr_info) == len(result_dict['episode_numbers'])):
-				tools.log(result_dict)
+				#tools.log(result_dict)
 				return
 
 		for i in range(min(result_dict['episode_numbers']),max(result_dict['episode_numbers'])+1):
