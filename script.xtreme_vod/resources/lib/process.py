@@ -75,6 +75,8 @@ def start_info_actions(infos, params):
 		elif info == 'xtream2m3u_run':
 			import os
 			Utils.tools_log(os.getcwd())
+			from resources.lib.xtream2m3u_run import generate_m3u
+			generate_m3u()
 			exit()
 			from resources.lib.xtream2m3u_run import app as flask_app
 			from multiprocessing import Process

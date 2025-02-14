@@ -42,6 +42,15 @@ if XBMC_RUNNING:
 	xtreme_codes_password = xbmcaddon.Addon().getSetting('xtreme_codes.password')
 	xtreme_wanted_groups = xbmcaddon.Addon().getSetting('xtreme_wanted_groups')
 	channel_order = xbmcaddon.Addon().getSetting('channel_order')
+	output_folder = xbmcaddon.Addon().getSetting('output_folder')
+	if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
+		local_xml_m3u = True
+	else:
+		local_xml_m3u = False
+	if xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u') == 'true':
+		startup_local_xml_m3u = True
+	else:
+		startup_local_xml_m3u = False
 else:
 	folder = str(os.path.split(str(getframeinfo(currentframe()).filename))[0])
 	current_directory = os.path.dirname(os.path.dirname(folder))
@@ -52,6 +61,9 @@ else:
 	ADDON_SETTINGS_PATH = os.path.join(ADDON_DATA_PATH, 'settings.xml')
 	channel_order = ''
 	f = open(ADDON_SETTINGS_PATH, "r")
+	output_folder = ''
+	local_xml_m3u = False
+	startup_local_xml_m3u = False
 	for i in f:
 		if 'xtreme_codes.base_url' in str(i):
 			xtreme_codes_server_path = i.split('xtreme_codes.base_url">')[1].split('<')[0]
@@ -63,6 +75,23 @@ else:
 			xtreme_wanted_groups = i.split('xtreme_wanted_groups">')[1].split('<')[0]
 		if 'channel_order' in str(i):
 			channel_order = i.split('channel_order">')[1].split('<')[0]
+		if 'output_folder' in str(i):
+			output_folder = i.split('output_folder">')[1].split('<')[0]
+
+		if 'local_xml_m3u' in str(i):
+			local_xml_m3u = i.split('local_xml_m3u">')[1].split('<')[0]
+		if local_xml_m3u == 'true':
+			local_xml_m3u = True
+		elif local_xml_m3u == 'false':
+			local_xml_m3u = False
+
+		if 'startup_local_xml_m3u' in str(i):
+			startup_local_xml_m3u = i.split('startup_local_xml_m3u">')[1].split('<')[0]
+		if startup_local_xml_m3u == 'true':
+			startup_local_xml_m3u = True
+		elif startup_local_xml_m3u == 'false':
+			startup_local_xml_m3u = False
+
 	f.close()
 
 def tools_log(*args, **kwargs):

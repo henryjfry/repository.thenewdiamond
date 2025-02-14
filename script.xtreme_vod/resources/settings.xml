@@ -13,10 +13,14 @@
 		<setting label="List group names/partial names to include (non matching = EXCLUDE), comma separated" type="lsep"/>
 		<setting id="xtreme_wanted_groups" type="text" label="xtreme_wanted_groups" default="U.K,Scotland,Ireland,U.S.A,Canada,New Zeeland,UEFA,All Channels,BeIn,Australia" />
 		<setting label="Sort Channels File - 1 Channel per line" type="lsep"/>
-		 <setting label="Channesl Order File" type="file" id="channel_order" default=""/>
+		 <setting label="Channels Order File" type="file" id="channel_order" default=""/>
 		<setting label="Server  http://localhost:5000/m3u / http://localhost:5000/xmltv" type="lsep"/>
-		<setting label="Auto start M3U/XMLTV server" type="bool" id="auto_start_server" default="true"/>
+		<setting label="Auto start M3U/XMLTV server" type="bool" id="auto_start_server" default="false"/>
 		<setting label="STOP Server  http://localhost:5000/stop" type="lsep"/>
+		<setting label="Create Local XML/M3U Files" type="bool" id="local_xml_m3u" default="true"/>
+		<setting label="Local XML/M3U Refresh period (hours - default = 8)" type="number" id="xml_m3u_sync_hours" default="8"/>
+		<setting label="STARTUP_Create Local XML/M3U Files" type="bool" id="startup_local_xml_m3u" default="true"/>
+		<setting label="Output XML/M3U Folder" type="folder" id="output_folder" default=""/>
 		<setting label="TMDB Options" type="lsep"/>
 		<!--setting label="Language" type="select" values="bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nl|no|pl|pt|ru|sl|sv|tr|zh" id="LanguageID" default="en"/>
 		<setting label="Include adult?" type="bool" id="include_adults" default="false"/-->
@@ -44,10 +48,10 @@
 		<setting label="fenlight_patch" type="action" action="RunScript(script.extendedinfo,info=patch_fen_light)" visible="System.HasAddon(plugin.video.fenlight)"/>
 		<setting label="fen_light_players" type="action" action="RunScript(script.extendedinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/--->
 	</category>
-    <category label="Trakt Collection Library Options">
+    <!---category label="Trakt Collection Library Options">
 		<setting label="TMDBHelper Trakt Authentication" type="action" action="RunScript(plugin.video.themoviedb.helper,authenticate_trakt)"/>
-		<!--setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt Only"/>
-        <setting label="Auto Add Trakt Calendar items to collection" type="bool" id="trakt_calendar_auto_sync" default="false"/-->
+		<setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt Only"/>
+        <setting label="Auto Add Trakt Calendar items to collection" type="bool" id="trakt_calendar_auto_sync" default="false"/>
         <setting label="Auto Sync Collection to library" type="bool" id="library_auto_sync" default="false"/>
 		<setting label="Library Sync Period (hours - default = 8)" type="number" id="library_sync_hours" default="8"/>
 		<setting label="Root folder for ./Movies + ./TVShows STRM files with tmdb.nfo" type="lsep"/>
@@ -91,7 +95,7 @@
 
 
 
-	</category>
+	</category--->
 
 
 </settings>

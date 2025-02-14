@@ -37,6 +37,9 @@ import functools
 
 import sqlite3
 
+from resources.lib.xtream2m3u_run import generate_m3u
+from resources.lib.xtream2m3u_run import generate_xmltv
+
 def get_guess(release_title, options=None):
 	guess = api.guessit(release_title, options)
 	return guess
@@ -1445,6 +1448,12 @@ class CronJobMonitor(Thread):
 		else:
 			auto_clean_cache_bool = False
 
+		try: xml_m3u_sync_hours = int(xbmcaddon.Addon(addon_ID()).getSetting('xml_m3u_sync_hours'))
+		except: xml_m3u_sync_hours = 8
+		if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
+			local_xml_m3u = True
+		else:
+			local_xml_m3u = False
 
 		import importlib
 		importlib.reload(Utils)
@@ -1458,13 +1467,18 @@ class CronJobMonitor(Thread):
 			tools_log(str('CronJobMonitor_STARTED_script.xtreme_vod_service_started'))
 			self.curr_time = datetime.datetime.now().replace(minute=0,second=0, microsecond=0).timestamp()
 			if int(time.time()) > self.next_time:# and library_auto_sync == True:  # Scheduled time has past so lets update
-				library_update_period = int(xbmcaddon.Addon(library.addon_ID()).getSetting('library_sync_hours'))
-				self.next_time = self.curr_time + library_update_period*60*60
-				tools_log(str('process.auto_library()'))
+				#library_update_period = int(xbmcaddon.Addon(library.addon_ID()).getSetting('library_sync_hours'))
+				self.next_time = self.curr_time + xml_m3u_sync_hours*60*60
+				tools_log(str('process.auto_sync'))
 				#process.auto_library()
 				movies = TheMovieDB.get_vod_data(action= 'get_vod_streams' ,cache_days=0.00001) 
 				movies = TheMovieDB.get_vod_data(action= 'get_series' ,cache_days=0.00001) 
-				
+				if os.environ['first_run'] == str('True'):
+					os.environ['first_run'] = str('False')
+				else:
+					if local_xml_m3u:
+						generate_m3u()
+					#generate_xmltv()
 			elif int(time.time()) > self.next_time and trakt_kodi_mode == 'Trakt Only': 
 				try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
 				except: trakt_token = None
@@ -1594,9 +1608,18 @@ class ServiceMonitor(object):
 		else:
 			auto_start_server = False
 
+		if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
+			local_xml_m3u = True
+		else:
+			local_xml_m3u = False
+		startup_local_xml_m3u = xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u')
+
 		if auto_start_server:
 			tools_log('STARTING SERVER -  http://localhost:5000/m3u  http://localhost:5000/xmltv  http://localhost:5000/stop')
 			xbmc.executebuiltin('RunScript(script.xtreme_vod,info=service2)')
+		if startup_local_xml_m3u == True or startup_local_xml_m3u == 'true':
+			generate_m3u(mode='startup')
+			generate_xmltv(mode='startup')
 
 		library.auto_setup_xml_filenames()
 		self.cron_job.start()

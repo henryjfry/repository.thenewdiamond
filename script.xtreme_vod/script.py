@@ -10,6 +10,8 @@ class Main:
 	def __init__(self):
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
 		self._parse_argv()
+		if len(self.infos) == 0:
+				self.infos.append('allmovies2')
 		if self.infos:
 			process.start_info_actions(self.infos, self.params)
 		else:
@@ -21,8 +23,6 @@ class Main:
 	def _parse_argv(self):
 		self.infos = []
 		self.params = {'handle': None}
-		if len(self.infos) == 0:
-				self.infos.append('allmovies2')
 		for arg in sys.argv:
 			param = arg.replace('"', '').replace("'", ' ')
 			if param.startswith('info='):
