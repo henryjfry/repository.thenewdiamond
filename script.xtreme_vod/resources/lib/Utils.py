@@ -106,7 +106,7 @@ db_con = None
 def test_db():
 	import sqlite3
 	if not os.path.exists(ADDON_DATA_PATH):
-		os.mkdirs(ADDON_DATA_PATH)
+		os.makedirs(ADDON_DATA_PATH)
 	db_con = sqlite3.connect(CACHE_PATH, check_same_thread=False)
 	return db_con
 
