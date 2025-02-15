@@ -260,6 +260,13 @@ def generate_xmltv(mode=None):
 	category_response = get_vod_data(action='get_live_categories',cache_days=0.5)
 
 	categoryname = {}
+	if category_response == None:
+		xmltv_response = None
+		return Response(
+			xmltv_response,
+			mimetype='application/xml',
+			headers={"Content-Disposition": "attachment; filename=guide.xml"}
+		)
 	for i in category_response:
 		categoryname[i['category_id']] = i['category_name']
 
@@ -421,6 +428,9 @@ def generate_m3u(mode=None):
 
 	category_response = get_vod_data(action='get_live_categories',cache_days=0.5)
 	categoryname = {}
+	if category_response == None:
+		m3u_playlist = None
+		return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
 	for i in category_response:
 		categoryname[i['category_id']] = i['category_name']
 
