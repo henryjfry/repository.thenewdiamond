@@ -491,7 +491,7 @@ def generate_m3u(mode=None):
 	Utils.tools_log('M3U_RETURN')
 	if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
 		if Utils.output_folder != None and Utils.output_folder != '':
-			m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+			m3u_out = os.path.join(Utils.output_folder, 'LiveStream.m3u')
 		else:
 			m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
 		Utils.tools_log(m3u_out)
