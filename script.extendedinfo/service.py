@@ -899,7 +899,8 @@ class PlayerMonitor(xbmc.Player):
 			self.player_meta['movie_year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_title'] = json_object['result']['VideoPlayer.Title']
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
-			self.type = 'movie'
+			if not 'pvr://' in str(json_object['result']['Player.Filenameandpath']):
+				self.type = 'movie'
 		elif json_object['result']['VideoPlayer.Title'] != '' and json_object['result']['VideoPlayer.Season'] != '':
 			self.player_meta['tv_title'] = json_object['result']['VideoPlayer.Title']
 			self.player_meta['tv_season'] = int(json_object['result']['VideoPlayer.Season'])
@@ -912,7 +913,10 @@ class PlayerMonitor(xbmc.Player):
 
 
 		if self.type == None:
-			self.type = PTN_info['type']
+			if not 'pvr://' in str(json_object['result']['Player.Filenameandpath']):
+				self.type = PTN_info['type']
+			else:
+				self.iplayerwww = True
 			if self.type == 'episode':
 				self.player_meta['tv_title'] = PTN_info.get('title','')
 				self.player_meta['tv_season'] = PTN_info.get('season','')
@@ -978,11 +982,11 @@ class PlayerMonitor(xbmc.Player):
 		if not 'tt' in str(self.player_meta['imdb_id']) and (str(self.player_meta['tmdb_id']) != '' or self.player_meta['tmdb_id'] != None):
 			if self.type == 'movie':
 				self.player_meta['imdb_id'] = TheMovieDB.get_imdb_id_from_movie_id(self.player_meta['tmdb_id'])
-			else:
+			elif self.type == 'episode':
 				response = TheMovieDB.get_tvshow_ids(self.player_meta['tmdb_id'])
 				self.player_meta['imdb_id'] = response['imdb_id']
 
-		if self.player_meta['dbID'] == '' and self.type != 'episode':
+		if self.player_meta['dbID'] == '' and self.type == 'movie':
 			self.player_meta['dbID'] = self.movie_populate_dbid()
 
 		if self.player_meta['dbID'] == '' and self.type == 'episode':
@@ -1229,7 +1233,7 @@ class PlayerMonitor(xbmc.Player):
 		self.speed_time = time.time()
 		trakt_meta = self.get_trakt_scrobble_details()
 		self.player_meta['resume_position'] = player.getTime()
-		self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration')) * 100
+		self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration',1.00)) * 100
 
 		while self.play_test and self.type == 'movie':
 			try: 

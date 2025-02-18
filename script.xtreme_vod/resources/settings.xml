@@ -20,7 +20,9 @@
 		<setting label="Create Local XML/M3U Files" type="bool" id="local_xml_m3u" default="true"/>
 		<setting label="Local XML/M3U Refresh period (hours - default = 8)" type="number" id="xml_m3u_sync_hours" default="8"/>
 		<setting label="STARTUP_Create Local XML/M3U Files" type="bool" id="startup_local_xml_m3u" default="true"/>
-		<setting label="Output XML/M3U Folder" type="folder" id="output_folder" default=""/>
+		<setting id="output_folder_select" type="select" label="Output Folder Method" values="Folder Picker|Type Folder Path" default="Folder Picker"/>
+		<setting label="Output XML/M3U Folder (PICKER)" type="folder" id="output_folder" default=""/>
+		<setting label="Output XML/M3U Folder (Type)" type="text" id="output_folder_string" default="special://profile"/>
 		<setting label="TMDB Options" type="lsep"/>
 		<!--setting label="Language" type="select" values="bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nl|no|pl|pt|ru|sl|sv|tr|zh" id="LanguageID" default="en"/>
 		<setting label="Include adult?" type="bool" id="include_adults" default="false"/-->

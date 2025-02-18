@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 
 #from __future__ import absolute_import, division, unicode_literals
 
@@ -447,6 +446,12 @@ def run_downloader(magnet_list, download_path):
 			#log(download_type, filename, filename_without_ext, url, magnet, release_title, CURR_LABEL, package, file_name)
 
 			response = rd_api.add_magnet(magnet)
+			log(magnet)
+			if 'too_many_active_downloads' in str(response):
+				tools.log(response)
+				tools.log('sleep_20')
+				time.sleep(20)
+				continue
 			torr_id = response['id']
 			response = rd_api.torrent_select_all(torr_id)
 			torr_info = rd_api.torrent_info(torr_id)
@@ -676,6 +681,10 @@ def run_tv_search():
 				if i['hash'] == torrent['hash']:
 					break
 			sources_list.pop(idx)
+			if response == None:
+				torrent = choose_torrent(sources_list)
+				response = None
+				continue
 			if response.get('error',False):
 				tools.log(response)
 				torrent = choose_torrent(sources_list)
@@ -785,6 +794,10 @@ def run_tv_search():
 				if i['hash'] == torrent['hash']:
 					break
 			sources_list.pop(idx)
+			if response == None:
+				torrent = choose_torrent(sources_list)
+				response = None
+				continue
 			if response.get('error',False):
 				tools.log(response)
 				torrent = choose_torrent(sources_list)
@@ -814,6 +827,21 @@ def run_tv_search():
 		download_link, new_meta = cloud_get_ep_season(rd_api, meta, torr_id, torr_info)
 		if download_link == '' or download_link == None:
 			tools.log('UNCACHED')
+			meta['filename'] = ''
+			meta['filename_without_ext'] = ''
+			meta['filesize'] = ''
+			meta['filehash'] = ''
+			meta['url'] = ''
+			meta['release_title'] = torrent['release_title']
+			meta['CURR_LABEL'] =  torrent['release_title']
+			meta['package'] = torrent['package']
+			meta['file_name'] = ''
+
+			magnet_list = tools.get_setting('magnet_list')
+			file1 = open(magnet_list, "a") 
+			file1.write(str(meta))
+			file1.write("\n")
+			file1.close()
 			return
 			
 		stream_link = download_link
@@ -3393,6 +3421,7 @@ class Sources(object):
 		#self.cloud_scrapers = []
 		self.running_providers = []
 		self.language = 'en'
+		self.non_working_hashes = []
 		self.sources_information = {
 			"torrentCacheSources": {},
 			"cloudFiles": [],
@@ -3469,7 +3498,9 @@ class Sources(object):
 			if self._prem_terminate():
 				return self._finalise_results()
 
+			"""
 			self._init_providers()
+			
 
 			# Add the users cloud inspection to the threads to be run
 			self.torrent_threads.put(self._user_cloud_inspection)
@@ -3487,10 +3518,11 @@ class Sources(object):
 					return
 
 			self._update_progress()
-
+			"""
 			# Keep alive for gui display and threading
 			log('Entering Keep Alive', 'info')
 
+			"""
 			while self.progress < 100:
 				self.runtime = time.time() - start_time
 
@@ -3520,6 +3552,8 @@ class Sources(object):
 			if (any([True for i in inspect.stack() if "providerModules" in i[1]]) or
 				any([True for i in inspect.stack() if "providers2" in i[1]])):
 				raise tools.PreemptiveCancellation('Pre-emptive termination has stopped this request111')
+			"""
+			self._init_providers_search(simple_info=self.item_information,info=self.item_information)
 			return self._finalise_results()
 
 		finally:
@@ -3659,6 +3693,119 @@ class Sources(object):
 	#		return
 	#	self.torrent_cache.add_torrent(self.item_information, torrent_list)
 
+	def _process_provider_torrent2(self, torrent, provider_name, info):
+		torrent['type'] = 'torrent'
+		torrent['provider_name'] = provider_name
+
+		if not torrent.get('info'):
+			torrent['info'] = tools.get_info(torrent['release_title'])
+
+		if torrent.get("quality") not in tools.approved_qualities_set:
+			torrent['quality'] = tools.get_quality(torrent['release_title'])
+
+		torrent['hash'] = torrent.get('hash', self.hash_regex.findall(torrent['magnet'])[0]).lower()
+		torrent['pack_size'], torrent['size'] = self._torrent_filesize(torrent, info)
+		if len(str(torrent['size'])) == 7 and torrent['size'] == torrent['pack_size']:
+			torrent['size'] = torrent['size']/1024
+			torrent['pack_size'] = torrent['pack_size']/1024
+		torrent['seeds'] = self._torrent_seeds(torrent)
+
+		if 'provider_name_override' in torrent:
+			torrent['provider'] = torrent['provider_name_override']
+		else:
+			torrent['provider'] = provider_name
+		return torrent
+
+	def _init_providers_search(self, simple_info=None, info=None):
+		start_time = time.time()
+		sys.path.append(tools.ADDON_USERDATA_PATH)
+		try:
+			if tools.ADDON_USERDATA_PATH not in sys.path:
+				sys.path.append(tools.ADDON_USERDATA_PATH)
+				providers2 = importlib.import_module("providers2")
+			else:
+				providers2 = reload_module(importlib.import_module("providers2"))
+		except ValueError:
+			log('No providers installed', 'warning')
+			return
+		#providers2 = importlib.import_module("providers2")
+		providers_dict = get_providers()
+		log(providers_dict)
+		results_store = []
+		for provider in providers_dict['torrent']:
+			if provider[3] == False or provider[3] == 'False':
+				continue
+			provider_module = importlib.import_module("{}.{}".format(provider[0], provider[1]))
+			provider_source = provider_module.sources()
+			#results = provider_source.episode(simple_info, info)
+
+			if self.media_type == 'episode':
+				simple_info = tools._build_simple_show_info(info)
+				results = provider_source.episode(simple_info, info)
+			else:
+				#simple_info = tools._build_simple_movie_info(info)
+				#results = provider_source.movie(simple_info, info)
+
+				simple_info = tools._build_simple_movie_info(info)
+
+				try: results = provider_source.movie(simple_info, info)
+				except AttributeError: 
+					try: results = provider_source.movie(simple_info, info)
+					except AttributeError: pass
+				except TypeError:
+					try: results = provider_source.movie(info['info']['title'],str(info['info']['year']),info['info'].get('imdb_id'),)
+					except (TypeError, AttributeError):
+						results = provider_source.movie(info['info']['title'], str(info['info']['year']))
+
+
+			log(str(provider[1]) + ' - ' + str(len(results)))
+			#log(len(results_store))
+			for idx,i in enumerate(results):
+				results[idx]['provider_name'] =  provider[1].upper()
+			results_store.extend(results)
+		#print(len(results_store))
+		result = []
+		seen = set()
+		for item in results_store:
+			if item['hash'] not in seen:
+				result.append(item)
+				seen.add(item['hash'])
+		for idx,i in enumerate(result):
+			#results_store[idx]['quality'] = tools.get_quality(i['release_title'])
+			#results_store[idx]['info'] =  tools.get_info(i['release_title'])
+			#results_store[idx] = self._process_provider_torrent2( i, i['provider_name'], info)
+			#log(i)
+			self._process_provider_torrent(i, i['provider_name'], info)
+		result = {value['hash']: value for value in result}.values()
+
+
+
+		self.runtime = time.time() - start_time
+		sources_list = tools.SourceSorter(info).sort_sources(result)
+		torrent_results = sources_list
+		[self.sources_information['allTorrents'].update({torrent['hash']: torrent}) for torrent in torrent_results]
+
+		log(str(len(torrent_results)) + str('__CACHE_CHECK__'))
+		#TorrentCacheCheck._realdebrid_worker(self, torrent_results, info)
+		for i in torrent_results:
+			self.runtime = time.time() - start_time
+			TorrentCacheCheck(self)._realdebrid_worker( [i], info)
+			if self.canceled or self.runtime >= self.timeout:
+				log('timout')
+				break
+			#print(TorrentCacheCheck(self).torrent_cache_return())
+
+		#allTorrents = []
+		#for i in self.sources_information['allTorrents']:
+		#	allTorrents.append(i)
+		#for i in reversed(allTorrents):
+		#	if i in self.non_working_hashes:
+		#		self.sources_information['allTorrents'].pop(i)
+		self._update_progress()
+		return self._finalise_results()
+
+
+
 	def _init_providers(self):
 		sys.path.append(tools.ADDON_USERDATA_PATH)
 		try:
@@ -3758,9 +3905,12 @@ class Sources(object):
 
 			if self.media_type == 'episode':
 				simple_info = tools._build_simple_show_info(info)
-
+				#log(simple_info)
+				#log(info)
 				torrent_results = provider_source.episode(simple_info, info)
 			else:
+				log(simple_info)
+				log(info)
 				simple_info = tools._build_simple_movie_info(info)
 
 				try:
@@ -4058,6 +4208,8 @@ class TorrentCacheCheck:
 				sources_information['torrentCacheSources'].update({tor_key: torrent})
 		except AttributeError:
 			return
+	def torrent_cache_return(self):
+		return self.scraper_class.sources_information
 
 	def torrent_cache_check(self, torrent_list, info):
 		"""
@@ -4078,10 +4230,14 @@ class TorrentCacheCheck:
 			hash_list = [i['hash'] for i in torrent_list]
 			api = real_debrid.RealDebrid()
 			real_debrid_cache = api.check_hash(hash_list)
-
+			#if 'infringing_file' in str(real_debrid_cache):
+			#	#self.scraper_class.non_working_hashes.append(source['hash'])
+			#print(real_debrid_cache)
 			for i in torrent_list:
-				try:
+				#try:
+				if 1==1:
 					if 'rd' not in real_debrid_cache.get(i['hash'], {}):
+						self.scraper_class.non_working_hashes.append(i['hash'])
 						continue
 					if len(real_debrid_cache[i['hash']]['rd']) >= 1:
 						if self.scraper_class.media_type == 'episode':
@@ -4090,8 +4246,8 @@ class TorrentCacheCheck:
 							self._handle_movie_rd_worker(i, real_debrid_cache)
 					#i['debrid_provider'] = 'real_debrid'
 					#self.store_torrent(i)
-				except KeyError:
-					pass
+				#except KeyError:
+				#	pass
 		#except Exception:
 		#	#g.log_stacktrace()
 		#	log(Exception)
@@ -4105,8 +4261,9 @@ class TorrentCacheCheck:
 				self.store_torrent(source)
 
 	def _handle_episode_rd_worker(self, source, real_debrid_cache, info):
+		#log(real_debrid_cache[source['hash']]['rd'])
+		#log(source)
 		for storage_variant in real_debrid_cache[source['hash']]['rd']:
-
 			if not self.rd_api.is_streamable_storage_type(storage_variant):
 				continue
 

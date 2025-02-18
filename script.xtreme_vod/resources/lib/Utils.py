@@ -43,6 +43,11 @@ if XBMC_RUNNING:
 	xtreme_wanted_groups = xbmcaddon.Addon().getSetting('xtreme_wanted_groups')
 	channel_order = xbmcaddon.Addon().getSetting('channel_order')
 	output_folder = xbmcaddon.Addon().getSetting('output_folder')
+	output_folder_string = xbmcaddon.Addon().getSetting('output_folder_string')
+	output_folder_select = xbmcaddon.Addon().getSetting('output_folder_select')
+	if output_folder_select = 'Type Folder Path':
+		output_folder = output_folder_string
+	output_folder = xbmcvfs.translatePath(output_folder)
 	if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
 		local_xml_m3u = True
 	else:
@@ -77,6 +82,13 @@ else:
 			channel_order = i.split('channel_order">')[1].split('<')[0]
 		if 'output_folder' in str(i):
 			output_folder = i.split('output_folder">')[1].split('<')[0]
+		if 'output_folder_string' in str(i):
+			output_folder_string = i.split('output_folder_string">')[1].split('<')[0]
+		if 'output_folder_select' in str(i):
+			output_folder_select = i.split('output_folder_select">')[1].split('<')[0]
+
+		if output_folder_select = 'Type Folder Path':
+			output_folder = output_folder_string
 
 		if 'local_xml_m3u' in str(i):
 			local_xml_m3u = i.split('local_xml_m3u">')[1].split('<')[0]

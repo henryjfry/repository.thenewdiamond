@@ -229,13 +229,15 @@ def find_file_in_archive(core, namelist, exts, part_of_filename='', episode_numb
 	meta = DictAsObject(core.params.get('VIDEO_META'))
 	#tools.log(meta.episode)
 	#tools.log(meta.season)
-	#tools.log(exts)
-	for file in namelist:
+	#tools.log(reversed(namelist))
+	for file in reversed(namelist):
 		file_lower = file.lower()
 		#tools.log(file_lower)
 		#tools.log(file_lower.split('.')[-1])
 		if any(file_lower.split('.')[-1] for ext in exts):
 			sub_meta = extract_season_episode(file_lower, True)
+			#if sub_meta['episode_range'] == range(0, 0):
+			#	continue
 			if not first_ext_match:
 				first_ext_match = file
 			if (part_of_filename != '' and part_of_filename in file_lower) or (sub_meta.episode == episode_number):

@@ -379,7 +379,7 @@ class RealDebrid:
 
 	def check_hash(self, hash_list):
 		if isinstance(hash_list, list):
-			tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			hash_list = [hash_list[x : x + 100] for x in range(0, len(hash_list), 100)]
 			thread = ThreadPool()
 			for section in hash_list:
@@ -394,8 +394,11 @@ class RealDebrid:
 			response = self.add_magnet(magnet)
 			try: torr_id = response['id']
 			except: return {}
-			response = self.torrent_select_all(torr_id)
-			response = self.torrent_info(torr_id)
+			RD_STATUS = None
+			try: response = self.torrent_select_all(torr_id)
+			except TypeError: RD_STATUS = 'error'
+			if not RD_STATUS:
+				response = self.torrent_info(torr_id)
 			try: RD_STATUS = response['status']
 			except: RD_STATUS = 'error'
 			if RD_STATUS == 'downloaded':
@@ -417,7 +420,7 @@ class RealDebrid:
 	def _check_hash_thread(self, hashes):
 		hash_string = "/" + "/".join(hashes)
 		#tools.log(str(hash_string))
-		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+		#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		for i in hashes:
 			magnet = 'magnet:?xt=urn:btih:' + i
 			response = self.add_magnet(magnet)
