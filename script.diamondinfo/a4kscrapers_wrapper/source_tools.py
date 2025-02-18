@@ -1366,7 +1366,7 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 		max_episode = 0
 		absolute_flag = False
 		season_match = False
-		
+		max_guess_episode = 0
 		for idx, i in enumerate(sorted_torr_info):
 			pack_path = os.path.basename(i['pack_path'])
 			#tools.log(pack_path)
@@ -1522,6 +1522,7 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 				if len(guess_episode) == 1:
 					start_index = 0
 					end_index = 0
+			max_guess_episode = max(max_guess_episode, max(guess_episode))
 
 		#tools.log(end_index, start_index)
 		#tools.log(last_abs_episode_tmdb, last_abs_episode_tvmaze)
@@ -1543,7 +1544,7 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 		else:
 			meta_source = 'tmdb_seasons'
 
-		if meta_source == 'tmdb_seasons' and last_episode_tmdb != last_episode_tvmaze and last_episode_tvmaze == max(guess_episode):
+		if meta_source == 'tmdb_seasons' and last_episode_tmdb != last_episode_tvmaze and last_episode_tvmaze == max_guess_episode:
 			meta_source = 'tvmaze_seasons'
 
 		tools.log(meta_source,'meta_source')

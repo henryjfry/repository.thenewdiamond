@@ -870,21 +870,25 @@ class PlayerMonitor(xbmc.Player):
 			self.player_meta['tv_episode'] = int(json_object['result']['VideoPlayer.Episode'])
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			self.type = 'episode'
 		elif json_object['result']['VideoPlayer.MovieTitle'] != '':
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_title'] = json_object['result']['VideoPlayer.MovieTitle']
 			self.player_meta['title'] = json_object['result']['VideoPlayer.MovieTitle']
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			self.type = 'movie'
 		elif 'tt' in str(self.player_meta['imdb_id']):
 			response = TheMovieDB.get_tmdb_data('find/%s?external_source=imdb_id&language=%s&' % (self.player_meta['imdb_id'], xbmcaddon.Addon().getSetting('LanguageID')), 30)
 			if response.get('movie_results','') != '':
 				self.type = 'movie'
+				#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				PTN_info['type'] = 'movie'
 				self.player_meta['global_movie_flag'] = True
 			elif response.get('tv_results','') != '':
 				self.type = 'episode'
+				#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				PTN_info['type'] = 'episode'
 
 		elif PTN_info['type'] == 'episode':
@@ -894,25 +898,30 @@ class PlayerMonitor(xbmc.Player):
 			except: self.player_meta['tv_episode'] = PTN_info.get('episode','')
 			self.player_meta['title'] = PTN_info.get('episode_title','')
 			self.type = 'episode'
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		elif json_object['result']['VideoPlayer.Title'] != '' and json_object['result']['VideoPlayer.Season'] == '':
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_title'] = json_object['result']['VideoPlayer.Title']
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			if not 'pvr://' in str(json_object['result']['Player.Filenameandpath']):
 				self.type = 'movie'
+				#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		elif json_object['result']['VideoPlayer.Title'] != '' and json_object['result']['VideoPlayer.Season'] != '':
 			self.player_meta['tv_title'] = json_object['result']['VideoPlayer.Title']
 			self.player_meta['tv_season'] = int(json_object['result']['VideoPlayer.Season'])
 			self.player_meta['tv_episode'] = int(json_object['result']['VideoPlayer.Episode'])
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			self.type = 'episode'
 		if self.player_meta['title'] == None or self.player_meta['title'] == '':
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
 
 
 		if self.type == None:
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			if not 'pvr://' in str(json_object['result']['Player.Filenameandpath']):
 				self.type = PTN_info['type']
 			else:

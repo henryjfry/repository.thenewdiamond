@@ -3739,9 +3739,13 @@ class Sources(object):
 			provider_source = provider_module.sources()
 			#results = provider_source.episode(simple_info, info)
 
+
+
 			if self.media_type == 'episode':
 				simple_info = tools._build_simple_show_info(info)
-				results = provider_source.episode(simple_info, info)
+				#results = provider_source.episode(simple_info, info,   auto_query=False, query_seasons=True, query_show_packs=True)
+				self.torrent_threads.put(provider_source.episode,simple_info, info, single_query=False)
+				results = self.torrent_threads.wait_completion()
 			else:
 				#simple_info = tools._build_simple_movie_info(info)
 				#results = provider_source.movie(simple_info, info)
@@ -3857,6 +3861,7 @@ class Sources(object):
 		torrent['type'] = 'torrent'
 		torrent['provider_name'] = provider_name
 
+		#log(torrent['release_title'])
 		if not torrent.get('info'):
 			torrent['info'] = tools.get_info(torrent['release_title'])
 

@@ -427,10 +427,15 @@ class RealDebrid:
 			#tools.log(response)
 			try: torr_id = response['id']
 			except: continue
-			response = self.torrent_select_all(torr_id)
-			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
-			#tools.log(response)
-			response = self.torrent_info(torr_id)
+			#response = self.torrent_select_all(torr_id)
+			##tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+			##tools.log(response)
+			#response = self.torrent_info(torr_id)
+			RD_STATUS = None
+			try: response = self.torrent_select_all(torr_id)
+			except TypeError: RD_STATUS = 'error'
+			if not RD_STATUS:
+				response = self.torrent_info(torr_id)
 			#tools.log(response)
 			try: RD_STATUS = response['status']
 			except: RD_STATUS = 'error'
