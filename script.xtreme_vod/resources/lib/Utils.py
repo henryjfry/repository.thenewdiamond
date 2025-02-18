@@ -45,7 +45,7 @@ if XBMC_RUNNING:
 	output_folder = xbmcaddon.Addon().getSetting('output_folder')
 	output_folder_string = xbmcaddon.Addon().getSetting('output_folder_string')
 	output_folder_select = xbmcaddon.Addon().getSetting('output_folder_select')
-	if output_folder_select = 'Type Folder Path':
+	if output_folder_select == 'Type Folder Path':
 		output_folder = output_folder_string
 	output_folder = xbmcvfs.translatePath(output_folder)
 	if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
@@ -87,7 +87,7 @@ else:
 		if 'output_folder_select' in str(i):
 			output_folder_select = i.split('output_folder_select">')[1].split('<')[0]
 
-		if output_folder_select = 'Type Folder Path':
+		if output_folder_select == 'Type Folder Path':
 			output_folder = output_folder_string
 
 		if 'local_xml_m3u' in str(i):
