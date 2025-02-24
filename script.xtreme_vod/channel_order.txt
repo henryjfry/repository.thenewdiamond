@@ -1,0 +1,218 @@
+UK: BBC One HD
+UK: BBC One
+UK: BBC One Scotland HD
+UK: BBC One Scotland
+IE: BBC One Northern Ireland HD
+UK: BBC Two HD
+UK: BBC Two
+IE: BBC Two Northern Ireland HD
+UK: ITV1 HD
+UK: ITV1
+UK: ITV1 +1
+UK: ITV2 HD
+UK: ITV2
+UK: ITV2 +1
+IE: UTV
+IE: UTV HD
+UK: STV HD
+UK: UTV
+UK: UTV HD
+UK: Channel 4 HD
+UK: Channel 4
+UK: Channel 4 +1
+UK: Channel 5 HD
+UK: Channel 5
+UK: Channel 5 +1
+UK: BBC Three
+UK: BBC Four HD
+UK: BBC Scotland HD
+UK: BBC Scotland
+UK: BBC News HD
+UK: BBC News
+UK: BBC Parliament
+UK: BBC Alba
+UK: BBC Red Button 01
+IE:  Premier Sports 1
+IE:  Premier Sports 1 HD
+IE:  Premier Sports 2
+IE:  Premier Sports 2 HD
+UK: ITV3 HD
+UK: ITV3
+UK: ITV3 +1
+UK: ITV4 HD
+UK: ITV4
+UK: ITV4 +1
+UK: ITV Be
+UK: ITV Be HD
+UK: More 4 HD
+UK: More 4
+UK: More 4 +1
+UK: E4 HD
+UK: E4
+UK: E4 +1
+UK: E4 Extra
+UK: 4seven
+UK: Film4 HD
+UK: Film4
+UK: Film4 +1
+UK: 5 Action
+UK: 5Select
+UK: 5Star
+UK: 5star +1
+UK: 5USA
+UK: 5USA +1
+UK: Gold HD
+UK: Gold
+UK: Gold +1
+IE: Cula 4
+IE: Cula 4 HD
+IE: RTE Junior HD
+IE: RTE News
+IE: RTE One
+IE: RTE One +1
+IE: RTE One HD
+IE: RTE Two
+IE: RTE Two +1
+IE: RTE Two HD
+IE: TG4
+IE: TG4 HD
+IE: Virgin Media 1 HD
+IE: Virgin Media 2 HD
+IE: Virgin Media 3 HD
+IE: Virgin Media 4
+UK: Comedy Central HD
+UK: Comedy Central
+UK: Comedy Central +1
+UK: Comedy Central Extra
+UK: Syfy HD
+UK: Syfy
+UK: Dave HD
+UK: Dave
+UK: Dave JA VU
+UK: Alibi HD
+UK: Alibi
+UK: Alibi +1
+UK: Sky Arts HD
+UK: Sky Atlantic HD
+UK: Sky Cinema Action HD
+UK: Sky Cinema Animation HD
+UK: Sky Cinema Comedy HD
+UK: Sky Cinema Drama HD
+UK: Sky Cinema Family HD
+UK: Sky Cinema Greats HD
+UK: Sky Cinema Premiere HD
+UK: Sky Cinema Sci-Fi Horror HD
+UK: Sky Cinema Select HD
+UK: Sky Cinema Thriller HD
+UK: Sky Cinema Hits HD
+UK: Sky Comedy HD
+UK: Sky Crime HD
+UK: Sky Witness HD
+UK: Sky Showcase HD
+UK: Sky Documentaries HD
+UK: Sky History HD
+UK: Sky Kids HD
+UK: Sky Nature HD
+UK: Sky Max HD
+UK: Sony TV HD
+UK: Sony Max HD
+UK: Bloomberg
+UK: Bloomberg HD
+UK: Boomerang
+UK: Boomerang HD
+UK: CNBC
+UK: CNBC HD
+UK: CNN
+UK: CNN HD
+UK: Aljazeera News
+UK: Sky News HD
+UK: CBS Drama
+UK: CBS Justice
+UK: CBS Reality
+UK: CBS Reality +1
+UK: Animal Planet HD
+UK: Animal Planet
+UK: Animal Planet +1
+UK: Cartoon Network
+UK: Cartoon Network HD
+UK: Cartoonito
+UK: CBBC
+UK: CBBC HD
+UK: CBeebies
+UK: CBeebies HD
+UK: Channel S
+UK: Clubland TV
+UK: Colors
+UK: Colors Cineplex
+UK: Colors HD
+UK: Crime & Investigation HD
+UK: Crime & Investigation
+UK: Crime & Investigation +1
+UK: Discovery HD
+UK: Discovery
+UK: Discovery +1
+UK: Discovery History
+UK: Discovery History +1
+UK: Sky Arts
+UK: Sky Atlantic
+UK: Sky Atlantic +1
+UK: Sky Cinema Action
+UK: Sky Cinema Animation
+UK: Sky Cinema Comedy
+UK: Sky Cinema Drama
+UK: Sky Cinema Family
+UK: Sky Cinema Greats
+UK: Sky Cinema Hits
+UK: Sky Cinema Premiere
+UK: Sky Cinema Sci-Fi Horror
+UK: Sky Cinema Select
+UK: Sky Cinema Thriller
+UK: Sky Comedy
+UK: Sky Crime
+UK: Sky Crime +1
+UK: Sky Documentaries
+UK: Sky History
+UK: Sky Kids
+UK: Sky Max
+UK: Sky Mix
+UK: Sky Nature
+UK: Sky News
+UK: Sky Replay
+UK: Sky Showcase
+UK: Sky Showcase +1
+UK: Sky Witness
+UK: Sky Witness +1
+UK: Sony Action
+UK: Sony Channel
+UK: Sony Max
+UK: Sony Max 2
+UK: Sony Movies
+UK: Sony Movies Christmas
+UK: Sony SAB
+UK: Sony TV
+UK: Talking Pictures
+UK: That's TV
+UK: That's TV 2
+UK: True Crime
+UK: True Crime +1
+UK: Yesterday
+UK: Yesterday +1
+UK: Yesterday HD
+UK: Great Action
+UK: Great Action +1
+UK: Great Classic
+UK: Great Classic +1
+UK: Great Movies
+UK: Great Movies +1
+UK: Great TV
+UK: Great TV +1
+UK: MTV
+UK: MTV Base
+UK: MTV HD
+UK: MTV Hits
+UK: MTV Music
+UK: Nat Geo HD
+UK: Nat Geo
+UK: Nat Geo +1
+UK: Nat Geo Wild HD
+UK: Nat Geo Wild

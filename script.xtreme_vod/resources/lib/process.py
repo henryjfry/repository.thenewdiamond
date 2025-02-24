@@ -73,18 +73,28 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 
 		elif info == 'xtream2m3u_run':
-			import os
-			Utils.tools_log(os.getcwd())
-			from resources.lib.xtream2m3u_run import generate_m3u
-			generate_m3u()
-			exit()
-			from resources.lib.xtream2m3u_run import app as flask_app
-			from multiprocessing import Process
-			import socket
-			socket.setdefaulttimeout(120) # seconds
-			server = Process(target=flask_app.run(debug=False, host='0.0.0.0'))
-			server.start()
+			Utils.show_busy()
+			Utils.hide_busy()
+			#from traceback import format_exc
+			#from resources.lib.xtream2m3u_run import app as flask_app
+			from resources.lib.xtream2m3u_run import start
+			#Utils.tools_log('STARTING__SERVER')
 			#flask_app.run(debug=False, host='0.0.0.0')
+			start()
+			Utils.hide_busy()
+			return
+			#import os
+			#Utils.tools_log(os.getcwd())
+			#from resources.lib.xtream2m3u_run import generate_m3u
+			#generate_m3u()
+			#exit()
+			#from resources.lib.xtream2m3u_run import app as flask_app
+			#from multiprocessing import Process
+			#import socket
+			#socket.setdefaulttimeout(120) # seconds
+			#server = Process(target=flask_app.run(debug=False, host='0.0.0.0'))
+			#server.start()
+			##flask_app.run(debug=False, host='0.0.0.0')
 
 
 		elif info == 'allmovies2':

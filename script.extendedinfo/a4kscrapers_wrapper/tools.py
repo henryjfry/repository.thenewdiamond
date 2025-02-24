@@ -1614,30 +1614,41 @@ class SourceSorter:
 			# Quality filter
 			#log(source)
 			if source['quality'] not in self.resolution_set:
+				#print(source)
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			# Info Filter
 			if self.filter_set & source['info']:
+				#print(source)
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			# DV filter
 			if self.disable_dv and "DV" in source['info'] and "HYBRID" not in source['info']:
+				#print(source)
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			# HDR Filter
 			if self.disable_hdr and "HDR" in source['info'] and "HYBRID" not in source['info']:
+				#print(source)
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			# Hybrid Filter
 			if self.disable_dv and self.disable_hdr and "HYBRID" in source['info']:
+				#print(source)
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			if self.disable_hevc and "HEVC" in source['info']:
+				#print(source)
+				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			# File size limits filter
 			if self.enable_size_limit and not (
 					self.size_limit >= float(source.get("size", 0)) >= self.size_minimum
 			):
+				#print(source)
+				#print(self.size_limit)
+				#print(self.size_minimum)
+				#print(float(source.get("size", 0)))
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 

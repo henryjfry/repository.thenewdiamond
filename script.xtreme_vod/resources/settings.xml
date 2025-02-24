@@ -14,7 +14,8 @@
 		<setting id="xtreme_wanted_groups" type="text" label="xtreme_wanted_groups" default="U.K,Scotland,Ireland,U.S.A,Canada,New Zeeland,UEFA,All Channels,BeIn,Australia" />
 		<setting label="Sort Channels File - 1 Channel per line" type="lsep"/>
 		 <setting label="Channels Order File" type="file" id="channel_order" default=""/>
-		<setting label="Server  http://localhost:5000/m3u / http://localhost:5000/xmltv" type="lsep"/>
+		 <setting label="Channels Order Remote" type="text" id="channel_order_remote" default="https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/refs/heads/main/script.xtreme_vod/channel_order.txt"/>
+		<setting label="Server  http://localhost:5000/m3u / http://localhost:5000/xml" type="lsep"/>
 		<setting label="Auto start M3U/XMLTV server" type="bool" id="auto_start_server" default="false"/>
 		<setting label="STOP Server  http://localhost:5000/stop" type="lsep"/>
 		<setting label="Create Local XML/M3U Files" type="bool" id="local_xml_m3u" default="true"/>

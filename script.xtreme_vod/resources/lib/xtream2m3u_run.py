@@ -11,9 +11,10 @@ import sys
 
 from time import sleep
 from flask import Flask
-from flask_cors import CORS
+#from flask_cors import CORS
 import threading
 
+from werkzeug.serving import make_server
 
 thread_event = threading.Event()
 
@@ -37,13 +38,25 @@ from resources.lib import Utils
 #Utils.tools_log(Utils.xtreme_codes_password)
 
 from flask import Flask, jsonify, request
-import json, os, signal
+import json, os
+
+def start():
+	Utils.tools_log('STARTING__SERVER')
+	server = make_server("localhost", 5000, app)
+	server_thread = threading.Thread(target=server.serve_forever)
+	server_thread.start()
+	server_thread.join()
 
 @app.route('/stop', methods=['GET'])
-@app.route('/shutdown', methods=['GET'])
-def stopServer():
-	os.kill(os.getpid(), signal.SIGINT)
-	return jsonify({ "success": True, "message": "Server is shutting down..." })
+def stop():
+	print("exit 1")
+	Utils.tools_log('exit SERVER')
+	##server.shutdown()
+	quit()
+	#Utils.tools_log('exit 2')
+	#server_thread.join()
+	#Utils.tools_log('exit 3')
+
 
 def get_vod_data(action= None,series_ID = None, cache_days=1, folder='VOD'):
 	#url = 'https://api.themoviedb.org/3/%sapi_key=%s' % (url, API_key)
@@ -226,7 +239,8 @@ def proxy_stream(stream_url):
 		logger.error(f"Stream proxy error: {str(e)}")
 		return Response('Failed to process stream', status=500)
 
-@app.route('/xmltv', methods=['GET'])
+
+#@app.route('/xmltv', methods=['GET'])
 def generate_xmltv(mode=None):
 	Utils.tools_log('def generate_xmltv():')
 	# Get parameters from the URL
@@ -405,7 +419,7 @@ def startBackgroundTask():
 	except Exception as error:
 		return str(error)
 
-@app.route('/m3u', methods=['GET'])
+#@app.route('/m3u', methods=['GET'])
 def generate_m3u(mode=None):
 	if thread_event.is_set() == False and mode == None:
 		Utils.tools_log('startBackgroundTask')
@@ -442,9 +456,15 @@ def generate_m3u(mode=None):
 	"""
 	priority_names = []
 	if Utils.channel_order:
-		channel_order_f = open(Utils.channel_order, "r")
-		for x in channel_order_f:
-			priority_names.append(x.strip())
+		if not os.path.isfile(Utils.channel_order):
+			Utils.tools_log('NOT_EXISTS__'+Utils.channel_order)
+			Utils.tools_log('CREATING_REMOTE__'+Utils.channel_order)
+			get_remote_channel_list()
+		if os.path.isfile(Utils.channel_order):
+			Utils.tools_log('EXISTS__'+Utils.channel_order)
+			channel_order_f = open(Utils.channel_order, "r")
+			for x in channel_order_f:
+				priority_names.append(x.strip())
 
 		def custom_sort_key(entry):
 			name = entry["name"]
@@ -502,305 +522,69 @@ def generate_m3u(mode=None):
 	# Return the M3U playlist as a downloadable file
 	return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
 
+def get_remote_channel_list():
+	if os.path.isfile(Utils.channel_order):
+		Utils.tools_log('EXISTS__'+Utils.channel_order)
+		return
+	if Utils.channel_order_remote:
+		if Utils.channel_order:
+			url = Utils.channel_order_remote
+			response = requests.get(url)
+			if str(response) == '<Response [200]>':
+				channel_order_text = eval(response.text)
+				channel_order_f = open(Utils.channel_order, "w")
+				channel_order_f.write(channel_order_text)
+				f.close()
+	Utils.tools_log(Utils.channel_order)
+	print(Utils.channel_order, flush=True)
+	return
 
-@app.route('/m3u_vod', methods=['GET'])
-def generate_m3u_vod():
-	# Get parameters from the URL
-	##curl http://localhost:5000/m3u?url=http://uk.vuahvip.xyz:80%26username=pSEpXJYJ%26password=dPFqAUH
-	##wget http://localhost:5000/m3u?url=http://uk.vuahvip.xyz:80%26username=pSEpXJYJ%26password=dPFqAUH
-	#print(request.args)
-	#print(request.args[0])
-	#print(request.args, flush=True)
-	url = request.args.get('url')
-	username = request.args.get('username')
-	password = request.args.get('password')
+@app.route('/xml', methods=['GET'])
+def serve_xml():
+	Utils.tools_log('XML_SERVE')
+	print('XML_SERVE', flush=True)
 
-	if '&' in str(request.args) and url:
-		print(url, flush=True)
-		password = url.split('password=')[1].split('&')[0]
-		username = url.split('username=')[1].split('&')[0]
-		url = url.replace('password='+password,'').replace('username='+username,'').replace('&','')
-	elif '&' in str(request.args) and username:
-		print(username, flush=True)
-		url = username
-		password = url.split('password=')[1].split('&')[0]
-		username = url.split('username=')[1].split('&')[0]
-		url = url.replace('password='+password,'').replace('username='+username,'').replace('&','')
-	elif '&' in str(request.args) and password:
-		print(password, flush=True)
-		url = password
-		password = url.split('password=')[1].split('&')[0]
-		username = url.split('username=')[1].split('&')[0]
-		url = url.replace('password='+password,'').replace('username='+username,'').replace('&','')
-		
-	print(url, flush=True)
-	#exit()
-	#wanted_groups = ['U.K','Scotland','Ireland','U.S.A','Canada','New Zeeland','UEFA','Adult','All Channels','BeIn','Australia']
-	#unwanted_groups = request.args.get('unwanted_groups', '')
-	unwanted_groups = []
-	no_stream_proxy = request.args.get('nostreamproxy', '').lower() == 'true'
-	no_stream_proxy = False
+	if Utils.output_folder != None and Utils.output_folder != '':
+		guide_out = os.path.join(Utils.output_folder, 'guide.xml')
+	else:
+		guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
 
-	if not url or not username or not password:
-		return json.dumps({
-			'error': 'Missing Parameters',
-			'details': 'Required parameters: url, username, and password'
-		}), 400, {'Content-Type': 'application/json'}
+	if os.path.isfile(guide_out):
+		Utils.tools_log('EXISTS__'+guide_out)
+	else:
+		Utils.tools_log('NOT_EXISTS__'+guide_out)
+		Utils.tools_log('CREATING__'+guide_out)
+		generate_xmltv()
+	f = open(guide_out, "r")
+	xmltv_response = f.read()
+	f.close()
+	return Response(
+			xmltv_response,
+			mimetype='application/xml',
+			headers={"Content-Disposition": "attachment; filename=guide.xml"}
+		)
 
-	# Convert unwanted groups into a list
-	unwanted_groups = [group.strip() for group in unwanted_groups.split(',')] if unwanted_groups else []
+@app.route('/m3u', methods=['GET'])
+def serve_m3u():
+	Utils.tools_log('M3U_SERVE')
+	print('M3U_SERVE', flush=True)
 
-	# Verify the credentials and the provided URL
-	mainurl_response = curl_request(f'{url}/player_api.php?username={username}&password={password}')
-	if isinstance(mainurl_response, tuple):  # Check if it's an error response
-		return json.dumps(mainurl_response[0]), mainurl_response[1], {'Content-Type': 'application/json'}
-	mainurl_json = mainurl_response
+	if Utils.output_folder != None and Utils.output_folder != '':
+		m3u_out = os.path.join(Utils.output_folder, 'LiveStream.m3u')
+	else:
+		m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
 
-	try:
-		mainurlraw = json.loads(mainurl_json)
-	except json.JSONDecodeError as e:
-		return json.dumps({
-			'error': 'Invalid JSON',
-			'details': f'Failed to parse server response: {str(e)}'
-		}), 500, {'Content-Type': 'application/json'}
+	if os.path.isfile(m3u_out):
+		Utils.tools_log('EXISTS__'+m3u_out)
+	else:
+		Utils.tools_log('NOT_EXISTS__'+m3u_out)
+		Utils.tools_log('CREATING__'+m3u_out)
+		generate_m3u()
+	f = open(m3u_out, "r")
+	m3u_playlist = f.read()
+	f.close()
 
-	if 'user_info' not in mainurlraw or 'server_info' not in mainurlraw:
-		return json.dumps({
-			'error': 'Invalid Response',
-			'details': 'Server response missing required data (user_info or server_info)'
-		}), 400, {'Content-Type': 'application/json'}
-
-	# Fetch live streams
-	livechannel_response = curl_request(f'{url}/player_api.php?username={username}&password={password}&action=get_vod_streams')
-	if isinstance(livechannel_response, tuple):  # Check if it's an error response
-		return json.dumps(livechannel_response[0]), livechannel_response[1], {'Content-Type': 'application/json'}
-	livechannel_json = livechannel_response
-
-	try:
-		livechannelraw = json.loads(livechannel_json)
-	except json.JSONDecodeError as e:
-		return json.dumps({
-			'error': 'Invalid JSON',
-			'details': f'Failed to parse live streams data: {str(e)}'
-		}), 500, {'Content-Type': 'application/json'}
-
-	if not isinstance(livechannelraw, list):
-		return json.dumps({
-			'error': 'Invalid Data Format',
-			'details': 'Live streams data is not in the expected format'
-		}), 500, {'Content-Type': 'application/json'}
-
-	# Fetch live categories
-	category_response = curl_request(f'{url}/player_api.php?username={username}&password={password}&action=get_vod_categories')
-	if isinstance(category_response, tuple):  # Check if it's an error response
-		return json.dumps(category_response[0]), category_response[1], {'Content-Type': 'application/json'}
-	category_json = category_response
-
-	try:
-		categoryraw = json.loads(category_json)
-	except json.JSONDecodeError as e:
-		return json.dumps({
-			'error': 'Invalid JSON',
-			'details': f'Failed to parse categories data: {str(e)}'
-		}), 500, {'Content-Type': 'application/json'}
-
-	if not isinstance(categoryraw, list):
-		return json.dumps({
-			'error': 'Invalid Data Format',
-			'details': 'Categories data is not in the expected format'
-		}), 500, {'Content-Type': 'application/json'}
-
-	username = mainurlraw['user_info']['username']
-	password = mainurlraw['user_info']['password']
-
-	server_url = f"http://{mainurlraw['server_info']['url']}:{mainurlraw['server_info']['port']}"
-
-	print(categoryraw, flush=True)
-	categoryname = {cat['category_id']: cat['category_name'] for cat in categoryraw}
-
-	# Get the current host URL for the proxy
-	host_url = request.host_url.rstrip('/')
-
-	# Generate M3U playlist
-	m3u_playlist = "#EXTM3U\n"
-	for channel in livechannelraw:
-		if channel['stream_type']:
-			fullurl = f"{server_url}/{channel['stream_type']}/{username}/{password}/"
-			group_title = categoryname.get(channel["category_id"], "Uncategorized")
-			#if not str(group_title) in unwanted_groups:
-			#	wanted_flag = False
-			#	for i in wanted_groups:
-			#		if str(i).lower() in str(group_title).lower():
-			#			wanted_flag = True
-			#	if not wanted_flag:
-			#		unwanted_groups.append(group_title)
-			#	else:
-			#		print(group_title, flush=True)
-			
-			if not any(unwanted_group.lower() in group_title.lower() for unwanted_group in unwanted_groups):
-				# Proxy the logo URL
-				original_logo = channel.get('stream_icon', '')
-				logo_url = f"{host_url}/image-proxy/{encode_image_url(original_logo)}" if original_logo else ''
-
-				stream_url = f'{fullurl}{channel["stream_id"]}.{channel["container_extension"]}'
-				if no_stream_proxy:
-					stream_url = f"{host_url}/stream-proxy/{encode_image_url(stream_url)}"
-
-				m3u_playlist += f'#EXTINF:0 tvg-name="{channel["name"]}" group-title="{group_title}" tvg-logo="{logo_url}",{channel["name"]}\n'
-				m3u_playlist += f'{stream_url}\n'
-
-	# Return the M3U playlist as a downloadable file
 	return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
 
-@app.route('/m3u_vod_tv', methods=['GET'])
-def generate_m3u_vod_tv():
-	# Get parameters from the URL
-	##curl http://localhost:5000/m3u?url=http://uk.vuahvip.xyz:80%26username=pSEpXJYJ%26password=dPFqAUH
-	##wget http://localhost:5000/m3u?url=http://uk.vuahvip.xyz:80%26username=pSEpXJYJ%26password=dPFqAUH
-	#print(request.args)
-	#print(request.args[0])
-	#print(request.args, flush=True)
-	url = request.args.get('url')
-	username = request.args.get('username')
-	password = request.args.get('password')
-
-	if '&' in str(request.args) and url:
-		print(url, flush=True)
-		password = url.split('password=')[1].split('&')[0]
-		username = url.split('username=')[1].split('&')[0]
-		url = url.replace('password='+password,'').replace('username='+username,'').replace('&','')
-	elif '&' in str(request.args) and username:
-		print(username, flush=True)
-		url = username
-		password = url.split('password=')[1].split('&')[0]
-		username = url.split('username=')[1].split('&')[0]
-		url = url.replace('password='+password,'').replace('username='+username,'').replace('&','')
-	elif '&' in str(request.args) and password:
-		print(password, flush=True)
-		url = password
-		password = url.split('password=')[1].split('&')[0]
-		username = url.split('username=')[1].split('&')[0]
-		url = url.replace('password='+password,'').replace('username='+username,'').replace('&','')
-		
-	print(url, flush=True)
-	#exit()
-	#wanted_groups = ['U.K','Scotland','Ireland','U.S.A','Canada','New Zeeland','UEFA','Adult','All Channels','BeIn','Australia']
-	#unwanted_groups = request.args.get('unwanted_groups', '')
-	unwanted_groups = []
-	no_stream_proxy = request.args.get('nostreamproxy', '').lower() == 'true'
-	no_stream_proxy = False
-
-	if not url or not username or not password:
-		return json.dumps({
-			'error': 'Missing Parameters',
-			'details': 'Required parameters: url, username, and password'
-		}), 400, {'Content-Type': 'application/json'}
-
-	# Convert unwanted groups into a list
-	unwanted_groups = [group.strip() for group in unwanted_groups.split(',')] if unwanted_groups else []
-
-	# Verify the credentials and the provided URL
-	mainurl_response = curl_request(f'{url}/player_api.php?username={username}&password={password}')
-	if isinstance(mainurl_response, tuple):  # Check if it's an error response
-		return json.dumps(mainurl_response[0]), mainurl_response[1], {'Content-Type': 'application/json'}
-	mainurl_json = mainurl_response
-
-	try:
-		mainurlraw = json.loads(mainurl_json)
-	except json.JSONDecodeError as e:
-		return json.dumps({
-			'error': 'Invalid JSON',
-			'details': f'Failed to parse server response: {str(e)}'
-		}), 500, {'Content-Type': 'application/json'}
-
-	if 'user_info' not in mainurlraw or 'server_info' not in mainurlraw:
-		return json.dumps({
-			'error': 'Invalid Response',
-			'details': 'Server response missing required data (user_info or server_info)'
-		}), 400, {'Content-Type': 'application/json'}
-
-	# Fetch live streams
-	livechannel_response = curl_request(f'{url}/player_api.php?username={username}&password={password}&action=get_series')
-	if isinstance(livechannel_response, tuple):  # Check if it's an error response
-		return json.dumps(livechannel_response[0]), livechannel_response[1], {'Content-Type': 'application/json'}
-	livechannel_json = livechannel_response
-
-	try:
-		livechannelraw = json.loads(livechannel_json)
-	except json.JSONDecodeError as e:
-		return json.dumps({
-			'error': 'Invalid JSON',
-			'details': f'Failed to parse live streams data: {str(e)}'
-		}), 500, {'Content-Type': 'application/json'}
-
-	if not isinstance(livechannelraw, list):
-		return json.dumps({
-			'error': 'Invalid Data Format',
-			'details': 'Live streams data is not in the expected format'
-		}), 500, {'Content-Type': 'application/json'}
-
-	# Fetch live categories
-	category_response = curl_request(f'{url}/player_api.php?username={username}&password={password}&action=get_series_categories')
-	if isinstance(category_response, tuple):  # Check if it's an error response
-		return json.dumps(category_response[0]), category_response[1], {'Content-Type': 'application/json'}
-	category_json = category_response
-
-	try:
-		categoryraw = json.loads(category_json)
-	except json.JSONDecodeError as e:
-		return json.dumps({
-			'error': 'Invalid JSON',
-			'details': f'Failed to parse categories data: {str(e)}'
-		}), 500, {'Content-Type': 'application/json'}
-
-	if not isinstance(categoryraw, list):
-		return json.dumps({
-			'error': 'Invalid Data Format',
-			'details': 'Categories data is not in the expected format'
-		}), 500, {'Content-Type': 'application/json'}
-
-	username = mainurlraw['user_info']['username']
-	password = mainurlraw['user_info']['password']
-
-	server_url = f"http://{mainurlraw['server_info']['url']}:{mainurlraw['server_info']['port']}"
-
-	print(categoryraw, flush=True)
-	categoryname = {cat['category_id']: cat['category_name'] for cat in categoryraw}
-
-	# Get the current host URL for the proxy
-	host_url = request.host_url.rstrip('/')
-
-	# Generate M3U playlist
-	m3u_playlist = "#EXTM3U\n"
-	for channel in livechannelraw:
-		print(livechannelraw, flush=True)
-		if channel['tmdb']:
-			fullurl = f"{server_url}/series/{username}/{password}/"
-			group_title = categoryname.get(channel["category_id"], "Uncategorized")
-			#if not str(group_title) in unwanted_groups:
-			#	wanted_flag = False
-			#	for i in wanted_groups:
-			#		if str(i).lower() in str(group_title).lower():
-			#			wanted_flag = True
-			#	if not wanted_flag:
-			#		unwanted_groups.append(group_title)
-			#	else:
-			#		print(group_title, flush=True)
-			
-			if not any(unwanted_group.lower() in group_title.lower() for unwanted_group in unwanted_groups):
-				# Proxy the logo URL
-				original_logo = channel.get('stream_icon', '')
-				logo_url = f"{host_url}/image-proxy/{encode_image_url(original_logo)}" if original_logo else ''
-
-				stream_url = f'{fullurl}{channel["stream_id"]}.{channel["container_extension"]}'
-				if no_stream_proxy:
-					stream_url = f"{host_url}/stream-proxy/{encode_image_url(stream_url)}"
-
-				m3u_playlist += f'#EXTINF:0 tvg-name="{channel["name"]}" group-title="{group_title}" tvg-logo="{logo_url}",{channel["name"]}\n'
-				m3u_playlist += f'{stream_url}\n'
-
-	# Return the M3U playlist as a downloadable file
-	return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
-
-if __name__ == '__main__':
-	app.run(debug=True, host='0.0.0.0')
+#if __name__ == '__main__':
+#	#app.run(debug=True, host='0.0.0.0')
