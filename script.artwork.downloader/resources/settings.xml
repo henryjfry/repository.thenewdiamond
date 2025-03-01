@@ -1,0 +1,579 @@
+<?xml version="1.0" ?>
+<settings version="1">
+	<section id="script.artwork.downloader">
+		<category id="general" label="32031" help="">
+			<group id="1" label="32032">
+				<setting id="background" type="boolean" label="32033" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="notify" type="boolean" label="32034" help="" parent="background">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="background">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="background">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="jzbvnuvnxkgvnsgmesmhucyvxbopxrgg" type="action" label="32039" help="">
+					<level>0</level>
+					<data>RunScript($CWD/lib/viewer.py, downloadreport)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="button" format="action"/>
+				</setting>
+			</group>
+		</category>
+		<category id="limit artwork" label="32051" help="">
+			<group id="1" label="32052">
+				<setting id="limit_preferred_language" type="string" label="32055" help="">
+					<level>0</level>
+					<default>English</default>
+					<constraints>
+						<options>
+							<option>Chinese</option>
+							<option>Dutch</option>
+							<option>English</option>
+							<option>Finnish</option>
+							<option>French</option>
+							<option>German</option>
+							<option>Hungarian</option>
+							<option>Italian</option>
+							<option>Japanese</option>
+							<option>Polish</option>
+							<option>Portuguese</option>
+							<option>Russian</option>
+							<option>Spanish</option>
+							<option>Swedish</option>
+						</options>
+					</constraints>
+					<control type="list" format="string">
+						<heading>32055</heading>
+					</control>
+				</setting>
+				<setting id="limit_artwork" type="boolean" label="32051" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="limit_extrafanart_maximum" type="integer" label="32053" help="" parent="limit_artwork">
+					<level>0</level>
+					<default>5</default>
+					<constraints>
+						<minimum>5</minimum>
+						<step>5</step>
+						<maximum>20</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="limit_extrafanart_rating" type="integer" label="32054" help="" parent="limit_artwork">
+					<level>0</level>
+					<default>5</default>
+					<constraints>
+						<minimum>0</minimum>
+						<maximum>10</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="limit_notext" type="boolean" label="32056" help="" parent="limit_artwork">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="limit_size_moviefanart" type="string" label="32057" help="" parent="limit_artwork">
+					<level>0</level>
+					<default>720</default>
+					<constraints>
+						<options>
+							<option>480</option>
+							<option>720</option>
+							<option>1080</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="list" format="string">
+						<heading>32057</heading>
+					</control>
+				</setting>
+				<setting id="limit_size_tvshowfanart" type="string" label="32058" help="" parent="limit_artwork">
+					<level>0</level>
+					<default>720</default>
+					<constraints>
+						<options>
+							<option>480</option>
+							<option>720</option>
+							<option>1080</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="limit_artwork">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="list" format="string">
+						<heading>32058</heading>
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="movies" label="32071" help="">
+			<group id="1" label="32072">
+				<setting id="movie_enable" type="boolean" label="32013" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_poster" type="boolean" label="32128" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_fanart" type="boolean" label="32121" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_extrafanart" type="boolean" label="32122" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_extrathumbs" type="boolean" label="32131" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_logo" type="boolean" label="32126" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_clearart" type="boolean" label="32125" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_discart" type="boolean" label="32132" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_banner" type="boolean" label="32123" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="movie_landscape" type="boolean" label="32130" help="" parent="movie_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="movie_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+		<category id="tv shows" label="32081" help="">
+			<group id="1" label="32082">
+				<setting id="tvshow_enable" type="boolean" label="32013" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_poster" type="boolean" label="32128" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_seasonposter" type="boolean" label="32129" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_fanart" type="boolean" label="32121" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_extrafanart" type="boolean" label="32122" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_clearart" type="boolean" label="32125" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_characterart" type="boolean" label="32127" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_logo" type="boolean" label="32126" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_showbanner" type="boolean" label="32123" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_seasonbanner" type="boolean" label="32124" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_landscape" type="boolean" label="32130" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvshow_seasonlandscape" type="boolean" label="32134" help="" parent="tvshow_enable">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="tvshow_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+		<category id="musicvideo" label="32091" help="">
+			<group id="1" label="32092">
+				<setting id="musicvideo_enable" type="boolean" label="32013" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_poster" type="boolean" label="32128" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_fanart" type="boolean" label="32121" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_extrafanart" type="boolean" label="32122" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_extrathumbs" type="boolean" label="32131" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_logo" type="boolean" label="32126" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_clearart" type="boolean" label="32125" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition on="property" name="InfoBool">false</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="musicvideo_discart" type="boolean" label="32132" help="" parent="musicvideo_enable">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="musicvideo_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+		<category id="advanced" label="32101" help="">
+			<group id="1" label="32102">
+				<setting id="files_overwrite" type="boolean" label="32035" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="files_local" type="boolean" label="32103" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="centralize_enable" type="boolean" label="32036" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="centralfolder_movies" type="path" label="32038" help="" parent="centralize_enable">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<sources>
+							<source>auto</source>
+						</sources>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="centralize_enable">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="centralize_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="button" format="path">
+						<heading>32038</heading>
+					</control>
+				</setting>
+				<setting id="centralfolder_tvshows" type="path" label="32037" help="" parent="centralize_enable">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<sources>
+							<source>auto</source>
+						</sources>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="centralize_enable">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="centralize_enable">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="button" format="path">
+						<heading>32037</heading>
+					</control>
+				</setting>
+				<setting id="xbmc_caching_enabled" type="boolean" label="32106" help="">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition on="property" name="InfoBool">false</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="debug_enabled" type="boolean" label="32107" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+		<category id="api keys" label="32193" help="">
+			<group id="1" label="32194">
+				<setting id="api_key_fanarttv" type="string" label="32197" help="">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading>32197</heading>
+					</control>
+				</setting>
+			</group>
+			<group id="2" label="32195">
+				<setting id="api_key_themoviedb" type="string" label="" help="">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading/>
+					</control>
+				</setting>
+			</group>
+			<group id="3" label="32196">
+				<setting id="api_key_tvdb" type="string" label="" help="">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>                    
+					<control type="edit" format="string">
+						<heading/>
+					</control>
+				</setting>
+			</group>
+		</category>
+	</section>
+</settings>

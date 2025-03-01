@@ -1,0 +1,9 @@
+{
+    "name" : "[COLOR FFB8D995]Diamond_Auto_Cloud_Torr_Scrape[/COLOR][COLOR FF9FD1EC]iZER[/COLOR]",
+    "plugin" : "script.extendedinfo",
+    "is_resolvable" : "true",
+    "priority" : 201,
+    "play_episode" : "plugin://script.extendedinfo/?info=a4kwrapper_player&type=tv&show_title={showname}&show_episode={episode}&show_season={season}&tmdb={tmdb}",
+    "play_movie" : "plugin://script.extendedinfo/?info=a4kwrapper_player&type=movie&movie_title={title}&movie_year={year}&tmdb={tmdb}"
+}
+

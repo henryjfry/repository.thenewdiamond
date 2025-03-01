@@ -1,0 +1,1 @@
+in resources/skin/default rename all the script.diamondinfo-DialogInfo to your script.youraddonid-DialogInfo

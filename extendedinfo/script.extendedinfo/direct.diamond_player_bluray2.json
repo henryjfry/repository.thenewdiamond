@@ -1,0 +1,8 @@
+{
+    "name" : "[COLOR FFB8D995]Diamond_Bluray_Player(Menu)[/COLOR][COLOR FF9FD1EC]iZER[/COLOR]",
+    "plugin" : "script.extendedinfo",
+    "is_resolvable" : "true",
+    "priority" : 201,
+    "play_movie" : "plugin://script.extendedinfo/?info=diamond_bluray_player&type=movie&movie_title={title}&movie_year={year}&tmdb={tmdb}&menu=True"
+}
+

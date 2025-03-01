@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <style>
+  
+  body {
+    background-color: #D64F2A;
+  }
+  
+  .progress {
+    display: flex;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .status {
+    color: white;
+    margin: auto;
+  }
+
+  .status h2 {
+    padding: 50px;
+    font-size: 40px;
+    font-weight: bold;
+  }
+  
+  </style>
+
+  <title>Status Update</title>
+
+</head>
+
+<body>
+  <div class="progress">
+  
+ <button onclick="window.location.href='http://192.168.0.68:1111/shutdown'"><h1>shutdown</h1></button>
+    <div class="status">
+      <h2 id="innerStatus">Loading...</h2>
+    </div>
+  </div>
+</body>
+
+<script>
+var timeout;
+
+async function getStatus() {
+
+  let get;
+  
+  try {
+    const res = await fetch("/status");
+    get = await res.json();
+  } catch (e) {
+    console.error("Error: ", e);
+  }
+  
+  document.getElementById("innerStatus").innerHTML = get.status * 1 + "&percnt;<br>" + get.message;
+  
+  if (get.status == 100){
+    document.getElementById("innerStatus").innerHTML += " Done.";
+    clearTimeout(timeout);
+    /*return false;*/
+  }
+   
+  timeout = setTimeout(getStatus, 1000);
+}
+
+getStatus();
+</script>
+
+</html>

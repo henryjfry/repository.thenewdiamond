@@ -1,0 +1,2263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addons>
+<addon id="context.seren" version="3.0.1" name="Seren - Global Context Menu Items" provider-name="Nixgates">
+	<requires>
+		<import addon="xbmc.addon" version="17.9.910" />
+		<import addon="xbmc.python" version="3.0.0" />
+	</requires>
+	<extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<item library="context.py" args="quickRresume">
+				<label>$ADDON[context.seren 30000]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.quickResume)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+String.IsEqual(ListItem.dbtype,tvshow)</visible>
+			</item>
+			<item library="context.py" args="shuffle">
+				<label>$ADDON[context.seren 30001]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.shuffle)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,tvshow)|String.IsEqual(ListItem.dbtype,episode)]</visible>
+			</item>
+			<item library="context.py" args="playFromRandomPoint">
+				<label>$ADDON[context.seren 30002]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.playFromRandomPoint)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+String.IsEqual(ListItem.dbtype,tvshow)</visible>
+			</item>
+			<item library="context.py" args="rescrape">
+				<label>$ADDON[context.seren 30003]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.rescrape)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,episode)|String.IsEqual(ListItem.dbtype,movie)]</visible>
+			</item>
+			<item library="context.py" args="rescrape_ss">
+				<label>$ADDON[context.seren 30010]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.rescrape_ss)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,episode)|String.IsEqual(ListItem.dbtype,movie)]</visible>
+			</item>
+			<item library="context.py" args="sourceSelect">
+				<label>$ADDON[context.seren 30004]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.sourceSelect)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,episode)|String.IsEqual(ListItem.dbtype,movie)]</visible>
+			</item>
+			<item library="context.py" args="findSimilar">
+				<label>$ADDON[context.seren 30005]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.findSimilar)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,tvshow)|String.IsEqual(ListItem.dbtype,movie)]</visible>
+			</item>
+			<item library="context.py" args="browseShow">
+				<label>$ADDON[context.seren 30006]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.browseShow)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,episode)|String.IsEqual(ListItem.dbtype,season)|String.IsEqual(ListItem.dbtype,tvshow)]</visible>
+			</item>
+			<item library="context.py" args="browseSeason">
+				<label>$ADDON[context.seren 30007]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.browseSeason)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,episode)]</visible>
+			</item>
+			<item library="context.py" args="traktManager">
+				<label>$ADDON[context.seren 30008]</label>
+				<visible>String.IsEmpty(Window(home).Property(context.seren.traktManager)) + String.StartsWith(ListItem.path,plugin://plugin.video.seren/)+[String.IsEqual(ListItem.dbtype,episode)|String.IsEqual(ListItem.dbtype,tvshow)|String.IsEqual(ListItem.dbtype,season)|String.IsEqual(ListItem.dbtype,movie)]</visible>
+			</item>
+		</menu>
+	</extension>
+	<extension point="xbmc.service" library="service.py" />
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en">Seren - Global Context Menu Items</summary>
+		<summary lang="nl">Seren - Algemene contextmenu-items</summary>
+		<description lang="en">Adds Context Menu items for Seren menu items throughout Kodi</description>
+		<description lang="nl">Voegt contextmenu-items toe voor Seren-menu-items in Kodi</description>
+		<platform>all</platform>
+		<license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+		<forum></forum>
+		<website></website>
+		<source></source>
+		<disclaimer lang="en"></disclaimer>
+		<assets>
+			<icon>resources/images/ico-seren-3.png</icon>
+			<fanart>fanart-seren-3.png</fanart>
+			<clearlogo>resources/images/logo-seren-3.png</clearlogo>
+			<poster>resources/images/poster-seren-3.png</poster>
+		</assets>
+		<news>
+			Changelog 3.0.1
+			Fix Shuffle play copy pasta mix up
+			Resolve settings not showing in Kodi
+
+			Changelog 3.0.0
+			Re-write of context menu addon, supporting py3 only (Matrix and above)
+			Update icons to match Seren 3.0.0 release
+			Update language support set to match Seren (add auto-translated Hebrew)
+
+			Changelog 2.2.0
+			Added "Rescrape and Source Select" context menu item.
+
+			Changelog 2.1.2
+			Added Polish translation
+
+			Changelog 2.1.1:
+			Implemented a workaround for broken future.backports module method (fixes Leia issues)
+
+			Changelog 2.1.0:
+			Refactored code to modern standards
+			Use backported URL lib for py2 to ensure unicode compatibility
+			Extracted out common functions and reused
+			Add settings to enable/disable individual items
+			Add more localizations
+			Add GitHub issue templates
+
+			Changelog 2.0.2:
+			Make python version agnostic
+
+			Changelog 2.0.1:
+			Fixed addon icons/fanart
+
+			Changelog 2.0.0:
+			Rework for Seren 2.0
+		</news>
+	</extension>
+</addon>
+
+<addon id="metadata.common.musicbrainz.org"
+       name="MusicBrainz Scraper Library"
+        version="2.2.2"
+       provider-name="Team Kodi">
+  <requires>
+    <import addon="xbmc.metadata" version="2.1.0"/>
+  </requires>
+  <extension point="xbmc.metadata.scraper.library"
+             library="musicbrainz.xml"/>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="bg">Библиотека за сваляне на музикална инф. от MusicBrainz</summary>
+    <summary lang="en">MusicBrainz Music Scraper Library</summary>
+    <summary lang="de">Musik-Scraper für musicbrainz.org</summary>
+    <summary lang="es">Scraper de música de MusicBrainz</summary>
+    <summary lang="fi">MusicBrainz musiikkitietojen lataajan kirjasto</summary>
+    <summary lang="fr">Scraper MusicBrainz pour la musique</summary>
+    <summary lang="hu">MusicBrainz zenei adat leolvasó</summary>
+    <summary lang="nl">MusicBrainz-scraperfuncties</summary>
+    <summary lang="pl">Scraper muzyki MusicBrainz</summary>
+    <summary lang="pt">Scraper de música MusicBrainz</summary>
+    <summary lang="ro">Bibliotecă catalog de muzică MusicBrainz</summary>
+    <summary lang="ru">Музыкальная Информация MusicBrainz</summary>
+    <summary lang="se">Skrapa för musicbrainz.org</summary>
+    <summary lang="zh">MusicBrainz音乐刮削器代码库</summary>
+    <description lang="bg">Извлича инф. за музикални файлове от www.musicbrainz.org</description>
+    <description lang="en">Download Music information from www.musicbrainz.org</description>
+    <description lang="de">Downloade Musik Informationen von www.musicbrainz.org</description>
+    <description lang="es">Descarga información musical de www.musicbrainz.org</description>
+    <description lang="fi">Lataa musiikkitietoja osoitteesta www.musicbrainz.org</description>
+    <description lang="fr">Télécharger les infos musicales depuis www.musicbrainz.org</description>
+    <description lang="hu">Zene információk letöltése a www.musicbrainz.org webhelyről</description>
+    <description lang="nl">Muziekinformatie ophalen van www.musicbrainz.org</description>
+    <description lang="pl">Pobieraj informacje o muzyce z www.musicbrainz.org</description>
+    <description lang="pt">Descarregar informação de música de www.musicbrainz.org</description>
+    <description lang="ro">Descărcați informații muzică de pe www.musicbrainz.org</description>
+    <description lang="ru">Загружать информацию о Музыке с www.musicbrainz.org</description>
+    <description lang="se">Ladda ner musikinformation från www.musicbrainz.org</description>
+    <description lang="zh">从www.musicbrainz.org下载音乐信息</description>
+  </extension>
+</addon>
+
+<addon id="script.module.metadatautils"
+       name="Metadata and Artwork module"
+       version="1.0.42"
+       provider-name="marcelveldt and others">
+    <requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.beautifulsoup4" version="4.9.3" />
+        <import addon="script.module.thetvdb" version="1.0.29" />
+        <import addon="script.module.musicbrainz" version="0.7.0"/>
+        <import addon="script.module.simplecache" version="2.0.2"/>
+        <import addon="script.module.arrow" version="0.15.5"/>
+    </requires>
+    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Metadata and artwork from common sources like TMDB, IMDB, TADB, OMDB and fanart.tv </summary>
+		<summary lang="es">Metadatos e ilustraciones de fuentes comunes como TMDB, IMDB, TADB, OMDB y fanart.tv </summary>
+        <description lang="en">The metadata and artwork module for Kodi provides rich metadata, including artwork for various metatypes by scraping (and caching) this information from sites like TMDB, musicbrainz and fanart.tv. This product uses the TMDb API but is not endorsed or certified by TMDb.</description>
+		<description lang="es">El módulo de metadatos e ilustraciones para Kodi proporciona metadatos enriquecidos, que incluyen ilustraciones paravarios metatipos al raspar (y almacenar en caché) esta información se extrae de sitios como TMDB, musicbrainz and fanart.tv.[CR][CR]Este producto utiliza la API de TMDb pero no está avalado ni certificado por TMDb</description>
+        <news>
+v1.0.42
+- Fixed stripchars PVR Title
+- Fixed ExtraPosters
+- Fix for "Resume" in dialog
+v1.0.41
+- Fixed ExtraPosters
+- Fix for "Resume" in dialog
+v1.0.40
+- Fix for missing TADB key
+v1.0.39
+- Remove unicode
+- Fix for break site Kyradb
+- Add support for TADB encoding Ascii key
+- Add new info for TMDB (number_of_seasons, number_of_episodes and Seasons)
+v1.0.38
+- fix for error 'sys' is not defined for extrafanart
+- fix for google
+- fix for colecting imdb.250 (movie and tv)
+- add new rotentomatoes info from omdb
+v1.0.37
+- Smal fix for theaudiodb scraper
+v1.0.36
+- Fix for theaudiodb scraper,Add some new Art thumb and label
+
+v1.0.35 (wuff)
+- Remove BeautifulSoup3 dependency and use BeautifulSoup4 on Kodi 18 and 19 instead
+
+v1.0.34 (wuff)
+- Set BeautifulSoup3 and MusicBrainz dependency as optional to allow install on Matrix
+
+v1.0.33 (wuff)
+- replace xbmc.LOGNOTICE with xbmc.LOGINFO as LOGNOTICE was removed
+
+v1.0.32 (wuff)
+- Remove python requirement for Kodi 18/19 compat
+- Change imdb Top250 parsing from lxml to html.parser
+- replace xbmc.translatePath with xmbcvfs.translatePath
+v1.0.31 (berkhornet)
+- Further fixes for PVR artwork
+v1.0.30 (berkhornet)
+- Kodi 19/Python 3
+- Fixes for PVR artwork
+- Fix display of artwork when manually selecting from TVDB
+- Fixes for animated art and google
+v1.0.29 (wuff)
+- Remove python requirement for Kodi 18/19 compat
+v1.0.28 (wuff)
+- Kodi 19/Python 3 fixes
+v1.0.27 (finkleandeinhorn)
+- update omdb api key
+v1.0.26 (finkleandeinhorn, cartmandos)
+- enable caching of omdb/tmdb data
+- remove duplicate "Title" parameter
+v1.0.25 (marcelveldt)
+- Last version 30 Mar 2018
+        </news>
+        <license>Apache 2.0</license>
+        <forum>https://forum.kodi.tv/showthread.php?tid=350315</forum>
+        <source>https://github.com/kodi-community-addons/script.module.metadatautils</source>
+        <platform>all</platform>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+			<screenshot>resources/screenshot-01.jpg</screenshot>
+			<screenshot>resources/screenshot-02.jpg</screenshot>
+			<screenshot>resources/screenshot-03.jpg</screenshot>
+			<screenshot>resources/screenshot-04.jpg</screenshot>
+			<screenshot>resources/screenshot-05.jpg</screenshot>
+		</assets>
+    </extension>
+</addon>
+
+<addon id="script.module.idna" name="idna" version="3.4.0" provider-name="Kim Davies">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Internationalized Domain Names for Python</summary>
+    <description lang="en_GB">Internationalized Domain Names for Python</description>
+    <license>BSD-3-Clause</license>
+    <platform>all</platform>
+    <website>https://github.com/kjd/idna</website>
+    <source>https://github.com/kjd/idna</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.simplecache" name="Simple Cache Module" version="2.0.2" provider-name="sualfred">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Provides a simple file- and memory based cache for Kodi addons</summary>
+        <description lang="en_GB">Provides a simple file- and memory based cache for Kodi addons. Based on the original work of Marcelveldt.</description>
+        <platform>all</platform>
+        <license>Apache 2.0</license>
+        <forum/>
+        <source>https://github.com/sualfred/script.module.simplecache</source>
+        <assets>
+            <icon>resources/icon.png</icon>
+        </assets>
+    </extension>
+</addon>
+
+<addon id="script.module.certifi" name="certifi" version="2023.5.7" provider-name="Certifi">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Certifi: Python SSL Certificates</summary>
+    <description lang="en_GB">Certifi is a carefully curated collection of Root Certificates for validating the trustworthiness of SSL certificates while verifying the identity of TLS hosts. It has been extracted from the Requests project.</description>
+    <license>MPL-2.0</license>
+    <website>https://github.com/certifi/python-certifi</website>
+    <source>https://github.com/certifi/python-certifi</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.dateutil"
+       name="python-dateutil"
+       version="2.8.2"
+       provider-name="Paul Ganssle, Gustavo Niemeyer, Tomi Pieviläinen, Yaron de Leeuw">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.six" version="1.15.0+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.module"
+             library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Extensions to the standard Python datetime module</summary>
+    <description lang="en_GB">The dateutil module provides powerful extensions to the standard datetime module, available in Python.</description>
+    <license>Apache-2.0, BSD-3-Clause</license>
+    <website>https://dateutil.readthedocs.io/en/stable/</website>
+    <source>https://github.com/dateutil/dateutil</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.simplejson" name="simplejson" version="3.19.1+matrix.1" provider-name="Bob Ippolito">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Simple, fast, extensible JSON encoder/decoder for Python</summary>
+    <description lang="en_GB">Simple, fast, extensible JSON encoder/decoder for Python</description>
+    <license>MIT</license>
+    <platform>all</platform>
+    <website>https://github.com/simplejson/simplejson</website>
+    <source>https://github.com/simplejson/simplejson</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.requests" name="requests" version="2.31.0" provider-name="Python Software Foundation">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.certifi" version="2023.5.7"/>
+    <import addon="script.module.chardet" version="5.1.0"/>
+    <import addon="script.module.idna" version="3.4.0"/>
+    <import addon="script.module.urllib3" version="1.26.16+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Requests is an elegant and simple HTTP library for Python, built for human beings.</summary>
+    <description lang="en_GB">Requests is an elegant and simple HTTP library for Python, built for human beings.</description>
+    <license>Apache-2.0</license>
+    <platform>all</platform>
+    <website>https://requests.readthedocs.io/</website>
+    <source>https://github.com/psf/requests</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="8.94" provider-name="fryhenryj">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
+		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
+		<import addon="script.module.requests" version="2.25.1+matrix.1"/>
+		<import addon="script.module.infotagger" version="0.0.1" optional="true" />
+		<import addon="script.skin.helper.service" version="1.1.3"/>
+		<import addon="resource.images.studios.white" version="0.0.28"/>
+		<import addon="script.module.pil" version="0.6.0"/>
+		<import addon="script.module.musicbrainz" version="0.6.0"/>
+		<import addon="script.module.arrow" version="1.0.3.1"/>
+		<import addon="script.module.dateutil" version="2.8.1"/>
+		<import addon="script.module.typing_extensions" version="3.7.4.3"/>
+		<import addon="script.module.simplecache" version="1.0.0"/>
+		<import addon="script.module.beautifulsoup4" version="4.6.3+matrix.1"/>
+		<import addon="plugin.video.themoviedb.helper" version="4.4.6"/>
+		<import addon="plugin.program.autocompletion" version="2.0.2" optional="true" />
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.python.script" library="script.py"/>
+	<extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<item library="context.py">
+				<label>Diamond Info</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,actor) | String.IsEqual(ListItem.dbtype,director)</visible>
+			</item>
+			<item library="context2.py">
+				<label>TMDBHelper Trakt Menu</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode)</visible>
+			</item>
+			<item library="context3.py">
+				<label>Diamond Info - In Trakt Lists</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) </visible>
+			</item>
+		</menu>
+	</extension>
+	<extension point="xbmc.service" library="service.py"  start="login"/>
+	<extension point="xbmc.python.library" library="service2.py"/>
+	<extension point="xbmc.addon.metadata">
+		<reuselanguageinvoker>true</reuselanguageinvoker>
+		<platform>all</platform>
+		<summary>Diamond Info (EIM)</summary>
+		<description>This script offers various possibilities to display online content inside skins as well as a complete MovieDB browser including info dialogs for various media types. Needs skin implementation for lot of functions and Diamond Player for library functions.</description>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
+			<screenshot>resources/screenshot1.jpg</screenshot>
+			<screenshot>resources/screenshot2.jpg</screenshot>
+			<screenshot>resources/screenshot3.jpg</screenshot>
+		</assets>
+		<news>6.2.3 - Fix TV Show trailers
+		6.2.2 - Added ability to search using the tvdb_id for "extendedepisodeinfo"
+		6.2.1 - Fix context menu now available for widgets pointing to Diamond Info's video addon items
+		6.2.0 - Added context menu force "player select" to the play button, available via "c" and long press "enter" button
+		</news>
+	</extension>
+</addon>
+
+<addon id="script.module.thetvdb"
+       name="The TVDB API v2"
+       version="1.0.29"
+       provider-name="marcelveldt and others">
+    <requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.simplejson" version="3.17.0"/>
+        <import addon="script.module.simplecache" version="2.0.2"/>
+        <import addon="script.module.arrow" version="0.15.5"/>
+    </requires>
+    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary>TheTVDB API v2 python module for Kodi</summary>
+        <description>TheTVDB API v3 python module for Kodi</description>
+        <license>Apache 2.0</license>
+        <source>https://github.com/kodi-community-addons/script.module.thetvdb</source>
+        <platform>all</platform>
+    </extension>
+</addon>
+
+<addon id="resource.images.studios.white" name="Studio Icons - White" version="0.0.30" provider-name="Team Kodi">
+	<extension point="kodi.resource.images" compile="true" type="studios" />
+	<requires>
+		<import addon="kodi.resource" version="1.0.0"/>
+	</requires>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en">White Studio Icons</summary>
+		<description lang="en">White Studio Icons</description>
+		<platform>all</platform>
+		<license>CC-BY-SA-3.0</license>
+		<assets>
+			<icon>icon.png</icon>
+		</assets>
+	</extension>
+</addon>
+
+<addon id="script.module.typing_extensions" name="typing_extensions" version="4.7.1" provider-name="Python Software Foundation">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Backported and Experimental Type Hints for Python 3.7+</summary>
+    <description lang="en_GB">Backported and Experimental Type Hints for Python 3.7+</description>
+    <platform>all</platform>
+    <license>PSF-2.0</license>
+    <website>https://typing-extensions.readthedocs.io/en/latest/</website>
+    <source>https://github.com/python/typing_extensions</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.metalibrary" name="Meta Library" version="2019.02.20" provider-name="aenema">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0" />
+	</requires>
+	<extension point="xbmc.python.module" library="lib" />
+	<extension point="xbmc.python.pluginsource" library="lib/default.py" />
+	<extension point="xbmc.addon.metadata">
+		<platform>all</platform>
+		<summary lang="en">meta database for fast Images.</summary>
+		<description lang="en">Meta DB</description>
+        <source>unknown</source>
+	</extension>
+</addon>
+
+<addon id="script.module.myconnpy" name="mysql-connector-python" version="8.0.33" provider-name="Oracle and/or its affiliates">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">MySQL driver written in Python</summary>
+    <description lang="en_GB">MySQL driver written in Python which does not depend on MySQL C client libraries and implements the DB API v2.0 specification (PEP-249)</description>
+    <license>GPLv2</license>
+    <platform>all</platform>
+    <website>https://dev.mysql.com/doc/connector-python/en/</website>
+    <source>https://dev.mysql.com/downloads/connector/python/</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.musicbrainz"
+       name="Musicbrainz NGS webservice python bindings"
+       version="0.7.0"
+       provider-name="marcelveldt and others">
+  <requires>
+	<import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module"
+             library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary>Python bindings for Musicbrainz' NGS webservice</summary>
+    <description>Kodi module library for the Python bindings for Musicbrainz' NGS webservice developed by alastair.</description>
+    <license>GNU GENERAL PUBLIC LICENSE V3</license>
+    <source>https://github.com/kodi-community-addons/script.module.musicbrainz</source>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="script.module.future"
+       name="future"
+       version="0.17.1+matrix.1"
+       provider-name="Ed Schofield">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.module" library="libs" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Clean single-source support for Python 3 and 2</summary>
+    <description lang="en_GB">future is the missing compatibility layer between Python 2 and Python 3. It allows you to use a single, clean Python 3.x-compatible codebase to support both Python 2 and Python 3 with minimal overhead.</description>
+    <platform>all</platform>
+    <license>MIT</license>
+    <source>https://github.com/PythonCharmers/python-future</source>
+    <website>http://python-future.org</website>
+  </extension>
+</addon>
+
+<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.10" provider-name="fryhenryj">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
+		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
+		<import addon="script.module.requests" version="2.25.1+matrix.1"/>
+		<import addon="script.module.infotagger" version="0.0.1" optional="true" />
+		<import addon="script.skin.helper.service" version="1.1.3"/>
+		<import addon="resource.images.studios.white" version="0.0.28"/>
+		<import addon="script.module.pil" version="0.6.0"/>
+		<import addon="script.module.musicbrainz" version="0.6.0"/>
+		<import addon="script.module.arrow" version="1.0.3.1"/>
+		<import addon="script.module.dateutil" version="2.8.1"/>
+		<import addon="script.module.typing_extensions" version="3.7.4.3"/>
+		<import addon="script.module.simplecache" version="1.0.0"/>
+		<import addon="script.module.beautifulsoup4" version="4.6.3+matrix.1"/>
+		<import addon="plugin.video.themoviedb.helper" version="4.4.6"/>
+		<import addon="plugin.program.autocompletion" version="2.0.2" optional="true" />
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.python.script" library="script.py"/>
+	<!---extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<item library="context.py">
+				<label>Diamond Info</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,actor) | String.IsEqual(ListItem.dbtype,director)</visible>
+			</item>
+			<item library="context2.py">
+				<label>TMDBHelper Trakt Menu</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode)</visible>
+			</item>
+			<item library="context3.py">
+				<label>Diamond Info - In Trakt Lists</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow)  </visible>
+			</item>
+		</menu>
+	</extension--->
+	<extension point="xbmc.service" library="service.py"  start="login"/>
+	<!--extension point="xbmc.python.library" library="service2.py"-->
+	<extension point="xbmc.addon.metadata">
+		<reuselanguageinvoker>true</reuselanguageinvoker>
+		<platform>all</platform>
+		<summary>xtreme_vod</summary>
+		<description>This script offers xtreme_vod</description>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
+			<!--screenshot>resources/screenshot1.jpg</screenshot>
+			<screenshot>resources/screenshot2.jpg</screenshot>
+			<screenshot>resources/screenshot3.jpg</screenshot--->
+		</assets>
+		<!--news>6.2.3 - Fix TV Show trailers
+		6.2.2 - Added ability to search using the tvdb_id for "extendedepisodeinfo"
+		6.2.1 - Fix context menu now available for widgets pointing to Diamond Info's video addon items
+		6.2.0 - Added context menu force "player select" to the play button, available via "c" and long press "enter" button
+		</news--->
+	</extension>
+</addon>
+
+<addon id="script.artwork.beef" name="Artwork Beef" version="0.28.9" provider-name="rmrector">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0" />
+		<import addon="xbmc.json" version="6.20.0" />
+		<import addon="script.module.simplejson" version="3.3.0" />
+		<import addon="script.module.requests" version="2.9.1" />
+		<import addon="script.common.plugin.cache" version="2.5.8" />
+	</requires>
+	<extension point="xbmc.python.script" library="default.py">
+		<provides>executable</provides>
+	</extension>
+	<extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<menu id="kodi.core.manage">
+				<item library="context.py">
+					<label>AB: $ADDON[script.artwork.beef 32410]</label>
+					<visible>!Skin.HasSetting(disablecontext:script.artwork.beef) + [StringCompare(ListItem.DBTYPE, movie) | StringCompare(ListItem.DBTYPE, set) | StringCompare(ListItem.DBTYPE, tvshow) | StringCompare(ListItem.DBTYPE, episode) | StringCompare(ListItem.DBTYPE, musicvideo) | String.IsEqual(ListItem.DBTYPE, movie) | String.IsEqual(ListItem.DBTYPE, set) | String.IsEqual(ListItem.DBTYPE, tvshow) | String.IsEqual(ListItem.DBTYPE, episode) | String.IsEqual(ListItem.DBTYPE, musicvideo)]</visible>
+				</item>
+				<item library="context_gui.py">
+					<label>AB: $ADDON[script.artwork.beef 32411]</label>
+					<visible>!Skin.HasSetting(disablecontext:script.artwork.beef) + [StringCompare(ListItem.DBTYPE, movie) | StringCompare(ListItem.DBTYPE, set) | StringCompare(ListItem.DBTYPE, tvshow) | StringCompare(ListItem.DBTYPE, episode) | StringCompare(ListItem.DBTYPE, musicvideo) | String.IsEqual(ListItem.DBTYPE, movie) | String.IsEqual(ListItem.DBTYPE, set) | String.IsEqual(ListItem.DBTYPE, tvshow) | String.IsEqual(ListItem.DBTYPE, episode) | String.IsEqual(ListItem.DBTYPE, musicvideo)]</visible>
+				</item>
+				<item library="context_debug_remove.py">
+					<label>AB: $ADDON[script.artwork.beef 32427]</label>
+					<visible>Skin.HasSetting(enablecontext:script.artwork.beef.debug) + [StringCompare(ListItem.DBTYPE, movie) | StringCompare(ListItem.DBTYPE, set) | StringCompare(ListItem.DBTYPE, tvshow) | StringCompare(ListItem.DBTYPE, episode) | StringCompare(ListItem.DBTYPE, musicvideo) | StringCompare(ListItem.DBTYPE, season) | String.IsEqual(ListItem.DBTYPE, movie) | String.IsEqual(ListItem.DBTYPE, set) | String.IsEqual(ListItem.DBTYPE, tvshow) | String.IsEqual(ListItem.DBTYPE, episode) | String.IsEqual(ListItem.DBTYPE, musicvideo) | StringCompare(ListItem.DBTYPE, season)]</visible>
+				</item>
+				<item library="context_debug_logitem.py">
+					<label>AB: $ADDON[script.artwork.beef 32430]</label>
+					<visible>Skin.HasSetting(enablecontext:script.artwork.beef.debug) + [StringCompare(ListItem.DBTYPE, movie) | StringCompare(ListItem.DBTYPE, set) | StringCompare(ListItem.DBTYPE, tvshow) | StringCompare(ListItem.DBTYPE, episode) | StringCompare(ListItem.DBTYPE, musicvideo) | String.IsEqual(ListItem.DBTYPE, movie) | String.IsEqual(ListItem.DBTYPE, set) | String.IsEqual(ListItem.DBTYPE, tvshow) | String.IsEqual(ListItem.DBTYPE, episode) | String.IsEqual(ListItem.DBTYPE, musicvideo)]</visible>
+				</item>
+			</menu>
+			<item library="context.py">
+				<label>AB: $ADDON[script.artwork.beef 32410]</label>
+				<visible>!Skin.HasSetting(disablecontext:script.artwork.beef) + [String.IsEqual(ListItem.DBTYPE, artist) | String.IsEqual(ListItem.DBTYPE, album) | String.IsEqual(ListItem.DBTYPE, song)]</visible>
+			</item>
+			<item library="context_gui.py">
+				<label>AB: $ADDON[script.artwork.beef 32411]</label>
+				<visible>!Skin.HasSetting(disablecontext:script.artwork.beef) + [String.IsEqual(ListItem.DBTYPE, artist) | String.IsEqual(ListItem.DBTYPE, album) | String.IsEqual(ListItem.DBTYPE, song)]</visible>
+			</item>
+			<item library="context_debug_remove.py">
+				<label>AB: $ADDON[script.artwork.beef 32427]</label>
+				<visible>Skin.HasSetting(enablecontext:script.artwork.beef.debug) + [String.IsEqual(ListItem.DBTYPE, artist) | String.IsEqual(ListItem.DBTYPE, album) | String.IsEqual(ListItem.DBTYPE, song)]</visible>
+			</item>
+			<item library="context_debug_logitem.py">
+				<label>AB: $ADDON[script.artwork.beef 32430]</label>
+				<visible>Skin.HasSetting(enablecontext:script.artwork.beef.debug) + [String.IsEqual(ListItem.DBTYPE, artist) | String.IsEqual(ListItem.DBTYPE, album) | String.IsEqual(ListItem.DBTYPE, song)]</visible>
+			</item>
+		</menu>
+	</extension>
+	<extension point="xbmc.service" start="login" library="service.py" />
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en">Automatically adds extra artwork for your media.</summary>
+		<description lang="en">Artwork Beef automatically adds extra artwork for TV shows and movies into your library. It grabs them from wonderful web services and the file system.</description>
+		<disclaimer lang="en">Artwork sources: fanart.tv, TheTVDB.com, The Movie Database, TheAudioDB, KyraDB</disclaimer>
+		<summary lang="es">Agrega automáticamente ilustraciones adicionales para sus medios.</summary>
+		<description lang="es">Artwork Beef agrega automáticamente ilustraciones adicionales para Series TV y Películas a su biblioteca. Las ilustraciones son agregadas desde Servicios web y el Sistema de archivos local.</description>
+		<disclaimer lang="es">Fuente para ilustraciones: fanart.tv, TheTVDB.com, The Movie Database, TheAudioDB, KyraDB</disclaimer>
+		<news>v0.28.5 (2020-11-26)
+- fix: really really treat 403 as 404 and replace it
+
+v0.28.4 (2020-11-21)
+- fix: 403 change causing errors with other web service issues
+
+v0.28.1 - v0.28.3
+- fix: treat 403 as 404 and replace it
+- fix: don't throw an error when a movie set is lost
+- Fix: avoid adding duplicate fanart from TVDB
+- Fix: log full URL when download fails
+- Fix: remove KyraDB
+
+v0.28.0 (2020-02-08)
+- Feature: Add "Path exclusion" settings to skip processing media items by path
+		</news>
+		<source>https://github.com/rmrector/script.artwork.beef</source>
+		<forum>https://forum.kodi.tv/showthread.php?tid=258886</forum>
+		<website>https://rmrector.github.io/script.artwork.beef/</website>
+		<license>The MIT License</license>
+		<platform>all</platform>
+		<assets>
+			<icon>icon.png</icon>
+		</assets>
+	</extension>
+</addon>
+
+<addon id="repository.nixgates" name="Nixgates Repo" version="2.2.0" provider-name="Nixgates">
+	<extension point="xbmc.addon.repository" name="Nixgates Repo">
+		<dir minversion="18.0">
+			<info compressed="false">https://raw.githubusercontent.com/nixgates/nixgates/master/repo/zips/addons.xml</info>
+			<checksum>https://raw.githubusercontent.com/nixgates/nixgates/master/repo/zips/addons.xml.md5</checksum>
+			<datadir zip="true">https://raw.githubusercontent.com/nixgates/nixgates/master/repo/zips/</datadir>
+		</dir>
+		<dir minversion="18.0" maxversion="18.9.0">
+			<info compressed="false">https://raw.githubusercontent.com/nixgates/nixgates/master/leia/zips/addons.xml</info>
+			<checksum>https://raw.githubusercontent.com/nixgates/nixgates/master/leia/zips/addons.xml.md5</checksum>
+			<datadir zip="true">https://raw.githubusercontent.com/nixgates/nixgates/master/leia/zips/</datadir>
+		</dir>
+		<dir minversion="18.9.0">
+			<info compressed="false">https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/addons.xml</info>
+			<checksum>https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/addons.xml.md5</checksum>
+			<datadir zip="true">https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/</datadir>
+		</dir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Nixgates</summary>
+		<description>Nixgates Repository</description>
+		<platform>all</platform>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.png</fanart>
+		</assets>
+	</extension>
+</addon>
+
+<addon id="script.module.addon.signals"
+    name="Addon Signals"
+    version="0.0.6+matrix.1"
+    provider-name="Rick Phillips (ruuk)">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Inter-addon signalling</summary>
+        <description lang="en_GB">Provides signal/slot mechanism for inter-addon communication</description>
+        <platform>all</platform>
+        <license>LGPL-2.1-only</license>
+        <source>https://github.com/ruuk/script.module.addon.signals</source>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+    </extension>
+</addon>
+
+<addon id="repository.jurialmunkey" name="jurialmunkey Alpha Repository" version="3.5" provider-name="jurialmunkey">
+    <extension point="xbmc.addon.repository" name="jurialmunkey Alpha Repository">
+        <dir>
+            <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/repo/zips/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/repo/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/repo/zips/</datadir>
+        </dir>
+        <dir minversion="19.9.1" maxversion="20.9.0">
+            <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/nexusrepo/zips/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/nexusrepo/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/nexusrepo/zips/</datadir>
+        </dir>
+        <dir minversion="20.9.1">
+            <info compressed="false">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/omega/zips/addons.xml</info>
+            <checksum>https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/omega/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://raw.githubusercontent.com/jurialmunkey/repository.jurialmunkey/master/omega/zips/</datadir>
+        </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>jurialmunkey Alpha Repository</summary>
+        <description>A repository for alpha releases of jurialmunkey's skins.</description>
+        <disclaimer></disclaimer>
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+    </extension>
+</addon>
+
+<addon id="repository.newdiamond" name="New DiamondInfo_Mod Repo" version="2.2" provider-name="fryhenryj">
+    <extension point="xbmc.addon.repository" name="newdiamondinfo_mod">
+        <dir>
+            <info compressed="false">https://henryjfry.github.io/repository.thenewdiamond/zips/addons.xml</info>
+            <checksum>https://henryjfry.github.io/repository.thenewdiamond/zips/addons.xml.md5</checksum>
+            <datadir zip="true">https://henryjfry.github.io/repository.thenewdiamond/zips/</datadir>
+        </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>New DiamondInfo_Mod Repo</summary>
+        <description>New DiamondInfo_Mod Repo</description>
+        <disclaimer></disclaimer>
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
+
+    <addon id="script.skin.helper.service" name="Skin Helper Service" version="1.1.38" provider-name="marcelveldt and others">
+    <requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="12.0.0"/>
+        <import addon="script.module.simplejson" version="3.3.0"/>
+        <import addon="script.module.simplecache" version="1.0.0"/>
+        <import addon="script.module.metadatautils" version="1.0.31"/>
+    </requires>
+
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <item library="resources\lib\context_animatedart.py">
+              <label>32024</label>
+              <visible>!String.IsEmpty(Window(Home).Property(SkinHelper.EnableAnimatedPosters)) + Container.Content(movies)</visible>
+            </item>
+            <item library="resources\lib\context_pvr.py">
+                <label>32023</label>
+                <description>PVR artwork Configuration</description>
+                <visible>
+                    !String.IsEmpty(Window(Home).Property(SkinHelper.EnablePvrThumbs)) +
+                    [Window.IsActive(MyPVRChannels.xml) |
+                    Window.IsActive(MyPVRGuide.xml) | Window.IsActive(MyPVRRecordings.xml) |
+                    Window.IsActive(MyPVRTimers.xml) | Window.IsActive(MyPVRSearch.xml)]
+                </visible>
+            </item>
+            <item library="resources\lib\context_music.py">
+                <label>32023</label>
+                <description>Music artwork Configuration</description>
+                <visible>
+                    !String.IsEmpty(Window(Home).Property(SkinHelper.EnableMusicArt)) +
+                    [Container.Content(albums) | Container.Content(artists) | Container.Content(songs)]
+                </visible>
+            </item>
+        </menu>
+    </extension>
+
+    <extension point="xbmc.python.library" library="default.py" />
+    <extension point="xbmc.python.pluginsource" library="plugin.py" />
+    <extension library="service.py" point="xbmc.service" start="login" />
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Helper service for Kodi skins</summary>
+        <description>Helper service for Kodi skins</description>
+        <news>
+v1.1.38
+- removed webservice(removed dependency of module "script.module.cherrypy")
+v1.1.37
+- fix for saveskinimage
+- Update listitem_monitor.py
+v1.1.36
+- Hungarian lang created
+- remove get_repo_addoninfo
+- Fix for "Resume" in dialog
+v1.1.35
+- fix setskinconstant
+
+v1.1.34
+- fix correct skin settings
+- Fix for skinstring, selectimage, and overlayertexture
+- Fix for resourceaddons
+- Matrix Py3 changes
+v1.1.32
+- fix for search dialog
+- add TMDB for TVShow
+- fix for webservice (now use just TMDB Art-Poster and fanart)
+
+v1.1.31
+- fix urllib.parse vs urlparse in utils for Kodi 18
+- add commits from Angelinas1
+
+v1.1.30
+- fix module import of context menu items
+
+v1.1.29
+- compatibility change for CherryPy 17.4.2 and bump version requirement
+
+v1.1.28
+- replace xbmc.LOGNOTICE with xbmc.LOGINFO as LOGNOTICE was removed
+
+v1.1.27
+- Replace xbmc.translatePath with xbmcvfs.translatePath for Kodi 19 compat
+
+v1.1.26
+- Remove python dependency for Kodi18/19 compatibility
+- minor fix
+
+v1.1.25
+- Kodi 19/Python 3 compatibility
+- minor fixes
+        </news>
+		<assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+        <language></language>
+        <platform>all</platform>
+        <license>GPL v2.0</license>
+        <forum>http://forum.kodi.tv/showthread.php?tid=235676</forum>
+        <website></website>
+        <source>https://github.com/kodi-community-addons/script.skin.helper.service</source>
+    </extension>
+</addon>
+
+<addon id="script.module.pytz" name="pytz" version="2023.3.0+matrix.1" provider-name="Stuart Bishop">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">World Timezone Definitions for Python.</summary>
+    <description lang="en_GB">pytz brings the Olson tz database into Python. This library allows accurate and cross platform timezone calculations using Python 2.4 or higher. It also solves the issue of ambiguous times at the end of daylight saving time, which you can read more about in the Python Library Reference (datetime.tzinfo).</description>
+    <license>MIT</license>
+    <platform>all</platform>
+    <website>https://pythonhosted.org/pytz/</website>
+    <source>https://github.com/stub42/pytz</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="plugin.video.seren" version="3.0.62e" name="Seren" provider-name="Nixgates">
+    <requires>
+        <import addon="xbmc.addon" version="17.9.910" />
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="script.module.requests" version="2.27.0" />
+        <import addon="script.module.beautifulsoup4" version="4.9.3"/>
+        <import addon="context.seren" version="2.2.0"/>
+        <import addon="script.module.inputstreamhelper" version="0.5.10" optional="true"/>
+        <import addon="script.module.unidecode" version="1.1.1"/>
+        <import addon="script.module.myconnpy" version="8.0.18"/>
+        <import addon="script.module.pytz" version="2014.2"/>
+  <import addon="script.module.infotagger" version="0.0.5" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="seren.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py"/>
+    <extension point="xbmc.addon.metadata">
+        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <summary lang="en">Seren - Modular Multi-source Addon</summary>
+        <description lang="en">Seren is a modular provider based, cloud service streaming software that is tightly
+            interwoven with Trakt. Seren provides the freedom to view media from a single menu system from service
+            providers of the users choosing. Please Note: This addon requires the use of a compatible cloud service.
+        </description>
+        <platform>all</platform>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+        <forum/>
+        <website>https://github.com/nixgates/plugin.video.seren</website>
+        <source>https://github.com/nixgates/plugin.video.seren</source>
+        <disclaimer lang="en">
+            Last updated: November 29, 2024.
+            The information contained within the Seren software (the "Service") is for general information purposes
+            only.
+            The author assumes no responsibility for errors, omissions in the contents on the Service, nor does it
+            assume responsibility for any material provided by any external services.
+            The use of the Service does not author the user to engage in any kind of illegal, criminal or tortious
+            activity through the use of the software, including infringement of any third party intellectual property
+            rights (including without limitation copyright, trade marks, patent, trade secrets and confidential
+            information), fraud, child pornography, trafficking in obscene material, violation of applicable export
+            restrictions, drug dealing, gambling, harassment, stalking, spamming, hacking, sending of viruses or other
+            harmful files or illegal posting of computer passwords or computer code.
+            The user is responsible for all their activity in connection with the use of the Service and the author
+            reserves the right to report any potentially criminal activity to appropriate law enforcement agencies.
+            The user must not transmit to or via the Service, any material that may infringe the intellectual property
+            rights of any third party, or any defamatory, derogatory or offensive material or publication.
+            In no event shall the author of this software be liable for any special, direct, indirect, consequential, or
+            incidental damages or any damages whatsoever, whether in an action of contract, negligence or other tort,
+            arising out of or in connection with the use of the Service or the contents of the Service.
+            The author reserves the right to make additions, deletions, or modification to the contents on the Service
+            at any time without prior notice.
+            The author of this software does not warrant that the software is free of viruses or other harmful
+            components.
+            Seren may contain links to external websites that are not provided or maintained by or in any way affiliated
+            with the author.
+            Please note that the author does not guarantee the accuracy, relevance, timeliness, or completeness of any
+            information on these external websites.
+        </disclaimer>
+        <assets>
+            <icon>resources/images/ico-seren-3.png</icon>
+            <fanart>resources/images/fanart-seren-3.png</fanart>
+            <clearlogo>resources/images/logo-seren-3.png</clearlogo>
+            <poster>resources/images/poster-seren-3.png</poster>
+            <screenshot>resources/screenshots/screenshot-01.jpg</screenshot>
+            <screenshot>resources/screenshots/screenshot-02.jpg</screenshot>
+            <screenshot>resources/screenshots/screenshot-03.jpg</screenshot>
+            <screenshot>resources/screenshots/screenshot-04.jpg</screenshot>
+        </assets>
+        <news>
+            Changelog 3.0.62
+            [BUG] Optimised RD fix implementation
+            [BUG] Improved RD season pack handling
+            [BUG] Improved RD download handling when uncached
+            [BUG] Improved RD file selection handling when uncached
+
+            Changelog 3.0.61
+            [BUG] Fix AD not deleting magnet if not cached
+
+            Changelog 3.0.6
+            [BUG] Fix AD Playback
+
+            Changelog 3.0.5
+            [BUG] Fix RD playback
+            [BUG] Improved 3D Filtering
+            [FEATURE] Added option to filer results by internet speed
+            [FEATURE] Added 'Cancel' button to smartplay window
+            [FEATURE] Added 'Icon Only' scraper display style option
+            [FEATURE] Added 'Minimum Percentage Left Before Showing Dialog option' for smartplay window
+            [FEATURE] Added option to hide resolver window when attempting to play
+            [FEATURE] Added 60 FPS filter
+
+            Changelog 3.0.1
+            [FEATURE] Handle Kodi database version for Omega 21
+
+            Changelog 3.0.0
+            [PERFORMANCE] Drop support for Python 2.x (Kodi Leia and below)
+            [PERFORMANCE] Optimize codebase for Python 3.x (Kodi Matrix and above)
+            [PERFORMANCE] Improvements to Smart Play
+            [PERFORMANCE] Improve playlist creation
+            [PERFORMANCE] Don't use strptime
+            [PERFORMANCE] Small perf improvement to supported file type checks
+            [PERFORMANCE] Optimize from_widget detection
+            [PERFORMANCE] Optimize movie release date handling
+            [PERFORMANCE] Use cache for pull_all if not page 1 and ignore_cache = True
+            [FEATURE] Introduce support for direct sources
+            [FEATURE] Better support for adaptive sources
+            [FEATURE] Better passing of movie aliases to providers
+            [FEATURE] Smoother resolver flow
+            [FEATURE] Convert add-on settings to new format
+            [FEATURE] Add AV1 filter
+            [FEATURE] Rework alias passing to scrapers
+            [FEATURE] Better identification of WEB and BLURAY sources
+            [FEATURE] Support clearlogo from TMDB
+            [FEATURE] Prioritize Trakt airdate metadata
+            [FEATURE] Update Seren logo for 3.0.0
+            [FEATURE] Icons for all menus
+            [FEATURE] Support package and provider icons
+            [FEATURE] Add Hebrew localizations
+            [FEATURE] Update pytz to 2022.7
+            [BUG] Improve Player resiliency and error handling (re-factor)
+            [BUG] Fix Multiple issues with player up next popup and track watched reported
+            [BUG] Fix Task Done error (re-write Threadpool)
+            [BUG] Fix Smartplay not working after 2nd episode watched
+            [BUG] Improve Database handling and Foreign Key references (DB schema refactor)
+            [BUG] Increase RD timeout
+            [BUG] Fix Trakt bookmark handling
+            [BUG] Fix TVDB Normalization error
+            [BUG] Fix Most TV Show Episodes/Seasons don't have certification (MPAA)
+            [BUG] Fix Awake from sleep sometimes misses plugin calls
+            [BUG] Fix Seren not playing some cached files from Premiumize
+            [BUG] Fix sort_select tries to read invalid settings
+            [BUG] Fix Local time conversion not happening for movies releases
+            [BUG] Fix Clear logo overlap on getSources window
+            [BUG] Fix Widgets Disappear on Error
+            [BUG] Fix two bugs with Trakt watched/unwatched actions
+            [BUG] Fix missing seeds count when Manual Caching
+            [BUG] Fix typo in German localizations
+            [BUG] Remove rogue \ in translations
+
+		    Changelog 2.2.4
+			[BUG] Fix bugs related to foreign key constraints
+
+            Changelog 2.2.3
+            [BUG] Fix Trakt Scrobbling and Playing Next
+            [FEATURE] Update pytz to 2022.6
+
+            Changelog 2.2.2
+            [BUG] Trakt scrobbling hitting rate limiter
+            [BUG] Improve onWake and sleeping service calls
+            [FEATURE] Update pytz to 2022.5
+            [FEATURE] Fixed 'info_text' item property for themes
+
+            Changelog 2.2.1
+            [BUG] Error on fresh install from update news
+            [BUG] Discover TV Shows Genre multi-select not working
+            [PERFORMANCE] Limit search to title and aliases only
+
+            Changelog 2.2.0
+            [FEATURE] Complete refactor of source sorting
+            [FEATURE] Add enhanced filtering options
+            [FEATURE] Improve release title info detection
+            [FEATURE] Improved source statistics, filtering and pretermination
+            [FEATURE] Updated default seren skin
+            [FEATURE] Window class refactors
+            [FEATURE] Add adaptive source selection when smartplaying
+            [FEATURE] "Original" for TMDB for High artwork size
+            [FEATURE] Allow deleting single search terms from search history
+            [FEATURE] Base List Types for Genres default setting switch
+            [FEATURE] Add trakt user blocked notification.
+            [FEATURE] Auto clean torrent cache
+            [FEATURE] Re-open settings at correct place
+            [FEATURE] Add verbiage in our news function about source sorting changes
+            [FEATURE] Update pytz to 2022.1
+            [FEATURE] Add Kodi 20 Alpha1 Videodb support (Note: Kodi 20 is not officially supported yet)
+            [PERFORMANCE] Lazy load dependencies and optimize imports
+            [PERFORMANCE] Improve performance of pre-emptive termination checks
+            [PERFORMANCE] Improve performance of source sorting and cloud scrapers
+            [PERFORMANCE] Improve performance of source filtering
+            [PERFORMANCE] Optimize TVDB
+            [PERFORMANCE] Optimise year generation code for menus
+            [BUG] Fix background updating of shows
+            [BUG] List cache on first boot for widgets broken
+            [BUG] Marking an episode as unwatched via CM does not remove last_watched_at in DB
+            [BUG] Marking show watched/unwatched shouldn't affect specials
+            [BUG] Handle error response from OMDb
+            [BUG] Increase read timeout for trakt when milling all seasons
+            [BUG] Try close session for trakt.tv
+            [BUG] Double widget refresh can occur when playback ends and trakt manager
+            [BUG] Trakt Manager --> Hide Show
+            [BUG] Duplicate episodes when trakt_id changes
+            [BUG] Tvdb fallback is not working as it should
+            [BUG] TMDB Show meta never up to par
+            [BUG] TMDB air_dates have no time component
+            [BUG] Fix TMDB Rate limiting handler
+            [BUG] My Lists don't pull all lists
+            [BUG] Duplicate my lists lists when no_paging enabled
+            [BUG] Remove a4kSubtitles Integration
+            [BUG] IndexError from sort_sources
+            [BUG] TVDB errors when there is no item in the iterator
+            [BUG] Shuffle Play not working when "Flatten Season Episodes" enabled
+            [BUG] Seren not passing aliases to a4kScrapers for movies
+            [BUG] Cloud Scrapers don't find episodes that include year after title
+            [BUG] Change NoPlayableSourcesExcetion to log at info level
+            [BUG] Fix getSources progress calculation
+            [BUG] Fixup adaptive handling since the source sorting and statistic changes
+            [BUG] Limit flip multiple providers to the current package
+            [BUG] Ensure we have a valid integer value for torrent seeds
+            [BUG] Fix Premiumize transfer progress values
+            [BUG] Return gracefully when we have no valid zipfile from install package
+            [BUG] Handles source sizes in KB
+            [BUG] Fix focus issues on windows
+            [BUG] Fix provider module import issues
+            [BUG] Improve handling of Kodi object cleanup
+
+            Changelog 2.1.9
+            Fix PM Application Authorization
+            Fix show pack retrieval in torrent cache
+            Fix a4kSubtitles import path for case sensitive filesystems
+            Use addon id in setting cache prefix for kodi window properties
+            Fix focus broken in provider window with no providers
+
+            Changelog 2.1.8
+            Fix prescrape cache result being ignored
+            Fix get_sources to return all relevant torrent hashes from torrent cache
+            Some minor cache performance improvements
+
+            Changelog 2.1.7
+            Fix MyFiles listings for all FileWalkers
+            Fix Rescrape item should overwrite torrent cache
+            Added info meta up to par check in fallback logic
+            Fix playback history normalization needed for Quick Resume context menu bug
+            Fix reset playback progress for shows/seasons/episodes
+            Handle Cloudflare 530 error for Trakt
+            Fix Premiumize.me space_used now returns value in TB
+            Handle bugs in Premiumize.me API for list files gracefully.
+
+            Changelog 2.1.6
+            Work around Sqlite on Leia under Windows does not support boolean named values
+            Ensure we fetch all pages for syncing ratings and ignore cache for bookmark/hidden sync
+            Fix collections.Mapping import for Python >= 3.3
+
+            Changelog 2.1.5
+            Workaround trakt shitty season data
+            Added trakt list sort types for Watched, Collected and My Rating
+            Fix trakt season milling for updated shows
+            Fix mill_if_needed queries for seasons and episodes
+            Use cache for first load of widgets for trakt lists
+            Force a cache clear on release version changes
+            Update seasons statistics again, with even more fallbacks
+            Ensure we clean up AD/RD cloudfiles if we can't identify the file to play
+            Fixed typo in url for widget refresh from activities sync
+            Allow widget refresh while playing for foreground tasks
+            Fix air dates not always showed correctly for shows/seasons
+            Fix tzlocal call to pytz.tzinfo.build_tzinfo and update pytz to 2021.3
+            Hide trakt auth option if we are already authed
+            Change icons to transparent background
+            Use an empty content type value for menu containers
+            Added 'an' to the list of excluded sort tokens
+            Update Dutch translations
+            Update French translations
+            Add Polish translations
+
+            Changelog 2.1.4
+            Genre and Next Page icons
+            Improve widget refresh logic
+            Update show/season statistics after reinserting from updated meta
+            Perform trakt sync on system resume
+            Support kodi standard addon localisations
+            Fix downloads
+            Fix hide shows from episodes/season items
+            Add "Auto-Delete Torrents" for AD
+            Fix RD torrents not auto-deleting
+            Fix broken cache cleaning
+            Don't use show OMDB data for seasons
+            Remove update checker
+            Localize custom windows
+            Use show ids for setUniqueIDs
+            Always mill specials
+            Optimise TVDB threading
+            Optimise filter_dictionary and safe_dict_get
+            Increase requests connection pool size
+            Don't use dict.keys() when unnecessary
+            Some minor fixes and optimisations to tools and globals
+            Minor performance improvement to the sqlite row factory
+            Optimise TZ initialisation
+            Debounce onSettingsChanged callback in SerenMonitor
+            Added database indices to episodes, movies, hidden and bookmarks tables
+
+            Changelog 2.1.3
+            Workaround Kodi's lack of multi-process settings management
+            Fix Trakt updated endpoints now only support 30 days from "now"
+            Fix call to get_url in RD account status check and enhanced PM and AD account status checks
+            Fix Trakt IDs being sent wrong to windows
+
+            Changelog 2.1.2
+            Fix RD auth when there are existing values in settings.xml
+            Get debrid premium status immediately after auth and improve values/handling
+            Make Trakt auth for widget loads needing auth to wait for auth
+            Ensure all trakt API instances always get latest auth tokens
+            Fix Trakt revoke auth issues that led to bad values in settings.xml
+            Don't wipe user data in trakt sync db on trakt revoke auth unless next authed user is different
+            Fix clipboard copy to work on Linux under Matrix and and add MacOS support
+            Fix season milling requires update check
+            Fix adding unaired items to watchlist from search when hide unaired is enabled
+            Fix eternal trakt IDs for trakt addon ratings/scrobbling for episodes
+            Fix trakt list sorting direction for rank sorting
+            Don't cache personal trakt lists
+            Reorder code path in GlobalLock to avoid rare race condition
+            Fix Long life service manager does not exit when kodi requests it to
+            Change InputStream Helper dependency to optional
+            Gracefully handle bad dates in OMDB indexer
+            Improved settings cache thread locking
+            Handle None/empty values better in settings cache
+            VACCUM during DB rebuild (reclaim disk space)
+
+            Changelog 2.1.1
+            Fix RD losing auth issue
+            Improve OAUTH refresh flow edge case coverage for Trakt and TVDB
+            Re-implement retry on db lock during sql execution
+            Fix an issue with GlobalLock run_once exiting too early
+            Fix several shows views on demand insertion of missing data
+            Fix movies genres on demand insertion of missing data
+            Update season episode count after episode milling (fixes seasons showing incorrectly as watched)
+            Fix minimum size filter
+
+            Changelog 2.1.0
+            Major re-work of metadata updates and merging
+            Fix air dates not being updated
+            Fix missing artwork not being updated
+            Fix meta data merging
+            Improved meta data fallback processing
+            Improve global and sync locks, reduce thread locking
+            Improve caching code to reduce required requests.
+            Additional caching for metadata indexer endpoints
+            Improve database handling code
+            Improve timezone detection fallback handling
+            Make Seren python version agnostic
+            Implemented a true settings cache
+            Brought back test windows feature for skin developers
+            Moved to kodi module version of unidecode
+            Updated pytz to latest release
+            Fix mysql Kodi database support under Leia
+            Removed youtube dependency
+            Workaround for type error in CacheAssist quality filter
+            Fix resolver window error when no sources found
+            Remove argv usage from SmartPlay
+            Reworked forced widget refresh approach
+            Logging cleanup
+
+            Changelog 2.0.19
+            Fix handling of unicode in URLs, TV Networks and Searching issues on Leia
+            Fix TV show years
+            Fix PM CacheAssist status updates
+            Only try to auto-cache if auto-cache is actually enabled
+            Change default threadpool size and provide user settings
+            Increase timeout configuration setting maximum permitted value
+            Make pre-scrape respect new maximum value for timeout
+            Change approach for deaccenting clean_title and transliterate actor names
+            During prescrape, don't pop up the too restrictive filters window and just use unfiltered list for sorting
+            Fix Kodi Bookmark Clearing with MySQL DB support
+            Temporarily disable totaltime progress indicators as they break our resume on Matrix
+            Fix TVDB session issues
+            Fix XBOX Database Issues
+            Fix database pickling issues
+            Fix Kodi crashes in Leia
+            Fix Kodi crashes in Matrix (with exception of reuselanguageinvoker enabled when stopping playback combined with widgets)
+            Change default value of reuselanguageinvoker to False and force use addon provided value on upgrade
+            Ensure we release all Kodi objects to prevent memory leaks and crashes
+            Ensure we close all requests sessions to prevent memory leaks
+            Workaround occasional python bug with strptime in lambda functions
+            Made Kodi version detection algorithm more resilient and cover pre-release versions
+            Logging enhancements
+            Added Arabic translations
+
+            Changelog 2.0.18
+            Fix the thread pool issues
+            Added logic to push down the country_origin to be used by the scrapers
+            Original title swap now only occurs for display, use unicode everywhere
+            Fixed normalization function retuning unnormalized values
+            Fix for genre multi-select always showing same items
+            Fixed local TZ conversion for dates in Upcoming, Source Select and OSD
+            Real Debrid use status_codes to determine what are good requests
+            Make sure we have all parts for the calculation of the bookmarks
+            Added regex to parse semver out of version label
+            Re-implemented update checker that will work regardless of repo changes
+
+            Changelog 2.0.17:
+            Fix for shows search and TVDB empty data
+            Fix handling of timestamp creation to be UTC compliant
+            Fix timezone code taking unix path on Windows
+            Added a fall through for android getprop timezone detection
+            Handle invalid dates from metadata indexer when obtaining year value.
+            Fix Matrix UI spins on closing download manager
+            Add check for invalid list position in download manager returned by an empty list
+            Fix isFolder bool for download manager
+            Fix resume progress indicators
+            Calculate resumetime at bookmark insert for movies
+            Add support for clearing bookmarks on Matrix
+            Fix view_type has no attribute isdigit bug
+            Ensure studio info value in seasons/episodes
+            Add provider package version information to existing logging item
+            Handle removal of legacy provider meta file both on uninstall and upgrade
+            Replaced seekTime with execute of BigSkipForward
+            Fix Simplejson decode error not caught bug
+            Handle exception instances from a4ksubtitles
+            Fix pagination for genre multi-select
+            Fix paging of Finish Watching has same items bug
+            Fixed show pack suffixes and checking of 1x1 episode naming
+            Updated missing codes and added it-IT, fr-FR and ar-SA translations
+            Update Danish language strings
+
+            Changelog 2.0.16:
+            Fix addon update check
+            Fix trakt module attempting to refresh when not authorised
+
+            Changelog 2.0.15:
+            Fixed python depend
+
+            Changelog 2.0.14:
+            Fixed scraping issue if title is not present at IMDB
+            Added workarounds for syncing trakt database on xbox
+            Fixed Trending/Popular Trakt lists repeating
+            Seperated sort and pagination setting for Trakt collection
+            Applied sort and pagination settings for collection to unfinished shows in collection
+            Re-worked date handling to use UTC for all internal uses and convert to local on display
+            Fixed pagination on recently watched shows menu
+            Fixed source sorting issue for py3
+            Fixed race condition in pre-term for py3
+            File size now displayed on resolver dialog
+            Updated some dutch translations
+            Fixed hosters not being handled correctly at scrape
+            Fix reuselanguageinvoker default
+            Fixed background sync attempting to run when no Trakt auth present
+
+            Changelog 2.0.13
+            Fixed settings not sticking when using reuselanguageinvoker
+            Fixed reuselanguageinvoke status not sticking after toggling
+            Reuselangugageinvoker state now forced on startup
+            Reduced Trakt retries on server failures
+            Increased backoff timeout for retries
+            Fixed playback for special episodes failing
+            Eased timeout issues for bookmarks
+            Fixed non-direct, non-debrid hosters appearing in source select
+            Fix spanish translation file name
+            Fixed title sorting for lists with articles
+            Fixed paging on new shows
+
+            Changelog 2.0.12
+            Fix for source select, tested on 4 skins
+
+            Changelog 2.0.11
+            Take preventative measures to reduce overloading Trakt servers
+            Increase local show/season statistic refreshing
+            Fixed cloud source sorting
+            Fixed HEVC source sorting
+            New shows api call now pulls english and local language from Trakt
+            Modified database commit method to allow for xbox support
+            Reformat source select screen again to allow better filename displaying
+            Fixed next button showing on next up menu
+            Removed pycryptodome dependency, this will need to be requested on a per provider basis
+            Fixed pre-term
+            Fixed empty search results raising exception
+            Fixed auto episode resuming
+            Fixed superficial exceptions in play dialogs
+            Updated danish language strings
+
+            Changelog 2.0.10
+            Fixed issue with milling seasons to often
+            Added checks when attempting to cache magnet
+            Fixed tvshows new
+            Fetching of RD account details after auth fixed
+            Fixed spanish translation folder name
+            Reformat of source select to allow larger file name sizes
+            Fixed race condition in ThreadPool
+            Added fallback for text color if skin color could not be inherited
+            Add legacy param support for smart play playlist creation
+            Fix hide the hiding of unaired episodes from non mixed episode lists
+            Removed default action setting until a appropriate workaround for kodi setting is achieved
+            Wrapped player interactions with Trakt API with Try/Excepts to allow network failures
+            Added fallback method if no thumb art is available
+            Added temporary workaround for ratings issue in add_directory_items
+            Fixed keep-alive in player module. (Fixes dialogs, playlist creation, marking as watched if not caused by network failure)
+            Allowed exceptions in cache check to allow for debrid providers who are offline
+            Replaced ok dialogs for connection issues with notifications
+
+
+            Changelog 2.0.9:
+            Fixed RD cloud scraping
+            Fixed issue if all providers were disabled scraping would run as if all were enabled
+            Fixed smartplay and legacy paramas support
+            Fixed bug causing failure when checking art from TMDB
+            Fixed user lists menus
+            Added spanish translation
+            Fixed backing out from menu when opened from widget (having to backout multiple times)
+            Fixed season watch markers
+            Fixed hidden_items handling with New Shows menu
+
+            Changelog 2.0.8:
+            Temporary Workaround for trakt items not providing trakt_id
+            Better RD episode resolving
+            Better episode identification during resolving
+            Catch WindowsError exception when handling skins
+            Fix text highlight selection
+            Cool down background service on failure
+
+            Changelog 2.0.7:
+            Fixed All debrid torrent resolving
+            Fixed movie resuming
+            Fixed issue with limited providers running at scrape
+            Fixed AD re-auth
+            Changes to attempt to fix XBOX support and ascii issues with timezones
+            Fixed unaired episodes showing blank
+            Fixed AD User info fetching
+            Fixed ghost providers
+            Fixed TypeError with pre-termination
+
+            Changelog 2.0.6:
+            Create Skins directory if missing
+            Allow failure in pre-term until investigated
+
+            Changelog 2.0.5:
+            Allow more failures that will require to be investigated further in the future
+
+            Changelog 2.0.4:
+            Safe get release title when cloud scraping
+            Allow and log failures in maintenance process
+
+            Changelog 2.0.3:
+            Added default value of None for skin color when attempting to pull color from user's skin
+
+            Changelog 2.0.2:
+            Force table re-fresh is sync database fails to rebuild when updating
+
+            Changelog 2.0.1:
+            Fix last_meta_update value to reflect new Seren version
+
+            Changleog 2.0.0:
+
+            Added Download Manager
+            Complete re-write of Trakt Sync Database
+            Metadata handler introduced and complete re-write of handling of metadata
+            Settings that modify metadata can now be changed on the fly and do not require a rebuild
+            Users can now manually resolve a file from the source select screen
+            Users can now manually cache a specific source from the source select screen
+            Complete re-write of menu handling
+            Introduced globals module to handle global variables for interpreter
+            Implement re-use language invoker setting from Kodi
+            Pre-emptive termination now disabled for background Pre-scrapes and timeout set to max for background scrapes
+            New artwork and custom dialogs
+            Metadata now upadted on the fly when updated item encountered from Trakt
+            Next Up menu now populated from local database
+            Sync has been fleshed out to include even more meta data during cycle
+            Failures to auto resolve now prompt user in case they wish to manually interrupt
+            Items are now able to supply multiple images for any given type for skins that make use of it
+            Support for Python 3
+            Global thread lock now implemented for required methods (prevents multiple syncs occuring at once and other locks)
+            InputStreamAdaptive support
+            Providers now have the abiity to implement settings
+            Provider packages can now elect to make use of their own background services
+            Provider packages can now offer images for each provider
+            Cache and Sync database items are now pickled
+            Complete re-write of resovler module and consolidated code
+            Kodi 19 support
+            All Debrid implementation now fully featured
+            Sources can now be sorted by filesize low to high for users that wish to do so
+            Forcing widget refresh after playback now optional
+            Zip manager implemented for handling of zip files
+            Skin Manager rework
+            Automated resolving now more reliable
+            OMDB API implemented
+            Feedback provided at scrape if no providers are found
+            Feedback provided at scrape if no debrid providers are setup
+            Debrid account status now visible from Seren settings
+        </news>
+    </extension>
+</addon>
+
+<addon id="script.module.unidecode" name="Unidecode" version="1.3.6" provider-name="Tomaz Solc">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">ASCII transliterations of Unicode text</summary>
+    <description lang="en_GB">Unidecode, lossy ASCII transliterations of Unicode text</description>
+    <license>GPL-2.0-or-later</license>
+    <platform>all</platform>
+    <website>https://pypi.org/project/Unidecode</website>
+    <source>https://pypi.org/project/Unidecode</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="repository.aenemapy" name="Aenemapy Addons Repository" version="2021.04.23" provider-name="aenemapy">
+    <extension point="xbmc.addon.repository" name="Aenemapy Addons Repository">
+	<dir minversion="16.0">
+		<info compressed="false">https://raw.githubusercontent.com/aenemapy/aenemapyrepo/master/addons.xml</info>
+		<checksum>https://raw.githubusercontent.com/aenemapy/aenemapyrepo/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://raw.githubusercontent.com/aenemapy/aenemapyrepo/master/zips/</datadir>
+	</dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>Aenemapy repo</summary>
+        <description>This is just a repo...</description>
+        <platform>all</platform>
+    </extension>
+</addon>
+
+<addon id="plugin.video.themoviedb.helper"
+version="4.4.63"
+name="TheMovieDb Helper"
+provider-name="jurialmunkey">
+<requires>
+  <import addon="xbmc.python" version="3.0.0"/>
+  <import addon="script.module.myconnpy" version="0.0.1"/>
+  <import addon="script.module.certifi" version="0.0.1"/>
+  <import addon="script.module.unidecode" version="0.0.1"/>
+  <import addon="script.module.six" version="0.0.1"/>
+  <import addon="script.module.kodi-six" version="0.0.1"/>
+  <import addon="script.module.beautifulsoup4" version="0.0.1"/>
+  <import addon="script.module.addon.signals" version="0.0.1"/>
+  <import addon="script.module.requests" version="2.9.1"/>
+  <import addon="script.module.pil" version="1.1.7"/>
+</requires>
+<extension point="xbmc.python.pluginsource" library="plugin.py">
+  <provides>video</provides>
+</extension>
+<extension point="xbmc.python.script" library="script.py" />
+<extension point="xbmc.service" library="service.py" />
+<extension point="kodi.context.item">
+  <menu id="kodi.core.main">
+    <item library="context-playusing.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32322]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.playusing))</visible>
+    </item>
+    <item library="context-related.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32235]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.related))</visible>
+    </item>
+    <item library="context-addlibrary.py">
+      <label>$LOCALIZE[20444]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.addlibrary))</visible>
+    </item>
+    <item library="context-trakt.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32295]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.trakt))</visible>
+    </item>
+    <item library="context-refresh.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32233]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.refresh))</visible>
+    </item>
+    <item library="context-artwork.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32222]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.artwork))</visible>
+    </item>
+    <item library="context-sorting.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32309]</label>
+      <visible>!String.IsEmpty(ListItem.Property(tmdbhelper.context.sorting))</visible>
+    </item>
+    <item library="context-recacheblur.py">
+      <label>$ADDON[plugin.video.themoviedb.helper 32395]</label>
+      <visible>!String.IsEmpty(Window(Home).Property(TMDbHelper.ListItem.BlurImage))</visible>
+    </item>
+  </menu>
+</extension>
+<extension point="xbmc.addon.metadata">
+  <summary lang="en_GB">TheMovieDb Helper - Now With Trakt Support!</summary>
+  <summary lang="es_ES">TheMovieDb Helper - ¡Ahora con soporte para Trakt!</summary>
+  <summary lang="fr_FR">TheMovieDb Helper - Maintenant avec support Trakt!</summary>
+  <description lang="en_GB">TheMovieDb Helper provides details about movies, tvshows and actors from TMDb. Users can access a variety of lists from TMDb and Trakt.</description>
+  <description lang="es_ES">TheMovieDb Helper proporciona detalles sobre películas, programas de televisión y actores de TMDb. Los usuarios pueden acceder a una variedad de listas desde TMDb y Trakt.</description>
+  <description lang="fr_FR">TheMovieDb Helper fournit des détails sur les films, les émissions de télévision et acteurs de TMDb. Les utilisateurs peuvent accéder à une variété de listes TMDb et Trakt.</description>
+  <disclaimer lang="en_GB">Provided by TheMovieDb and Trakt.</disclaimer>
+  <disclaimer lang="es_ES">Proporcionado por TheMovieDb y Trakt</disclaimer>
+  <disclaimer lang="fr_FR">Fourni par TheMovieDb et Trakt.</disclaimer>
+  <license>GPL-3.0-or-later</license>
+  <website>https://github.com/jurialmunkey/plugin.video.themoviedb.helper</website>
+  <forum>https://forum.kodi.tv/showthread.php?tid=345847</forum>
+  <assets>
+    <icon>icon.png</icon>
+    <fanart>fanart.jpg</fanart>
+    <screenshot>resources/screenshot-01.jpg</screenshot>
+    <screenshot>resources/screenshot-02.jpg</screenshot>
+  </assets>
+  <news>Add some additional dbid checking based on title/year combo</news>
+</extension>
+</addon>
+
+<addon id="script.module.futures"
+       name="futures"
+       version="2.2.0"
+       provider-name="Brian Quinlan">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module"
+             library="lib"/>
+  <extension point="xbmc.addon.metadata">
+    <summary>A futures implementation for Python</summary>
+    <description>Backport of the concurrent.futures package from Python 3.2</description>
+    <platform>all</platform>
+    <license>BSD</license>
+    <source>https://code.google.com/p/pythonfutures/source/browse</source>
+    <website>https://code.google.com/p/pythonfutures</website>
+  </extension>
+</addon>
+
+<addon id="script.module.kodi-six"
+       name="Kodi Six"
+       version="0.1.3.1"
+       provider-name="Roman V.M.">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="libs" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Wrappers around Kodi Python API for seamless Python 2/3 compatibility</summary>
+    <description lang="en_GB">Wrappers around Kodi Python API that normalize handling of textual and byte strings in Python 2 and 3.</description>
+    <platform>all</platform>
+    <license>GPL v.3</license>
+    <forum>https://forum.kodi.tv/showthread.php?tid=327883</forum>
+    <source>https://github.com/romanvm/kodi.six</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+    <news>0.1.3:
+- Fix non-UTF-8 byte string decoding in Python 2.</news>
+  </extension>
+</addon>
+
+<addon id="script.module.six" name="six" version="1.16.0+matrix.1" provider-name="Benjamin Peterson">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Python 2 and 3 compatibility utilities</summary>
+    <description lang="en_GB">Python 2 and 3 compatibility utilities</description>
+    <license>MIT</license>
+    <platform>all</platform>
+    <website>https://github.com/benjaminp/six</website>
+    <source>https://github.com/benjaminp/six</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="plugin.video.youtube" name="YouTube" version="7.0.5+unofficial.1" provider-name="anxdpanic, bromix, MoojMidge">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.27.1"/>
+        <import addon="inputstream.adaptive" version="19.0.0"/>
+        <import addon="script.module.inputstreamhelper" version="0.2.2" optional="true"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="resources/lib/plugin.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="resources/lib/service.py"/>
+    <extension point="xbmc.python.module" library="resources/lib/"/>
+    <extension point="xbmc.python.script" library="resources/lib/script.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+        <platform>all</platform>
+        <license>GPL-2.0-only</license>
+        <forum>https://ytaddon.panicked.xyz/forum</forum>
+        <website>https://www.youtube.com</website>
+        <source>https://github.com/anxdpanic/plugin.video.youtube</source>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <summary lang="bg_BG">Добавка за YouTube</summary>
+        <summary lang="cs_CZ">Plugin pro YouTube</summary>
+        <summary lang="da_DK">Plugin til YouTube</summary>
+        <summary lang="de_DE">Plugin für YouTube</summary>
+        <summary lang="el_GR">Πρόσθετο YouTube</summary>
+        <summary lang="en_GB">Plugin for YouTube</summary>
+        <summary lang="es_ES">Plugin para YouTube</summary>
+        <summary lang="es_MX">Complemento para YouTube</summary>
+        <summary lang="fi_FI">YouTube-lisäosa</summary>
+        <summary lang="fr_FR">Plugin pour YouTube</summary>
+        <summary lang="he_IL">תוסף עבור YouTube</summary>
+        <summary lang="hr_HR">Dodatak za YouTube</summary>
+        <summary lang="hu_HU">YouTube kiegészítő</summary>
+        <summary lang="id_ID">Pengaya untuk YouTube</summary>
+        <summary lang="it_IT">Plugin per YouTube</summary>
+        <summary lang="ko_KR">유튜브 플러그인</summary>
+        <summary lang="nb_NO">Tillegg for YouTube</summary>
+        <summary lang="nl_NL">Plugin voor YouTube</summary>
+        <summary lang="pl_PL">Wtyczka YouTube</summary>
+        <summary lang="ru_RU">Видеодополнение YouTube</summary>
+        <summary lang="sk_SK">Doplnok pre YouTube</summary>
+        <summary lang="sv_SE">Plugin för YouTube</summary>
+        <summary lang="tr_TR">YouTube için eklenti</summary>
+        <summary lang="vi_VN">Plugin dành cho YouTube</summary>
+        <summary lang="zh_CN">油管插件</summary>
+        <summary lang="zh_TW">YouTube附加元件</summary>
+        <description lang="bg_BG">YouTube е един от най-големите уеб сайтове за споделяне на видео в целия свят.</description>
+        <description lang="cs_CZ">YouTube je jedna z největších webových stránek světa sdílející video.</description>
+        <description lang="da_DK">YouTube er et af verdens største videodelingswebsteder.</description>
+        <description lang="de_DE">YouTube ist eines der größten Video-Sharing-Websites der Welt.</description>
+        <description lang="el_GR">Το YouTube είναι μία από τις μεγαλύτερες ιστοσελίδες διαμοιρασμού βίντεο στον κόσμο.</description>
+        <description lang="en_GB">YouTube is one of the biggest video-sharing websites of the world.</description>
+        <description lang="es_ES">YouTube es uno de los sitios web más grande del mundo para compartir vídeos.</description>
+        <description lang="es_MX">YouTube es uno de los más grandes sitios web de intercambio de videos del mundo.</description>
+        <description lang="fi_FI">YouTube on yksi maailman suurimmista videoiden jakosivustoista.</description>
+        <description lang="fr_FR">YouTube est l'un des plus grands sites de partage vidéos du monde.</description>
+        <description lang="he_IL">YouTube הוא אחד מאתרי שיתוף הווידאו הגדולים בעולם.</description>
+        <description lang="hr_HR">YouTube je jedna od najvećih stranica za dijeljenje video sadržaja na svijetu.</description>
+        <description lang="hu_HU">A YouTube világ egyik legnagyobb videómegosztó weboldala.</description>
+        <description lang="id_ID">YouTube adalah salah satu situs web berbagi video terbesar di dunia.</description>
+        <description lang="it_IT">YouTube è uno dei più grandi siti di condivisione video del mondo.</description>
+        <description lang="ko_KR">유튜브는 세상에서 가장 큰 동영상 공유 사이트 중의 하나입니다.</description>
+        <description lang="nb_NO">YouTube er en av verdens største nettsider for videodeling.</description>
+        <description lang="nl_NL">YouTube is een van de grootste videodelenwebsite in de hele wereld.</description>
+        <description lang="pl_PL">YouTube jest jednym z największych na świecie serwisów udostępniania wideo.</description>
+        <description lang="ru_RU">YouTube - популярнейший видеохостинговый сайт, предоставляющий пользователям услуги хранения, доставки и показа видео.</description>
+        <description lang="sk_SK">YouTube je jednou z najväčších stránok na zdieľanie videa na svete.</description>
+        <description lang="sv_SE">YouTube är en av de största videodelningssajterna i världen.</description>
+        <description lang="tr_TR">YouTube, dünya üzerindeki en büyük video paylaşma platformlarından birisidir.</description>
+        <description lang="vi_VN">YouTube là một trong những trang web chia sẻ video lớn nhất trên thế giới.</description>
+        <description lang="zh_CN">油管是世界上最大的视频分享网站之一。</description>
+        <description lang="zh_TW">Youtube 是全世界最大的影片分享網站。</description>
+        <disclaimer lang="cs_CZ">Tento plugin není schválen společností Google</disclaimer>
+        <disclaimer lang="da_DK">Dette plugin er ikke godkendt af Google</disclaimer>
+        <disclaimer lang="de_DE">Dieses Plugin ist nicht von Google befürwortet</disclaimer>
+        <disclaimer lang="el_GR">Η παρούσα μικροεφαρμογή δεν έχει υϊοθετηθεί από την Google</disclaimer>
+        <disclaimer lang="en_GB">This plugin is not endorsed by Google</disclaimer>
+        <disclaimer lang="es_ES">Este add-on no está respaldado por Google</disclaimer>
+        <disclaimer lang="es_MX">Este complemento no está respaldado por Google</disclaimer>
+        <disclaimer lang="fi_FI">Google ei tue tätä lisäosaa</disclaimer>
+        <disclaimer lang="fr_FR">Ce module n'est pas validé par Google</disclaimer>
+        <disclaimer lang="hr_HR">Ovaj dodatak nije podržan od strane Googlea</disclaimer>
+        <disclaimer lang="id_ID">Plugin ini tidak didukung oleh Google</disclaimer>
+        <disclaimer lang="it_IT">Questo plugin non è approvato da Google</disclaimer>
+        <disclaimer lang="ko_KR">이 플러그인은 Google의 허가를 받지 않았습니다</disclaimer>
+        <disclaimer lang="nl_NL">Deze plug-in wordt niet door Google ondersteund</disclaimer>
+        <disclaimer lang="pl_PL">Ta wtyczka nie jest zatwierdzona przez Google</disclaimer>
+        <disclaimer lang="ru_RU">Плагин не поддерживается Google</disclaimer>
+        <disclaimer lang="sk_SK">Tento doplnok nie je schválený spoločnosťou Google</disclaimer>
+        <disclaimer lang="sv_SE">Detta plugin är inte godkänt av Google</disclaimer>
+        <disclaimer lang="tr_TR">Bu eklenti Google tarafından üretilmemiştir</disclaimer>
+        <disclaimer lang="vi_VN">Plugin này không được xác nhận bởi Google</disclaimer>
+        <disclaimer lang="zh_CN">此插件未被谷歌认可</disclaimer>
+        <disclaimer lang="zh_TW">此附加元件未由Google支持</disclaimer>
+    <news>## v7.0.5
+### Fixed
+- Fix typo causing no fractional frame rate hinting to fail
+- Fix typo that caused android player requests to fail
+- Fix error message when rating video
+- Fix various issues with Kodi 18 and Python 2
+- Fix issues with video playback #659, #663
+- Fix typos
+- Fix typo that prevented videos from being listed in Kodi versions prior to v20
+- Try to prevent Kodi freezing when settings are updated and container is reloaded
+- Fix lockups when using xbmc.executebuiltin #653
+- Fix searching for preferred language subtitles not using non-region specific subtitles
+- Fix not being able to set custom watch later history playlist per user
+- Update workarounds for multiple busy dialog crashes #649
+- Fix playing incorrect video when player request is blocked
+
+### Changed
+- Update language used for maintenance action prompts that clear data
+- Display search history as list rather than videos
+- Update Setup Wizard
+  - Add settings for Raspberry Pi 3 class devices (1080p30, VP9 enabled)
+  - Update settings for Raspberry Pi 4 class devices (1080p60, VP9 enabled)
+  - Move option to disable list details to last step in wizard
+- Shared playlist play using default order without prompting
+- Removed dependency on script.module.infotagger
+- Removed Nexus specific releases
+  - Matrix releases will now work in Kodi v19+
+  - Leia releases will work, but are unsupported, for Kodi v18 only
+- Updated client versions used for player requests
+  - Use iOS client as fallback for default client</news></extension>
+</addon>
+
+<addon id="metadata.tvdb.com"
+       name="The TVDB"
+       version="3.2.6"
+       provider-name="Team Kodi">
+  <requires>
+    <import addon="xbmc.metadata" version="2.1.0"/>
+    <import addon="metadata.common.imdb.com" version="2.9.2"/>
+  </requires>
+  <extension point="xbmc.metadata.scraper.tvshows"
+             language="multi"
+             library="tvdb.xml"
+             cachepersistence="00:15"/>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="af_ZA">Gaan haal TV vertoning metadata vanaf TheTVDB.com</summary>
+    <summary lang="be_BY">Fetch TV show metadata from TheTVDB.com</summary>
+    <summary lang="bg_BG">Изтегля информация за ТВ Сериали от TheTVDB.com</summary>
+    <summary lang="ca_ES">Obté les metadades de les sèries de televisió de TheTVDB.com</summary>
+    <summary lang="cs_CZ">Získat metadata televizního pořadu z TheTVDB.com</summary>
+    <summary lang="cy_GB">Estyn metadata sioeau Teledu o TheTVDB.com</summary>
+    <summary lang="da_DK">Hent metadata til TV-serier fra TheTVDB.com</summary>
+    <summary lang="de_DE">Lade TV-Show-Metadaten von TheTVDB.com</summary>
+    <summary lang="el_GR">Λήψη μετα-δεδομένων σειρών από το TVDB.com</summary>
+    <summary lang="en_GB">Fetch TV show metadata from TheTVDB.com</summary>
+    <summary lang="en_NZ">Fetch TV show metadata from TheTVDB.com</summary>
+    <summary lang="en_US">Fetch TV show metadata from TheTVDB.com</summary>
+    <summary lang="es_ES">Recuperar metadatos de series de TV en TheTVDB.com</summary>
+    <summary lang="es_AR">Recuperar metadatos de series de TV en TheTVDB.com</summary>
+    <summary lang="es_MX">Obtener metadata de Series desde TheTVDB.com</summary>
+    <summary lang="et_EE">Hangi tv seriaalide metainfo TheTVDB.com-ist</summary>
+    <summary lang="fi_FI">Nouda TV-ohjelmien tietoja TheTVDB.com -sivustolta</summary>
+    <summary lang="fr_FR">Collecter les métadonnées des séries TV depuis TheTVDB.com</summary>
+    <summary lang="fr_CA">Récupérer les métadonnées pour les séries télé depuis TVDB.com</summary>
+    <summary lang="gl_ES">Obter os metadatos das series de TV dende TheTVDB.com</summary>
+    <summary lang="he_IL">הבא מידע </summary>
+    <summary lang="hi_IN">द टी भी दी बी.कॉम से टी वी प्रदर्शन लाए</summary>
+    <summary lang="hr_HR">Nabavi informacije za TV serije s TheTVDB.com</summary>
+    <summary lang="hu_HU">TV műsor információk a TheTVDB.com-ról</summary>
+    <summary lang="id_ID">Ambil metadata Serial TV dari TheTVDB.com</summary>
+    <summary lang="is_IS">Sækja Sjónvarpsþátta lýsigögn frá TheTVDB.com</summary>
+    <summary lang="it_IT">Scarica informazioni programma TV da TheTVDB.com</summary>
+    <summary lang="ja_JP">TheTVDB.com からTV番組メタデータを取得</summary>
+    <summary lang="ka">სატელევიზიო გადაცემების მეტაინფორმაციის გადმოტანა TVDB.com-დან</summary>
+    <summary lang="ko_KR">TheTVDB.com 에서 TV 쇼 정보 가져오기</summary>
+    <summary lang="lt_LT">Parsiųsti TV šou (serialo) metaduomenis iš TheTVDB.com</summary>
+    <summary lang="mk_MK">Превземи ТВ шоу метаподаток од TVDB.com</summary>
+    <summary lang="ms_MY">Dapatkan data meta rancangan TV dari TheTVDB.com</summary>
+    <summary lang="my_MM">TV show နှင့်ပတ်သက်သည့် အချက်အလက်များကို TheTVDB.com မှ ရယူရန်</summary>
+    <summary lang="nl_NL">Seriemetadata ophalen van TheTVDB.com</summary>
+    <summary lang="nb_NO">Hent TV program data fra TheTVDB.com</summary>
+    <summary lang="pl_PL">Pobieraj dane o serialach telewizyjnych z TheTVDB.com </summary>
+    <summary lang="pt_PT">Obtenha metadados para séries TV a partir de TVDB.com</summary>
+    <summary lang="pt_BR">Obtenha dados dos seriados do TheTVDB.com</summary>
+    <summary lang="ro_RO">Obţineţi datele despre seriale de la TheTVDB.com</summary>
+    <summary lang="ru_RU">Загрузка информации о ТВ-шоу с TheTVDB.com</summary>
+    <summary lang="se">Skrapa för TV-seriemetadata från TVDB.com</summary>
+    <summary lang="sk_SK">Získať metadáta o televíznej relácii zo stránky TheTVDB.com</summary>
+    <summary lang="sl_SI">Prenesite informacije o TV serijah z TheTVDB.com</summary>
+    <summary lang="sq_AL">Merr "metadata" mbi TV serialet nga TheTVDB.com</summary>
+    <summary lang="sv_SE">Hämta TV-seriemetadata från TVDB.com</summary>
+    <summary lang="ta_IN">TheTVDB.com இருந்து தொலைக்காட்சி நிகழ்ச்சி மெட்டாடேட்டா எடுக்கபடுகின்றது</summary>
+    <summary lang="th_TH">เรียกข้อมูลหลักของรายการทีวี จาก TheTVDB.com</summary>
+    <summary lang="tr_TR">TV programı meta verilerini TheTVDB.com'dan al</summary>
+    <summary lang="uk_UA">Отримання відомостей про серіали із TheTVDB.com</summary>
+    <summary lang="vi_VN">Trình lấy TV show từ TheTVDB.com</summary>
+    <summary lang="zh_CN">从 TheTVDB.com 获取电视剧集信息</summary>
+    <summary lang="zh_TW">從 TheTVDB.com 取得電視節目資訊</summary>
+    <description lang="af_ZA">TheTVDB.com is 'n TV Skraper. Die werf is 'n massiewe oop databasis wat deur enige iemand verander kan word en bevat vol meta data vir baie vertonings in verskillende tale. Alle inhoud en prente op die werf is bygedra deur sy gebruikers vir sy gebruikers en het 'n hoë standaard van kwaliteit. Die databasis skema en webruimte is oopbron onder die GPL.</description>
+    <description lang="be_BY">TheTVDB.com is a TV Scraper. The site is a massive open database that can be modified by anybody and contains full meta data for many shows in different languages. All content and images on the site have been contributed by their users for users and have a high standard or quality. The database schema and website are open source under the GPL.</description>
+    <description lang="bg_BG">TheTVDB.com предоставя информация за ТВ Сериали. Сайтът е масивна отворена база данни, която може да бъде променяна от всеки и съдържа пълни мета данни за много сериали на различни езици. Цялото съдържание и изображенията в сайта са предоставени от неговите потребители за други потребители и имат високо ниво на качество. Структурата на базата данни и уеб сайта са създадени с отворен код под GPL лиценз.</description>
+    <description lang="ca_ES">TheTVDB.com és un raspador de TV. El lloc és una base de dades oberta massiva que pot ser modificat per qualsevol persona i conté metadades completes de molts programes en diferents idiomes. Tot el contingut i imatges en el lloc han estat aportat pels usuaris per als usuaris i tenen un alt nivell o qualitat. L'esquema de la base de dades i la pàgina web són de codi obert sota la llicència GPL.</description>
+    <description lang="cs_CZ">TheTVDB.com je zdroj metadat pro televizní pořady. Stránka je masivní otevřená databáze, kterou může kdokoliv upravovat a obsahuje veškerá metadata v různých jazycích k mnoha pořadům. Všechen obsah a obrázky jsou poskytnuty uživateli pro uživatele a mají vysokou kvalitu. Návrhový vzor databáze a webová stránka jsou svobodný software licencovaný pod GPL.</description>
+    <description lang="cy_GB">Mae TheTVDB.com yn Grafwr Teledu. Mae'r wefan yn gronfa ddata anferthol agored y mae modd ei addasu gan unrhyw un  ac yn cynnwys meta data llaw llawer o sioeau mewn ieithoedd gwahanol. Mae'r holl gynnwys a delweddau ar y wefan wedi ei gyfrannu gan eu defnyddwyr ac i safon uchel . Mae cynllun y gronfa ddata a'r wefan yn god agored o dan y GPL.</description>
+    <description lang="da_DK">TheTVDB.com er en TV-scraper. Siden er en massiv åben database, som alle kan modificere, og den indeholder fyldestgørende metadata for mange serier på forskellige sprog. Alt indhold og alle billeder på siden er tilføjet af brugere og har en høj standard eller kvalitet. Databasens model og webside er open source under GPL.</description>
+    <description lang="de_DE">TheTVDB.com ist ein Scraper für TV-Shows. Die Seite ist eine riesige, offene Datenbank, die von jedem angepasst werden kann und weitreichende Metadaten für viele TV-Shows, in verschiedenen Sprachen, enthält. Alle Inhalte und Bilder dieser Seite wurden von Benutzern für Benutzer zusammengetragen und folgen dabei dem hohen Standard für Qualität. Das Datenbankschema sowie die Webseite sind nach der GPL-Lizenvereinbarung OpenSource.</description>
+    <description lang="el_GR">Το TVDB.com είναι ένα Scraper Τηλεόρασης. Η ιστοσελίδα είναι μία τεράστια ανοικτή βάση δεδομένων η οποία μπορεί να τροποποιηθεί από τον καθένα και περιέχει πλήρη μετα-δεδομένα για πολλές σειρές σε διάφορες γλώσσες. Όλο το περιεχόμενο και οι εικόνες στην ιστοσελίδα προέρχονται από τους χρήστες του, και έχουν υψηλά πρότυπα ποιότητας. Το σχήμα της βάσης δεδομένων και της ιστοσελίδας είναι ανοικτού κώδικα υπό το GPL.</description>
+    <description lang="en_GB">TheTVDB.com is a TV Scraper. The site is a massive open database that can be modified by anybody and contains full meta data for many shows in different languages. All content and images on the site have been contributed by their users for users and have a high standard or quality. The database schema and website are open source under the GPL.</description>
+    <description lang="en_NZ">TheTVDB.com is a TV Scraper. The site is a massive open database that can be modified by anybody and contains full meta data for many shows in different languages. All content and images on the site have been contributed by their users for users and have a high standard or quality. The database schema and website are open source under the GPL.</description>
+    <description lang="en_US">TheTVDB.com is a TV Scraper. The site is a massive open database that can be modified by anybody and contains full meta data for many shows in different languages. All content and images on the site have been contributed by their users for users and have a high standard or quality. The database schema and website are open source under the GPL.</description>
+    <description lang="es_ES">TheTVDB.com es un scraper de TV. El sitio es una enorme base de datos abierta que puede ser modificada por cualquiera y que contiene metadatos completos de muchas series en diferentes idiomas. Todos los contenidos e imágenes del sitio han sido aportados por sus usuarios y tienen una alta calidad. El esquema de base de datos y sitio web son de código abierto bajo la licencia GPL.</description>
+    <description lang="es_AR">TheTVDB.com es un scraper de TV. El sitio es una enorme base de datos abierta que puede ser modificada por cualquiera y que contiene metadatos completos de muchas series en diferentes idiomas. Todos los contenidos e imágenes del sitio han sido aportados por sus usuarios y tienen una alta calidad. El esquema de base de datos y sitio web son de código abierto bajo la licencia GPL.</description>
+    <description lang="es_MX">TheTVDB.com es un scraper de series de TV. Este sitio es una base de datos masiva y abierta que puede ser modicada por cualquiera y contiene metadata completa para muchas series en diferentes lenguajes. Todo el contenido e imágenes del sitio han sido contribuidos por sus usuarios para usuarios, los cuales tienen un alto estándar de calidad. El esquema de la base de datos y el sitio web son de código abierto bajo GPL.</description>
+    <description lang="et_EE">TheTVDB.com on seriaalide kraabits. See leht on mahukas avatud andmebaas mida saavad täiendad kõik ja sisaldab palju metaandmeid suure hulga seriaalide kohta. Kõik sisu ja pildid lehel on kasutajate poolt sisestatud ning vastavad kõrgele kvaliteedile. TheTVDB.com andmebaasi struktuur ja kood on avaldatud GPLi all.</description>
+    <description lang="fi_FI">TheTVDB.com on TV-ohjelmatietojen lataaja. Sivusto on massiivinen avoin tietokanta, jonka tietoja kaikki pystyy muokkaamaan ja se sisältää täydet tiedot monista TV-ohjelmista usealla eri kielellä. Kaikki sivuston sisältö ja kuvat on korkealaatuisia ja käyttäjien lahjoittamia. Tietokanta ja sivusto ovat GPL-lisenssin alaisia.</description>
+    <description lang="fr_FR">TheTVDB.com est un collecteur TV. Le site est une immense base de données libre pouvant être modifiée par tout le monde et contenant toutes les informations de nombreuses séries en différentes langues. Les informations et images du site proviennent de contributions d'utilisateurs pour les usagers et sont d'excellentes qualités. Le schéma de la base de données et le site Web sont en open source sous licence GPL.</description>
+    <description lang="fr_CA">TheTVDB est un extracteur pour séries télé. Ce site est une énorme base de données ouverte qui peut être modifiée par n'importe qui et qui comprend des métadonnées complètes pour beaucoup de séries télé dans plusieurs langues. Tout le contenu et les images présentes sur le site ont été fournis par les utilisateurs et possèdent un haut niveau de qualité. La structure de la base de données et le site Web sont libres et sous licence GPL.</description>
+    <description lang="gl_ES">TheTVDB.com é un Scraper de TV. O sitio é unha enorme base de datos aberta que calquera pode modificar e contén todos os metadatos de centos de series en diferentes idiomas. Todo o contido e imaxes do sitio foi proporcionado polos seus usuarios e amosa un grande estándar de calidade. O esquema da base de datos e o sitio web son de código aberto baixo licenza GPL.</description>
+    <description lang="he_IL">TheTVDB.com הוא סקרייפר עבור תוכניות טלוויזיה. אתר זה הוא מסד נתונים פתוח עצום אשר כל אחד יכול לערוך ומכיל פרטים מלאים להרבה תוכניות טלוויזיה בשפות שונות. כל התכנים והתמונות באתר נתרמו ע"י המשתמשים שלה עבור משתמשים וישנו סטנדרט גבוה או איכות גבוהה. תכנית המסד נתונית והאתר הם בקוד פתוח תחת ה-GPL.</description>
+    <description lang="hi_IN">टीभीडीबी एक टीभी स्क्रॅपर है.येह साइट एक बहुत बरा खुला डेटाबेस है जो किसी से भी रूपांतर्न किया जा सकता है और यह ह्र भासाओ मे सभी प्रदर्शन के लिए मीटा दाता रखता है.सभी सामग्री और चित्र यूज़र के लिए यूज़र का योगदान है और उच्च मानक या गुणवत्ता रखता है.डेटाबेस स्कीम और वेबसाइट जीपील् की अंतर्गत ओपन सोर्स है.</description>
+    <description lang="hr_HR">TheTVDB.com je sakupljač informacija za TV programe. Stranica je ogromna otvorena baza podataka koju može bilo tko mijenjati i sadrži mnogo informacija za različite serije na različitim jezicima. Sav sadržaj i slike postavili su korisnici za ostale korisnike i visoke su kvalitete. Shema baze podataka i web stranice su otvorenog kôda pod GPL licencom.</description>
+    <description lang="hu_HU">A TheTVDB.com egy TV műsor leolvasó. Az oldal egy hatalmas adatbázis amit bárki szabadon módosíthat és rengeteg TV műsor adatait tartalmazza különböző nyelveken. A minőségi tartalom és képanyag ezen az oldalon felhasználóktól származik más felhasználók számára. Az adatbázisstruktúra és a weblap nyílt forráskódú a GPL licenc alatt.</description>
+    <description lang="id_ID">TheTVDB.com adalah pengais Serial TV. Situs ini adalah database yang sangat besar dan terbuka yang dapat dimodifikasi oleh semua orang dan mengandung meta data yang penuh untuk banyak Serial TV di bahasa yang berbeda. Semua konten dan gambar dalam situ ini dikontribusikan oleh penggunanay untuk pengguna dan memiliki standar dan kualitas tinggi. Skema database dan situs adalah open-source dengan lisensi GPL.</description>
+    <description lang="is_IS">TheTVDB.com er sjónvarpsskafa.. Þessi veita er risastór opinn gagnagrunnur sem allir geta breytt og er með öll lýsigögn fyrir fullt af þáttum á mörgum tungumálum. Allt efni og myndir á veitunni er sett inn af notendum fyrir notendur og eru í háum staðli eða gæðum. Uppsetning gagnagrunnsins og vefsíðan eru 'open source under the GPL'</description>
+    <description lang="it_IT">TheTVDB.com è uno scraper di programmi TV. Questo sito è un enorme database che può essere modificato da chiunque, e contiene tutte le informazioni di molti show in varie lingue. Tutti i contenuti e le immagini sul sito sono stati forniti dagli utenti, ed hanno un alto standard di qualità. Lo schema del database e il sito internet sono open source sotto licenza GPL.</description>
+    <description lang="ja_JP">TheTVDB.com は TV スクレーパーです。本サイトは強力でオープンなデータベースで、誰もが追加修正可能です。テレビ番組のメタデータは多くの言語で提供されています。番組情報や画像データはユーザにより提供され、そのクオリティは非常に高いものです。データベーススキーマと web サイトは GPL ライセンスのオープンソースです。</description>
+    <description lang="ko_KR">TheTVDB.com 은 TV 정보수집기입니다. 위 사이트는 이용자가 직접 수정할 수 있으며 다양한 언어의 완전한 메타 데이터를 포함하는 방대한 오픈 데이터베이스입니다. 사이트의 모든 콘텐츠와 이미지들은 사이트 이용자들이 다른 이용자들을 위해 제공한 것이며 높은 품질을 가지고 있습니다. 웹사이트와 데이터베이스 스키마는 GLP 오픈소스입니다.</description>
+    <description lang="lt_LT">TheTVDB.com yra TV Scraper. Ši svetainė yra didžiulė atvira duomenų bazė, kuria gali pakeisti bet kas ir kurioje visa meta duomenis bazė daugelo šou įvairiomis kalbomis. Visas svetainės turinys atnaujinamas/papyldomasvartotojų ir turi aukštą kokybės standartą. Duomenų bazės ir svetainės yra atviro kodo pagal GPL standartą.</description>
+    <description lang="mk_MK">TheTVDB.com is a TV Scraper. The site is a massive open database that can be modified by anybody and contains full meta data for many shows in different languages. All content and images on the site have been contributed by their users for users and have a high standard or quality. The database schema and website are open source under the GPL.</description>
+    <description lang="ms_MY">TheTVDB.com adalah Pengikis TV. Laman tersebut merupakan pangkalan data terbuka yang amat besar dan boleh diubahsuai oleh sesiapa pun dan juga mengandungi data meta pelbagai rancangan  dalam pelbagai bahasa. Semua kandungan dan imej di laman ini disumbang oleh pengguna mereka untuk pengguna mereka dan mempunyai piawaian dan kualiti yang amat tinggi. Skema pangkalan data dan laman adalah sumber terbuka dibawah GPL.</description>
+    <description lang="my_MM">TheTVDB.com သည် TV Scraper ဖြစ်သည်။ database ထဲတွင် အချက်အလက်များစွာရှိနေပြီး မည်သူမဆို မည်သည့် ဘာသာစကားနှင့် မဆို ဝင်ရောက်ပြုပြင် နိုင်သည်။ အချက်အလက်များနှင့် ပုံများသည် ၎င်းတို့၏ အသုံးပြုသူများမှ အခြားအသုံးပြုသူများအတွက် ပံ့ပိုးထားသော အဆင်မြင့် အရေအသွေးများဖြစ်သည်။ website နှင့် database သည် open source GPL လိုင်စင် ကို အသုံးပြုထားသည်။</description>
+    <description lang="nl_NL">TheTVDB.com is een seriescraper. De site is een gigantische open databank die iedereen kan aanpassen en uitbreiden, en biedt metadata aan voor TV-series in verschillende talen. Alle inhoud en afbeeldingen zijn afkomstig van gebruikers en moeten een grondige kwaliteitscontrole doorstaan. Het databankschema en de websitecode zijn vrijgegeven onder de open source GPL-licentie.</description>
+    <description lang="nb_NO">TheTVDB.com er en Tv Skraper. Siden er en massiv åpen database som kan endres av alle og inneholder data for mange forskjellige programmer på mange språk. Alt innholdet og bildene på siden er lagt til av brukere for brukere og har høy standard og kvalitet. Database skjemaet og websiden er åpen kildekode underlagt GPL.</description>
+    <description lang="pl_PL">TheTVDB.com jest ekstraktorem informacji o serialach telewizyjnych. Serwis jest ogromną, wielojęzykową i otwartą bazą danych o serialach, którą może edytować każdy. Zawartość tego serwisu została stworzona przez użytkowników, dla użytkowników. Dostępne materiały są najwyższej jakości.</description>
+    <description lang="pt_PT">O TheTVDB.com é um colector para séries TV. O site é uma gigantesca base de dados livre que pode ser alterada por qualquer pessoa e contém informação em várias línguas. Todos os conteúdos do site foram enviados por utilizadores e têm um elevado padrão de qualidade. A base de dados e o site funcionam sob uma licença GPL de software livre.</description>
+    <description lang="pt_BR">TheTVDB.com é um scraper de seriados. O site é um enorme banco de dados aberto que pode ser modificado por qualquer pessoa e contém metadados completos de muitos seriados em diferentes idiomas. Todos os conteúdos e imagens no site foram contribuições de usuários para usuários e têm um alto padrão de qualidade. O esquema do banco de dados e do site são de código aberto sob a licença GPL.</description>
+    <description lang="ro_RO">TheTVDB.com este un colectore TV. Site-ul este o bază de date masivă, deschisă, ce poate fi modificată de oricine şi conţine date complete despre multe seriale în diferite limbi. Tot conţinutul site-ului a fost contribuit de către utilizatori pentru utilizatori şi are un standard de caliate înalt. Schema bazei de date şi site-ul au sursele libere sub licenţă GPL.</description>
+    <description lang="ru_RU">TheTVDB.com — это инфоресурс для сериалов. Сайт представляет собой огромную открытую базу данных, в которую может вносить данные любой пользователь и которая содержит полные мета-данные для многих сериалов на различных языках. Всё содержимое и изображения на сайте были выложены его пользователями для других пользователей и имеют высокий уровень качества. Структура базы данных и веб-сайт созданы с открытым исходным кодом по лицензии GPL.</description>
+    <description lang="se">TVDB.com är en TV-skrapa. Sajten är en massiv öppen databas som kan ändras av vem som helst och innehåller full metadata för mängder av serier på olika språk. Allt innehåll och bilder på sajten har bidragits av användare för användare och har en hög standard eller kvalitet. Databasschemat och webbsidan är licensierat som GPL.</description>
+    <description lang="sk_SK">TheTVDB.com je zdroj získavania dát ohľadom TV. Táto stránka je obrovskou otvorenou databázou, ktorú môže upravovať ktokoľvek a obsahuje úplne metadáta pre mnoho relácií v rôznych jazykoch. Všetok obsah a obrázky na stránke bol dodaný samotnými používateľmi pre používateľov a udržuje si vysoký štandard a kvalitu. Schéma databázy a webová stránka sú dostupné vo forme open source v súlade s licenciou GPL.</description>
+    <description lang="sl_SI">TheTVDB.com je ponudnik informacij o TV serijah. Stran je masovna odprta baza podatkov, ki jo lahko dopolni kdorkoli, in vsebuje informacije o najrazličnejših TV serijah v več jezikih. Vsa vsebina in slike so bile dodane s strani uporabnikov in imajo visok nivo kvalitete. Shema baze in spletna stran sta odprtokodni pod GPL.</description>
+    <description lang="sq_AL">TheTVDB.com është një "TV Scraper". Kjo faqe është nje bazë e të dhënave e hapur që mund të modifikohet nga si cili dhe përmbanë metadata  për shumë seriale në gjuhë të ndryshme. Gjitha të dhënat dhe imazhet në këtë faqe janë kontribuar nga përdoruesit për përdoruesit dhe kanë një standard dhe kualitet të lartë. Skema e bazës së të dhënave dhe sajti i uebit janë open source nën liçensën GPL.  </description>
+    <description lang="sv_SE">TVDB.com är en TV-skrapa. Sajten är en massiv öppen databas som kan bli modifierad av vem som helst och innehåller all metadata för många serier på olika språk. Allt innehåll och bilder på sidan har bidragits av användare för användare och har hög standard eller kvalitet. Databasschemat och sidan är öppen källkod licensierat under GPL.</description>
+    <description lang="ta_IN">TheTVDB.com ஒரு தொலைக்காட்சி சுரண்டி. இந்த இணையத்தளத்தில் ஒரு பெரிய தரவுத்தளம் உள்ளது. இதில் எல்லா மொழிகளின் மேட்டாடேட்டா உள்ளது. அனைத்து தகவல்களும் படங்களும் அதன் பயனர்களின் சேகரிப்புஆகும். GPL லைசன்சில் உள்ளது.</description>
+    <description lang="th_TH">TheTVDB.com เป็นตัวดึงข้อมูลทีวี เว็บไซต์เป็นฐานข้อมูลเปิดขนาดใหญ่ที่สามารถแก้ไขได้โดยทุกคนและมีข้อมูลขั้นสูงเต็มรูปแบบ สำหรับหลาย ๆ รายการ ในแต่ละภาษาที่แตกต่างกัน เนื้อหาและรูปภาพทั้งหมดในเว็บไซต์ ได้รับการสนับสนุนโดยผู้ใช้เพื่อผู้ใช้ มีคุณภาพและมาตรฐานที่สูง schemaของฐานข้อมูลและเว็บไซต์ได้เปิดภายใต้ GPL</description>
+    <description lang="tr_TR">TheTVDB.com bir TV Scraper'dır. Bu site herkesin düzenleyebileceği büyük bir açık veritabanıdır ve farklı dillerdeki bir çok şov için bilgiler içerir. Sitedeki her resim ve içerik kullanıcılar tarafından kullanıcılar için karşılanır ve bunlar yüksek standart ve kaliteye sahiptir. Veritabanı şeması ve internet sitesi GPL lisansı altında açık kaynaklıdır.</description>
+    <description lang="uk_UA">TheTVDB.com — джерело інформації про серіали. Це величезна база даних, що містить повні метадані про різні серіали багатьма мовами, яку може редагувати будь-хто. Увесь вміст і зображення на сайті, що відповідають найвищим стандартам якості, надали користувачі для користувачів. Схема бази даних і веб-сайт мають відкриті коди на умовах ліцензії GPL.</description>
+    <description lang="vi_VN">TheTVDB.com là trình lấy dữ liệu TV show. Site chứa một số lượng khổng lồ cơ sở dữ liệu mở, có thể được thay đổi bởi mọi người và đầy đủ dữ liệu lớn các show trên nhiều ngôn ngữ. Tất cả nội dung và hình ảnh trên site này đều được đóng góp bởi toàn bộ người dùng của nó và có chất lượng cao. Mô hình cơ sở dữ liệu và website đều là mã nguồn mở được hỗ trợ bởi GPL.</description>
+    <description lang="zh_CN">TheTVDB.com 是一个电视刮削器。该网站是一个巨大的开放式数据库，任何人都可以修改，包含多语言的许多电视剧集资料。网站设定了高品质标准，所有图片和内容都由用户提供。数据库结构和网站均在 GPL 许可下开源。</description>
+    <description lang="zh_TW">TheTVDB.com是一個電視節目。該網站是一個龐大並可以由任何人修改的開放性資料庫，並包含可以以多國語言顯示的完整的數據資料。所有內容和圖片都是經由用戶提供使用，有一定的標準或質量。數據庫架構和網站是在GPL下的開放性源碼。</description>
+    <platform>all</platform>
+    <license>GPL v2.0</license>
+    <forum></forum>
+    <website>https://www.thetvdb.com</website>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.arrow" name="arrow" version="1.2.3" provider-name="Chris Smith">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+    <import addon="script.module.dateutil" version="2.8.2" />
+    <import addon="script.module.typing_extensions" version="4.7.1" />
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Better dates and times for Python</summary>
+    <description lang="en_GB">Better dates and times for Python</description>
+    <license>Apache-2.0</license>
+    <platform>all</platform>
+    <website>https://arrow.readthedocs.io/en/latest/</website>
+    <source>https://github.com/arrow-py/arrow</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.infotagger" name="InfoTagger" provider-name="jurialmunkey" version="0.0.81">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="resources/modules" />
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <summary lang="en_GB">Python wrapper for setInfo on Nexus InfoTags</summary>
+    <description lang="en_GB">Python wrapper for setInfo on Nexus InfoTags</description>
+    <license>GPL-3.0-or-later</license>
+    <website>https://github.com/jurialmunkey/script.module.infotagger</website>
+    <source>https://github.com/jurialmunkey/script.module.infotagger</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+  </extension>
+
+</addon>
+
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="8.94" provider-name="fryhenryj">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
+		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
+		<import addon="script.module.requests" version="2.25.1+matrix.1"/>
+		<import addon="script.module.infotagger" version="0.0.1" optional="true" />
+		<import addon="script.skin.helper.service" version="1.1.3"/>
+		<import addon="resource.images.studios.white" version="0.0.28"/>
+		<import addon="script.module.pil" version="0.6.0"/>
+		<import addon="script.module.musicbrainz" version="0.6.0"/>
+		<import addon="script.module.arrow" version="1.0.3.1"/>
+		<import addon="script.module.dateutil" version="2.8.1"/>
+		<import addon="script.module.typing_extensions" version="3.7.4.3"/>
+		<import addon="script.module.simplecache" version="1.0.0"/>
+		<import addon="script.module.beautifulsoup4" version="4.6.3+matrix.1"/>
+		<import addon="plugin.video.themoviedb.helper" version="4.4.6"/>
+		<import addon="plugin.program.autocompletion" version="2.0.2" optional="true" />
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.python.script" library="script.py"/>
+	<extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<item library="context.py">
+				<label>Diamond Info</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,actor) | String.IsEqual(ListItem.dbtype,director)</visible>
+			</item>
+			<item library="context2.py">
+				<label>TMDBHelper Trakt Menu</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode)</visible>
+			</item>
+			<item library="context3.py">
+				<label>Diamond Info - In Trakt Lists</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) </visible>
+			</item>
+		</menu>
+	</extension>
+	<extension point="xbmc.service" library="service.py"  start="login"/>
+	<extension point="xbmc.python.library" library="service2.py"/>
+	<extension point="xbmc.addon.metadata">
+		<reuselanguageinvoker>true</reuselanguageinvoker>
+		<platform>all</platform>
+		<summary>Diamond Info (EIM)</summary>
+		<description>This script offers various possibilities to display online content inside skins as well as a complete MovieDB browser including info dialogs for various media types. Needs skin implementation for lot of functions and Diamond Player for library functions.</description>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
+			<screenshot>resources/screenshot1.jpg</screenshot>
+			<screenshot>resources/screenshot2.jpg</screenshot>
+			<screenshot>resources/screenshot3.jpg</screenshot>
+		</assets>
+		<news>6.2.3 - Fix TV Show trailers
+		6.2.2 - Added ability to search using the tvdb_id for "extendedepisodeinfo"
+		6.2.1 - Fix context menu now available for widgets pointing to Diamond Info's video addon items
+		6.2.0 - Added context menu force "player select" to the play button, available via "c" and long press "enter" button
+		</news>
+	</extension>
+</addon>
+
+<addon id="script.module.chardet" name="chardet" version="5.1.0" provider-name="Character Encoding Detector">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">The Universal Character Encoding Detector</summary>
+    <description lang="en_GB">The Universal Character Encoding Detector</description>
+    <license>LGPL-2.1</license>
+    <platform>all</platform>
+    <website>https://chardet.readthedocs.io/</website>
+    <source>https://github.com/chardet/chardet</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.requests-cache"
+       name="requests-cache"
+       version="0.5.2+matrix.1"
+       provider-name="Roman Haritonov">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.requests" version="2.22.0+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.module"
+             library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Persistent cache for requests library</summary>
+    <description lang="en_GB">Packed for KODI: requests-cache</description>
+    <platform>all</platform>
+    <language></language>
+    <license>BSD</license>
+    <website>https://pypi.python.org/pypi/requests-cache</website>
+    <source>https://github.com/reclosedev/requests-cache</source>
+  </extension>
+</addon>
+
+<addon id="plugin.video.fenlight" name="Fen Light" provider-name="Tikipeter" version="2.0.07a">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.19.1"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="resources/lib/fenlight.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="resources/lib/service.py"/>
+    <extension point="xbmc.python.module" library="resources/lib/"/>
+    <extension point="xbmc.addon.metadata">
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <summary lang="en">Access your content from Easynews and Debrid Clouds.</summary>
+        <description lang="en">This add-on is intended for advanced Kodi users only. You must own the content of any media you play through this addon. This is an English language only add-on.</description>
+        <platform>all</platform>
+		<disclaimer lang="en">The author of this addon does not host any of the content which is found and has no affiliation with any of the content providers.</disclaimer>
+        <license/>
+        <assets>
+            <icon>resources/media/fenlight_icon.png</icon>
+            <fanart>resources/media/fenlight_fanart2.jpg</fanart>
+        </assets>
+        <news>INFO: For latest changes see Changelog within Tools of add-on.</news>
+    </extension>
+</addon>
+
+<addon id="plugin.program.autocompletion" name="AutoCompletion for virtual keyboard" version="3.0.1" provider-name="henryjfry">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="script.module.simplejson" version="3.3.0"/>
+        <import addon="script.module.autocompletion" version="1.0.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="plugin.py" />
+    <extension point="xbmc.python.script"       library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <summary lang="en">AutoCompletion for the virtual keyboard (needs skin support)</summary>
+        <description lang="en">AutoCompletion for the virtual keyboard (needs skin support)</description>
+        <platform>all</platform>
+        <license>GNU GENERAL PUBLIC LICENSE Version 2.1, February 1999</license>
+        <source>https://github.com/phil65/plugin.program.autocompletion</source>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+            <screenshot>resources/screenshot-01.jpg</screenshot>
+            <screenshot>resources/screenshot-02.jpg</screenshot>
+            <screenshot>resources/screenshot-03.jpg</screenshot>
+        </assets>
+    </extension>
+</addon>
+
+<addon id="script.module.beautifulsoup4" name="beautifulsoup4" version="4.12.2" provider-name="Leonard Richardson">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.soupsieve" version="2.4.1"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Screen-scraping library</summary>
+    <description lang="en_GB">Beautiful Soup is a library that makes it easy to scrape information from web pages. It sits atop an HTML or XML parser, providing Pythonic idioms for iterating, searching, and modifying the parse tree.</description>
+    <license>MIT</license>
+    <platform>all</platform>
+    <website>https://www.crummy.com/software/BeautifulSoup/</website>
+	<source>https://code.launchpad.net/beautifulsoup</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+  <addon id="script.artwork.downloader" name="Artwork Downloader" version="15.5.0.1" provider-name="Martijn (With @burekas fixes)">
+  <requires>
+    <import addon="xbmc.python"                 version="3.0.0"/>
+    <import addon="xbmc.json"                   version="6.0.0"/>
+    <import addon="xbmc.addon"                  version="12.0.0"/>
+    <import addon="script.module.simplejson"    version="3.3.0"/>
+    <import addon="script.common.plugin.cache"  version="1.3.0"/>
+	<import addon="script.module.requests"      version="2.9.1" />
+  </requires>
+  <extension point="xbmc.python.script"         library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="be">Downloads Artwork for TV shows, Movies and Musicvideos in your library</summary>
+    <summary lang="da">Downloader grafik til TV-serier, Film og Musikvideoer i dit bibliotek</summary>
+    <summary lang="de">Lade Artworks fÃ¼r Filme, Serien und Musikvideos deiner Bibliothek herunter</summary>
+    <summary lang="el">Κατεβάζει Εικόνες για τις Τηλεοπτικές Σειρές, τις Ταινίες και τα Μουσικά Βίντεο της συλλογής σας</summary>
+    <summary lang="en">Downloads Artwork for TV shows, Movies and Musicvideos in your library</summary>
+    <summary lang="es">Descargue Artwork de Series, Pelí­culas y Videoclips a su biblioteca</summary>
+    <summary lang="fr">Téléchargez les Artworks pour les séries TV, les films et les clip vidéo de votre médiathèque</summary>
+    <summary lang="gl">Descargue na súa biblioteca Ilustracións para as Series de TV, Filmes e Vídeos Musicais</summary>
+    <summary lang="he">מורי עטיפות לתוכניות טלויזיה,סרטים,וסרטי מוסיקה בספריה שלך</summary>
+    <summary lang="hr">Preuzimte slike omota TV serija, filmova i glazbenih spotova u vašoj kolekciji</summary>
+    <summary lang="hu">Művészképek letöltése TV műsorok, filmek és videóklipek számára</summary>
+    <summary lang="it">Scarica artwork per Serie TV, Film e Video musicali della tua libreria</summary>
+    <summary lang="ko">라이브러리의 TV 쇼, 영화, 뮤직비디오의 아트워크 다운로드</summary>
+    <summary lang="nl">Download Artwork voor TV series, Films en Muziekvideos in jouw bibliotheek</summary>
+    <summary lang="pl">Pobiera grafiki dla Seriali TV, FilmÃ³w i TeledyskÃ³w z twojej biblioteki</summary>
+    <summary lang="pt">Transfira Artwork de Séries TV, Filmes e Concertos para sua biblioteca</summary>
+    <summary lang="pt_BR">Transferências Artes de Seriados, Filmes e Concertos para suas Coleções.</summary>
+    <summary lang="sk">Sťahuje umeleckú grafiku k TV seriálom, filmom a hudobným videám vo Vašej knižnici</summary>
+    <summary lang="sv">Laddar ner bilder och extramaterial för TV-serierna, filmerna och musikvideorna i ditt bibliotek</summary>
+    <summary lang="zh">下载剧集、电影和音乐电视艺术图片到资料库</summary>
+    <description lang="be">Downloads all available artwork for TV shows, Movies and Musicvideos in your library. Check the options for supported artwork[CR]Artwork sources:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Remark:[CR]Check your skin to see what type of artwork is supported![CR]Each TV Show/Movie must have its own folder![CR]Skin integration:[CR]See readme file</description>
+    <description lang="da">Henter alle tilgængelige illustrationer til TV-serier, Film og Musikvideoer i dit bibliotek. Tjek indstillingerne for at se understøttede illustrationer.[CR]Kilder til illustrationer[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Bemærk:[CR]Tjek dit skin for at se, hvilke typer illustrationer, der understøttes![CR]Hver TV-serie/Film skal have sin egen mappe![CR]Skin-integration:[CR]Se 'readme' fil</description>
+    <description lang="de">Downloadet alle verfügbaren Artworks für TV Sendungen, Filme und Musikvideos in deine Datenbank. Überprüfe die Optionen für nicht unterstützte Artwork[CR]Artworkquellen: [CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Remark:[CR]Überprüfe dein Skin ob Artwork unterstützt wird![CR]Jede TV Sendung/Film braucht seinen eigenen Ordner![CR]Skin Integration:[CR]Siehe Readme Datei</description>
+    <description lang="el">Κατεβάζει όλες τις διαθέσιμες εικόνες για τις Τηλεοπτικές Σειρές, τις Ταινίες και τα Μουσικά Βίντεο της συλλογής σας. Ελέγξτε τις επιλογές για υποστηριζόμενες εικόνες[CR]&#10;Πηγές Εικόνων:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]&#10;Σημείωση:[CR]Ελέγξτε το κέλυφός σας για να δείτε τι είδους εικόνες υποστηρίζονται![CR]Κάθε Σειρά/Ταινία πρέπει να έχει το δικό της φάκελο![CR]&#10;Για ενσωμάτωση στο κέλυφος:[CR]Δείτε το αρχείο readme</description>
+    <description lang="en">Downloads all available artwork for TV shows, Movies and Musicvideos in your library. Check the options for supported artwork[CR]Artwork sources:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Remark:[CR]Check your skin to see what type of artwork is supported![CR]Each TV Show/Movie must have its own folder![CR]Skin integration:[CR]See readme file</description>
+    <description lang="es">Descarga artwork de programas de televisión, películas y videos musicales en su biblioteca. Marque las opciones correspondientes compatible d artwork[CR]Artwork:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Remark:[CR]Check su piel para ver qué tipo de obra de arte es compatible![CR]Cada Show de TV\/película debe tener su propia carpeta![CR]Integración de la piel: [CR] consulte el archivo Léame</description>
+    <description lang="fr">Téléchargez tous les artworks disponibles pour les séries TV, les films et les vidéos musicales de votre médiathèque. Regardez les options pour les artsworks supportés[CR]Sources des Artworks : [CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Remarques : [CR]Véifiez votre thême pour savoir quel type d'artwork est supporté ![CR]Chaque Série TV/Film doit avoir son propre dossier ![CR]Intégration dans un thême :[CR]Regardez le fichier readme.txt</description>
+    <description lang="gl">Descarga todas as ilustracións dispoñíbeis para as series de TV, filmes e vídeos musicais da súa biblioteca. Verifique as opcións de soporte de ilustracións[CR]Fontes das ilustracións:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Lembre:[CR]Verifique o seu tema para ver que tipo de ilustración é soportada.[CR]Cada Serie de TV/Filme debe ter o seu propio cartafol.[CR]Integración no tema:[CR]Ver o ficheiro readme</description>
+    <description lang="hr">Preuzmi sve dostupne slike omota za TV serije, filmove i glazbene spotove u vašoj zbirci. Provjerite mogućnosti za podržane slike omota[CR]Izvori slika omota:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Napomena:[CR]Provjerite vašu presvlaku da bi vidjeli koja vrsta presvlake je podržana![CR]Svaka TV serija/Film mora imati svoju vlastitu mapu![CR]Integracija presvlake:[CR]Pogledajte datoteku uputa</description>
+    <description lang="hu">Letölti az összes rendelkezésre álló művészképet az adatbázisában található TV-műsorokhoz, filmekhez és videóklipekhez. Ellenőrizze a beállításokat a támogatott művészképekhez[CR]Művészkép források:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Megjegyzés:[CR]Ellenőrizze, hogy az alkalmazott skin miyen művészképeket támogat![CR]Minden filmnek/TV-műsornak saját mappában kell lennie![CR]Skin integráció:[CR]Olvassa fel a readme fájlt</description>
+    <description lang="it">Scarica tutti gli artwork disponibili per le serie TV, i film ed i video musicali presenti nella libreria. Controlla le opzioni per gli artwork supportati[CR]Fonti artwork:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Nota:[CR]Controlla la tua skin per vedere che tipi artwork sono supportati![CR]Ogni Serie TV/Film deve avere una cartella propria![CR]Integrazione skin:[CR]Vedi file readme</description>
+    <description lang="ko">라이브러리에 있는 TV 쇼, 영화, 뮤직비디오의 사용 가능한 모든 아트워크를 다운로드합니다. 지원하는 아트워크는 옵션을 확인하세요[CR]아트워크 소스:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR] 참고:[CR]사용하는 스킨이 어떤 형식의 아트워크를 지원하는지 확인하세요![CR]각 TV 쇼/영화는 자신의 폴더에 있어야 합니다![CR]스킨 통합:[CR]readme 파일 참고</description>
+    <description lang="nl">Download alle beschikbare artwork voor TV series, Films en Muziekvideos in jouw bibliotheek. Bekijk de opties voor ondersteunde artwork[CR]Artwork bronnen:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Opmerking:[CR]Controleer jouw skin om te bepalen welke artwork deze ondersteund![CR]Elke TV serie/Film moet zich in zijn eigen folder bevinden![CR]Skin integratie:[CR]Kijk in de readme bestand</description>
+    <description lang="pl">Pobierz wszystkie dostępne grafiki dla seriali TV, filmów i teledysków ze swojej biblioteki. Sprawdź ustawienia aby zobaczyć wszystkie dostępne grafiki[CR]&#10;    Źródła grafik:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]&#10;    Uwaga:[CR]Sprawdź jakie rodzaje grafik wspiera twoja skóra![CR]Każdy Serial TV/Film musi być w osobnym folderze![CR]&#10;    Integracja ze skórą:[CR]Przeczytaj plik readme&#10;    </description>
+    <description lang="pt">Transfere toda a artwork disponível para Séries TV, Filmes e Vídeoclipes na sua biblioteca. Verifique a artwork suportada nas opções.[CR]Fontes de Artwork:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Lembre-se:[CR]Verifique o seu tema para ver que tipo de artwork é suportada![CR]Cada Série TV/Filme deve ter a sua própria pasta![CR]Integração no tema:[CR]veja o ficheiro readme</description>
+    <description lang="pt_BR">Download todas as artworks disponíveis para Seriados, Filmes e Concertos em sua coleção. Verifique as opções de artes suportadas. &#10;Artwork fontes:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]Lembrete:[CR]Verifique se sua skin tem suporte para os tipos de artes disponíveis![CR]Cada Seriado/Filme ou Concerto deve estar em pastas próprias![CR]Skin integração:[CR]Veja o arquivo leia-me.</description>
+    <description lang="sk">Sťahuje umeleckú grafiku k TV seriálom, filmom a hudobným videám vo Vašej knižnici. Na overenie podporovanej umeleckej grafiky pozrite nastavenia.&#10;Zdroje umeleckej grafiky:&#10;www.fanart.tv&#10;www.thetvdb.com&#10;www.themoviedb.org&#10;Poznámka:&#10;Aby ste si overili aká umelecká grafika je podporovaná, skontrolujte Váš Vzhľad!&#10;Každý TV seriál / film musí byť v samostatnom priečinku!&#10;Integrácia so vzhľadom:&#10;Pozri readme súbor</description>
+    <description lang="sv">Laddar ner alla tillgängliga omslag, bakgrunder etc för TV-serier, Filmer och Musikvideos till ditt bibliotek. Kontrollera inställningar för vad som stöds[CR] Omslag, bakgrunder etc hämtas från följande resurser:[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR] Remark:[CR]Kontrollera skalinställningar för att ta reda på vad som stöds![CR]Varje TV-serie/Film måste ha sin egen mapp![CR] Skalintegration:[CR]See readme file</description>
+    <description lang="zh">下载剧集、电影和音乐电视的所有可用艺术图片到资料库。查看支持的艺术图片选项[CR]&#10;艺术图片来源：[CR]www.fanart.tv[CR]www.thetvdb.com[CR]www.themoviedb.org[CR]&#10; 备注：[CR]查看你的皮肤了解支持什么类型的艺术图片！[CR]每一个剧集/电影必须保存在单独的文件夹中！[CR]&#10; 皮肤集成：[CR]参见readme文件</description>
+    <disclaimer lang="be">For bugs, requests or general questions visit the Artwork Downloader thread on the XBMC forum.</disclaimer>
+    <disclaimer lang="da">Ved fejl, forespørgsler eller generelle spørgsmål besøg Artwork Downloader-tråden i XBMCs forum.</disclaimer>
+    <disclaimer lang="de">FÃ¼r Fehler, VorschlÃ¤ge oder alggemeine Fragen, besuche das Artwork Downloader-Thema im XBMC-Forum (englisch).</disclaimer>
+    <disclaimer lang="el">Για προβλήματα, αιτήματα ή γενικές ερωτήσεις επισκεφθείτε το θέμα του Artwork Downloader στο forum του XBMC.</disclaimer>
+    <disclaimer lang="en">For bugs, requests or general questions visit the Artwork Downloader thread on the XBMC forum.</disclaimer>
+    <disclaimer lang="es">Para informar de errores, hacer peticiones o preguntas visiten el hilo Artwork Downloader en el foro de XBMC.</disclaimer>
+    <disclaimer lang="fr">Pour bugs, demandes ou questions générales visiter le thread Artwork Downloader sur le forum XBMC.</disclaimer>
+    <disclaimer lang="gl">Para erros, solicitudes ou preguntas en xeral visite o fio do Artwork Downloader no foro do XBMC.</disclaimer>
+    <disclaimer lang="he">לדווח תקלות,בקשות או שאלות כלליות בקר ברשימת artwork downloader בפורום של XBMC.</disclaimer>
+    <disclaimer lang="hr">Za greške, zahtjeve ili uobičajena pitanja posjetite Artwork Downloader na XBMC forumu.</disclaimer>
+    <disclaimer lang="hu">Hibabejelentéshez, kérésekhez vagy általános kérdésekkel kapcsolatban keresse az Artwork Downloader témát az XBMC fórumon.</disclaimer>
+    <disclaimer lang="it">Per la segnalazione di bug, richieste o domande generali visita il thread Artwork Downloader sul forum di XBMC.</disclaimer>
+    <disclaimer lang="ko">버그, 요청사항 및 일반적인 질문은  XBMC 포럼의 Artwork Downloader 글타래를 찾아 주세요.</disclaimer>
+    <disclaimer lang="nl">Voor fouten, verzoeken of algemene vragen kan je terecht op Artwork Downloader thread op het XBMC forum.</disclaimer>
+    <disclaimer lang="pl">By zgÅ‚osiÄ‡ bÅ‚Ä…d, proÅ›bÄ™ lub zadaÄ‡ pytanie odwiedÅº wÄ…tek poÅ›wiÄ™cony Artwork Downladerowi na forum XBMC.</disclaimer>
+    <disclaimer lang="pt">Para reportar erros, requisitar algo ou perguntar algo sobre o add-on, visite o tópico do Artwork Downloader no fórum do XBMC.</disclaimer>
+    <disclaimer lang="pt_BR">Para erros, requisições ou questões gerais visite o tópico do Artwork Downloader no Fórum XBMC.org</disclaimer>
+    <disclaimer lang="sk">Pre chyby, požiadavky alebo všeobecné otázky navštívte "Artwork Downloader" vlákno na XBMC fóre.</disclaimer>
+    <disclaimer lang="sv">För buggar, önskemål och frågor, besök Artwork Downloader tråden på XBMCs forum.</disclaimer>
+    <disclaimer lang="zh">错误报告、功能需求及常见问题，请访问XBMC论坛的Artwork Downloader专贴。</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <website></website>
+    <source>https://github.com/XBMC-Addons/script.artwork.downloader</source>
+    <forum>http://forum.xbmc.org/showthread.php?tid=114633</forum>
+    <email></email>
+    <assets>
+        <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.soupsieve" name="soupsieve" version="2.4.1" provider-name="Isaac Muse">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">A modern CSS selector implementation for Beautiful Soup.</summary>
+    <description lang="en_GB">A modern CSS selector implementation for Beautiful Soup.</description>
+    <license>MIT</license>
+    <platform>all</platform>
+    <website>https://facelessuser.github.io/soupsieve/</website>
+    <source>https://github.com/facelessuser/soupsieve</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.urllib3" name="urllib3" version="2.1.0" provider-name="urllib3">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">urllib3 is a powerful, user-friendly HTTP client for Python</summary>
+    <description lang="en_GB">urllib3 is a powerful, user-friendly HTTP client for Python. Much of the Python ecosystem already uses urllib3 and you should too. urllib3 brings many critical features that are missing from the Python standard libraries</description>
+    <license>MIT</license>
+    <platform>all</platform>
+    <website>https://urllib3.readthedocs.io/</website>
+    <source>https://github.com/urllib3/urllib3</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.autocompletion" name="AutoCompletion library" version="3.0.2" provider-name="henryjfry">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0" />
+        <import addon="script.module.requests" version="2.9.1"/>
+    </requires>
+    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Module providing some AutoCompletion functions</summary>
+        <description lang="en_GB">Module providing some AutoCompletion functions</description>
+        <platform>all</platform>
+        <license>GPL-2.0-or-later</license>
+        <source>https://github.com/sualfred/script.module.autocompletion</source>
+        <assets>
+            <icon>resources/icon.png</icon>
+        </assets>
+    </extension>
+</addon>
+</addons>

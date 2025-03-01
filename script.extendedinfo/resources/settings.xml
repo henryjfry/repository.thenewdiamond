@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="General">
+		<setting label="Fancy User Interface Options" type="lsep"/>
+		<setting label="Alternative browser layout (does not affect all skins)" type="bool" id="alt_browser_layout" default="false"/>
+		<setting label="Experimental User Interface Options" type="lsep"/>
+		<setting label="Netflix view" type="bool" id="netflix_view" default="false"/>
+		<setting label="Netflix view2 (Only Info Screens?)" type="bool" id="netflix_info_view" default="false"/>
+		<setting label="Automatically play trailers (affects only Netflix view)" type="bool" enable="eq(-1,true)" id="autoplay_trailer"/>
+		<setting label="TMDB Options" type="lsep"/>
+		<setting label="Language" type="select" values="bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nl|no|pl|pt|ru|sl|sv|tr|zh" id="LanguageID" default="en"/>
+		<setting label="Include adult?" type="bool" id="include_adults" default="false"/>
+		<setting label="TMDB API key" id="tmdb_api" type="text" default=""/>
+		<setting label="Fanart API key" id="fanart_api" type="text" default=""/>
+		<setting label="Fanart Clear Logo Lookups?" type="bool" id="fanart_clearlogos" default="false"/>
+		<setting label="Settings button => TMDBHelper Context Menu/Addon Settings Menu?" type="lsep"/>
+		<setting label="Info Dialog Settings Button" type="select" id="settings_user_config" values="TMDBHelper Context Menu|Settings Selection Menu" default="Settings Selection Menu"/>
+		<setting label="Trakt/Kodi Scrobbling with Scene filename parsing" type="lsep"/>
+		<setting label="Enable Trakt/Kodi Scrobbling with PTN" type="bool" id="trakt_scrobble" default="true"/>
+		<setting label="Reopen Last UI Screen After Playback Ends" type="bool" id="reopen_window_bool" default="false" visible="false" />
+		<setting label="Trakt Watched History indicators on items" type="bool" id="trakt_watched_stats" default="true"/>
+		<setting label="Create/Refresh Trakt Watched Data" type="action" action="RunScript(script.extendedinfo,info=setup_trakt_watched)"/>
+		<setting label="Use Context Menus in UI?" type="bool" id="context_menu" default="true"/>
+		<setting label="Use Window Stack?" type="bool" id="window_stack_enable" default="true" visible="false"/>
+		<setting label="Enable reopen window on playack fail within 90s" type="bool" id="reopen_play_fail" default="true"/>
+		<setting label="Maintenance" type="lsep"/>
+		<setting label="Clear cache..." type="action" action="RunScript(script.extendedinfo,info=deletecache)"/>
+		<setting label="Auto Clear cache (>14 days)" type="action" action="RunScript(script.extendedinfo,info=auto_clean_cache)"/>
+		<setting label="Auto Clear cache on startup?" type="bool" id="auto_clean_cache_bool" default="true"/>
+		<setting label="Log Plugin URLS" type="bool" id="log_urls" default="false"/>
+		<setting label="TEST ROUTE" type="action" action="RunScript(script.extendedinfo,info=test_route)"/>
+		<setting label="setup_favourites" type="action" action="RunScript(script.extendedinfo,info=setup_favourites)"/>
+		<setting label="fenlight_open_setting" type="action" action="RunPlugin(plugin://plugin.video.fenlight/?mode=open_settings)" visible="System.HasAddon(plugin.video.fenlight)"/>
+		<setting label="fenlight_patch" type="action" action="RunScript(script.extendedinfo,info=patch_fen_light)" visible="System.HasAddon(plugin.video.fenlight)"/>
+		<setting label="fen_light_players" type="action" action="RunScript(script.extendedinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/>
+	</category>
+    <category label="Trakt Collection Library Options">
+		<setting label="TMDBHelper Trakt Authentication" type="action" action="RunScript(plugin.video.themoviedb.helper,authenticate_trakt)"/>
+		<setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt Only"/>
+        <setting label="Auto Add Trakt Calendar items to collection" type="bool" id="trakt_calendar_auto_sync" default="false"/>
+        <setting label="Auto Sync Trakt Collection to library" type="bool" id="library_auto_sync" default="false"/>
+		<setting label="Library Sync Period (hours - default = 8)" type="number" id="library_sync_hours" default="8"/>
+		<setting label="Root folder for ./Movies + ./TVShows STRM files with tmdb.nfo" type="lsep"/>
+		<setting label="Collection Library Root Folder" type="folder" id="library_folder" source="files" option="writeable" default=""/>
+		<setting label="Auto Sync TV Collection" type="bool" id="library_tv_sync" default="false"/>
+		<setting label="Auto Sync Movies Collection" type="bool" id="library_movies_sync" default="false"/>
+		<setting label="SETUP SOURCES.XML" type="action" action="RunScript(script.extendedinfo,info=setup_sources)"/>
+		<setting label="Library Auto Sync" type="action" action="RunScript(script.extendedinfo,info=auto_library)"/>
+	</category>
+	<category label="Trakt/IMDB Custom Userlists JSON Location">
+		<setting label="Info Screens Recommendations Mode" type="select" values="TMDB Only|IMDB Only|TMDB then IMDB|IMDB then TMDB|IMDB + TMDB Sorted by Popularity" id="imdb_recommendations" default="IMDB + TMDB Sorted by Popularity"/>
+		<setting label="Auto Load Plugin Route ENABLE" type="bool" id="auto_plugin_route_enable" default="false"/>
+		<setting label="Auto Load Plugin Route (use plugin://...)" id="auto_plugin_route" type="text" default="script.extendedinfo,info=trakt_watched,trakt_type=tv"/>
+        <setting label="Enable IMDB Plugin Screen Items" type="bool" id="imdb_plugin_list" default="true"/>
+        <setting label="Enable Trakt Plugin Screen Items" type="bool" id="trakt_plugin_list" default="true"/>
+        <setting label="Enable User Lists Plugin Screen Items" type="bool" id="userlists_plugin_list" default="true"/>
+		<setting label="Custom File/URL to the Trakt/IMDB JSON see addon folder/zip for examples" type="lsep"/>
+		<setting label="Enable Custom Trakt JSON List" type="bool" id="custom_trakt_json" default="True"/>
+		<setting label="Default=https://henryjfry.github.io/repository.thenewdiamond/trakt_list.json" type="lsep"/>
+		<setting label="Trakt JSON User File/URL" id="trakt_json" type="text" default="https://bit.ly/3jCkXkw"/>
+		<setting label="Enable Custom IMDB JSON List" type="bool" id="custom_imdb_json" default="True"/>
+		<setting label="Default=https://henryjfry.github.io/repository.thenewdiamond/imdb_list.json" type="lsep"/>
+		<setting label="IMDB JSON User File/URL" id="imdb_json" type="text" default="https://bit.ly/2WABGMg"/>
+		<setting label="IMDB Userlists UR ID" id="imdb_ur_id" type="text" default=""/>
+        <setting label="Trakt Userlists Enable" type="bool" id="trakt_userlist" default="true"/>
+		<setting label="Trakt User Slug" id="trakt_slug" type="text" default="" visible="false"/>
+		<setting label="Trakt User Name" id="trakt_user_name" type="text" default="" visible="false"/>
+	</category>
+
+	<category label="RealDerid Player + Bluray Players">
+
+		<!---setting label="RD => https://real-debrid.com/apitoken" type="lsep"/>
+		<setting label="RD API Token" type="text" id="RD_api" default="" />
+		<setting label="X265 Enable" type="bool" id="x265_setting" default="true" /--->
+		<setting label="RD Player Enable" type="bool" id="RD_player" default="false" />
+		<setting label="RD Player Subtitle Lookup" type="bool" id="RD_player_subs" default="false" />
+		<setting label="RD Player Subtitle Clean" type="bool" id="RD_player_subs_clean" default="false" />
+		<setting label="Player Attempt Subs/Lang fix on playback" type="bool" id="player_subs_lang_fix" default="false" />
+		<setting label="Bluray Player (Direct) enable" type="bool" id="RD_bluray_player" default="false" />
+		<setting label="Bluray Player (Menu) enable" type="bool" id="RD_bluray_player2" default="false" />
+		<setting label="Bluray path? (/media,/storage,d:/???)" type="lsep"/>
+		<setting label="BLURAY_DVD_PATH" type="text" id="bluray_dvd_path" default="/media" />
+		<setting label="SETUP TMDBHelper Players" type="action" action="RunScript(script.extendedinfo,info=setup_players)"/>
+		<!---setting label="RD Player Seren Prescrape fallback" type="bool" id="rd_seren_prescrape" default="false" /--->
+		<setting id="last_played_tmdb_helper"           type="text"   default="false" visible="false"/>
+
+	<!---/category>
+
+
+    <category label="30136"--->
+
+        <setting id="rd.auth"                       type="text"   default=""      visible="false"/>
+        <setting id="rd.refresh"                    type="text"   default=""      visible="false"/>
+        <setting id="rd.client_id"                  type="text"   default=""      visible="false"/>
+        <setting id="rd.expiry"                     type="text"   default="0"     visible="false"/>
+        <setting id="rd.secret"                     type="text"   default=""      visible="false"/>
+        <setting id="DOWNLOAD_FOLDER"                     type="text"   default=""      visible="false"/>
+		<setting id="magnet_list"                     type="text"   default=""      visible="false"/>
+		<setting id="download_path"                     type="text"   default=""      visible="false"/>
+
+        <!-- Real-Debrid -->
+        <setting type="lsep" label="30135"/>
+        <setting id="realdebrid.enabled" type="bool"   label="30152" default="false"/>
+        <setting id="rd.username"        type="text"   label="30151" default=""
+                 enable="false"
+                 visible="eq(-1,true)"/>
+        <setting id="rd.premiumstatus"   type="text"   label="30458" default=""
+                 subsetting="true"
+                 enable="false"
+                 visible="eq(-2,true)"/>
+        <setting                         type="action" label="30150"
+                 action="RunScript(script.extendedinfo,info=authRealDebrid)" option="close"
+                 visible="eq(-3,true)"/>
+        <setting id="rd.torrents"        type="bool"   label="30153" default="true"
+                 subsetting="true"
+                 visible="eq(-4,true)"/>
+        <!--setting id="rd.hosters"         type="bool"   label="30154" default="false"
+                 subsetting="true"
+                 visible="eq(-5,true)" /-->
+        <setting id="rd.hosters"         type="bool"   label="30154" default="false"
+                 subsetting="true"
+                  visible="false" />
+        <!--setting id="rd.autodelete"      type="bool"   label="30155" default="false"
+                 subsetting="true"
+                 visible="eq(-6,true)"/-->
+        <setting id="rd.autodelete"      type="bool"   label="30155" default="false"
+                 subsetting="true"
+                 visible="false"/>
+    <!-- Providers -->
+
+
+        <!-- General -->
+        <!--setting type="lsep" label="30084"/-->
+        <setting id="providers.autoupdates" type="bool" label="30138" default="true"  visible="false"/>
+
+        <!-- Manage Provider Packages -->
+        <setting type="lsep" label="30140"/>
+        <setting type="action" label="Install a4kScrapers"
+                 action="RunScript(script.extendedinfo,info=a4kProviders)"/>
+        <setting type="action" label="Manage a4kScrapers"
+                 action="RunScript(script.extendedinfo,info=a4kProviders_manage)" />
+
+
+	
+        <!-- Preemptive Termination -->
+        <!--setting type="lsep" label="30121"/-->
+        <setting id="preem.enabled"            type="bool"   label="30122" default="false"  visible="false"/>
+        <setting id="preem.movieres"           type="enum"   label="30123" default="0"
+                 lvalues="30598|30599|30600|30601"
+                 subsetting="true"
+                 visible="eq(-1,true)"/>
+        <setting id="preem.tvres"              type="enum"   label="30124" default="1"
+                 lvalues="30598|30599|30600|30601"
+                 subsetting="true"
+                 visible="eq(-2,true)"/>
+        <setting id="preem.limit"              type="slider" label="30125" default="5"
+                 option="int" range="0,20"
+                 subsetting="true"
+                 visible="eq(-3,true)"/>
+        <setting id="preem.type"               type="enum"   label="30126" default="0"
+                 lvalues="30234|30235|30236"
+                 subsetting="true"
+                 visible="eq(-4,true)"/>
+        <setting id="preem.waitfor.cloudfiles" type="bool"   label="30616" default="false"
+                 subsetting="true"
+                 visible="eq(-5,true)"/>
+        <setting id="preem.cloudfiles"         type="bool"   label="30188" default="true"
+                 subsetting="true"
+                 visible="eq(-6,true)"/>
+        <setting id="preem.adaptiveSources"    type="bool"   label="30478" default="true"
+                 subsetting="true"
+                 visible="eq(-7,true)"/>
+    </category>
+
+
+
+    <!-- Sort & Filter -->
+    <category label="Sort & Filter">
+
+        <!-- Source Filters -->
+        <setting type="lsep" label="Source Filters"/>
+        <setting type="action" label="Filter - Comma Separated List"
+                 action="RunPlugin(plugin://script.extendedinfo/?action=chooseFilters)" option="close" visible="false"/>
+        <!--setting id="general.filters"      type="text"  default="3D"
+                 visible="false"/-->
+        <setting id="general.filters"  label="Filter - Comma Separated List"    type="text"  default="HI10,HC,WMV,3D,SCR,CAM"/>
+        <setting id="general.maxResolution"       type="enum"   label="30120" default="0"
+                 lvalues="30598|30599|30600|30601"/>
+        <setting id="general.minResolution"       type="enum"   label="30612" default="3"
+                 lvalues="30598|30599|30600|30601"/>
+        <setting id="general.enablesizelimit"     type="bool"   label="30118" default="true"/>
+        <setting id="general.sizelimit.movie"     type="slider" label="30192" default="10"
+                 option="int" range="0,1,300"
+                 subsetting="true"
+                 visible="eq(-1,true)"/>
+        <setting id="general.sizelimit.episode"   type="slider" label="30119" default="10"
+                 option="int" range="0,1,300"
+                 subsetting="true"
+                 visible="eq(-2,true)"/>
+        <setting id="general.sizeminimum.movie"   type="slider" label="30534" default="0"
+                 option="float" range="0.0,0.1,30.0"
+                 subsetting="true"
+                 visible="eq(-3,true)"/>
+        <setting id="general.sizeminimum.episode" type="slider" label="30535" default="0"
+                 option="float" range="0.0,0.1,30.0"
+                 subsetting="true"
+                 visible="eq(-4,true)"/>
+
+
+        <!-- Source Sorting -->
+        <setting type="lsep" label="30149"/>
+        <setting id="general.lastreleasenamepriority" type="bool" label="30569"
+                 default="false" visible="false"/>
+
+        <!-- Sort Method 1 -->
+        <setting id="general.sortmethod.1"         type="enum" label="30582" default="5"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0)"/>
+        <setting id="general.sortmethod.1.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0)"/>
+
+        <!-- Sort Method 2 -->
+        <setting id="general.sortmethod.2"         type="enum" label="30583" default="1"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0)"/>
+        <setting id="general.sortmethod.2.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0)"/>
+
+        <!-- Sort Method 3 -->
+        <setting id="general.sortmethod.3"         type="enum" label="30584" default="4"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0) + !eq(-22,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0) + !eq(-23,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0) + !eq(-24,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0) + !eq(-25,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0) + !eq(-26,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0) + !eq(-27,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0) + !eq(-28,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0) + !eq(-29,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0) + !eq(-30,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0) + !eq(-31,0)"/>
+        <setting id="general.sortmethod.3.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0) + !eq(-32,0)"/>
+
+        <!-- Sort Method 4 -->
+        <setting id="general.sortmethod.4"         type="enum" label="30585" default="0"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0) + !eq(-22,0) + !eq(-33,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0) + !eq(-23,0) + !eq(-34,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0) + !eq(-24,0) + !eq(-35,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0) + !eq(-25,0) + !eq(-36,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0) + !eq(-26,0) + !eq(-37,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0) + !eq(-27,0) + !eq(-38,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0) + !eq(-28,0) + !eq(-39,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0) + !eq(-29,0) + !eq(-40,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0) + !eq(-30,0) + !eq(-41,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0) + !eq(-31,0) + !eq(-42,0)"/>
+        <setting id="general.sortmethod.4.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0) + !eq(-32,0) + !eq(-43,0)"/>
+
+        <!-- Sort Method 5 -->
+        <setting id="general.sortmethod.5"         type="enum" label="30586" default="0"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0) + !eq(-22,0) + !eq(-33,0) + !eq(-44,0) + !eq(-55,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0) + !eq(-23,0) + !eq(-34,0) + !eq(-45,0) + !eq(-56,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0) + !eq(-24,0) + !eq(-35,0) + !eq(-46,0) + !eq(-57,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0) + !eq(-25,0) + !eq(-36,0) + !eq(-47,0) + !eq(-58,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0) + !eq(-26,0) + !eq(-37,0) + !eq(-48,0) + !eq(-59,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0) + !eq(-27,0) + !eq(-38,0) + !eq(-49,0) + !eq(-60,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0) + !eq(-28,0) + !eq(-39,0) + !eq(-50,0) + !eq(-61,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0) + !eq(-29,0) + !eq(-40,0) + !eq(-51,0) + !eq(-62,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0) + !eq(-30,0) + !eq(-41,0) + !eq(-52,0) + !eq(-63,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0) + !eq(-31,0) + !eq(-42,0) + !eq(-53,0) + !eq(-64,0)"/>
+        <setting id="general.sortmethod.5.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0) + !eq(-32,0) + !eq(-43,0) + !eq(-54,0) + !eq(-65,0)"/>
+
+        <!-- Sort Method 6 -->
+        <setting id="general.sortmethod.6"         type="enum" label="30587" default="0"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0) + !eq(-22,0) + !eq(-33,0) + !eq(-44,0) + !eq(-55,0) + !eq(-66,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0) + !eq(-23,0) + !eq(-34,0) + !eq(-45,0) + !eq(-56,0) + !eq(-67,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0) + !eq(-24,0) + !eq(-35,0) + !eq(-46,0) + !eq(-57,0) + !eq(-68,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0) + !eq(-25,0) + !eq(-36,0) + !eq(-47,0) + !eq(-58,0) + !eq(-69,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0) + !eq(-26,0) + !eq(-37,0) + !eq(-48,0) + !eq(-59,0) + !eq(-70,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0) + !eq(-27,0) + !eq(-38,0) + !eq(-49,0) + !eq(-60,0) + !eq(-71,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0) + !eq(-28,0) + !eq(-39,0) + !eq(-50,0) + !eq(-61,0) + !eq(-72,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0) + !eq(-29,0) + !eq(-40,0) + !eq(-51,0) + !eq(-62,0) + !eq(-73,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0) + !eq(-30,0) + !eq(-41,0) + !eq(-52,0) + !eq(-63,0) + !eq(-74,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0) + !eq(-31,0) + !eq(-42,0) + !eq(-53,0) + !eq(-64,0) + !eq(-75,0)"/>
+        <setting id="general.sortmethod.6.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0) + !eq(-32,0) + !eq(-43,0) + !eq(-54,0) + !eq(-65,0) + !eq(-76,0)"/>
+
+        <!-- Sort Method 7 -->
+        <setting id="general.sortmethod.7"         type="enum" label="30588" default="0"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0) + !eq(-22,0) + !eq(-33,0) + !eq(-44,0) + !eq(-55,0) + !eq(-66,0) + !eq(-77,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0) + !eq(-23,0) + !eq(-34,0) + !eq(-45,0) + !eq(-56,0) + !eq(-67,0) + !eq(-78,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0) + !eq(-24,0) + !eq(-35,0) + !eq(-46,0) + !eq(-57,0) + !eq(-68,0) + !eq(-79,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0) + !eq(-25,0) + !eq(-36,0) + !eq(-47,0) + !eq(-58,0) + !eq(-69,0) + !eq(-80,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0) + !eq(-26,0) + !eq(-37,0) + !eq(-48,0) + !eq(-59,0) + !eq(-70,0) + !eq(-81,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0) + !eq(-27,0) + !eq(-38,0) + !eq(-49,0) + !eq(-60,0) + !eq(-71,0) + !eq(-82,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0) + !eq(-28,0) + !eq(-39,0) + !eq(-50,0) + !eq(-61,0) + !eq(-72,0) + !eq(-83,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0) + !eq(-29,0) + !eq(-40,0) + !eq(-51,0) + !eq(-62,0) + !eq(-73,0) + !eq(-84,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0) + !eq(-30,0) + !eq(-41,0) + !eq(-52,0) + !eq(-63,0) + !eq(-74,0) + !eq(-85,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0) + !eq(-31,0) + !eq(-42,0) + !eq(-53,0) + !eq(-64,0) + !eq(-75,0) + !eq(-86,0)"/>
+        <setting id="general.sortmethod.7.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0) + !eq(-32,0) + !eq(-43,0) + !eq(-54,0) + !eq(-65,0) + !eq(-76,0) + !eq(-87,0)"/>
+
+        <!-- Sort Method 8 -->
+        <setting id="general.sortmethod.8"         type="enum" label="30589" default="0"
+                 lvalues="30513|30237|30252|30570|30251|30571|30572|30573|30575"
+                 visible="!eq(-11,0) + !eq(-22,0) + !eq(-33,0) + !eq(-44,0) + !eq(-55,0) + !eq(-66,0) + !eq(-77,0) + !eq(-88,0)"/>
+        <setting id="general.sourcetypesort.1"     type="enum" label="30576" default="1"
+                 lvalues="30513|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-1,2) + !eq(-12,0) + !eq(-23,0) + !eq(-34,0) + !eq(-45,0) + !eq(-56,0) + !eq(-67,0) + !eq(-78,0) + !eq(-89,0)"/>
+        <setting id="general.sourcetypesort.2"     type="enum" label="30577" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-2,2) + !eq(-1,0) + !eq(-13,0) + !eq(-24,0) + !eq(-35,0) + !eq(-46,0) + !eq(-57,0) + !eq(-68,0) + !eq(-79,0) + !eq(-90,0)"/>
+        <setting id="general.sourcetypesort.3"     type="enum" label="30578" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-3,2) + !eq(-1,0) + !eq(-14,0) + !eq(-25,0) + !eq(-36,0) + !eq(-47,0) + !eq(-58,0) + !eq(-69,0) + !eq(-80,0) + !eq(-91,0)"/>
+        <setting id="general.sourcetypesort.4"     type="enum" label="30579" default="0"
+                 lvalues="30581|30249|30470|30057|30058"
+                 subsetting="true"
+                 visible="eq(-4,2) + !eq(-1,0) + !eq(-15,0) + !eq(-26,0) + !eq(-37,0) + !eq(-48,0) + !eq(-59,0) + !eq(-70,0) + !eq(-81,0) + !eq(-92,0)"/>
+        <setting id="general.hdrsort.1"        type="enum" label="30576" default="2"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-5,7) + !eq(-16,0) + !eq(-27,0) + !eq(-38,0) + !eq(-49,0) + !eq(-60,0) + !eq(-71,0) + !eq(-82,0) + !eq(-93,0)"/>
+        <setting id="general.hdrsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30590|30574"
+                 subsetting="true"
+                 visible="eq(-6,7) + !eq(-1,0) + !eq(-17,0) + !eq(-28,0) + !eq(-39,0) + !eq(-50,0) + !eq(-61,0) + !eq(-72,0) + !eq(-83,0) + !eq(-94,0)"/>
+        <setting id="general.debridsort.1"        type="enum" label="30576" default="1"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-7,3) + !eq(-18,0) + !eq(-29,0) + !eq(-40,0) + !eq(-51,0) + !eq(-62,0) + !eq(-73,0) + !eq(-84,0) + !eq(-95,0)"/>
+        <setting id="general.debridsort.2"        type="enum" label="30577" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-8,3) + !eq(-1,0) + !eq(-19,0) + !eq(-30,0) + !eq(-41,0) + !eq(-52,0) + !eq(-63,0) + !eq(-74,0) + !eq(-85,0) + !eq(-96,0)"/>
+        <setting id="general.debridsort.3"        type="enum" label="30578" default="0"
+                 lvalues="30513|30134|30135|30333"
+                 subsetting="true"
+                 visible="eq(-9,3) + !eq(-1,0) + !eq(-20,0) + !eq(-31,0) + !eq(-42,0) + !eq(-53,0) + !eq(-64,0) + !eq(-75,0) + !eq(-86,0) + !eq(-97,0)"/>
+        <setting id="general.sortmethod.8.reverse" type="bool" label="30580" default="false"
+                 subsetting="true" visible="!eq(-10,0) + !eq(-21,0) + !eq(-32,0) + !eq(-43,0) + !eq(-54,0) + !eq(-65,0) + !eq(-76,0) + !eq(-87,0) + !eq(-98,0)"/>
+
+
+	</category>
+
+	<category label="DOWNLOADS">
+
+
+		<setting id="magnet_list"                type="text"   label="magnet_list" default="/home/osmc/.kodi/userdata/addon_data/script.extendedinfo/magnet_list.txt"
+                 enable="false"
+                 visible="false"/>
+
+        <setting id="magnet_list"                type="action" label="magnet_list"
+                 action="RunScript(script.extendedinfo,info=setmagnet_list)"/>
+
+		<setting id="download_path"                type="text"   label="download_path" default="/home/osmc/Movies"
+                 enable="false"
+                 visible="false"/>
+
+		<setting id="DOWNLOAD_FOLDER"                type="text"   label="DOWNLOAD_FOLDER" default="/home/osmc/Movies"
+                 enable="false"
+                 visible="false"/>
+        <setting id="DOWNLOAD_FOLDER"                type="action" label="DOWNLOAD_FOLDER"
+                 action="RunScript(script.extendedinfo,info=setDownloadLocation)"/>
+
+		<setting id="opensubtitles.password" type="text" label="open_subs_password" default="" />
+		<setting id="opensubtitles.username" type="text" label="open_subs_username" default="" />
+		<setting id="subdl.apikey" label="subdl_apikey" type="text" default=""/>
+		<setting label="stop_downloader" type="action" action="RunScript(script.extendedinfo,info=stop_downloader)"/>
+		<setting label="run_downloader" type="action" action="RunScript(script.extendedinfo,info=run_downloader)"/>
+		<setting label="manage_download_list" type="action" action="RunScript(script.extendedinfo,info=manage_download_list)"/>
+
+
+
+
+
+	</category>
+	<category label="Network Manager">
+		<setting label="Con_Man_Fix" type="action" action="RunScript(script.extendedinfo,info=con_man_fix)"/>
+
+<setting label="rss_test" type="action" action="RunScript(script.extendedinfo,info=rss_test)"/>
+<setting label="delete_db_expired" type="action" action="RunScript(script.extendedinfo,info=delete_db_expired)"/>
+<setting label="clear_db" type="action" action="RunScript(script.extendedinfo,info=clear_db)"/>
+<setting label="eject_load_dvd" type="action" action="RunScript(script.extendedinfo,info=eject_load_dvd)"/>
+<setting label="test_route" type="action" action="RunScript(script.extendedinfo,info=test_route)"/>
+<setting label="setup_trakt_watched" type="action" action="RunScript(script.extendedinfo,info=setup_trakt_watched)"/>
+
+<setting label="setup_players" type="action" action="RunScript(script.extendedinfo,info=setup_players)"/>
+<setting label="estuary_fix" type="action" action="RunScript(script.extendedinfo,info=estuary_fix)"/>
+<setting label="setup_favourites" type="action" action="RunScript(script.extendedinfo,info=setup_favourites)"/>
+<setting label="patch_seren_a4k" type="action" action="RunScript(script.extendedinfo,info=patch_seren_a4k)"/>
+<setting label="patch_tmdb_helper" type="action" action="RunScript(script.extendedinfo,info=patch_tmdb_helper)"/>
+
+	</category>
+	<category label="RSS Manager">
+		<!---setting id="rss.timeout" type="slider" label="Rss Auto Update Time (in hours)" default="24" range="1,24" option="int" /--->
+		
+		<setting type="lsep" label="Address 1" />
+		<!---setting id="rss_rarbg" type="bool" label="Enable TheRarbg latest 2160p" default="false" /--->
+		<setting id="rss.1" type="bool" label="Enable Rss" default="false" />
+		<setting id="rss.link.1" type="text" label="Rss Address" default="" visible="eq(-1,true)" />
+		<!---setting id="rss.link.1.offset" type="slider" label="Max Number of Days to check from today (offset)" default="3" range="0,14" option="int" visible="eq(-2,true)" /--->
+		<!---setting id="rss.1.mode" type="enum" label="Mode" values="Add to Cloud|Read Only" default="0" visible="eq(-3,true)" /--->
+		<setting type="lsep" label="Address 2" />
+		<setting id="rss.2" type="bool" label="Enable Rss" default="false" />
+		<setting id="rss.link.2" type="text" label="Rss Address" default=""  visible="eq(-1,true)" />
+		<!---setting id="rss.link.2.offset" type="slider" label="Max Number of Days to check from today (offset)" default="3" range="0,14" option="int" visible="eq(-2,true)" /--->
+		<!---setting id="rss.2.mode" type="enum" label="Mode" values="Add to Cloud|Read Only" default="0" visible="eq(-3,true)" /--->
+		<setting type="lsep" label="Address 3" />
+		<setting id="rss.3" type="bool" label="Enable Rss" default="false" />
+		<setting id="rss.link.3" type="text"  label="Rss Address" default=""  visible="eq(-1,true)" />
+		<!---setting id="rss.link.3.offset" type="slider" label="Max Number of Days to check from today (offset)" default="3" range="0,14" option="int"  visible="eq(-2,true)" /--->
+		<!---setting id="rss.3.mode" type="enum" label="Mode" values="Add to Cloud|Read Only" default="0" visible="eq(-3,true)" /--->
+		<setting type="lsep" label="Address 4" />
+		<setting id="rss.4" type="bool" label="Enable Rss" default="false" />
+		<setting id="rss.link.4" type="text"  label="Rss Address" default=""  visible="eq(-1,true)" />
+		<!---setting id="rss.link.4.offset" type="slider" label="Max Number of Days to check from today (offset)" default="3" range="0,14" option="int"  visible="eq(-2,true)" /--->
+		<!---setting id="rss.4.mode" type="enum" label="Mode" values="Add to Cloud|Read Only" default="0" visible="eq(-3,true)" /--->
+				
+	</category>
+
+</settings>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="General">
+		<!---setting label="Fancy User Interface Options" type="lsep"/>
+		<setting label="Alternative browser layout (does not affect all skins)" type="bool" id="alt_browser_layout" default="false"/>
+		<setting label="Experimental User Interface Options" type="lsep"/>
+		<setting label="Netflix view" type="bool" id="netflix_view" default="false"/>
+		<setting label="Netflix view2 (Only Info Screens?)" type="bool" id="netflix_info_view" default="false"/>
+		<setting label="Automatically play trailers (affects only Netflix view)" type="bool" enable="eq(-1,true)" id="autoplay_trailer"/--->
+		<setting id="xtreme_codes.password" type="text" label="xtreme_codes_password" default="" />
+		<setting id="xtreme_codes.username" type="text" label="xtreme_codes_username" default="" />
+		<setting id="xtreme_codes.base_url" type="text" label="xtreme_codes_server_path" default="http://name.server.xyz:80/" />
+		<setting label="List group names/partial names to include (non matching = EXCLUDE), comma separated" type="lsep"/>
+		<setting id="xtreme_wanted_groups" type="text" label="xtreme_wanted_groups" default="U.K,Scotland,Ireland,U.S.A,Canada,New Zeeland,UEFA,All Channels,BeIn,Australia" />
+		<setting label="Sort Channels File - 1 Channel per line" type="lsep"/>
+		 <setting label="Channels Order File" type="file" id="channel_order" default=""/>
+		 <setting label="Channels Order Remote" type="text" id="channel_order_remote" default="https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/refs/heads/main/script.xtreme_vod/channel_order.txt"/>
+		<setting label="Server  http://localhost:5000/m3u / http://localhost:5000/xml" type="lsep"/>
+		<setting label="Auto start M3U/XMLTV server" type="bool" id="auto_start_server" default="false"/>
+		<setting label="STOP Server  http://localhost:5000/stop" type="lsep"/>
+		<setting label="Create Local XML/M3U Files" type="bool" id="local_xml_m3u" default="true"/>
+		<setting label="Local XML/M3U Refresh period (hours - default = 8)" type="number" id="xml_m3u_sync_hours" default="8"/>
+		<setting label="STARTUP_Create Local XML/M3U Files" type="bool" id="startup_local_xml_m3u" default="true"/>
+		<setting id="output_folder_select" type="select" label="Output Folder Method" values="Folder Picker|Type Folder Path" default="Folder Picker"/>
+		<setting label="Output XML/M3U Folder (PICKER)" type="folder" id="output_folder" default=""/>
+		<setting label="Output XML/M3U Folder (Type)" type="text" id="output_folder_string" default="special://profile"/>
+		<setting label="TMDB Options" type="lsep"/>
+		<!--setting label="Language" type="select" values="bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nl|no|pl|pt|ru|sl|sv|tr|zh" id="LanguageID" default="en"/>
+		<setting label="Include adult?" type="bool" id="include_adults" default="false"/-->
+		<setting label="TMDB API key" id="tmdb_api" type="text" default=""/>
+		<setting label="Fanart API key" id="fanart_api" type="text" default=""/>
+		<setting label="Fanart Clear Logo Lookups?" type="bool" id="fanart_clearlogos" default="false"/>
+		<!--setting label="Settings button => TMDBHelper Context Menu/Addon Settings Menu?" type="lsep"/>
+		<setting label="Info Dialog Settings Button" type="select" id="settings_user_config" values="TMDBHelper Context Menu|Settings Selection Menu" default="Settings Selection Menu"/--->
+		<setting label="Trakt/Kodi Scrobbling with Scene filename parsing" type="lsep"/>
+		<setting label="Enable Trakt/Kodi Scrobbling with PTN" type="bool" id="trakt_scrobble" default="true"/>
+		<setting label="Reopen Last UI Screen After Playback Ends" type="bool" id="reopen_window_bool" default="false" visible="false" />
+		<setting label="Trakt Watched History indicators on items" type="bool" id="trakt_watched_stats" default="true"/>
+		<setting label="Create/Refresh Trakt Watched Data" type="action" action="RunScript(script.extendedinfo,info=setup_trakt_watched)"/>
+		<setting label="Use Context Menus in UI?" type="bool" id="context_menu" default="true"/>
+		<setting label="Use Window Stack?" type="bool" id="window_stack_enable" default="true" visible="false"/>
+		<setting label="Enable reopen window on playack fail within 90s" type="bool" id="reopen_play_fail" default="true"/>
+		<setting label="Maintenance" type="lsep"/>
+		<setting label="Clear cache..." type="action" action="RunScript(script.extendedinfo,info=deletecache)"/>
+		<setting label="Auto Clear cache (>14 days)" type="action" action="RunScript(script.extendedinfo,info=auto_clean_cache)"/>
+		<setting label="Auto Clear cache on startup?" type="bool" id="auto_clean_cache_bool" default="true"/>
+		<setting label="Log Plugin URLS" type="bool" id="log_urls" default="false"/>
+		<setting label="TEST ROUTE" type="action" action="RunScript(script.extendedinfo,info=test_route)"/>
+		<!--setting label="setup_favourites" type="action" action="RunScript(script.extendedinfo,info=setup_favourites)"/>
+		<setting label="fenlight_open_setting" type="action" action="RunPlugin(plugin://plugin.video.fenlight/?mode=open_settings)" visible="System.HasAddon(plugin.video.fenlight)"/>
+		<setting label="fenlight_patch" type="action" action="RunScript(script.extendedinfo,info=patch_fen_light)" visible="System.HasAddon(plugin.video.fenlight)"/>
+		<setting label="fen_light_players" type="action" action="RunScript(script.extendedinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/--->
+	</category>
+    <!---category label="Trakt Collection Library Options">
+		<setting label="TMDBHelper Trakt Authentication" type="action" action="RunScript(plugin.video.themoviedb.helper,authenticate_trakt)"/>
+		<setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt Only"/>
+        <setting label="Auto Add Trakt Calendar items to collection" type="bool" id="trakt_calendar_auto_sync" default="false"/>
+        <setting label="Auto Sync Collection to library" type="bool" id="library_auto_sync" default="false"/>
+		<setting label="Library Sync Period (hours - default = 8)" type="number" id="library_sync_hours" default="8"/>
+		<setting label="Root folder for ./Movies + ./TVShows STRM files with tmdb.nfo" type="lsep"/>
+		<setting label="Collection Library Root Folder" type="folder" id="library_folder" source="files" option="writeable" default=""/>
+		<setting label="Auto Sync TV Collection" type="bool" id="library_tv_sync" default="false"/>
+		<setting label="Auto Sync Movies Collection" type="bool" id="library_movies_sync" default="false"/>
+		<setting label="SETUP SOURCES.XML" type="action" action="RunScript(script.extendedinfo,info=setup_sources)"/>
+		<setting label="Library Auto Sync" type="action" action="RunScript(script.extendedinfo,info=auto_library)"/>
+		<setting id="last_played_tmdb_helper"           type="text"   default="false" visible="false"/>
+	</category>
+
+
+	<category label="DOWNLOADS">
+
+
+		<setting id="magnet_list"                type="text"   label="magnet_list" default="/home/osmc/.kodi/userdata/addon_data/script.extendedinfo/magnet_list.txt"
+                 enable="false"
+                 visible="false"/>
+
+        <setting id="magnet_list"                type="action" label="magnet_list"
+                 action="RunScript(script.extendedinfo,info=setmagnet_list)"/>
+
+		<setting id="download_path"                type="text"   label="download_path" default="/home/osmc/Movies"
+                 enable="false"
+                 visible="false"/>
+
+		<setting id="DOWNLOAD_FOLDER"                type="text"   label="DOWNLOAD_FOLDER" default="/home/osmc/Movies"
+                 enable="false"
+                 visible="false"/>
+        <setting id="DOWNLOAD_FOLDER"                type="action" label="DOWNLOAD_FOLDER"
+                 action="RunScript(script.extendedinfo,info=setDownloadLocation)"/>
+
+		<setting id="opensubtitles.password" type="text" label="open_subs_password" default="" />
+		<setting id="opensubtitles.username" type="text" label="open_subs_username" default="" />
+		<setting id="subdl.apikey" label="subdl_apikey" type="text" default=""/>
+		<setting label="stop_downloader" type="action" action="RunScript(script.extendedinfo,info=stop_downloader)"/>
+		<setting label="run_downloader" type="action" action="RunScript(script.extendedinfo,info=run_downloader)"/>
+		<setting label="manage_download_list" type="action" action="RunScript(script.extendedinfo,info=manage_download_list)"/>
+
+
+
+
+
+	</category--->
+
+
+</settings>

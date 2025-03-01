@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="2.0" provider-name="fryhenryj">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
+		<import addon="script.module.requests" version="2.25.1+matrix.1"/>
+		<import addon="script.skin.helper.service" version="1.1.3"/>
+		<import addon="resource.images.studios.white" version="0.0.28"/>
+		<import addon="script.module.musicbrainz" version="0.6.0"/>
+		<import addon="script.module.arrow" version="1.0.3.1"/>
+		<import addon="script.module.dateutil" version="2.8.1"/>
+		<import addon="script.module.typing_extensions" version="3.7.4.3"/>
+		<import addon="script.module.simplecache" version="1.0.0"/>
+		<import addon="script.module.beautifulsoup4" version="4.6.3+matrix.1"/>
+	</requires>
+	<extension point="xbmc.python.script" library="script.py"/>
+	<extension point="xbmc.python.pluginsource" library="plugin.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="kodi.context.item">
+		<menu id="kodi.core.main">
+			<item library="context.py">
+				<label>Extended Info</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,actor) | String.IsEqual(ListItem.dbtype,director)</visible>
+			</item>
+			<item library="context2.py">
+				<label>TMDBHelper Trakt Menu</label>
+				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode)</visible>
+			</item>
+		</menu>
+	</extension>
+	<extension point="xbmc.service" library="service.py"  start="login"/>
+	<extension point="xbmc.addon.metadata">
+		<reuselanguageinvoker>false</reuselanguageinvoker>
+		<platform>all</platform>
+		<summary>Diamond Info (EIM)</summary>
+		<description>The New Diamond Info is a fork of the old Diamond Info which in turn was a fork of the OpenInfo Script.  Currently the addonid is:  script.diamoninfo
+And this will therefore replace any existing copy of script.extendedinfo on your system.
+This is by design, so that it has full compatibility with any pre-existing implementations of OpenInfo Script in skins and other add-ons. **YOU HAVE BEEN WARNED !!!** . **Its best to turn OFF auto updates** for Diamond Info / Extended info mod / script / etc . to prevent any repos that have forks from overwriting Diamond Info . You can always force updates when you want updates .
+
+
+This add-on is like the ultimate information and browsing tool. You can search and browse movies, TV shows, related content, cast & crew, and even similar or related media like fanart and trailers. Once you've found something you like, you can use the “Play” and/or “Add to library” features to add to your Trakt collection and sync this to your library.
+
+The New DiamondInfo uses TMDBHelper to play files and requires TMDBHelper be authorized in Trakt.
+If Library Auto sync is enabled in the settings it will create STRM files in the addon userdata folder under "TVShows" and "Movies" or in a root directory of your choosing.  And it will sync the items in your trakt collection at startup and after a period of hours as set in the settings (default 8 hours). When it Syncs your library it will attempt to download all the relevant art available at TMDB and Fanart.TV for the movie or show and populate missing information for episodes like plots, episode thumbnails and episode airdates often missing when an episode first becomes available. It will also add new episodes in your trakt calendar to your collection so your collection is always fully up to date.
+
+The TVShows and Movies folder sources can be setup from the settings and a library sync can be triggered from the settings.
+Individual shows and movies can then be added to your collection and library from the information screens, which adds the item to your trakt collection and then triggers the collection_sync.
+(Therefore if you have not yet run a full sync adding a single show/movie will take as long as it takes for all the shows/movies in your collection to be created as STRM files and download the artwork).
+
+The TMDBHelper context menu can be triggered from the information screens so the TMDBHelper trakt management options for an item can be used.  This can be set to be the default action for the "settings" button on the information screens in the settings.
+And additionally the show/movie can be browsed in tmdbhelper from the information screens.
+
+There are new context menu items available in various locations, so you can play from the videolist, from the recommended sections in the info screens, search the people/movies from the context menu on their poster/image. Play the season the the tvshowinfo screen, play the episode from the seasoninfo screen so you dont need to go into an episode before a play button can be accessed.
+Additionally there are new play options "Play Kodi Next Episode" (play the next episode for the show after the last episode watched as recorded in your DB), "Play Trakt Next Episode" (play the next episode for the show as returned by trakt progrss (ie newest episode of the show), "Play Trakt Next Episode (Rewatch)" (play the next episode of the show after the last episode watched for a show you are rewatching).
+
+
+There has also been added functionality for Trakt and IMDB lists.  By default the Trakt Lists and IMDB lists are sourced from:
+
+https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/imdb_list.json
+https://bit.ly/2WABGMg
+
+https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/trakt_list.json
+https://bit.ly/3jCkXkw
+
+And the url can be changed in the settings, if the custom url setting is disabled in the settings it will use "imdb_list.json" and "trakt_list.json" in the addon folder:
+"~/.kodi/addons/script.diamondinfo"
+
+If you wish to create your own lists of lists see the two JSON files in the addon folder or look at one of the lists at the urls above for the list format.
+
+These list items will then be available to the plugin and the UI so you can browse trakt/imdb lists (however only shows/movies will be returned)</description>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
+			<screenshot>resources/screenshot1.jpg</screenshot>
+			<screenshot>resources/screenshot2.jpg</screenshot>
+			<screenshot>resources/screenshot3.jpg</screenshot>
+		</assets>
+		<news>6.2.3 - Fix TV Show trailers
+		6.2.2 - Added ability to search using the tvdb_id for "extendedepisodeinfo"
+		6.2.1 - Fix context menu now available for widgets pointing to Diamond Info's video addon items
+		6.2.0 - Added context menu force "player select" to the play button, available via "c" and long press "enter" button
+		</news>
+	</extension>
+</addon>
