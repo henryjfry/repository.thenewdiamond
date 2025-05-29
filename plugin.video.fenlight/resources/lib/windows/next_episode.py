@@ -20,6 +20,7 @@ class NextEpisode(BaseDialog):
 		self.closed = False
 		self.meta = kwargs.get('meta')
 		self.selected = kwargs.get('default_action', 'cancel')
+		self.selected = 'play'
 		self.set_properties()
 
 	def onInit(self):

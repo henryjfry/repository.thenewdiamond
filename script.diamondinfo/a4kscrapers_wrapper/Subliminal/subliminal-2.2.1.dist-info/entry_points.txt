@@ -1,0 +1,27 @@
+[babelfish.language_converters]
+addic7ed = subliminal.converters.addic7ed:Addic7edConverter
+opensubtitlescom = subliminal.converters.opensubtitlescom:OpenSubtitlesComConverter
+shooter = subliminal.converters.shooter:ShooterConverter
+thesubdb = subliminal.converters.thesubdb:TheSubDBConverter
+tvsubtitles = subliminal.converters.tvsubtitles:TVsubtitlesConverter
+opensubtitles = subliminal.converters.opensubtitles:OpenSubtitlesConverter
+
+[console_scripts]
+subliminal = subliminal.cli:subliminal
+
+[subliminal.providers]
+addic7ed = subliminal.providers.addic7ed:Addic7edProvider
+gestdown = subliminal.providers.gestdown:GestdownProvider
+napiprojekt = subliminal.providers.napiprojekt:NapiProjektProvider
+opensubtitles = subliminal.providers.opensubtitles:OpenSubtitlesProvider
+opensubtitlescom = subliminal.providers.opensubtitlescom:OpenSubtitlesComProvider
+opensubtitlescomvip = subliminal.providers.opensubtitlescom:OpenSubtitlesComVipProvider
+opensubtitlesvip = subliminal.providers.opensubtitles:OpenSubtitlesVipProvider
+podnapisi = subliminal.providers.podnapisi:PodnapisiProvider
+tvsubtitles = subliminal.providers.tvsubtitles:TVsubtitlesProvider
+
+[subliminal.refiners]
+hash = subliminal.refiners.hash:refine
+metadata = subliminal.refiners.metadata:refine
+omdb = subliminal.refiners.omdb:refine
+tvdb = subliminal.refiners.tvdb:refine

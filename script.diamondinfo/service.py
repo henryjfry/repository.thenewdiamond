@@ -28,8 +28,12 @@ current_directory = str(getframeinfo(currentframe()).filename.replace(os.path.ba
 sys.path.append(current_directory)
 sys.path.append(current_directory.replace('a4kscrapers_wrapper',''))
 
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Subliminal'))
 
-from a4kscrapers_wrapper import source_tools, babelfish, get_meta
+from a4kscrapers_wrapper import source_tools, get_meta
+import babelfish
 from source_tools import get_guess
 import functools
 

@@ -578,8 +578,12 @@
         <setting id="DOWNLOAD_FOLDER"                type="action" label="DOWNLOAD_FOLDER"
                  action="RunScript(script.diamondinfo,info=setDownloadLocation)"/>
 
-		<setting id="opensubtitles.password" type="text" label="open_subs_password" default="" />
-		<setting id="opensubtitles.username" type="text" label="open_subs_username" default="" />
+		<setting id="opensubtitles.password" type="text" label="open_subs_password" default="" visible="false"/>
+		<setting id="opensubtitles.username" type="text" label="open_subs_username" default="" visible="false"/>
+		<setting id="opensubtitles_org_username" type="text" label="open_subs_org_username" default="" />
+		<setting id="opensubtitles_org_password" type="text" label="open_subs_org_password" default="" />
+		<setting id="opensubtitles_com_username" type="text" label="open_subs_com_username" default="" />
+		<setting id="opensubtitles_com_password" type="text" label="open_subs_com_password" default="" />
 		<setting id="subdl.apikey" label="subdl_apikey" type="text" default=""/>
 		<setting label="stop_downloader" type="action" action="RunScript(script.diamondinfo,info=stop_downloader)"/>
 		<setting label="run_downloader" type="action" action="RunScript(script.diamondinfo,info=run_downloader)"/>

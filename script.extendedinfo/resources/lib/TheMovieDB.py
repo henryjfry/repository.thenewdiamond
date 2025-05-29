@@ -1418,166 +1418,140 @@ def get_imdb_recommendations(imdb_id=None, return_items=False, cache_days=14, fo
 			#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
 			return results
 
-
-
-def get_imdb_watchlist_ids_1(ur_list_str=None, limit=0):
+def get_imdb_list_ids_api(list_str=None, limit=0):
 	import requests
-	list_str=ur_list_str
+	import json
 
-	imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	imdb_response = requests.get(imdb_url, headers=imdb_header)
+	url = "https://api.graphql.imdb.com/"
 
-	from bs4 import BeautifulSoup
+	headers = {
+		"Content-Type": "application/json",
+		"User-Agent": "Mozilla/5.0",
+		"Accept": "application/json"
+	}
 
-	html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
+	jumpToPosition = 1
+	payload = {
+		"operationName": "TitleListMainPage",
+		"variables": {
+			"first": 1000,
+			"isInPace": False,
+			"jumpToPosition": jumpToPosition,  # or 1, 251, 501, etc. for pagination
+			"locale": "en-US",
+			"lsConst": list_str,  # list ID (this one is the IMDb Top 1000)
+			"sort": {
+				"by": "LIST_ORDER",
+				"order": "ASC"
+			}
+		},
+		"extensions": {
+			"persistedQuery": {
+				"version": 1,
+				"sha256Hash": "91a0a474c2da8252e45ba4aaef52a42b18f87a8ffbb0de1db8cf4bbebff26705"
+			}
+		}
+	}
 
-	episode_containers = html_soup.find_all('div', class_='article')
+	response = requests.post(url, headers=headers, data=json.dumps(payload))
 
-	list_container = str(episode_containers[0]).split('{')
-
+	data = response.json()
 	movies = []
-	x = 0
-	for i in list_container:
-		if 'TITLE_TYPE' in str(i):
-			break
-		if 'position' in str(i):
-			#i
-			imdb_dict = str(list_container[x + 1]).split('"')
-			for y in imdb_dict:
-				if 'tt' in str(y):
-					movies.append(y)
-		x = x + 1
+	for i in data['data']['list']['titleListItemSearch']['edges']:
+		movies.append(i['listItem']['id'])
+
+	jumpToPosition = 1
+	total_items = data['data']['list']['items']['total']
+	while jumpToPosition + 1000 < total_items:
+		jumpToPosition = jumpToPosition + 1000
+		payload['variables']['jumpToPosition'] = jumpToPosition
+		response = requests.post(url, headers=headers, data=json.dumps(payload))
+		data = response.json()
+		for i in data['data']['list']['titleListItemSearch']['edges']:
+			movies.append(i['listItem']['id'])
 	return movies
 
 def get_imdb_list_ids(list_str=None, limit=0):
-	import requests
-	import time
-	movies = []
-	curr_time = time.time()
-	if str(list_str) == 'ls_top_1000':
+	Utils.log(list_str)
+	if 'ls_top_1000' == list_str:
 		movies = imdb_top_1000()
 		return movies
-	imdb_url = 'https://www.imdb.com/list/title/'+str(list_str)+'/_ajax'
+	else:
+		Utils.log('get_imdb_list_ids_api')
+		movies = get_imdb_list_ids_api(list_str)
+		return movies
+	import requests
+	page_curr = 1
+	imdb_url = 'https://www.imdb.com/list/'+str(list_str)+'/?page=1'
+	Utils.log(imdb_url)
 	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 	imdb_response = requests.get(imdb_url, headers=imdb_header)
-
-	#from bs4 import BeautifulSoup
-
-	#html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
-
-	#episode_containers = html_soup.find_all('div', class_='article')
-	#try: list_container = str(episode_containers[0]).split('<')
-	#except: list_container = str(html_soup).split('<')
 	movies = []
-	page_containers = None
-	list_container = str(imdb_response.text,).split('<')
+	list_container = str(imdb_response.text).split('"listItem":{"id":"')
 	for i in list_container:
-		if '/title/tt' in str(i):
-			for y in str(i).split('/'):
-				if 'tt' in str(y) and '\n' not in str(y) and '"' not in str(y):
-					if str(y) not in str(movies):
-						movies.append(y)
-						break
-		if 'page-next next-page' in str(i):
-			page_containers = i
-	#page_containers = html_soup.find_all('div', class_='list-pagination')
-
-	while page_containers:
-		url = ''
-		if 'href' in str(page_containers) and 'page=' in str(page_containers) and not 'prev-page' in str(page_containers):
-			for y in str(page_containers).split('"'):
-				if 'ls' in y:
-					url = 'https://www.imdb.com' + str(y).replace('/?page=','/_ajax?page=')
-					break
-				else:
-					url = ''
-		if url != '':
-			page_containers = None
-			imdb_response = requests.get(url)
-			#html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
-			#episode_containers = html_soup.find_all('div', class_='article')
-			#list_container = str(episode_containers[0]).split('<')
-			list_container = str(imdb_response.text).split('<')
-			for i in list_container:
-				if '/title/tt' in str(i):
-					for y in str(i).split('/'):
-						if 'tt' in str(y) and '\n' not in str(y) and '"' not in str(y):
-							if str(y) not in str(movies):
-								movies.append(y)
-								break
-				if 'page-next next-page' in str(i):
-					page_containers = i
-			#page_containers = html_soup.find_all('div', class_='list-pagination')
-		else:
-			page_containers = None
-	del list_container
-	del imdb_response
+		if '","titleText":' in i:
+			y = i.split('","titleText":')[0]
+			movies.append(y)
+	try:
+		page_label = imdb_response.text.split('listPagination')[1].split('>')[1].split('<')[0]
+		page_curr = page_label.split(' of ')[0]
+		page_next = int(page_curr) + 1
+		page_tot = page_label.split(' of ')[1]
+	except:
+		page_next ,page_curr, page_tot = 2, 1, 1
+	while page_next <= int(page_tot):
+		imdb_url = 'https://www.imdb.com/list/'+str(list_str)+'/?page=' + str(page_next)
+		Utils.log(imdb_url)
+		page_curr = page_next
+		imdb_response = requests.get(imdb_url, headers=imdb_header)
+		list_container = str(imdb_response.text).split('"listItem":{"id":"')
+		for i in list_container:
+			if '","titleText":' in i:
+				y = i.split('","titleText":')[0]
+				movies.append(y)
+		page_next = int(page_curr) + 1
 	return movies
 
 def imdb_top_1000():
-	imdb_1 = 'https://www.imdb.com/search/title/?count=250&groups=top_1000&countries=%21in&sort=user_rating'
-	imdb_2 = 'https://www.imdb.com/search/title/?groups=top_1000&countries=%21in&sort=user_rating,desc&count=250&start=251&ref_=adv_nxt'
-	imdb_3 = 'https://www.imdb.com/search/title/?groups=top_1000&countries=%21in&sort=user_rating,desc&count=250&start=501&ref_=adv_nxt'
-	imdb_4 = 'https://www.imdb.com/search/title/?groups=top_1000&countries=%21in&sort=user_rating,desc&count=250&start=751&ref_=adv_nxt'
-
 	import requests
-	imdb_response = requests.get(imdb_1)
-	list_container = str(imdb_response.text,).split('<')
+	import json
 
+	url = 'https://caching.graphql.imdb.com/'
+
+	headers = {'Content-Type': 'application/json','User-Agent': 'Mozilla/5.0','Accept': 'application/json',}
+
+	payload = {
+		"operationName": "AdvancedTitleSearch",
+		"variables": {
+			"after": None,
+			"first": 1000,
+			"locale": "en-US",
+			"originCountryConstraint": {
+				"excludeCountries": ["IN"]
+			},
+			"rankedTitleListConstraint": {
+				"allRankedTitleLists": [{
+					"rankRange": {"max": 1000},
+					"rankedTitleListType": "TOP_RATED_MOVIES"
+				}],
+				"excludeRankedTitleLists": []
+			},
+			"sortBy": "USER_RATING",
+			"sortOrder": "DESC"
+		},
+		"extensions": {
+			"persistedQuery": {
+				"version": 1,
+				"sha256Hash": "be358d7b41add9fd174461f4c8c673dfee5e2a88744e2d5dc037362a96e2b4e4"
+			}
+		}
+	}
+
+	response = requests.post(url, headers=headers, data=json.dumps(payload))
+
+	data = response.json()
 	movies = []
-
-	x = 0
-	for i in list_container:
-		x = x + 1
-		if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
-			if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
-				imdb = i.split('/')[2]
-				title = list_container[x].split('"')[1]
-				year = list_container[x+9].split('(')[1].split(')')[0]
-				movies.append(imdb)
-
-	imdb_response = requests.get(imdb_2)
-	list_container = str(imdb_response.text,).split('<')
-
-	x = 0
-	for i in list_container:
-		x = x + 1
-		if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
-			if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
-				imdb = i.split('/')[2]
-				title = list_container[x].split('"')[1]
-				year = list_container[x+9].split('(')[1].split(')')[0]
-				movies.append(imdb)
-
-	imdb_response = requests.get(imdb_3)
-	list_container = str(imdb_response.text,).split('<')
-
-	x = 0
-	for i in list_container:
-		x = x + 1
-		if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
-			if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
-				imdb = i.split('/')[2]
-				title = list_container[x].split('"')[1]
-				year = list_container[x+9].split('(')[1].split(')')[0]
-				movies.append(imdb)
-
-	imdb_response = requests.get(imdb_4)
-	list_container = str(imdb_response.text,).split('<')
-
-	x = 0
-	for i in list_container:
-		x = x + 1
-		if 'title/tt' in str(i) and 'href' in str(i) and 'Delete' not in str(i):
-			if len(i.split('/')) >= 3 and len(list_container[x].split('"')) >= 2:
-				imdb = i.split('/')[2]
-				title = list_container[x].split('"')[1]
-				year = list_container[x+9].split('(')[1].split(')')[0]
-				movies.append(imdb)
-
-	del list_container
-	del imdb_response
+	for i in data['data']['advancedTitleSearch']['edges']:
+		movies.append(i['node']['title']['id'])
 	return movies
 
 def get_trakt_playback(trakt_type=None):
@@ -1687,6 +1661,13 @@ def get_imdb_userlists():
 	Utils.log(imdb_id)
 	if imdb_id == '':
 		return None
+	imdb_list = get_imdb_userlists_search(imdb_id=imdb_id)
+	return imdb_list
+
+def get_imdb_userlists_search(imdb_id=None):
+	imdb_id = imdb_id
+	if imdb_id == '':
+		return None
 	import requests
 	imdb_url = 'https://www.imdb.com/user/'+str(imdb_id)+'/lists'
 	#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
@@ -1709,7 +1690,7 @@ def get_imdb_userlists():
 			imdb_user_name = html.unescape(i.split('title>')[1]).replace("'s Lists",'')
 			imdb_user_name = 'IMDB - %s Watchlist' % (imdb_user_name)
 			imdb_list['imdb_list'].append({imdb_id: imdb_user_name})
-		
+
 		if 'href="/list/ls' in i:
 			list_number = 'ls' + i.split('href="/list/ls')[1].split('/?r')[0]
 			if list_number in processed_list:
@@ -1718,63 +1699,108 @@ def get_imdb_userlists():
 			#list_name = 'IMDB - ' + i.split('/')[3].replace('">','')
 			list_name = 'IMDB - ' + i.split('View list page for ')[1].split('">')[0]
 			imdb_list['imdb_list'].append({list_number: list_name})
-	
+
 	if len(imdb_list['imdb_list']) == 0:
 		xbmc.log(str(imdb_url)+'===>OPENINFO', level=xbmc.LOGINFO)
 		xbmc.log(str(list_container)+'===>OPENINFO', level=xbmc.LOGINFO)
 		xbmc.log(str(imdb_url)+'===>OPENINFO', level=xbmc.LOGINFO)
 	return imdb_list
 
-def get_imdb_userlists_search(imdb_id=None):
-	imdb_id = imdb_id
-	if imdb_id == '':
-		return None
+
+def get_imdb_watchlist_ids_api(ur_list_str=None, limit=0):
+	list_str = ur_list_str
 	import requests
-	imdb_url = 'https://www.imdb.com/user/'+str(imdb_id)+'/lists'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	imdb_response = requests.get(imdb_url, headers=imdb_header)
-	list_container = str(imdb_response.text,).split('<')
-	imdb_list = {}
-	imdb_list['imdb_list'] = []
-	processed_list = []
-	imdb_user_name = None
-
-	for i in list_container:
-		if 'meta property=\'og:title\' content="' in i:
-			imdb_user_name = i.split('"')[1].replace('Lists - IMDb','')
-			imdb_user_name = 'IMDB - %s Watchlist' % (imdb_user_name)
-			imdb_list['imdb_list'].append({imdb_id: imdb_user_name})
-		if 'title>' in i and imdb_user_name == None:
-			imdb_user_name = html.unescape(i.split('title>')[1]).replace("'s Lists",'')
-			imdb_user_name = 'IMDB - %s Watchlist' % (imdb_user_name)
-			imdb_list['imdb_list'].append({imdb_id: imdb_user_name})
-		
-		if 'href="/list/ls' in i:
-			list_number = 'ls' + i.split('href="/list/ls')[1].split('/?r')[0]
-			if list_number in processed_list:
-				continue
-			processed_list.append(list_number)
-			#list_name = 'IMDB - ' + i.split('/')[3].replace('">','')
-			list_name = 'IMDB - ' + i.split('View list page for ')[1].split('">')[0]
-			imdb_list['imdb_list'].append({list_number: list_name})
-		
-			
-	return imdb_list
-
+	import json
+	url = "https://api.graphql.imdb.com/"
+	headers = {
+		"Content-Type": "application/json",
+		"User-Agent": "Mozilla/5.0",
+		"Accept": "application/json"
+	}
+	jumpToPosition = 1
+	payload = {
+		"operationName": "WatchListPageRefiner",
+		"variables": {
+			"first": 1000,
+			"jumpToPosition": jumpToPosition,  # You can change this to 1, 251, 501, etc.
+			"locale": "en-US",
+			"sort": {
+				"by": "LIST_ORDER",
+				"order": "ASC"
+			},
+			"urConst": list_str
+		},
+		"extensions": {
+			"persistedQuery": {
+				"version": 1,
+				"sha256Hash": "36d16110719e05e125798dec569721248a88835c64a7e853d3a80be8775eea92"
+			}
+		}
+	}
+	response = requests.post(url, headers=headers, data=json.dumps(payload))
+	data = response.json()
+	movies = []
+	for i in data['data']['predefinedList']['titleListItemSearch']['edges']:
+		movies.append(i['listItem']['id'])
+	jumpToPosition = 1
+	total_items = data['data']['predefinedList']['titleListItemSearch']['total']
+	while jumpToPosition + 1000 < total_items:
+		jumpToPosition = jumpToPosition + 1000
+		payload['variables']['jumpToPosition'] = jumpToPosition
+		response = requests.post(url, headers=headers, data=json.dumps(payload))
+		data = response.json()
+		for i in data['data']['predefinedList']['titleListItemSearch']['edges']:
+			movies.append(i['listItem']['id'])
+	return movies
 
 def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
+	if ur_list_str:
+		Utils.log('get_imdb_watchlist_ids_api')
+		movies = get_imdb_watchlist_ids_api(ur_list_str)
+		return movies
+
 	import requests
 	list_str=ur_list_str
 
-	#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
+	page_curr = 1
+	imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist?page=1'
+	Utils.log(imdb_url)
+	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+	imdb_response = requests.get(imdb_url, headers=imdb_header)
+	movies = []
+	list_container = str(imdb_response.text).split('"listItem":{"id":"')
+	for i in list_container:
+		if '","titleText":' in i:
+			y = i.split('","titleText":')[0]
+			movies.append(y)
+	try:
+		page_label = imdb_response.text.split('listPagination')[1].split('>')[1].split('<')[0]
+		page_curr = page_label.split(' of ')[0]
+		page_next = int(page_curr) + 1
+		page_tot = page_label.split(' of ')[1]
+	except:
+		page_next ,page_curr, page_tot = 2, 1, 1
+	while page_next <= int(page_tot):
+		imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist?page=' +  str(page_next)
+		Utils.log(imdb_url)
+		page_curr = page_next
+		imdb_response = requests.get(imdb_url, headers=imdb_header)
+		list_container = str(imdb_response.text).split('"listItem":{"id":"')
+		for i in list_container:
+			if '","titleText":' in i:
+				y = i.split('","titleText":')[0]
+				movies.append(y)
+		page_next = int(page_curr) + 1
+	return movies
+
+"""
+def get_imdb_watchlist_ids_1(ur_list_str=None, limit=0):
+	import requests
+	list_str=ur_list_str
+
 	imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist'
 	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 	imdb_response = requests.get(imdb_url, headers=imdb_header)
-	#from bs4 import BeautifulSoup
-
-	#html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
-
-	#episode_containers = html_soup.find_all('div', class_='article')
 
 	list_container = str(imdb_response.text,).split('<')
 	#xbmc.log(str(list_container)+'===>OPENINFO', level=xbmc.LOGINFO)
@@ -1787,37 +1813,9 @@ def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
 				continue
 			processed_list.append(imdb_number)
 			movies.append(imdb_number)
-		"""
-		if 'IMDbReactWidgets.WatchlistWidget.push' in str(i):
-			list_container2 = i
-			break
-		"""
 
-	"""
-	try: imdb_dict = str(list_container2).split('{')
-	except: return None
-	movies = []
-	x = 0
-	for i in imdb_dict:
-		if 'TITLE_TYPE' in str(i):
-			break
-		if 'position' in str(i):
-			#i
-			imdb_dict2 = str(imdb_dict[x + 1]).split('"')
-			for y in imdb_dict2:
-				if 'tt' in str(y):
-					movies.append(y)
-		x = x + 1
-	try:
-		del list_container
-		del list_container2
-		del imdb_dict2
-		del imdb_dict
-		del imdb_response
-	except:
-		pass
-	"""
 	return movies
+"""
 
 def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):
 	import time, hashlib, xbmcvfs, os
@@ -1904,7 +1902,7 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 
 
 
-
+"""
 def get_imdb_list(list_str=None, limit=0):
 	list_str=list_str
 	from imdb import IMDb, IMDbError
@@ -1935,6 +1933,7 @@ def get_imdb_list(list_str=None, limit=0):
 			break
 		x = x + 1
 	return listitems
+"""
 
 def get_trakt_lists(list_name=None,user_id=None,list_slug=None,sort_by=None,sort_order=None,limit=0):
 	from resources.lib.library import trakt_lists

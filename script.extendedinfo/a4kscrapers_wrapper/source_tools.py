@@ -22,16 +22,12 @@ from requests import Session
 from inspect import currentframe, getframeinfo
 #tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 
-current_directory = str(getframeinfo(currentframe()).filename.replace(os.path.basename(getframeinfo(currentframe()).filename),'').replace('','')[:-1])
-sys.path.append(current_directory)
-sys.path.append(current_directory.replace('a4kscrapers_wrapper',''))
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Subliminal'))
 
-try:
-	import dateutil, babelfish, rebulk, guessit
-	from guessit import api
-except:
-	from a4kscrapers_wrapper import dateutil, babelfish, rebulk, guessit, pkg_resources
-	from a4kscrapers_wrapper.guessit import api
+import dateutil, babelfish, rebulk, guessit
+from guessit import api
 
 USER_AGENTS = [
 	"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.86 Safari/537.36",
@@ -1561,6 +1557,9 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 			for gdx, i in enumerate(guessit_list):
 				idx = i[1]
 				episode_title = i[0].get('episode_title')
+				if episode_title:
+					if episode_title.lower().strip() in ['the','at','of']:
+						episode_title = None
 				#tools.log('pack_episode_title',episode_title)
 				if episode_title:
 					episode_title = re.sub("[\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+", " ", episode_title.lower())

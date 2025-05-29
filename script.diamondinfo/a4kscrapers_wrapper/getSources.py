@@ -37,6 +37,9 @@ from inspect import currentframe, getframeinfo
 ##SUPPRESS MESSAGES
 os.environ['A4KSCRAPERS_TEST_TOTAL'] = '1'
 
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Subliminal'))
 
 try:
 	from importlib import reload as reload_module  # pylint: disable=no-name-in-module
@@ -2280,12 +2283,18 @@ def download_cached_movie(rd_api, download_path, curr_download, torr_id, torr_in
 		exists_flag = True
 
 	if exists_flag == False:
-		try: subs = importlib.import_module("subs")
-		except: subs = reload_module(importlib.import_module("subs"))
-		subs.META = curr_download
-		subs_list = subs.get_subtitles_list(curr_download, download_path)
-		del subs
-		#exit()
+		#try: subs = importlib.import_module("subs")
+		#except: subs = reload_module(importlib.import_module("subs"))
+		#subs.META = curr_download
+		#subs_list = subs.get_subtitles_list(curr_download, download_path)
+		#del subs
+		##exit()
+		import sub_lim
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = download_path, same_folder=False)
+		subs_list = [subs_out_ENG]
+		if subs_out_FORCED:
+			subs_list.append(subs_out_FORCED)
+
 		if len(subs_list) > 0:
 			from subcleaner import clean_file
 			from pathlib import Path
@@ -2399,12 +2408,17 @@ def download_cached_episode(rd_api, download_path, curr_download, torr_id, torr_
 				exists_flag = True
 
 			if exists_flag == False:
-				try: subs = importlib.import_module("subs")
-				except: subs = reload_module(importlib.import_module("subs"))
-				subs.META = curr_download
-				subs_list = subs.get_subtitles_list(info2, download_path)
-				del subs
+				#try: subs = importlib.import_module("subs")
+				#except: subs = reload_module(importlib.import_module("subs"))
+				#subs.META = curr_download
+				#subs_list = subs.get_subtitles_list(info2, download_path)
+				#del subs
 				#exit()
+				import sub_lim
+				subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = download_path, same_folder=False)
+				subs_list = [subs_out_ENG]
+				if subs_out_FORCED:
+					subs_list.append(subs_out_FORCED)
 				if len(subs_list) > 0:
 					from subcleaner import clean_file
 					from pathlib import Path
@@ -2494,12 +2508,17 @@ def download_cached_magnet_pack(rd_api, download_path, curr_download, torr_id, t
 			exists_flag = True
 
 		if exists_flag == False:
-			try: subs = importlib.import_module("subs")
-			except: subs = reload_module(importlib.import_module("subs"))
-			subs.META = curr_download
-			subs_list = subs.get_subtitles_list(info, download_path)
-			del subs
-			#exit()
+			#try: subs = importlib.import_module("subs")
+			#except: subs = reload_module(importlib.import_module("subs"))
+			#subs.META = curr_download
+			#subs_list = subs.get_subtitles_list(info, download_path)
+			#del subs
+			##exit()
+			import sub_lim
+			subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = download_path, same_folder=False)
+			subs_list = [subs_out_ENG]
+			if subs_out_FORCED:
+				subs_list.append(subs_out_FORCED)
 			if len(subs_list) > 0:
 				from subcleaner import clean_file
 				from pathlib import Path

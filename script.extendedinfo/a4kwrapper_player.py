@@ -41,6 +41,10 @@ current_directory = str(getframeinfo(currentframe()).filename.replace(os.path.ba
 sys.path.append(current_directory)
 sys.path.append(current_directory.replace('a4kscrapers_wrapper',''))
 
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Subliminal'))
+
 from resources.lib.library import db_connection
 
 #from resources.lib.Utils import get_JSON_response
@@ -574,12 +578,19 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 	RD_player_subs = xbmcaddon.Addon(addon_ID()).getSetting('RD_player_subs')
 	RD_player_subs_clean = xbmcaddon.Addon(addon_ID()).getSetting('RD_player_subs_clean')
 	if RD_player_subs == True or RD_player_subs == 'true':
-		try: subs = importlib.import_module("subs")
-		except: subs = reload_module(importlib.import_module("subs"))
-		subs.META = meta_info
-		subs_list = subs.get_subtitles_list(meta_info, PTN_download)
-		del subs
-		#exit()
+		#try: subs = importlib.import_module("subs")
+		#except: subs = reload_module(importlib.import_module("subs"))
+		#subs.META = meta_info
+		#subs_list = subs.get_subtitles_list(meta_info, PTN_download)
+		#del subs
+		##exit()
+
+		import sub_lim
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = PTN_download, same_folder=False)
+		subs_list = [subs_out_ENG]
+		if subs_out_FORCED:
+			subs_list.append(subs_out_FORCED)
+
 		if len(subs_list) > 0:
 			if RD_player_subs_clean == True or RD_player_subs_clean == 'true':
 				from subcleaner import clean_file
@@ -615,6 +626,7 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		except: dbid = 0
 
 	#print_log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))
+	runtime = runtime * 60
 	sql_result = cur.execute("SELECT resumeTimeInSeconds,C11 from episode_view where idepisode = " + str(dbid)).fetchall()
 	try: resumeTimeInSeconds = sql_result[0][0]
 	except: resumeTimeInSeconds = ''
@@ -1234,18 +1246,29 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 	RD_player_subs = xbmcaddon.Addon(addon_ID()).getSetting('RD_player_subs')
 	RD_player_subs_clean = xbmcaddon.Addon(addon_ID()).getSetting('RD_player_subs_clean')
 	if RD_player_subs == True or RD_player_subs == 'true':
-		try: subs = importlib.import_module("subs")
-		except: subs = reload_module(importlib.import_module("subs"))
-		subs.META = meta
-		subs_list = subs.get_subtitles_list(meta, PTN_download)
-		del subs
-		#exit()
+		#try: subs = importlib.import_module("subs")
+		#except: subs = reload_module(importlib.import_module("subs"))
+		#subs.META = meta
+		#subs_list = subs.get_subtitles_list(meta, PTN_download)
+		#del subs
+		##exit()
+
+		import sub_lim
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = PTN_download, same_folder=False)
+		subs_list = [subs_out_ENG]
+		if subs_out_FORCED:
+			subs_list.append(subs_out_FORCED)
+
 		if len(subs_list) > 0:
 			if RD_player_subs_clean == True or RD_player_subs_clean == 'true':
 				from subcleaner import clean_file
 				from pathlib import Path
 				for i in subs_list:
-					sub = Path(i)
+					try: 
+						sub = Path(i)
+					except: 
+						clean_file.files_handled = []
+						continue
 					tools.log('CLEANING',sub)
 					clean_file.clean_file(sub)
 				tools.sub_cleaner_log_clean()

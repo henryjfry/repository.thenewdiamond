@@ -287,6 +287,14 @@ def context_play(window=None,tmdb_id=None):
 	Title = json_object['result']['ListItem.Title']
 	Label = json_object['result']['ListItem.Label']
 	remote_id = json_object['result']['ListItem.UniqueID(tmdb)']
+	if remote_id != tmdb_id:
+		remote_id = tmdb_id
+	tmdb_id2 = json_object['result']['ListItem.Property(tmdb_id)']
+	if not tmdb_id or tmdb_id2 != tmdb_id:
+		tmdb_id = tmdb_id2
+	if tmdb_id and remote_id != tmdb_id:
+		remote_id = tmdb_id
+	imdb = json_object['result']['ListItem.UniqueID(imdb)']
 
 	tmdb_id2 = json_object['result']['ListItem.Property(tmdb_id)']
 	if not tmdb_id or tmdb_id2 != tmdb_id:
@@ -693,6 +701,7 @@ def get_file(url):
 def log(txt):
 	if isinstance(txt, str):
 		message = ''+str(addon_ID())+':  %s' % txt
+	xbmc.log(str(message)+'===>Utils.log', level=xbmc.LOGINFO)
 
 def get_browse_dialog(default='', heading='Browse', dlg_type=3, shares='files', mask='', use_thumbs=False, treat_as_folder=False):
 	value = xbmcgui.Dialog().browse(dlg_type, heading, shares, mask, use_thumbs, treat_as_folder, default)
