@@ -17,6 +17,7 @@ from resources.lib.library import trak_auth
 from resources.lib.TheMovieDB import extended_episode_info
 from resources.lib.TheMovieDB import extended_tvshow_info
 from resources.lib.TheMovieDB import get_trakt_playback
+from resources.lib.TheMovieDB import get_imdb_season_episodes
 
 
 from a4kscrapers_wrapper import getSources, real_debrid, tools, source_tools, get_meta, distance
@@ -417,6 +418,23 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 						break
 
 		if (rating == '' or str(rating) == '0.0' or rating == None) or (air_date == '' or air_date == None) or (episode_thumb == '' or episode_thumb == None):
+			tools.log('get_imdb_season_episodes','get_imdb_season_episodes')
+			episodes = get_imdb_season_episodes(imdb_id=imdb_id,season=show_season)
+			for i in episodes:
+				if str(i['episode_number']) == str(show_episode):
+					imdb_SxxExx = 'S' + str(format(int(show_season), '02d')) + 'E' + str(format(int(show_episode), '02d'))
+					imdb_title = i['title']
+					release_date = i.get('release_date', {})
+					year = release_date.get('year')
+					month = release_date.get('month')
+					day = release_date.get('day')
+					if year and month and day:
+						airdate = f'{year:04d}-{month:02d}-{day:02d}'
+					else:
+						airdate = ''
+					imdb_plot = i['plot']
+					imdb_rating = i['rating']
+			"""
 			imdb_url = 'https://www.imdb.com/title/'+str(imdb_id)+'/episodes?season=' + str(show_season)
 			imdb_response = requests.get(imdb_url)
 
@@ -477,6 +495,7 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 
 				#x4 THUMB SIZE
 				#._V1_UY504_CR0,0,896,504_AL_.jpg
+				"""
 		if rating == '' or str(rating) == '0.0' or rating == None:
 			try: rating = info1['vote_average']
 			except: rating = ''

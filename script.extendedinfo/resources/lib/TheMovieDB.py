@@ -1240,7 +1240,68 @@ def get_set_movies(set_id):
 	else:
 		return [], {}
 
+
+def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
+	import json, requests
+	query = """
+	query ($id: ID!) {
+		title(id: $id) {
+			id
+			spoken_languages {
+				name
+			}
+			origin_countries {
+			name
+		}
+		}
+	}
+	"""
+	url = 'https://graph.imdbapi.dev/v1'
+	headers = {
+		"Content-Type": "application/json",
+		"Accept": "application/json",
+		"User-Agent": "Mozilla/5.0"
+	}
+	payload = {"query": query, "variables": {"id": imdb_id}}
+
+	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
+	imdb_url = imdb_url + '/get_imdb_language'
+	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
+	imdb_url = imdb_url.encode('utf-8')
+
+	try: 
+		db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
+	except:
+		db_result = None
+	if db_result:
+		return db_result
+	else:
+		response = requests.post(url, headers=headers, data=json.dumps(payload))
+		if response.status_code != 200:
+			return []
+		data = response.json()
+		title_data = data.get("data", {}).get("title", {})
+		langs = title_data.get("spoken_languages", [])
+		countries = title_data.get("origin_countries", [])
+		country = countries[0] if countries else ""
+		language_list = [lang.get("name") for lang in langs if "name" in lang]
+
+		results = language_list
+		if country == 'US' or country == 'UK' and results[1] == 'English':
+			results[0] = 'English'
+
+		Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
+		if not results:
+			return []
+		return results
+
 def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
+
+	if 1==1:
+		Utils.log('get_imdb_language_api')
+		results = get_imdb_language_api(imdb_id=imdb_id, cache_days=cache_days, folder='IMDB')
+		return results
 
 	import time, hashlib, xbmcvfs, os
 	import re, json, requests, html
@@ -1309,7 +1370,199 @@ def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
 		#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
 		return results
 
+def get_imdb_season_episodes(imdb_id, season, first=99):
+	import requests
+	import json
+	url = "https://api.graphql.imdb.com/"
+	headers = {
+		"Content-Type": "application/json",
+		"Accept": "application/json",
+		"User-Agent": "Mozilla/5.0"
+	}
+	query = """
+	query SeasonEpisodes($id: ID!, $season: String!, $first: Int!, $originalTitleText: Boolean!) {
+		title(id: $id) {
+			episodes {
+				episodes(
+					first: $first
+					filter: { includeSeasons: [$season] }
+					sort: { by: EPISODE_THEN_RELEASE, order: ASC }
+				) {
+					edges {
+						node {
+							id
+							titleText {
+								text
+							}
+							plot {
+								plotText {
+									plaidHtml(showOriginalTitleText: $originalTitleText)
+								}
+							}
+							releaseDate {
+								year
+								month
+								day
+							}
+							ratingsSummary {
+								aggregateRating
+								voteCount
+							}
+							primaryImage {
+								url
+							}
+							series {
+								displayableEpisodeNumber {
+									episodeNumber {
+										displayableProperty {
+											value {
+												plainText
+											}
+										}
+									}
+									displayableSeason {
+										displayableProperty {
+											value {
+												plainText
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	"""
+	variables = {
+		"id": imdb_id,
+		"season": str(season),
+		"first": first,
+		"originalTitleText": originalTitleText
+	}
+	payload = {
+		"query": query,
+		"variables": variables
+	}
+	response = requests.post(url, headers=headers, data=json.dumps(payload))
+	response.raise_for_status()
+	data = response.json()
+	edges = data.get("data", {}).get("title", {}).get("episodes", {}).get("episodes", {}).get("edges", [])
+	episodes = []
+	for edge in edges:
+		node = edge.get("node", {})
+		displayable_episode_number = node.get("series", {}).get("displayableEpisodeNumber", {})
+		episode_number = displayable_episode_number.get("episodeNumber", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
+		season_number = displayable_episode_number.get("displayableSeason", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
+		plot_html = node.get("plot", {}).get("plotText", {}).get("plaidHtml")
+		episodes.append({
+			"id": node.get("id"),
+			"title": node.get("titleText", {}).get("text"),
+			"plot": plot_html,
+			"release_date": node.get("releaseDate"),
+			"rating": node.get("ratingsSummary", {}).get("aggregateRating"),
+			"vote_count": node.get("ratingsSummary", {}).get("voteCount"),
+			"image_url": node.get("primaryImage", {}).get("url"),
+			"episode_number": episode_number,
+			"season_number": season_number
+		})
+	return episodes
+
+def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):
+	import requests
+	import json
+	url = "https://api.graphql.imdb.com/"
+	headers = {
+		"Content-Type": "application/json",
+		"Accept": "application/json",
+		"User-Agent": "Mozilla/5.0"
+	}
+	base_title_card = """
+	fragment BaseTitleCard on Title {
+		id
+		titleText {
+			text
+		}
+		primaryImage {
+			url
+		}
+		releaseYear {
+			year
+		}
+		titleType {
+			text
+		}
+	}
+	"""
+	query = f"""
+	query MoreLikeThis($id: ID!) {{
+		title(id: $id) {{
+			...TMD_MoreLikeThis
+		}}
+	}}
+	fragment TMD_MoreLikeThis on Title {{
+		id
+		isAdult
+		moreLikeThisTitles(first: 12) {{
+			edges {{
+				node {{
+					...BaseTitleCard
+				}}
+			}}
+		}}
+	}}
+	{base_title_card}
+	"""
+	variables = {
+		"id": imdb_id
+	}
+	payload = {
+		"query": query,
+		"variables": variables
+	}
+
+	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
+	imdb_url2 = 'https://www.imdb.com/title/' + str(imdb_id) + '[2]'
+	imdb_url = str(imdb_url + '/get_imdb_recommendations').encode('utf-8')
+	imdb_url2 = str(imdb_url2 + '/get_imdb_recommendations').encode('utf-8')
+	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
+	try: 
+		db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
+	except:
+		db_result = None
+	if db_result:
+		return db_result
+	else:
+		response = requests.post(url, headers=headers, data=json.dumps(payload))
+		if response.status_code != 200:
+			raise Exception(f"Query failed with status code {response.status_code}: {response.text}")
+		data = response.json()
+		edges = data.get("data", {}).get("title", {}).get("moreLikeThisTitles", {}).get("edges", [])
+		movies = [edge["node"]["id"] for edge in edges if "node" in edge and "id" in edge["node"]]
+
+		if return_items == False:
+			results2 = movies
+			Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
+			if not results2:
+				return []
+			return results2
+		else:
+			results = get_imdb_watchlist_items(movies=movies, limit=0, imdb_url=imdb_url.decode('utf-8'))
+			Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
+			if not results:
+				return []
+			return results
+
+
 def get_imdb_recommendations(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):
+
+	if 1==1:
+		Utils.log('get_imdb_recommendations_api')
+		movies = get_imdb_recommendations_api(imdb_id, return_items=return_items, cache_days=cache_days, folder='IMDB')
+		return movies
 
 	import time, hashlib, xbmcvfs, os
 	import re, json, requests, html
@@ -2101,11 +2354,11 @@ def google_similar(search_str=None, search_year=None, cache_days=7, folder = 'Go
 	test_query = 'If you like %s' % (search_str) 
 
 	params = {
-		"q": query,          # query example
-		"hl": "en",          # language
-		"gl": "uk",          # country of the search, UK -> United Kingdom
-		#"start": 0,          # number page by default up to 0
-		#"num": 10          # parameter defines the maximum number of results to return.
+		"q": query,		  # query example
+		"hl": "en",		  # language
+		"gl": "uk",		  # country of the search, UK -> United Kingdom
+		#"start": 0,		  # number page by default up to 0
+		#"num": 10		  # parameter defines the maximum number of results to return.
 	} 
 
 	import time, hashlib, xbmcvfs, os
@@ -2148,11 +2401,11 @@ def google_similar(search_str=None, search_year=None, cache_days=7, folder = 'Go
 			response2 = "".join(c for c in response2 if ord(c)<128)
 			#xbmc.log(str(response2.split('<body ')[1])+'===>2OPENINFO', level=xbmc.LOGINFO)
 			params = {
-				"q": query1,          # query example
-				"hl": "en",          # language
-				"gl": "uk",          # country of the search, UK -> United Kingdom
-				#"start": 0,          # number page by default up to 0
-				#"num": 10          # parameter defines the maximum number of results to return.
+				"q": query1,		  # query example
+				"hl": "en",		  # language
+				"gl": "uk",		  # country of the search, UK -> United Kingdom
+				#"start": 0,		  # number page by default up to 0
+				#"num": 10		  # parameter defines the maximum number of results to return.
 			} 
 			response = requests.get("https://www.google.com/search", params=params, headers=headers)
 			response2 = response.text.encode().decode('unicode_escape').encode().decode("utf-8", "replace")
