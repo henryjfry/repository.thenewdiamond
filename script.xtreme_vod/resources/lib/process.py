@@ -151,6 +151,94 @@ def start_info_actions(infos, params):
 			return wm.open_video_list(search_str=search_str, mode='search')
 
 
+		elif info == 'setmagnet_list':
+			Utils.show_busy()
+			new_location = xbmcgui.Dialog().browse(0, "Select Magnet Path Location", "video", defaultt=Utils.ADDON_DATA_PATH)
+			new_location = os.path.join(new_location, 'magnet_list.txt')
+			xbmcaddon.Addon(addon_ID()).setSetting('magnet_list', new_location)
+			Utils.hide_busy()
+			
+
+		elif info == 'downloader_progress':
+			Utils.hide_busy()
+			curr_percent = xbmcgui.Window(10000).getProperty('curr_percent')
+			percent_done = xbmcgui.Window(10000).getProperty('percent_done')
+			seconds_remaining = xbmcgui.Window(10000).getProperty('seconds_remaining')
+			minutes_remaining = xbmcgui.Window(10000).getProperty('minutes_remaining')
+			hours_remaining = xbmcgui.Window(10000).getProperty('hours_remaining')
+			num_lines_remaining = xbmcgui.Window(10000).getProperty('num_lines_remaining')
+			msg = 'File_num_lines_remaining = %s || percent_done = %s || hours_remaining = %s ' % (str(num_lines_remaining),str(percent_done),str(hours_remaining))
+			xbmcgui.Dialog().notification(heading='downloader_progress', message=msg, icon=xbmcaddon.Addon().getAddonInfo('icon'), time=5000, sound=True)
+			xbmc.log(str(msg), level=xbmc.LOGINFO)
+
+		elif info == 'run_downloader':
+			Utils.hide_busy()
+			import vod_main
+			stop_downloader = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list').replace('magnet_list.txt','stop_downloader')
+			if os.path.exists(stop_downloader):
+				os.remove(stop_downloader)
+
+			magnet_list = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list')
+			download_path = xbmcaddon.Addon(addon_ID()).getSetting('download_path')
+			xbmc.log(str('run_downloader___')+'run_downloader===>OPENINFO', level=xbmc.LOGINFO)
+			return vod_main.run_downloader(magnet_list, download_path)
+			
+		elif info == 'stop_downloader':
+			Utils.hide_busy()
+			#filename = "stop_downloader"
+			stop_downloader = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list').replace('magnet_list.txt','stop_downloader')
+			open(stop_downloader, 'w')
+			xbmc.log(str('stop_downloader__')+'stop_downloader===>OPENINFO', level=xbmc.LOGINFO)
+			
+	
+		elif info == 'manage_download_list':
+			magnet_list = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list')
+			from tools import read_all_text
+			lines = read_all_text(magnet_list).split('\n')
+			curr_percent = xbmcgui.Window(10000).getProperty('curr_percent')
+			percent_done = xbmcgui.Window(10000).getProperty('percent_done')
+			seconds_remaining = xbmcgui.Window(10000).getProperty('seconds_remaining')
+			minutes_remaining = xbmcgui.Window(10000).getProperty('minutes_remaining')
+			hours_remaining = xbmcgui.Window(10000).getProperty('hours_remaining')
+			num_lines_remaining = xbmcgui.Window(10000).getProperty('num_lines_remaining')
+			msg = 'File_num_lines_remaining = %s || percent_done = %s || hours_remaining = %s ' % (str(num_lines_remaining),str(percent_done),str(hours_remaining))
+			xbmcgui.Dialog().notification(heading='downloader_progress', message=msg, icon=xbmcaddon.Addon().getAddonInfo('icon'), time=5000, sound=True)
+			labels = []
+			for line in lines:
+				try: new_line = eval(line)
+				except: continue
+				labels.append(str('%s | %s | %s' % (new_line['download_type'].upper(), unquote(new_line['file_name']), unquote(new_line['release_title']))))
+			indexes = []
+			indexes = xbmcgui.Dialog().multiselect(heading='Select Lines to Delete',options=labels)
+			#xbmc.log(str(indexes)+'indexes===>OPENINFO', level=xbmc.LOGINFO)
+			if indexes == None:
+				Utils.hide_busy()
+				return
+			if len(indexes) == 0:
+				Utils.hide_busy()
+				return
+			file1 = open(magnet_list, "w")
+			file1.write("\n")
+			file1.close()
+			idx = 0
+			for line in lines:
+				try: 
+					new_line = eval(line)
+				except: 
+					continue
+				if idx in indexes:
+					idx = idx + 1
+					continue
+					#xbmc.log(str(line)+'indexes===>OPENINFO', level=xbmc.LOGINFO)
+				else:
+					xbmc.log(str(str('%s | %s | %s' % (new_line['download_type'].upper(), unquote(new_line['file_name']), unquote(new_line['release_title']))))+str(idx+1)+'_KEEP_DOWNLOAD===>OPENINFO', level=xbmc.LOGINFO)
+					file1 = open(magnet_list, "a") 
+					file1.write(str(line))
+					file1.write("\n")
+					file1.close()
+					idx = idx + 1
+			Utils.hide_busy()
+
 
 		elif info == 'reopen_window':
 			reopen_window()

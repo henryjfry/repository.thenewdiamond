@@ -270,6 +270,7 @@ class PlayerMonitor(xbmc.Player):
 		trakt_meta['tv_title']=self.player_meta['tv_title']
 		trakt_meta['season']=self.player_meta['tv_season']
 		trakt_meta['episode']=self.player_meta['tv_episode']
+		trakt_meta['user_slug']=self.player_meta['user_slug']
 		self.setProperty('trakt_scrobble_details',json.dumps(trakt_meta, sort_keys=True))
 
 	def get_trakt_scrobble_details(self):
@@ -329,12 +330,28 @@ class PlayerMonitor(xbmc.Player):
 				test_var = response.json()
 			except: 
 				response = None
-		if percent == 1 or percent >= 84: 
-			log(str(response.json()))
-		try:
-			return response.json()
-		except:
-			response = 'ERROR'
+		#if response.status_code == 429:
+		#	log(str(response)+'===>trakt_scrobble_title____OPEN_INFO')
+		#	log(str(response.headers)+'===>trakt_scrobble_title____OPEN_INFO')
+		while response.status_code == 429:
+			try: 
+				retry_after = response.headers.json()['Retry-After']
+			except: 
+				try: retry_after = int(response.headers['Retry-After'])
+				except: retry_after = 0
+			if retry_after > 0 and retry_after <= 10:
+				xbmc.sleep(retry_after * 1000)
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+		if percent <= 1 or percent >= 84: 
+			try: 
+				test = response.json()
+				if response.status_code <= 299:
+					log('TRAKT_SCROBBLE_ACTION_SUCCESS')
+				else:
+					log(str(response)+'===>TRAKT_SCROBBLE_ACTION_FAIL____OPEN_INFO')
+			except: 
+				log(str(response)+'===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
+				response = 'ERROR'
 			return response
 
 	def trakt_scrobble_tmdb(self, tmdb_id, percent, action=None):
@@ -426,10 +443,25 @@ class PlayerMonitor(xbmc.Player):
 			count = count + 1
 			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
 			test_var = response.json()
+		#if response.status_code == 429:
+		#	log(str(response)+'===>trakt_scrobble_tmdb____OPEN_INFO')
+		#	log(str(response.headers)+'===>trakt_scrobble_tmdb____OPEN_INFO')
+		while response.status_code == 429:
+			try: 
+				retry_after = response.headers.json()['Retry-After']
+			except: 
+				try: retry_after = int(response.headers['Retry-After'])
+				except: retry_after = 0
+			if retry_after > 0 and retry_after <= 10:
+				xbmc.sleep(retry_after * 1000)
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
-				log('TRAKT_SCROBBLE_ACTION_SUCCESS')
+				if response.status_code <= 299:
+					log('TRAKT_SCROBBLE_ACTION_SUCCESS')
+				else:
+					log(str(response)+'===>TRAKT_SCROBBLE_ACTION_FAIL____OPEN_INFO')
 			except: 
 				log(str(response)+'===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 				response = 'ERROR'
@@ -489,12 +521,27 @@ class PlayerMonitor(xbmc.Player):
 		while response == None and count < 20:
 			count = count + 1
 			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+		#if response.status_code == 429:
+		#	log(str(response)+'===>trakt_scrobble_tv____OPEN_INFO')
+		#	log(str(response.headers)+'===>trakt_scrobble_tv____OPEN_INFO')
+		while response.status_code == 429:
+			try: 
+				retry_after = response.headers.json()['Retry-After']
+			except: 
+				try: retry_after = int(response.headers['Retry-After'])
+				except: retry_after = 0
+			if retry_after > 0 and retry_after <= 10:
+				xbmc.sleep(retry_after * 1000)
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
-				log('TRAKT_SCROBBLE_ACTION_SUCCESS')
+				if response.status_code <= 299:
+					log('TRAKT_SCROBBLE_ACTION_SUCCESS')
+				else:
+					log(str(response)+'===>TRAKT_SCROBBLE_ACTION_FAIL____OPEN_INFO')
 			except: 
-				log(str(response)+'===>TRAKT_SCROBBLE_TV____OPEN_INFO')
+				log(str(response)+'===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 				response = 'ERROR'
 		return response
 
@@ -565,6 +612,11 @@ class PlayerMonitor(xbmc.Player):
 
 			if json_speed == 1 and self.speed == 0 and self.trakt_watched != 'true':
 				self.trakt_watched = self.trakt_meta_scrobble(action='start')
+				xbmc.sleep(1000)
+				response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
+				if response.status_code == 204:
+					self.trakt_watched = self.trakt_meta_scrobble(action='start')
+				
 				#log('SPEED_0_PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 				return_flag = True
 			if int(self.speed) == 1 and json_speed == 0 and self.trakt_watched != 'true':
@@ -582,6 +634,10 @@ class PlayerMonitor(xbmc.Player):
 			#log('PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 			if self.trakt_watched == False:
 				self.trakt_watched  = self.trakt_meta_scrobble(action='start')
+				xbmc.sleep(1000)
+				response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
+				if response.status_code == 204:
+					self.trakt_watched = self.trakt_meta_scrobble(action='start')
 				#log('PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 			self.speed_time = time.time()
 			return_flag = True
@@ -602,6 +658,10 @@ class PlayerMonitor(xbmc.Player):
 			#log('SCROBBLE_TIME_PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 			if self.trakt_watched == False:
 				self.trakt_watched  = self.trakt_meta_scrobble(action='start')
+				xbmc.sleep(1000)
+				response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
+				if response.status_code == 204:
+					self.trakt_watched = self.trakt_meta_scrobble(action='start')
 				#log('SCROBBLE_TIME_PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 			self.scrobble_time = int(time.time()) + 10 * 60
 			return_flag = True
@@ -826,6 +886,7 @@ class PlayerMonitor(xbmc.Player):
 		self.player_meta['tv_episode'] = None
 		self.player_meta['movie_year'] = None
 		self.player_meta['timestamp'] = None
+		self.player_meta['user_slug'] = trakt_slug = xbmcaddon.Addon().getSetting('trakt_slug')
 
 		count = 0
 		while player.isPlaying()==1 and count < 7501:

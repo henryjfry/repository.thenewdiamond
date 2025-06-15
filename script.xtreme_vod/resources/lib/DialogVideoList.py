@@ -902,6 +902,8 @@ def get_tmdb_window(window_type):
 							self.type = 'tv'
 						if len(i.get('tmdb','0')) > 0:
 							if self.type == 'movie':
+								if 'tt' in str(i['tmdb']):
+									i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
 								response1 = TheMovieDB.single_movie_info(i['tmdb'])
 								response1['original_title'] = i['title']
 								response1['title'] = i['title']
@@ -909,6 +911,8 @@ def get_tmdb_window(window_type):
 								response1['stream_id'] = i['stream_id']
 								response1['path'] = i['full_url']
 							else:
+								if 'tt' in str(i['tmdb']):
+									i['tmdb'] = TheMovieDB.get_show_tmdb_id(imdb_id=i['tmdb'])
 								response1 = TheMovieDB.single_tvshow_info(i['tmdb'])
 								response1['series_id'] = i['series_id']
 						else:
@@ -1008,6 +1012,8 @@ def get_tmdb_window(window_type):
 							search_str.append(i)
 							if search_string.lower() in str(i['title']).lower():
 								if len(i.get('tmdb','0')) > 0:
+									if 'tt' in str(i['tmdb']):
+										i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
 									response1 = TheMovieDB.single_movie_info(i['tmdb'])
 									response1['original_title'] = i['title']
 									response1['title'] = i['title']
@@ -1055,6 +1061,8 @@ def get_tmdb_window(window_type):
 							search_str.append(i)
 							if search_string.lower() in str(i['title']).lower():
 								if len(i.get('tmdb','0')) > 0:
+									if 'tt' in str(i['tmdb']):
+										i['tmdb'] = TheMovieDB.get_show_tmdb_id(imdb_id=i['tmdb'])
 									response1 = TheMovieDB.single_tvshow_info(i['tmdb'])
 									response1['series_id'] = i['series_id']
 								else:

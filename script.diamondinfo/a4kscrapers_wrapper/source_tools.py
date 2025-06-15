@@ -1741,6 +1741,14 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 					result_dict['pack_paths'].append(matched_episodes[i][0])
 					result_dict['concat'].append({'meta_source': meta_source, 'tmdb': meta['tmdb'],'season': meta['episode_meta']['season'], 'episode_number': i, 'pack_path': pack_path, 'alt_ep_num': guess_episode })
 
+			if type(guess_episode) == type([]):
+				for x in guess_episode:
+					if not x in result_dict['episode_numbers']:
+						result_dict['episode_numbers'].append(x)
+						result_dict['alt_ep_num'].append(guess_episode)
+						result_dict['pack_paths'].append(pack_path)
+						result_dict['concat'].append({'meta_source': meta_source, 'tmdb': meta['tmdb'],'season': meta['episode_meta']['season'], 'episode_number': i, 'pack_path': pack_path, 'alt_ep_num': guess_episode })
+
 		result_dict_sorted = {}
 		result_dict_sorted['episode_numbers'] = []
 		result_dict_sorted['pack_paths'] = []

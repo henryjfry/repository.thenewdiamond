@@ -64,18 +64,18 @@
 		<setting label="SETUP SOURCES.XML" type="action" action="RunScript(script.extendedinfo,info=setup_sources)"/>
 		<setting label="Library Auto Sync" type="action" action="RunScript(script.extendedinfo,info=auto_library)"/>
 		<setting id="last_played_tmdb_helper"           type="text"   default="false" visible="false"/>
-	</category>
 
+	</category--->
 
 	<category label="DOWNLOADS">
 
 
-		<setting id="magnet_list"                type="text"   label="magnet_list" default="/home/osmc/.kodi/userdata/addon_data/script.extendedinfo/magnet_list.txt"
+		<setting id="magnet_list"                type="text"   label="magnet_list" default="/home/osmc/.kodi/userdata/addon_data/script.xtreme_vod/magnet_list.txt"
                  enable="false"
                  visible="false"/>
 
         <setting id="magnet_list"                type="action" label="magnet_list"
-                 action="RunScript(script.extendedinfo,info=setmagnet_list)"/>
+                 action="RunScript(script.xtreme_vod,info=setmagnet_list)"/>
 
 		<setting id="download_path"                type="text"   label="download_path" default="/home/osmc/Movies"
                  enable="false"
@@ -85,20 +85,23 @@
                  enable="false"
                  visible="false"/>
         <setting id="DOWNLOAD_FOLDER"                type="action" label="DOWNLOAD_FOLDER"
-                 action="RunScript(script.extendedinfo,info=setDownloadLocation)"/>
+                 action="RunScript(script.xtreme_vod,info=setDownloadLocation)"/>
 
-		<setting id="opensubtitles.password" type="text" label="open_subs_password" default="" />
-		<setting id="opensubtitles.username" type="text" label="open_subs_username" default="" />
+		<setting id="opensubtitles.password" type="text" label="open_subs_password" default="" visible="false"/>
+		<setting id="opensubtitles.username" type="text" label="open_subs_username" default="" visible="false"/>
+		<setting id="opensubtitles_org_username" type="text" label="open_subs_org_username" default="" />
+		<setting id="opensubtitles_org_password" type="text" label="open_subs_org_password" default="" />
+		<setting id="opensubtitles_com_username" type="text" label="open_subs_com_username" default="" />
+		<setting id="opensubtitles_com_password" type="text" label="open_subs_com_password" default="" />
 		<setting id="subdl.apikey" label="subdl_apikey" type="text" default=""/>
-		<setting label="stop_downloader" type="action" action="RunScript(script.extendedinfo,info=stop_downloader)"/>
-		<setting label="run_downloader" type="action" action="RunScript(script.extendedinfo,info=run_downloader)"/>
-		<setting label="manage_download_list" type="action" action="RunScript(script.extendedinfo,info=manage_download_list)"/>
+		<setting label="stop_downloader" type="action" action="RunScript(script.xtreme_vod,info=stop_downloader)"/>
+		<setting label="run_downloader" type="action" action="RunScript(script.xtreme_vod,info=run_downloader)"/>
+		<setting label="manage_download_list" type="action" action="RunScript(script.xtreme_vod,info=manage_download_list)"/>
 
 
 
 
 
-	</category--->
-
+	</category>
 
 </settings>

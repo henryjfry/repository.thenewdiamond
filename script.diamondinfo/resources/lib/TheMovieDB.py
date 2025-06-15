@@ -1287,9 +1287,12 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 		country = countries[0] if countries else ""
 		language_list = [lang.get("name") for lang in langs if "name" in lang]
 
-		results = language_list
-		if country == 'US' or country == 'UK' and results[1] == 'English':
-			results[0] = 'English'
+		#results = language_list
+		#if country[] == 'US' or country == 'UK' and results[1] == 'English':
+		#	results[0] = 'English'
+
+		if 'English' in language_list and country['name'] in ['United States', 'United Kingdom']:
+			language_list = ['English'] + [l for l in language_list if l != 'English']
 
 		Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
 		if not results:
@@ -1440,7 +1443,7 @@ def get_imdb_season_episodes(imdb_id, season, first=99):
 		"id": imdb_id,
 		"season": str(season),
 		"first": first,
-		"originalTitleText": originalTitleText
+		"originalTitleText": True
 	}
 	payload = {
 		"query": query,
@@ -1452,22 +1455,24 @@ def get_imdb_season_episodes(imdb_id, season, first=99):
 	edges = data.get("data", {}).get("title", {}).get("episodes", {}).get("episodes", {}).get("edges", [])
 	episodes = []
 	for edge in edges:
-		node = edge.get("node", {})
-		displayable_episode_number = node.get("series", {}).get("displayableEpisodeNumber", {})
-		episode_number = displayable_episode_number.get("episodeNumber", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
-		season_number = displayable_episode_number.get("displayableSeason", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
-		plot_html = node.get("plot", {}).get("plotText", {}).get("plaidHtml")
-		episodes.append({
-			"id": node.get("id"),
-			"title": node.get("titleText", {}).get("text"),
-			"plot": plot_html,
-			"release_date": node.get("releaseDate"),
-			"rating": node.get("ratingsSummary", {}).get("aggregateRating"),
-			"vote_count": node.get("ratingsSummary", {}).get("voteCount"),
-			"image_url": node.get("primaryImage", {}).get("url"),
-			"episode_number": episode_number,
-			"season_number": season_number
-		})
+		try: 
+			node = edge.get("node", {})
+			displayable_episode_number = node.get("series", {}).get("displayableEpisodeNumber", {})
+			episode_number = displayable_episode_number.get("episodeNumber", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
+			season_number = displayable_episode_number.get("displayableSeason", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
+			plot_html = node.get("plot", {}).get("plotText", {}).get("plaidHtml")
+			episodes.append({
+				"id": node.get("id"),
+				"title": node.get("titleText", {}).get("text"),
+				"plot": plot_html,
+				"release_date": node.get("releaseDate"),
+				"rating": node.get("ratingsSummary", {}).get("aggregateRating"),
+				"vote_count": node.get("ratingsSummary", {}).get("voteCount"),
+				"image_url": node.get("primaryImage", {}).get("url"),
+				"episode_number": episode_number,
+				"season_number": season_number
+			})
+		except: continue
 	return episodes
 
 def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):

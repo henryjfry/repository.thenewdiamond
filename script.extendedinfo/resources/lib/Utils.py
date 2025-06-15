@@ -256,6 +256,8 @@ def hide_busy():
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
 		xbmc.executebuiltin('Dialog.Close(busydialog)')
+		xbmc.executebuiltin('Dialog.Close(ExtendedProgressDialog,True)')
+		xbmc.executebuiltin('Dialog.Close(progressdialog,True)')
 	else:
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialog)')

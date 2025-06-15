@@ -36,6 +36,11 @@ if XBMC_RUNNING:
 	window_stack_enable = xbmcaddon.Addon().getSetting('window_stack_enable')
 	trakt_kodi_mode = xbmcaddon.Addon().getSetting('trakt_kodi_mode')
 	imdb_recommendations = xbmcaddon.Addon().getSetting('imdb_recommendations')
+	
+	fanart_api_key = xbmcaddon.Addon().getSetting('fanart_api')
+	fanart_api = fanart_api_key
+	tmdb_API_key = xbmcaddon.Addon().getSetting('tmdb_api')
+	tmdb_api = tmdb_API_key
 
 	xtreme_codes_server_path = xbmcaddon.Addon().getSetting('xtreme_codes.base_url')
 	xtreme_codes_username = xbmcaddon.Addon().getSetting('xtreme_codes.username')
@@ -69,36 +74,45 @@ else:
 	output_folder = ''
 	local_xml_m3u = False
 	startup_local_xml_m3u = False
+	output_folder_select = None
 	for i in f:
 		if 'xtreme_codes.base_url' in str(i):
-			xtreme_codes_server_path = i.split('xtreme_codes.base_url">')[1].split('<')[0]
+			try:xtreme_codes_server_path = i.split('xtreme_codes.base_url"')[1].split('>')[1].split('<')[0]
+			except: pass
 		if 'xtreme_codes.username' in str(i):
-			xtreme_codes_username = i.split('xtreme_codes.username">')[1].split('<')[0]
+			xtreme_codes_username = i.split('xtreme_codes.username"')[1].split('>')[1].split('<')[0]
 		if 'xtreme_codes.password' in str(i):
-			xtreme_codes_password = i.split('xtreme_codes.password">')[1].split('<')[0]
-		if 'xtreme_wanted_groups' in str(i):
-			xtreme_wanted_groups = i.split('xtreme_wanted_groups">')[1].split('<')[0]
-		if 'channel_order' in str(i):
-			channel_order = i.split('channel_order">')[1].split('<')[0]
-		if 'output_folder' in str(i):
-			output_folder = i.split('output_folder">')[1].split('<')[0]
-		if 'output_folder_string' in str(i):
-			output_folder_string = i.split('output_folder_string">')[1].split('<')[0]
-		if 'output_folder_select' in str(i):
-			output_folder_select = i.split('output_folder_select">')[1].split('<')[0]
+			xtreme_codes_password = i.split('xtreme_codes.password"')[1].split('>')[1].split('<')[0]
+		if 'xtreme_wanted_groups"' in str(i):
+			xtreme_wanted_groups = i.split('xtreme_wanted_groups"')[1].split('>')[1].split('<')[0]
+		if 'channel_order"' in str(i):
+			channel_order = i.split('channel_order"')[1].split('>')[1].split('<')[0]
+		if 'output_folder"' in str(i):
+			output_folder = i.split('output_folder"')[1].split('>')[1].split('<')[0]
+		if 'output_folder_string"' in str(i):
+			output_folder_string = i.split('output_folder_string"')[1].split('>')[1].split('<')[0]
+		if 'output_folder_select"' in str(i):
+			output_folder_select = i.split('output_folder_select"')[1].split('>')[1].split('<')[0]
+
+		if 'fanart_api"' in str(i):
+			fanart_api_key = i.split('fanart_api"')[1].split('>')[1].split('<')[0]
+			fanart_api = fanart_api_key
+		if 'tmdb_api"' in str(i):
+			tmdb_API_key = i.split('tmdb_api"')[1].split('>')[1].split('<')[0]
+			tmdb_api = tmdb_API_key
 
 		if output_folder_select == 'Type Folder Path':
 			output_folder = output_folder_string
 
-		if 'local_xml_m3u' in str(i):
-			local_xml_m3u = i.split('local_xml_m3u">')[1].split('<')[0]
+		if 'local_xml_m3u"' in str(i):
+			local_xml_m3u = i.split('local_xml_m3u"')[1].split('>')[1].split('<')[0]
 		if local_xml_m3u == 'true':
 			local_xml_m3u = True
 		elif local_xml_m3u == 'false':
 			local_xml_m3u = False
 
-		if 'startup_local_xml_m3u' in str(i):
-			startup_local_xml_m3u = i.split('startup_local_xml_m3u">')[1].split('<')[0]
+		if 'startup_local_xml_m3u"' in str(i):
+			startup_local_xml_m3u = i.split('startup_local_xml_m3u"')[1].split('>')[1].split('<')[0]
 		if startup_local_xml_m3u == 'true':
 			startup_local_xml_m3u = True
 		elif startup_local_xml_m3u == 'false':
