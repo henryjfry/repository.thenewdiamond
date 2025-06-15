@@ -1294,6 +1294,7 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 		if 'English' in language_list and country['name'] in ['United States', 'United Kingdom']:
 			language_list = ['English'] + [l for l in language_list if l != 'English']
 
+		results = language_list
 		Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
 		if not results:
 			return []
