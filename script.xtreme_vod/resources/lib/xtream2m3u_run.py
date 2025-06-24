@@ -2,12 +2,26 @@ import json
 import os
 import urllib.parse
 
+from inspect import currentframe, getframeinfo
+
+import sys
+folder = str(os.path.split(str(getframeinfo(currentframe()).filename))[0])
+current_directory = os.path.dirname(os.path.dirname(folder))
+sys.path.append(current_directory)
+
+from resources.lib import Utils
+#Utils.tools_log(current_directory)
+
+current_directory2 = os.path.join(current_directory,'Subliminal')
+sys.path.append(current_directory2)
+#Utils.tools_log(current_directory2)
+
 import requests
 from fake_useragent import UserAgent
 from flask import Flask, Response, request
 from requests.exceptions import SSLError
 
-import sys
+
 
 from time import sleep
 from flask import Flask
@@ -24,14 +38,9 @@ thread_event = threading.Event()
 
 app = Flask(__name__)
 
-from inspect import currentframe, getframeinfo
-
-folder = str(os.path.split(str(getframeinfo(currentframe()).filename))[0])
-current_directory = os.path.dirname(os.path.dirname(folder))
-sys.path.append(current_directory)
 
 
-from resources.lib import Utils
+
 
 #Utils.tools_log(Utils.xtreme_codes_server_path)
 #Utils.tools_log(Utils.xtreme_codes_username)

@@ -508,8 +508,7 @@ def get_tmdb_window(window_type):
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=item_id)
 				xbmc.executebuiltin('Dialog.Close(all,true)')
-				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=self.listitem.getProperty('series_id'), search_str = self.search_str,episode=episode, season=season, window=self)
-
+				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=None, search_str = self.search_str,episode=episode, season=season, window=self)
 
 			if selection_text == 'Trailer':
 				from resources.lib import YouTube
@@ -1003,7 +1002,7 @@ def get_tmdb_window(window_type):
 						#Utils.tools_log(i)
 						#try:
 						if 1==1:
-							if len(i.get('tmdb','0')) > 0:
+							if len(str(i.get('tmdb','0'))) > 0:
 								if 'tt' in str(i['tmdb']):
 									i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
 								tmdb_list.append(int(i['tmdb']))
