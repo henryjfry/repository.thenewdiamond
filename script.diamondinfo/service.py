@@ -1077,6 +1077,11 @@ class PlayerMonitor(xbmc.Player):
 				languages = ['English']
 			else:
 				languages = ['English']
+		try: 
+			languages[0] == 'English'
+		except: 
+			tools.log('EXCEPTION!!_making_ENGLISH_DEFAULT')
+			languages = ['English']
 		video_info = player.getVideoInfoTag()
 		player_subs_lang_fix = xbmcaddon.Addon(addon_ID()).getSetting('player_subs_lang_fix')
 		if player_subs_lang_fix == True or player_subs_lang_fix == 'true':

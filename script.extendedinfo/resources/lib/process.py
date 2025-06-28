@@ -78,6 +78,11 @@ def start_info_actions(infos, params):
 			getSources.enable_disable_providers_kodi()
 			Utils.hide_busy()
 
+		if info == 'get_imdb_language':
+			from resources.lib import TheMovieDB
+			lang = TheMovieDB.get_imdb_season_episodes('tt14269590', season=1)
+			log(lang)
+
 		if info == 'url_encode_test':
 			meta_filters = "{'filters' : {'sort': 'desc', 'sort_string': 'revenue', 'with_genres': ['action','comedy'], 'without_genres': ['horror','reality','documentary'], 'with_original_language': 'en', 'vote_count.gte': '10', 'vote_count.lte': '10 000 000', 'lower_year': '1990', 'upper_year': '1999' } }"
 			meta_filters = "{'filters' : {'sort': 'desc', 'sort_string': 'popularity', 'without_genres': ['horror','reality','documentary'], 'genre_mode': 'OR', 'with_original_language': 'en' } }"

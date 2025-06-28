@@ -1241,36 +1241,38 @@ def get_set_movies(set_id):
 		return [], {}
 
 
+
 def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
-	import json, requests
-	query = """
-	query ($id: ID!) {
-		title(id: $id) {
-			id
-			spoken_languages {
-				name
-			}
-			origin_countries {
-			name
-		}
-		}
-	}
-	"""
-	url = 'https://graph.imdbapi.dev/v1'
+	import requests
+	import json
+	url = "https://api.graphql.imdb.com/"
 	headers = {
 		"Content-Type": "application/json",
 		"Accept": "application/json",
 		"User-Agent": "Mozilla/5.0"
 	}
-	payload = {"query": query, "variables": {"id": imdb_id}}
-
-	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
-	imdb_url = imdb_url + '/get_imdb_language'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-
-	imdb_url = imdb_url.encode('utf-8')
-
-	try: 
+	query = """
+	query ($id: ID!) {
+		title(id: $id) {
+			spokenLanguages {
+				spokenLanguages {
+					id
+					text
+				}
+			}
+			countriesOfOrigin {
+				countries(limit: 1) {
+					id
+				}
+			}
+		}
+	}
+	"""
+	variables = {"id": imdb_id}
+	payload = {"query": query, "variables": variables}
+	imdb_url = ('https://www.imdb.com/title/' + str(imdb_id) + '/get_imdb_language').encode('utf-8')
+	imdb_header = headers
+	try:
 		db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
 	except:
 		db_result = None
@@ -1281,19 +1283,13 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 		if response.status_code != 200:
 			return []
 		data = response.json()
-		title_data = data.get("data", {}).get("title", {})
-		langs = title_data.get("spoken_languages", [])
-		countries = title_data.get("origin_countries", [])
-		country = countries[0] if countries else ""
-		language_list = [lang.get("name") for lang in langs if "name" in lang]
-
-		#results = language_list
-		#if country[] == 'US' or country == 'UK' and results[1] == 'English':
-		#	results[0] = 'English'
-
-		if 'English' in language_list and country['name'] in ['United States', 'United Kingdom']:
-			language_list = ['English'] + [l for l in language_list if l != 'English']
-
+		spoken = data.get("data", {}).get("title", {}).get("spokenLanguages", {}).get("spokenLanguages", [])
+		countries = data.get("data", {}).get("title", {}).get("countriesOfOrigin", {}).get("countries", [])
+		language_list = [lang.get("text") for lang in spoken if "text" in lang]
+		english_speaking_countries = {"US", "UK", "GB", "CA", "AU", "NZ", "IE", "ZA"}
+		country_id = countries[0].get("id") if countries else ""
+		if "English" in language_list and country_id in english_speaking_countries:
+			language_list = ["English"] + [l for l in language_list if l != "English"]
 		results = language_list
 		Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
 		if not results:

@@ -610,6 +610,7 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		if subs_out_FORCED:
 			subs_list.append(subs_out_FORCED)
 
+		#tools.log(subs_list)
 		if len(subs_list) > 0:
 			if RD_player_subs_clean == True or RD_player_subs_clean == 'true':
 				from subcleaner import clean_file
