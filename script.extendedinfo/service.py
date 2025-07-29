@@ -333,7 +333,11 @@ class PlayerMonitor(xbmc.Player):
 		#if response.status_code == 429:
 		#	log(str(response)+'===>trakt_scrobble_title____OPEN_INFO')
 		#	log(str(response.headers)+'===>trakt_scrobble_title____OPEN_INFO')
+		x = 0
 		while response.status_code == 429:
+			x = x + 1
+			if x == 20:
+				return 'ERROR'
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
@@ -342,6 +346,8 @@ class PlayerMonitor(xbmc.Player):
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
 				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			elif retry_after > 0:
+				log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
@@ -446,7 +452,11 @@ class PlayerMonitor(xbmc.Player):
 		#if response.status_code == 429:
 		#	log(str(response)+'===>trakt_scrobble_tmdb____OPEN_INFO')
 		#	log(str(response.headers)+'===>trakt_scrobble_tmdb____OPEN_INFO')
+		x = 0
 		while response.status_code == 429:
+			x = x + 1
+			if x == 20:
+				return 'ERROR'
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
@@ -455,6 +465,8 @@ class PlayerMonitor(xbmc.Player):
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
 				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			elif retry_after > 0:
+				log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
@@ -524,7 +536,11 @@ class PlayerMonitor(xbmc.Player):
 		#if response.status_code == 429:
 		#	log(str(response)+'===>trakt_scrobble_tv____OPEN_INFO')
 		#	log(str(response.headers)+'===>trakt_scrobble_tv____OPEN_INFO')
+		x = 0
 		while response.status_code == 429:
+			x = x + 1
+			if x == 20:
+				return 'ERROR'
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
@@ -533,6 +549,8 @@ class PlayerMonitor(xbmc.Player):
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
 				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			elif retry_after > 0:
+				log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()

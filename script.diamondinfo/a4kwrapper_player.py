@@ -605,7 +605,7 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		##exit()
 
 		import sub_lim
-		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = PTN_download, same_folder=False)
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = PTN_download, same_folder=False, meta_info=meta)
 		subs_list = [subs_out_ENG]
 		if subs_out_FORCED:
 			subs_list.append(subs_out_FORCED)
@@ -1274,7 +1274,7 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 		##exit()
 
 		import sub_lim
-		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = PTN_download, same_folder=False)
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = PTN_download, same_folder=False, meta_info=meta)
 		subs_list = [subs_out_ENG]
 		if subs_out_FORCED:
 			subs_list.append(subs_out_FORCED)

@@ -1116,6 +1116,7 @@ def get_trakt_data(url='', cache_days=14, folder='Trakt'):
 
 def trakt_refresh_all():
 	try:
+		trakt_watched_tv_movies_cleanup()
 		trakt_watched_movies(cache_days=0.00001)
 		trakt_watched_movies_full()
 		trakt_watched_tv_shows_full()
@@ -1126,8 +1127,10 @@ def trakt_refresh_all():
 		trakt_trending_movies(cache_days=0.00001)
 		trakt_collection_shows(cache_days=0.00001)
 		trakt_collection_movies(cache_days=0.00001)
+		trakt_watched_tv_movies_cleanup()
 	except TypeError: 
 		pass
+	
 
 def trakt_watched_movies(cache_days=None):
 	#import requests
@@ -1231,6 +1234,50 @@ def trakt_watched_tv_shows_full():
 		con.commit()
 	cur.close()
 	con.close()
+
+
+
+def trakt_watched_tv_movies_cleanup():
+	import requests
+	import json
+	headers = trak_auth()
+	url = 'https://api.trakt.tv/sync/history'
+	remove_url = 'https://api.trakt.tv/sync/history/remove'
+
+	params = {'limit': 100}
+	response = requests.get(url, headers=headers, params=params)
+	total_items = response.headers.get('X-Pagination-Item-Count')
+	response = response.json()
+	#xbmc.log(str(total_items)+'===>OPEN_INFO', level=xbmc.LOGFATAL)
+
+	last_movie = None
+	curr_movie = None
+	history_id_list = []
+	history_items_list = []
+
+	for i in response:
+		if i['type'] == 'episode':
+			deets = '%s - S%sE%s' % (str(i['show']['ids']['slug']), str(i['episode']['season']), str(i['episode']['number']))
+		else:
+			deets = '%s' % (str(i['movie']['ids']['slug']))
+		curr_movie = deets
+		if curr_movie == last_movie:
+			#xbmc.log(deets+'===>OPEN_INFO', level=xbmc.LOGFATAL)
+			#xbmc.log(str(i['id'])+'===>OPEN_INFO', level=xbmc.LOGFATAL)
+			history_id_list.append(i['id'])
+			history_items_list.append(deets)
+		last_movie = deets
+	# Payload with the history ID
+	if len(history_id_list) > 0:
+		payload = {"ids": history_id_list}
+		response = requests.post(remove_url, headers=headers, json=payload)
+		response = response.json()
+		xbmc.log(str(response)+'===>OPEN_INFO', level=xbmc.LOGFATAL)
+		xbmc.log(str(history_items_list)+'===>OPEN_INFO', level=xbmc.LOGFATAL)
+	return
+	#url = 'https://api.trakt.tv/sync/watched/movies'
+	#response = get_trakt_data(url=url, cache_days=0.000001)
+	#xbmc.log(str('TRAKT_SYNC_TV_library_auto_tv')+'===>OPEN_INFO', level=xbmc.LOGFATAL)
 
 """
 def trakt_watched_get(mode=None):

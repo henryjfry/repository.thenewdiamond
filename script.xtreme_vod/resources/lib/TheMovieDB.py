@@ -52,7 +52,8 @@ def handle_tmdb_multi_search(results=[]):
 		elif item['media_type'] == 'tv':
 			listitem = handle_tmdb_tvshows([item])[0]
 		else:
-			listitem = handle_tmdb_people([item])[0]
+			try: listitem = handle_tmdb_people([item])[0]
+			except: continue
 		listitems.append(listitem)
 	return listitems
 

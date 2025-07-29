@@ -475,7 +475,7 @@ def get_tmdb_window(window_type):
 				listitems += ['Trakt remove playback entry']
 			listitems += ['TasteDive Similar Items']
 			listitems += ['In Trakt Lists']
-			listitems += ['Googles Similar Items']
+			#listitems += ['Googles Similar Items']
 			if xbmcaddon.Addon(addon_ID()).getSetting('RD_bluray_player') == 'true' or xbmcaddon.Addon(addon_ID()).getSetting('RD_bluray_player2')  == 'true':
 				listitems += ['Eject/Load DVD']
 

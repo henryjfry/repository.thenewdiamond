@@ -330,7 +330,11 @@ class PlayerMonitor(xbmc.Player):
 		#if response.status_code == 429:
 		#	tools_log(str(response)+'===>trakt_scrobble_title____OPEN_INFO')
 		#	tools_log(str(response.headers)+'===>trakt_scrobble_title____OPEN_INFO')
+		x = 0
 		while response.status_code == 429:
+			x = x + 1
+			if x == 20:
+				return 'ERROR'
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
@@ -339,6 +343,8 @@ class PlayerMonitor(xbmc.Player):
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
 				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			elif retry_after > 0:
+				log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
@@ -443,7 +449,11 @@ class PlayerMonitor(xbmc.Player):
 		#if response.status_code == 429:
 		#	tools_log(str(response)+'===>trakt_scrobble_tmdb____OPEN_INFO')
 		#	tools_log(str(response.headers)+'===>trakt_scrobble_tmdb____OPEN_INFO')
+		x = 0
 		while response.status_code == 429:
+			x = x + 1
+			if x == 20:
+				return 'ERROR'
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
@@ -452,6 +462,8 @@ class PlayerMonitor(xbmc.Player):
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
 				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			elif retry_after > 0:
+				log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
@@ -531,7 +543,11 @@ class PlayerMonitor(xbmc.Player):
 		#if response.status_code == 429:
 		#	tools_log(str(response)+'===>trakt_scrobble_tv____OPEN_INFO')
 		#	tools_log(str(response.headers)+'===>trakt_scrobble_tv____OPEN_INFO')
+		x = 0
 		while response.status_code == 429:
+			x = x + 1
+			if x == 20:
+				return 'ERROR'
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
@@ -540,6 +556,8 @@ class PlayerMonitor(xbmc.Player):
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
 				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			elif retry_after > 0:
+				log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
 			try: 
 				test = response.json()
@@ -861,7 +879,10 @@ class PlayerMonitor(xbmc.Player):
 
 		self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
 		tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started_onPlayBackStarted===>script.xtreme_vod_started')
-		
+
+		if self.player_meta['script.xtreme_vod_player'] == False:
+			tools_log('EXIT__script.xtreme_vod_player')
+			return
 
 		script_xtreme_vod_running = addon_ID_short()+'_running'
 		if self.player_meta['script.xtreme_vod_started'] == True:
@@ -1257,6 +1278,10 @@ class PlayerMonitor(xbmc.Player):
 			self.speed_time = int(time.time()) + 5
 
 		tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started===>script.xtreme_vod_started')
+		if self.player_meta['script.xtreme_vod_player'] == False:
+			tools_log('EXIT__script.xtreme_vod_player')
+			return
+
 		count = 0
 
 		try: 
@@ -1291,6 +1316,7 @@ class PlayerMonitor(xbmc.Player):
 			return
 
 		tools_log(str(self.player_meta['script.xtreme_vod_player'])+'script.xtreme_vod_player===>OPENINFO')
+
 		#xbmc.sleep(1000 * 15)
 		response = TheMovieDB.get_watching_user()
 		#tools_log(response)
@@ -1536,7 +1562,7 @@ class CronJobMonitor(Thread):
 			tools_log(str('CronJobMonitor_STARTED_script.xtreme_vod_service_started'))
 			self.curr_time = datetime.datetime.now().replace(minute=0,second=0, microsecond=0).timestamp()
 			if int(time.time()) > self.next_time:# and library_auto_sync == True:  # Scheduled time has past so lets update
-				#library_update_period = int(xbmcaddon.Addon(library.addon_ID()).getSetting('library_sync_hours'))
+				library_update_period = int(xml_m3u_sync_hours)
 				self.next_time = self.curr_time + xml_m3u_sync_hours*60*60
 				tools_log(str('process.auto_sync'))
 				#process.auto_library()
@@ -1557,8 +1583,8 @@ class CronJobMonitor(Thread):
 				tools_log(str('process.auto_clean_cache(days=30)'))
 				process.auto_clean_cache(days=30)
 				self.next_clean_time = self.curr_time + 24*60*60
-			#tools_log(str('self.xbmc_monitor.waitForAbort(self.poll_time)'))
-			#tools_log(str(self.poll_time))
+			tools_log(str('self.xbmc_monitor.waitForAbort(self.poll_time)'))
+			tools_log(str(self.poll_time))
 			self.xbmc_monitor.waitForAbort(self.poll_time)
 		del self.xbmc_monitor
 

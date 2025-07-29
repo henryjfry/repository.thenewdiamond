@@ -75,6 +75,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
 	subs_out = os.path.basename(file_path)
 	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.FOREIGN.PARTS.srt')
 	subs_out_ENG = os.path.splitext(subs_out)[0] + str('.ENG.srt')
+	subs_out_HEARING = os.path.splitext(subs_out)[0] + str('.ENG.srt')
 
 	if same_folder == True:
 		out_directory = dir_source
@@ -99,18 +100,35 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
 
 	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 
-	tools.log(subtitles[video])
+	tools.log(len(subtitles[video]))
+	tools.log('len(subtitles[video])')
 	high_score_forced = 0
+	high_score_HEARING = 0
 	high_score = 0
 	curr_subs_forced = None
+	curr_subs_HEARING = None
 	curr_subs = None
-	for i in subtitles[video]:
+
+	if len(subtitles[video]) > 50:
+		#from subliminal.utils import compute_score  # or your own version
+
+		# Pre-sort by computed score or any criteria
+		filtered = [s for s in subtitles[video] if not s.hearing_impaired]
+
+		# Only take the top 100 best-matching subtitles
+		limited_subtitles = filtered[:99]
+		subtitles = limited_subtitles
+	else:
+		limited_subtitles = subtitles[video]
+
+	tools.log(limited_subtitles)
+	for i in limited_subtitles:
 		if 'parts' in str(i.__dict__) or 'foreign' in str(i.__dict__):
 			#tools.log()
 			#tools.log(i)
 			curr_score_forced = compute_score(i, video)
 			if curr_score_forced > high_score_forced:
-				high_score_forced = curr_score
+				high_score_forced = curr_score_forced
 				curr_subs_forced = i
 				curr_subs_forced_dict = i.__dict__
 				try:
@@ -131,6 +149,18 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
 				try:
 					if curr_subs_dict.get('filename','') == '':
 						curr_subs_dict['filename'] = curr_subs_dict['file_name']
+				except:
+					tools.log('except')
+					#tools.log(curr_subs_dict)
+		elif not ('parts' in str(i.__dict__) or 'foreign' in str(i.__dict__)) and 'HEARING' in str(i.__dict__):
+			curr_score_HEARING = compute_score(i, video)
+			if curr_score_HEARING > high_score_HEARING:
+				high_score_HEARING = curr_score_HEARING
+				curr_subs_HEARING = i
+				curr_subs_HEARING_dict = i.__dict__
+				try:
+					if curr_subs_HEARING_dict.get('filename','') == '':
+						curr_subs_HEARING_dict['filename'] = curr_subs_HEARING_dict['file_name']
 				except:
 					tools.log('except')
 					#tools.log(curr_subs_dict)
@@ -180,6 +210,33 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
 			subs_out_ENG = subs_out_ENG.replace(file_type,'.srt')
 	else:
 		subs_out_ENG = None
+
+	if subs_out_ENG == None and curr_subs_HEARING:
+		tools.log(curr_subs_HEARING_dict)
+		try:
+			if curr_subs_HEARING_dict.get('page_link',None):
+				tools.log(os.path.join(curr_subs_HEARING_dict['page_link'], curr_subs_HEARING_dict['filename']))
+			else:
+				tools.log(curr_subs_HEARING_dict['filename'])
+		except:
+			tools.log('except')
+			#tools.log(curr_subs_HEARING_dict)
+		download_subtitles([curr_subs_HEARING])
+		try: file_type =  os.path.splitext(curr_subs_HEARING_dict['filename'])[1]
+		except: file_type = '.srt'
+		subs_out_HEARING = subs_out_HEARING.replace('.srt',file_type)
+		subs_out_HEARING = os.path.join(out_directory, subs_out_HEARING)
+		with open(subs_out_HEARING, 'w') as f:
+			f.write(curr_subs_HEARING.text)
+		if file_type == '.ass':
+			subs_hash.ass_to_srt(subs_out_HEARING, subs_out_HEARING.replace(file_type,'.srt'))
+			subs_out_HEARING = subs_out_HEARING.replace(file_type,'.srt')
+		subs_out_ENG = subs_out_HEARING
+	else:
+		subs_out_HEARING = None
+		
+
+
 	return subs_out_ENG, subs_out_FORCED
 	"""
 	#save_subtitles(video, curr_subs,directory='/home/osmc/.kodi/userdata/addon_data/script.xtreme_vod/temp')

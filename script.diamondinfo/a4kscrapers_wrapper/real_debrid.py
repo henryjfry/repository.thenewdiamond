@@ -342,6 +342,10 @@ class RealDebrid:
 		else:
 			response = self.session.get(url, headers=self._get_headers(), timeout=5)
 
+		try: response_test = response.text
+		except AttributeError:
+			tools.log(response)
+			return None
 		if 'infringing_file' in str(response.text) or '{files} is missing' in str(response.text) or 'too_manny_requests' in str(response.text) or 'unknown_ressource' in str(response.text):
 			tools.log('infringing_file__{files} is missing_unknown_ressource')
 			return None

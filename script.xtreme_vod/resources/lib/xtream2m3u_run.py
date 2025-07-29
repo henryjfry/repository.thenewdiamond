@@ -431,7 +431,10 @@ def startBackgroundTask():
 def generate_m3u(mode=None):
 	if thread_event.is_set() == False and mode == None:
 		Utils.tools_log('startBackgroundTask')
-		startBackgroundTask()
+		Utils.tools_log('generate_m3u(mode=startup)')
+		generate_m3u(mode='startup')
+		Utils.tools_log('startBackgroundTask')
+		return startBackgroundTask()
 	# Get parameters from the URL
 	url = Utils.xtreme_codes_server_path
 	username = Utils.xtreme_codes_username

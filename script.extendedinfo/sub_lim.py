@@ -19,7 +19,7 @@ except:
 
 
 cache_directory = tools.ADDON_USERDATA_PATH
-def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
+def get_subs_file(cache_directory=None, video_path = None, same_folder=True, meta_info=None):
 	import subliminal
 	from babelfish import Language
 	from subliminal import download_best_subtitles, region, save_subtitles, scan_videos, Video, list_subtitles, compute_score, download_subtitles
@@ -96,11 +96,23 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
 	else:
 		out_directory = temp_directory
 
-	video = Video.fromname(file_path)
+	#video = Video.fromname(file_path)
 	#if not http_file:
 	#	video = refiners.hash.refine(video, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],languages={Language('eng')})
 
-	video = refiners.tmdb.refine(video, apikey='2cfb516815547f7a9fb865409fe94da2')
+	#tools.log(meta_info)
+	try:
+		video = Video.fromname(file_path)
+		video = refiners.tmdb.refine(video, apikey='2cfb516815547f7a9fb865409fe94da2')
+	except:
+		if meta_info['mediatype'] == 'movie':
+			from subliminal.video import Movie
+			video = Movie(name=meta_info['title'],title=meta_info['title'], year=meta_info['year'])
+		else:
+			from subliminal.video import Episode
+			video = Episode(name=meta_info['tvshow'], season=meta_info['season'], episode=meta_info['episode'])
+		video = refiners.tmdb.refine(video, apikey='2cfb516815547f7a9fb865409fe94da2')
+
 
 	video.__dict__['size'] = filesize
 	video.__dict__['hashes'] = hashes
@@ -114,14 +126,29 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True):
 
 	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 
-	tools.log(subtitles[video])
+	tools.log(len(subtitles[video]))
+	tools.log('len(subtitles[video])')
 	high_score_forced = 0
 	high_score_HEARING = 0
 	high_score = 0
 	curr_subs_forced = None
-	curr_score_HEARING = None
+	curr_subs_HEARING = None
 	curr_subs = None
-	for i in subtitles[video]:
+
+	if len(subtitles[video]) > 50:
+		#from subliminal.utils import compute_score  # or your own version
+
+		# Pre-sort by computed score or any criteria
+		filtered = [s for s in subtitles[video] if not s.hearing_impaired]
+
+		# Only take the top 100 best-matching subtitles
+		limited_subtitles = filtered[:99]
+		subtitles = limited_subtitles
+	else:
+		limited_subtitles = subtitles[video]
+
+	tools.log(limited_subtitles)
+	for i in limited_subtitles:
 		if 'parts' in str(i.__dict__) or 'foreign' in str(i.__dict__):
 			#tools.log()
 			#tools.log(i)

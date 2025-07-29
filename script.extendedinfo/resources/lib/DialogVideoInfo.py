@@ -77,7 +77,7 @@ def get_movie_window(window_type):
 						if str(i['title']) not in str(self.data['similar']):
 							self.data['similar'].append(i)
 					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
-					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True)
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (float(k['Popularity']) if str(k['Popularity']).strip() else 0, float(k['Votes']) if str(k['Votes']).strip() else 0), reverse=True)
 
 				#if imdb_similar:
 				#	for i in imdb_similar:
@@ -148,7 +148,7 @@ def get_movie_window(window_type):
 						if str(i['title']) not in str(self.data['similar']):
 							self.data['similar'].append(i)
 					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
-					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True)
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (float(k['Popularity']) if str(k['Popularity']).strip() else 0, float(k['Votes']) if str(k['Votes']).strip() else 0), reverse=True)
 
 				self.listitems = [
 					(250, sets_thread.listitems),

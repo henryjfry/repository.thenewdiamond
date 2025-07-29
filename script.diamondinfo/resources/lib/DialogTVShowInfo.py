@@ -72,7 +72,7 @@ def get_tvshow_window(window_type):
 					for i in imdb_similar:
 						if str(i['title']) not in str(self.data['similar']):
 							self.data['similar'].append(i)
-					self.data['similar'] = set(sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True))
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (float(k['Popularity']) if str(k['Popularity']).strip() else 0, float(k['Votes']) if str(k['Votes']).strip() else 0), reverse=True)
 
 				self.listitems = [
 					(250, self.data['seasons']),
@@ -126,7 +126,7 @@ def get_tvshow_window(window_type):
 					for i in imdb_similar:
 						if str(i['title']) not in str(self.data['similar']):
 							self.data['similar'].append(i)
-					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True)
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: (float(k['Popularity']) if str(k['Popularity']).strip() else 0, float(k['Votes']) if str(k['Votes']).strip() else 0), reverse=True)
 
 				self.listitems = [
 					(250, self.data['seasons']),

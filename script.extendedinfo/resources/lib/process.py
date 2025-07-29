@@ -31,6 +31,12 @@ def start_info_actions(infos, params):
 		Utils.show_busy()
 		data = [], ''
 
+
+		if info == 'trakt_cleanup':
+			xbmc.log(str('trakt_watched_tv_movies_cleanup')+'===>OPENINFO', level=xbmc.LOGINFO)
+			from resources.lib.library import trakt_watched_tv_movies_cleanup
+			trakt_watched_tv_movies_cleanup()
+
 		if info == 'rss_test':
 			from a4kscrapers_wrapper import get_meta
 			get_meta.get_rss_cache()
@@ -80,7 +86,7 @@ def start_info_actions(infos, params):
 
 		if info == 'get_imdb_language':
 			from resources.lib import TheMovieDB
-			lang = TheMovieDB.get_imdb_season_episodes('tt14269590', season=1)
+			lang = TheMovieDB.get_imdb_language('tt2191671')
 			log(lang)
 
 		if info == 'url_encode_test':
@@ -1546,6 +1552,86 @@ def start_info_actions(infos, params):
 				file1.writelines(new_file)
 				file1.close()
 				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','player') , 'select.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''    def select_standard_player(self, uid=None):
+        """
+        Select from a list of players
+        Set a UID to only display players for a single plugin
+        """
+        player_list = self.get_players_list_by_uid(uid)
+        if 'episode' in str(self.players[0]['mode']):
+            db_type = 'episode'
+        else:
+            db_type = 'movie'
+        for idx, i in enumerate(self.players): ## PATCH
+            if 'auto_cloud' in str(i['name']).lower() and db_type != 'movie': ## PATCH
+                auto_var = idx ## PATCH
+                break ## PATCH
+            if 'Auto_Torr_Scrape' in str(i['name']) and db_type == 'movie': ## PATCH
+                auto_var = idx ## PATCH
+                break ## PATCH
+        x = Dialog().select(self.header, [i.listitem for i in player_list], autoclose=30000, preselect=auto_var, useDetails=self.detailed) ## PATCH
+        return -1 if x == -1 else player_list[x].posx
+
+
+    def select_combined_player(self):
+        """
+        Combine players from same plugin into a subfolder before selecting
+        Used to reduce overall size of player list to specific plugins
+        """
+        player_list = self.players_combined_list
+        if 'episode' in str(self.players[0]['mode']):
+            db_type = 'episode'
+        else:
+            db_type = 'movie'
+        for idx, i in enumerate(self.players): ## PATCH
+            if 'auto_cloud' in str(i['name']).lower() and db_type != 'movie': ## PATCH
+                auto_var = idx ## PATCH
+                break ## PATCH
+            if 'Auto_Torr_Scrape' in str(i['name']) and db_type == 'movie': ## PATCH
+                auto_var = idx ## PATCH
+                break ## PATCH
+        x = Dialog().select(self.header, [i.listitem for i in player_list], autoclose=30000, preselect=auto_var, useDetails=self.detailed) ## PATCH
+        if x == -1:
+            return -1
+        x = self.select_standard_player(player_list[x].uid)
+        return self.select_combined_player() if x == -1 else x
+
+    def select(self, combined=False):
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if '    def select_standard_player(self, uid=None):' in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if '    def select(self, combined=False):' in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+
 			Utils.hide_busy()
 
 
