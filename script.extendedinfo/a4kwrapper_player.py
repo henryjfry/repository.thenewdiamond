@@ -18,6 +18,7 @@ from resources.lib.TheMovieDB import extended_episode_info
 from resources.lib.TheMovieDB import extended_tvshow_info
 from resources.lib.TheMovieDB import get_trakt_playback
 from resources.lib.TheMovieDB import get_imdb_season_episodes
+from resources.lib.TheMovieDB import imdb_base_title_card
 
 
 from a4kscrapers_wrapper import getSources, real_debrid, tools, source_tools, get_meta, distance
@@ -396,10 +397,19 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		try: runtime_list.append(info.get('runtime',0))
 		except: pass
 		
+		try: 
+			runtime = min(runtime_list)
+		except:
+			try: 
+				result = imdb_base_title_card(imdb_id=imdb_id)
+				runtime_list.append(result['data']['title']['runtime']['seconds']/60)
+			except: pass
+		
 		#try: runtime_list = [tmdb_response[1].get('runtime',0),extended_tvshow_info_response[0].get('duration','0').split(' -')[0], info1.get('runtime',0), info.get('runtime',0)]
 		#except: runtime_list = [tmdb_response[1].get('runtime',0),extended_tvshow_info_response[0].get('duration','0').split(' -')[0], info.get('runtime',0)]
 		runtime_list = [i for i in   [int(x or 0) for x in runtime_list]   if i != 0]
-		runtime = min(runtime_list)
+		try:runtime = min(runtime_list)
+		except: runtime = 30
 		#if runtime2 < runtime and runtime2 != 0:
 		#	runtime = runtime2
 		episode_thumb = info['still_path']
@@ -535,6 +545,10 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		unrestrict = True
 	else:
 		unrestrict = False
+	if 'downloader=True' in str(sys.argv):
+		downloader = True
+	else:
+		downloader = False
 
 	if 'prescrape=True' in str(sys.argv):
 		if not 'http' in str(PTN_download):
@@ -555,9 +569,12 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		if not 'http' in str(PTN_download):
 			print_log(str('Not found_CLOUD'),'===>OPENINFO')
 			##AUTO_SCRAPE_TORRENTS
-			
-			PTN_download, new_meta = getSources.auto_scrape_rd(meta,select_dialog=select_dialog,unrestrict=unrestrict)
-			
+
+			if downloader == True:
+				getSources.auto_scrape_rd(meta,select_dialog=select_dialog,unrestrict=unrestrict,downloader=downloader)
+				return
+			else:
+				PTN_download, new_meta = getSources.auto_scrape_rd(meta,select_dialog=select_dialog,unrestrict=unrestrict,downloader=downloader)
 			if not 'http' in str(PTN_download):
 				print_log(str('Not found_AUTO_SCRAPE'),'===>OPENINFO')
 				return
@@ -1230,13 +1247,20 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 		select_dialog = True
 	else:
 		select_dialog = False
+	if 'downloader=True' in str(sys.argv):
+		downloader = True
+	else:
+		downloader = False
 
 	if not 'http' in str(PTN_download):
 		print_log(str('Not found_CLOUD'),'===>OPENINFO')
 		##AUTO_SCRAPE_TORRENTS
-		
-		PTN_download, new_meta = getSources.auto_scrape_rd(meta,select_dialog=select_dialog)
-		
+		if downloader == True:
+			getSources.auto_scrape_rd(meta,select_dialog=select_dialog,downloader=downloader)
+			return
+		else:
+			PTN_download, new_meta = getSources.auto_scrape_rd(meta,select_dialog=select_dialog,downloader=downloader)
+
 		if not 'http' in str(PTN_download):
 			print_log(str('Not found_AUTO_SCRAPE'),'===>OPENINFO')
 			return

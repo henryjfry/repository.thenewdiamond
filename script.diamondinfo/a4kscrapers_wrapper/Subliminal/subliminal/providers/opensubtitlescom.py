@@ -25,7 +25,7 @@ from subliminal.exceptions import (
     ServiceUnavailable,
 )
 from subliminal.matches import guess_matches
-from subliminal.subtitle import Subtitle, fix_line_ending
+from subliminal.subtitle import Subtitle
 from subliminal.video import Episode, Movie, Video
 
 from . import Provider
@@ -364,7 +364,7 @@ def requires_auth(func: C) -> C:
 
         return func(self, *args, **kwargs)
 
-    return cast(C, wrapper)
+    return cast('C', wrapper)
 
 
 class OpenSubtitlesComProvider(Provider):
@@ -782,7 +782,7 @@ class OpenSubtitlesComProvider(Provider):
             logger.debug('Unable to download subtitle. No data returned from provider')
             return
 
-        subtitle.content = fix_line_ending(download_response.content)
+        subtitle.set_content(download_response.content)
 
 
 class OpenSubtitlesComVipSubtitle(OpenSubtitlesComSubtitle):

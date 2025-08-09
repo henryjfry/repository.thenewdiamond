@@ -54,7 +54,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	opensubtitlescom_credentials = {'username': opensubtitles_com_username, 'password': opensubtitles_com_password}
 	opensubtitles_credentials = {'username': opensubtitles_org_username, 'password': opensubtitles_org_password}
 
-
+	tmdb_apikey = tools.get_setting('tmdb_api')
 	# configure the cache
 	region.configure('dogpile.cache.dbm', arguments={'filename': cache_file},replace_existing_backend=True)
 
@@ -103,7 +103,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	#tools.log(meta_info)
 	try:
 		video = Video.fromname(file_path)
-		video = refiners.tmdb.refine(video, apikey='2cfb516815547f7a9fb865409fe94da2')
+		video = refiners.tmdb.refine(video, apikey=tmdb_apikey)
 	except:
 		if meta_info['mediatype'] == 'movie':
 			from subliminal.video import Movie
@@ -111,7 +111,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 		else:
 			from subliminal.video import Episode
 			video = Episode(name=meta_info['tvshow'], season=meta_info['season'], episode=meta_info['episode'])
-		video = refiners.tmdb.refine(video, apikey='2cfb516815547f7a9fb865409fe94da2')
+		video = refiners.tmdb.refine(video, apikey=tmdb_apikey)
 
 
 	video.__dict__['size'] = filesize
@@ -124,7 +124,32 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	
 	#video.__dict__['episodes'] = [6]
 
-	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
+	#if meta_info['mediatype'] == 'movie':
+	#	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','opensubtitlescom'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
+	#	if len(subtitles[video]) < 50:
+	#		subtitles2 = list_subtitles([video], languages={Language('eng')}, providers=['napiprojekt','podnapisi','tvsubtitles'])
+	#		subtitles.extend(subtitles2)
+	#else:
+	#	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
+	all_subtitles = None
+	for provider in ['addic7ed','opensubtitles','podnapisi','tvsubtitles','napiprojekt','opensubtitlescom']:
+		try: mediatype = meta['episode_meta']['mediatype']
+		except: mediatype = 'movie'
+		if provider == 'opensubtitlescom' and mediatype == 'movie' and len(all_subtitles[video]) >= 80:
+			continue
+		subtitles = list_subtitles([video], languages={Language('eng')}, providers=[provider],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
+		tools.log(provider + '___' + str(len(subtitles[video])))
+		if all_subtitles:
+			try: all_subtitles[video].extend(subtitles[video])
+			except: continue
+		else:
+			all_subtitles = subtitles
+		try:
+			if len(all_subtitles[video]) >= 200:
+				break
+		except: 
+			pass
+	subtitles = all_subtitles
 
 	tools.log(len(subtitles[video]))
 	tools.log('len(subtitles[video])')
@@ -154,6 +179,10 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 			#tools.log(i)
 			curr_score_forced = compute_score(i, video)
 			if curr_score_forced > high_score_forced:
+				if high_score_forced == 0 and curr_score_forced < 500:
+					matches = i.get_matches(video)
+					if 'episode' in str(matches) and 'season' in str(matches) and not 'series' in str(matches):
+						continue
 				high_score_forced = curr_score_forced
 				curr_subs_forced = i
 				curr_subs_forced_dict = i.__dict__
@@ -164,6 +193,8 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					tools.log('except')
 					#tools.log(curr_subs_forced_dict)
 			#tools.log(i.__dict__)
+			#tools.log(video.__dict__)
+			#tools.log(i.get_matches(video))
 			#sorted(i.get_matches(video))
 			#tools.log()
 		if not ('parts' in str(i.__dict__) or 'foreign' in str(i.__dict__)) and not 'HEARING' in str(i.__dict__):

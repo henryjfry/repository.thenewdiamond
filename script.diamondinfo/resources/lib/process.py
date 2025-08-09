@@ -31,7 +31,6 @@ def start_info_actions(infos, params):
 		Utils.show_busy()
 		data = [], ''
 
-
 		if info == 'trakt_cleanup':
 			xbmc.log(str('trakt_watched_tv_movies_cleanup')+'===>OPENINFO', level=xbmc.LOGINFO)
 			from resources.lib.library import trakt_watched_tv_movies_cleanup
@@ -40,6 +39,22 @@ def start_info_actions(infos, params):
 		if info == 'rss_test':
 			from a4kscrapers_wrapper import get_meta
 			get_meta.get_rss_cache()
+
+		if info == 'imdb_trailers_best' or info == 'imdb_trailers_choice':
+			import imdb_trailers
+			imdb_id = params.get('imdb_id')
+			if info == 'imdb_trailers_best':
+				select = False
+			else:
+				try: select = params.get('select')
+				except: select = False
+				if str(select).lower() == 'true' or select == True:
+					select = True
+				else:
+					select = False
+			try: season = int(params.get('season'))
+			except: season = None
+			imdb_trailers.play_imdb_trailer(imdb_id=imdb_id, select=select, season=season)
 
 		if info == 'con_man_fix':
 			from resources.lib.con_man_fix import list_and_select_wifi
@@ -1561,51 +1576,31 @@ def start_info_actions(infos, params):
 			lines = file1.readlines()
 			new_file = ''
 			update_flag = False
-			line_update = '''    def select_standard_player(self, uid=None):
-        """
-        Select from a list of players
-        Set a UID to only display players for a single plugin
-        """
-        player_list = self.get_players_list_by_uid(uid)
-        if 'episode' in str(self.players[0]['mode']):
+			line_update = '''    def select_player(players_list, header=None, detailed=True, index=False, players=None):
+        """ Select from a list of players """
+        if 'episode' in str(players[0]['mode']):
             db_type = 'episode'
         else:
             db_type = 'movie'
-        for idx, i in enumerate(self.players): ## PATCH
+        for idx, i in enumerate(players): ## PATCH
             if 'auto_cloud' in str(i['name']).lower() and db_type != 'movie': ## PATCH
                 auto_var = idx ## PATCH
                 break ## PATCH
             if 'Auto_Torr_Scrape' in str(i['name']) and db_type == 'movie': ## PATCH
                 auto_var = idx ## PATCH
                 break ## PATCH
-        x = Dialog().select(self.header, [i.listitem for i in player_list], autoclose=30000, preselect=auto_var, useDetails=self.detailed) ## PATCH
-        return -1 if x == -1 else player_list[x].posx
+        x = Dialog().select(header or get_localized(32042), [i.listitem for i in players_list],useDetails=detailed, autoclose=30000, preselect=auto_var)
+        return x if index or x == -1 else players_list[x].posx
 
+    def get_player(self, x):
+        player = self.players_list[x]
+        player['idx'] = x
+        return player
 
-    def select_combined_player(self):
-        """
-        Combine players from same plugin into a subfolder before selecting
-        Used to reduce overall size of player list to specific plugins
-        """
-        player_list = self.players_combined_list
-        if 'episode' in str(self.players[0]['mode']):
-            db_type = 'episode'
-        else:
-            db_type = 'movie'
-        for idx, i in enumerate(self.players): ## PATCH
-            if 'auto_cloud' in str(i['name']).lower() and db_type != 'movie': ## PATCH
-                auto_var = idx ## PATCH
-                break ## PATCH
-            if 'Auto_Torr_Scrape' in str(i['name']) and db_type == 'movie': ## PATCH
-                auto_var = idx ## PATCH
-                break ## PATCH
-        x = Dialog().select(self.header, [i.listitem for i in player_list], autoclose=30000, preselect=auto_var, useDetails=self.detailed) ## PATCH
-        if x == -1:
-            return -1
-        x = self.select_standard_player(player_list[x].uid)
-        return self.select_combined_player() if x == -1 else x
-
-    def select(self, combined=False):
+    def select(self, header=None, detailed=True):
+        """ Select a player from the list """
+        x = self.select_player(self.players_generated_list, header=header, detailed=detailed, players=self.players)
+        return {} if x == -1 else self.get_player(x)
 '''
 			keep_update = False
 			for idx, line in enumerate(lines):
@@ -1615,12 +1610,288 @@ def start_info_actions(infos, params):
 					break
 				#try: test_var = lines[idx+1]
 				#except: test_var = ''
-				if '    def select_standard_player(self, uid=None):' in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+				if '    def select_player(players_list, header=None, detailed=True, index=False):' in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
 					new_file = new_file + line_update
 					update_flag = True
 					keep_update = True
 				elif update_flag == True and keep_update == True:
-					if '    def select(self, combined=False):' in str(line):
+					if '        return {} if x == -1 else self.get_player(x)' in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script','method') , 'maintenance.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''    def vacuum(self, force=False):  ##PATCH
+        import time
+        if not force and self.is_next_vacuum == False:
+            return
+        if time.time() < self.next_vacuum:
+            return
+        self.set_next_vacuum()
+        from tmdbhelper.lib.addon.logger import TimerFunc
+        from tmdbhelper.lib.items.database.database import ItemDetailsDatabase
+        from tmdbhelper.lib.query.database.database import FindQueriesDatabase
+        with TimerFunc('Vacuuming databases:', inline=True):
+            ItemDetailsDatabase().execute_sql("VACUUM")
+            FindQueriesDatabase().execute_sql("VACUUM")
+
+    def delete_legacy_folders(self, force=False): ##PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if '    def vacuum(self, force=False):' in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if '    def delete_legacy_folders(self, force=False):' in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api','trakt') , 'authenticator.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''    def poller(self): ## PATCH
+        import xbmc
+        while True:
+            xbmc.log(str(self.user_code)+'===>PHIL', level=xbmc.LOGINFO)
+            if self.xbmc_monitor.abortRequested(): ## PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if '    def poller(self):' in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if '            if self.xbmc_monitor.abortRequested():' in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script','method') , 'trakt.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''def authenticate_trakt(**kwargs): ## PATCH
+    from tmdbhelper.lib.api.trakt.api import TraktAPI
+    TraktAPI(force=True)
+    invalidate_trakt_sync('all', notification=False)
+
+def authorize_trakt(**kwargs):
+    import xbmc
+    from tmdbhelper.lib.addon.logger import kodi_log
+    from tmdbhelper.lib.api.trakt.api import TraktAPI
+    from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
+    trakt_api = TraktAPI(force=False)
+    refresh_token = TraktStoredAccessToken(trakt_api).refresh_token
+    response = trakt_api.set_authorisation_token(refresh_token)
+    if response != {}:
+        xbmc.log(str('Trakt authenticated successfully!')+'===>PHIL', level=xbmc.LOGINFO)
+    from tmdbhelper.lib.files.futils import json_dumps as data_dumps
+    trakt_api.user_token.value = data_dumps(response)
+    from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
+    USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
+    TraktStoredAccessToken(trakt_api).confirm_authorization()
+    return
+
+def revoke_trakt(**kwargs): ## PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if 'def authenticate_trakt(**kwargs):' in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if 'def revoke_trakt(**kwargs):' in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script') , 'router.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''        'authenticate_trakt': ## PATCH
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authenticate_trakt')(**kwargs),
+        'authorize_trakt':
+            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authorize_trakt')(**kwargs),
+        'revoke_trakt': ## PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if "        'authenticate_trakt':" in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if "        'revoke_trakt':" in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','monitor') , 'player.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''    def onAVStarted(self):  ## PATCH
+        import xbmc
+        xbmc.sleep(5*1000)
+        self.get_playingitem()
+
+    def onPlayBackStarted(self):
+        import xbmc
+        xbmc.sleep(5*1000)
+        self.get_playingitem()
+
+    def onAVChange(self):
+        import xbmc
+        xbmc.sleep(5*1000)
+        self.get_playingitem()
+
+    def onPlayBackEnded(self):  ## PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if "    def onAVStarted(self):" in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if "    def onPlayBackEnded(self):" in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api', 'trakt') , 'api.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''    def get_headers(self, access_token=None):  ## PATCH
+        headers = {}
+        headers.update(self.headers_base)
+
+        from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
+        from tmdbhelper.lib.files.futils import json_loads as data_loads
+        USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
+        access_token = data_loads(USER_TOKEN.value)['access_token']
+
+        headers.update(self.get_headers_authorization(access_token))
+        return headers
+
+    def get_headers_authorization(self, access_token=None):  ## PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if "    def get_headers(self, access_token=None):" in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if "    def get_headers_authorization(self, access_token=None):" in str(line):
 						keep_update = False
 				elif keep_update == False:
 					new_file = new_file + line

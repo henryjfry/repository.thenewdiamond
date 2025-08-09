@@ -12,7 +12,7 @@ from requests import HTTPError, Session
 
 from subliminal.exceptions import DownloadLimitExceeded, NotInitializedProviderError
 from subliminal.matches import guess_matches
-from subliminal.subtitle import Subtitle, fix_line_ending
+from subliminal.subtitle import Subtitle
 from subliminal.utils import sanitize
 from subliminal.video import Episode, Video
 
@@ -351,7 +351,7 @@ class GestdownProvider(Provider):
             for subtitle in found['subtitles']:
                 # read the item
                 hearing_impaired = subtitle['hearingImpaired']
-                page_link = f"{self.server_url}{subtitle['downloadUri']}"
+                page_link = f'{self.server_url}{subtitle["downloadUri"]}'
                 release_group = subtitle['version']
 
                 m = id_pattern.match(page_link)
@@ -420,4 +420,4 @@ class GestdownProvider(Provider):
         if r.headers['Content-Type'] == 'text/html':
             raise DownloadLimitExceeded
 
-        subtitle.content = fix_line_ending(r.content)
+        subtitle.set_content(r.content)

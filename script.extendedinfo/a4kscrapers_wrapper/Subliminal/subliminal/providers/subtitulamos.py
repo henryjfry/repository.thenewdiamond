@@ -16,7 +16,7 @@ from subliminal import __short_version__
 from subliminal.cache import SHOW_EXPIRATION_TIME, region
 from subliminal.exceptions import NotInitializedProviderError, ProviderError
 from subliminal.matches import guess_matches
-from subliminal.subtitle import Subtitle, fix_line_ending
+from subliminal.subtitle import Subtitle
 from subliminal.video import Episode
 
 from . import ParserBeautifulSoup, Provider
@@ -73,6 +73,7 @@ class SubtitulamosSubtitle(Subtitle):
         self,
         language: Language,
         subtitle_id: str = '',
+        *,
         hearing_impaired: bool | None = None,
         page_link: str | None = None,
         series: str | None = None,
@@ -168,7 +169,7 @@ class SubtitulamosProvider(Provider):
             timeout=self.timeout,
         )
         data = json.loads(r.text)
-        return cast(list[dict[str, str]], data)
+        return cast('list[dict[str, str]]', data)
 
     def _read_series(self, series_url: str) -> ParserBeautifulSoup:
         """Read series information from provider."""
@@ -209,31 +210,38 @@ class SubtitulamosProvider(Provider):
 
         # Select season
         season_element = next(
-            (el for el in page_content.select('#season-choices a.choice') if str(season) in el.text), None
+            (el for el in page_content.select('#season-choices a.choice') if str(season) in el.text),
+            None,
         )
         if season_element is None:
             msg = 'Season not found'
             raise NotExists(msg)
 
-        if 'selected' not in cast(list[str], season_element.get('class', [])):
+        if 'selected' not in cast('list[str]', season_element.get('class', [])):
             page_content = self._read_series(str(season_element.get('href', '')))
 
         # Select episode
         episode_element = next(
-            (el for el in page_content.select('#episode-choices a.choice') if str(episode) in el.text), None
+            (el for el in page_content.select('#episode-choices a.choice') if str(episode) in el.text),
+            None,
         )
         if episode_element is None:
             msg = 'Episode not found'
             raise NotExists(msg)
 
         episode_url = str(episode_element.get('href', ''))
-        if 'selected' not in cast(list[str], episode_element.get('class', [])):
+        if 'selected' not in cast('list[str]', episode_element.get('class', [])):
             page_content = self._read_series(episode_url)
 
         return page_content, episode_url
 
     def _query_provider(
-        self, series: str | None = None, season: int | None = None, episode: int | None = None, year: int | None = None
+        self,
+        series: str | None = None,
+        season: int | None = None,
+        episode: int | None = None,
+        year: int | None = None,
+        languages: Set[Language] | None = None,
     ) -> list[SubtitulamosSubtitle]:
         """Query the provider for subtitles."""
         # get the episode page content
@@ -255,6 +263,17 @@ class SubtitulamosProvider(Provider):
                 continue
 
             language = Language.fromsubtitulamos(lang_name_element.get_text().strip())
+            # If a list of language was provided, it should contain the subtitle language
+            if languages:
+                # the subtitle language is converted to match one of the queried language
+                # All spanish variations are labeled as "Español (Latinoamérica)",
+                # which is guessed as es-MX; this replaces it with the specified one.
+                language = next(
+                    (lang for lang in languages if lang.subtitulamos == language.subtitulamos),
+                    None,
+                )
+                if not language:
+                    continue
 
             # read the release subtitle
             release_group = release_group_element[0].getText()
@@ -285,10 +304,11 @@ class SubtitulamosProvider(Provider):
         season: int | None = None,
         episode: int | None = None,
         year: int | None = None,
+        languages: Set[Language] | None = None,
     ) -> list[SubtitulamosSubtitle]:
         """Query the provider for subtitles."""
         try:
-            return self._query_provider(series, season, episode, year)
+            return self._query_provider(series, season, episode, year, languages)
         except NotExists:
             return []
 
@@ -297,18 +317,7 @@ class SubtitulamosProvider(Provider):
         if not isinstance(video, Episode):
             return []
 
-        result = []
-        for subtitle in self.query(video.series, video.season, video.episode, video.year):
-            subtitle_lang = next(
-                (lang for lang in languages if lang.subtitulamos == subtitle.language.subtitulamos), None
-            )
-            if subtitle_lang:
-                result.append(subtitle)
-                # All spanish variations are labeled as "Español (Latinoamérica)",
-                # which is guessed as es-MX; this replaces it with the specified one.
-                subtitle.language = subtitle_lang
-
-        return result
+        return self.query(video.series, video.season, video.episode, video.year, languages)
 
     def download_subtitle(self, subtitle: SubtitulamosSubtitle) -> None:
         """Download the content of the subtitle."""
@@ -322,7 +331,7 @@ class SubtitulamosProvider(Provider):
         r = self.session.get(subtitle.download_link, headers={'Referer': subtitle.page_link}, timeout=10)
         r.raise_for_status()
 
-        subtitle.content = fix_line_ending(r.content)
+        subtitle.set_content(r.content)
 
 
 class SubtitulamosError(ProviderError):

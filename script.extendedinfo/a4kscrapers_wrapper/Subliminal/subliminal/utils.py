@@ -10,7 +10,6 @@ import re
 import socket
 from collections.abc import Iterable
 from datetime import datetime, timedelta, timezone
-from inspect import signature
 from types import GeneratorType
 from typing import TYPE_CHECKING, Any, Callable, Generic, TypeVar, cast, overload
 from xmlrpc.client import ProtocolError
@@ -201,8 +200,19 @@ def ensure_list(value: T | Sequence[T] | None) -> list[T]:
     if value is None:
         return []
     if not is_iterable(value):
-        return [cast(T, value)]
+        return [cast('T', value)]
     return list(value)
+
+
+def ensure_str(value: Any, *, sep: str = ' ') -> str:
+    """Ensure to return a str."""
+    if value is None:
+        return ''
+    # If a list of str, join them
+    if is_iterable(value):
+        return sep.join([str(v) for v in value])
+    # Make sure the output is a string
+    return str(value)
 
 
 def modification_date(filepath: os.PathLike | str) -> float:
@@ -364,45 +374,26 @@ def clip(value: float, minimum: float | None, maximum: float | None) -> float:
     return value
 
 
-def split_doc_args(args: str | None) -> list[str]:
-    """Split the arguments of a docstring (in Sphinx docstyle)."""
-    if not args:  # pragma: no cover
-        return []
-    split_regex = re.compile(r'(?m):((param|type)\s|(return|yield|raise|rtype|ytype)s?:)')
-    split_indices = [m.start() for m in split_regex.finditer(args)]
-    if len(split_indices) == 0:  # pragma: no cover
-        return []
-    next_indices = [*split_indices[1:], None]
-    parts = [args[i:j].strip() for i, j in zip(split_indices, next_indices)]
-    return [p for p in parts if p.startswith(':param')]
+def trim_pattern(string: str, patterns: str | Sequence[str], *, sep: str = '') -> tuple[str, str]:
+    """Trim a prefix or suffix from a string, with an optional separator.
 
+    If patterns is a list, order is important as the first match will be returned.
 
-def get_argument_doc(fun: Callable) -> dict[str, str]:
-    """Get documentation for the arguments of the function."""
-    param_regex = re.compile(
-        r'^:param\s+(?P<type>[\w\s\[\].,:`~!]+\s+|\([^\)]+\)\s+)?(?P<param>\w+):\s+(?P<doc>[^:]*)$'
-    )
+    :param str string: the string to trim.
+    :param patterns: a pattern or list of pattern to match as a prefix or suffix to the string.
+    :type patterns: str | Sequence[str]
+    :param str sep: a separator for the pattern.
+    :return: a tuple with the trimmed string and the matching pattern.
+    :rtype: tuple[str, str]
+    """
+    patterns = ensure_list(patterns)
+    # trim hearing_impaired or foreign_only attribute, if present
+    for pattern in patterns:
+        # suppose a string in the form '<pattern><sep><other>'
+        if string.startswith(pattern + sep):
+            return string.removeprefix(pattern + sep), pattern
+        # suppose a string in the form '<other><sep><pattern>'
+        if string.endswith(sep + pattern):
+            return string.removesuffix(sep + pattern), pattern
 
-    parts = split_doc_args(fun.__doc__)
-
-    ret = {}
-    for p in parts:
-        m = param_regex.match(p)
-        if not m:  # pragma: no cover
-            continue
-        _, name, desc = m.groups()
-        if name is None:  # pragma: no cover
-            continue
-        ret[name] = ' '.join(desc.strip().split())
-
-    return ret
-
-
-def get_parameters_from_signature(fun: Callable) -> list[Parameter]:
-    """Get keyword arguments with default and type."""
-    sig = signature(fun)
-    doc = get_argument_doc(fun)
-    return [
-        {'name': name, 'default': p.default, 'annotation': p.annotation, 'desc': doc.get(name)}
-        for name, p in sig.parameters.items()
-    ]
+    return string, ''

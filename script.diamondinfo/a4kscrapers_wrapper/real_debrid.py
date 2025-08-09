@@ -381,17 +381,19 @@ class RealDebrid:
 		except (ValueError, AttributeError):
 			return response
 
-	def check_hash(self, hash_list):
+	def check_hash(self, hash_list, hash_params=None):
 		if isinstance(hash_list, list):
 			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			hash_list = [hash_list[x : x + 100] for x in range(0, len(hash_list), 100)]
 			thread = ThreadPool()
+			self.hash_timeout = hash_params.get('end_time',None)
+			self.hash_limit = hash_params.get('limit',None)
 			for section in hash_list:
 				thread.put(self._check_hash_thread, sorted(section))
 			thread.wait_completion()
 			return self.cache_check_results
 		else:
-			tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			#hash_string = "/" + hash_list
 			#return self.get_url("torrents/instantAvailability" + hash_string)
 			magnet = 'magnet:?xt=urn:btih:' + hash_list
@@ -425,7 +427,10 @@ class RealDebrid:
 		hash_string = "/" + "/".join(hashes)
 		#tools.log(str(hash_string))
 		#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+		self.stop_flag = False
 		for i in hashes:
+			if self.stop_flag == True:
+				continue
 			magnet = 'magnet:?xt=urn:btih:' + i
 			response = self.add_magnet(magnet)
 			#tools.log(response)
@@ -456,6 +461,13 @@ class RealDebrid:
 				response = self.delete_torrent(torr_id)
 				hash_dict[i]['d'].append({1:{'filename':'','filesize':99}})
 				self.cache_check_results.update(hash_dict)
+			if self.hash_timeout:
+				if time.time() > self.hash_timeout or len(self.cache_check_results) >= self.hash_limit:
+					self.stop_flag = True
+					if time.time() > self.hash_timeout:
+						tools.log('CACHE_CHECK_LIMIT_REACHED_ENDTIME')
+					else:
+						tools.log('CACHE_CHECK_LIMIT_REACHED_ITEMS_LIMIT')
 		#response = self.get_url("torrents/instantAvailability" + hash_string)
 		#self.cache_check_results.update(response)
 
@@ -466,13 +478,13 @@ class RealDebrid:
 		return response
 
 	def list_downloads_page(self, page):
-		post_data = {'page': page}
+		post_data = {'page': page, 'limit': 100}
 		url = "downloads"
 		response = self.get_url(url, post_data=post_data)
 		return response
 
 	def list_torrents_page(self, page):
-		post_data = {'page': page}
+		post_data = {'page': page, 'limit': 100}
 		url = "torrents"
 		response = self.get_url(url, post_data=post_data)
 		return response
@@ -533,6 +545,9 @@ class RealDebrid:
 	def torrent_select_all(self, torrent_id):
 		torr_info = self.torrent_info(torrent_id)
 		#tools.log(torr_info)
+		if '/vis/' in str(torr_info) and 'RARBG' in str(torr_info) and 'txt' in str(torr_info):
+			self.delete_torrent(torrent_id)
+			return {'error': 'infringing_file  waiting_files_selection  infringing_file', 'status': 'ERROR'}
 		file_string = ''
 		for i in torr_info['files']:
 			res = [ele for ele in self.common_video_extensions() if(ele in os.path.splitext(i['path'])[1])]

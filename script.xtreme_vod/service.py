@@ -607,20 +607,36 @@ class PlayerMonitor(xbmc.Player):
 			else:
 				response = self.trakt_scrobble_tmdb(tmdb_id=trakt_meta.get('trakt_tmdb_id'),percent=self.player_meta['percentage'],action=action)
 		if response == 'ERROR':
+			xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
 			self.trakt_error = 'ERROR'
 		return self.trakt_watched 
 
 
+	def curr_playback(self):
+		json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0","id": "1","method": "Player.GetProperties","params": {"playerid": %s,"properties": ["position","playlistid","speed"]}}' % (self.playerid))
+		json_object  = json.loads(json_result)
+		try: 
+			json_speed = json_object['result']['speed']
+		except:
+			json_speed = 1
+		if json_speed == 1:
+			self.player_meta['curr_playback'] = 'PLAY'
+			self.player_meta['curr_playback_count'] = 0
+		elif json_speed == 0:
+			self.player_meta['curr_playback'] = 'PAUSE'
+			self.player_meta['curr_playback_count'] = self.player_meta['curr_playback_count'] + 1
+		json_object['result']['curr_playback_count'] = self.player_meta['curr_playback_count']
+		return json_object
 
 	def scrobble_trakt_speed_resume_test(self):
 		self.update_resume_position_duration()
 		return_flag = False
 		json_speed = 1
+		json_object  = self.curr_playback()
 		if int(time.time()) >= int(self.speed_time):
-			json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0","id": "1","method": "Player.GetProperties","params": {"playerid": %s,"properties": ["position","playlistid","speed"]}}' % (self.playerid))
-			json_object  = json.loads(json_result)
 
-			self.trakt_scrobble_details()
+			if json_object['result']['curr_playback_count'] <= 10:
+				self.trakt_scrobble_details()
 
 			try: self.player_meta['playlist_position2'] = int(json_object['result']['position'])
 			except: self.player_meta['playlist_position2'] = 0
@@ -635,16 +651,20 @@ class PlayerMonitor(xbmc.Player):
 				else:
 					json_speed = 1
 
+
 			if json_speed == 1 and self.speed == 0 and self.trakt_watched != 'true':
-				self.trakt_watched = self.trakt_meta_scrobble(action='start')
-				xbmc.sleep(1000)
-				response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
-				if response.status_code == 204:
+				if json_object['result']['curr_playback_count'] <= 10:
 					self.trakt_watched = self.trakt_meta_scrobble(action='start')
+					xbmc.sleep(1000)
+					response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
+					if response.status_code == 204:
+						self.trakt_watched = self.trakt_meta_scrobble(action='start')
+				
 				#tools_log('SPEED_0_PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 				return_flag = True
 			if int(self.speed) == 1 and json_speed == 0 and self.trakt_watched != 'true':
-				self.trakt_watched = self.trakt_meta_scrobble(action='pause')
+				if json_object['result']['curr_playback_count'] <= 10:
+					self.trakt_watched = self.trakt_meta_scrobble(action='pause')
 				#tools_log('SPEED_0_PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 				return_flag = True
 			self.speed = json_speed
@@ -653,24 +673,25 @@ class PlayerMonitor(xbmc.Player):
 		if return_flag:
 			return
 		if abs( float((self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100) - float(self.player_meta['percentage']) ) > 0.2 and self.trakt_watched != 'true':
-			self.trakt_scrobble_details()
-			self.trakt_watched  = self.trakt_meta_scrobble(action='pause')
-			#tools_log('PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
-			if self.trakt_watched == False:
-				self.trakt_watched  = self.trakt_meta_scrobble(action='start')
-				xbmc.sleep(1000)
-				response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
-				if response.status_code == 204:
-					self.trakt_watched = self.trakt_meta_scrobble(action='start')
-				#tools_log('PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+			if json_object['result']['curr_playback_count'] <= 10:
+				self.trakt_scrobble_details()
+				self.trakt_watched  = self.trakt_meta_scrobble(action='pause')
+				#tools_log('PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				if self.trakt_watched == False:
+					self.trakt_watched  = self.trakt_meta_scrobble(action='start')
+					xbmc.sleep(1000)
+					response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
+					if response.status_code == 204:
+						self.trakt_watched = self.trakt_meta_scrobble(action='start')
+					#tools_log('PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 			self.speed_time = time.time()
 			return_flag = True
 
 		if return_flag:
 			return
 		if int(time.time()) >  int(self.scrobble_time) and self.player_meta['percentage'] < 80 and self.trakt_watched != 'true' and json_speed == 1:
-			json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0","id": "1","method": "Player.GetProperties","params": {"playerid": %s,"properties": ["position","playlistid","speed"]}}' % (self.playerid))
-			json_object  = json.loads(json_result)
+			#json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0","id": "1","method": "Player.GetProperties","params": {"playerid": %s,"properties": ["position","playlistid","speed"]}}' % (self.playerid))
+			#json_object  = json.loads(json_result)
 			try: 
 				json_speed = json_object['result']['speed']
 			except: 
@@ -678,15 +699,16 @@ class PlayerMonitor(xbmc.Player):
 			if json_speed == 0:
 				self.scrobble_time = int(time.time()) + 10 * 60
 				return
-			self.trakt_watched  = self.trakt_meta_scrobble(action='pause')
-			#tools_log('SCROBBLE_TIME_PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
-			if self.trakt_watched == False:
-				self.trakt_watched  = self.trakt_meta_scrobble(action='start')
-				xbmc.sleep(1000)
-				response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
-				if response.status_code == 204:
-					self.trakt_watched = self.trakt_meta_scrobble(action='start')
-				#tools_log('SCROBBLE_TIME_PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+			if json_object['result']['curr_playback_count'] <= 10:
+				self.trakt_watched  = self.trakt_meta_scrobble(action='pause')
+				#log('SCROBBLE_TIME_PAUSE', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				if self.trakt_watched == False:
+					self.trakt_watched  = self.trakt_meta_scrobble(action='start')
+					xbmc.sleep(1000)
+					response = requests.get('https://api.trakt.tv/users/'+str(self.player_meta['user_slug']) + '/watching', headers=self.player_meta['headers'])
+					if response.status_code == 204:
+						self.trakt_watched = self.trakt_meta_scrobble(action='start')
+					#log('SCROBBLE_TIME_PLAY', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 			self.scrobble_time = int(time.time()) + 10 * 60
 			return_flag = True
 		self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
@@ -729,6 +751,10 @@ class PlayerMonitor(xbmc.Player):
 	def onPlayBackEnded(self):
 		tools_log(str('onPlayBackEnded'))
 
+		if self.player_meta['script.xtreme_vod_player'] == False:
+			tools_log('EXIT__script.xtreme_vod_player')
+			return
+
 		try:
 			self.trakt_meta_scrobble(action='pause')
 		except:
@@ -763,6 +789,10 @@ class PlayerMonitor(xbmc.Player):
 
 	def onPlayBackStopped(self):
 		tools_log(str('onPlayBackStopped'))
+
+		if self.player_meta['script.xtreme_vod_player'] == False:
+			tools_log('EXIT__script.xtreme_vod_player')
+			return
 
 		if self.iplayerwww == False:
 			self.trakt_meta_scrobble(action='pause')
@@ -915,6 +945,8 @@ class PlayerMonitor(xbmc.Player):
 		self.player_meta['timestamp'] = None
 		self.player_meta['user_slug'] = trakt_slug = xbmcaddon.Addon().getSetting('trakt_slug')
 
+		self.player_meta['curr_playback'] = 'PLAY'
+		self.player_meta['curr_playback_count'] = 0
 
 		count = 0
 		while player.isPlaying()==1 and count < 7501:
@@ -1211,6 +1243,13 @@ class PlayerMonitor(xbmc.Player):
 							sub_toggle = True
 							break
 		"""
+
+		if self.type == 'episode':
+			TMDbHelper_PlayerInfoString = eval(xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString'))
+			TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': self.type, 'tmdb_id': str(TMDbHelper_PlayerInfoString['tmdb_id']), 'imdb_id': str(TMDbHelper_PlayerInfoString['imdb_id']), 'tvdb_id': str(TMDbHelper_PlayerInfoString['tvdb_id']), 'season': self.player_meta['tv_season'], 'episode': self.player_meta['tv_episode']}
+			if TMDbHelper_PlayerInfoString != TMDbHelper_NEW_PlayerInfoString:
+				log('TMDbHelper_NEW_PlayerInfoString',TMDbHelper_NEW_PlayerInfoString)
+				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 		if self.type == 'movie':
 			self.player_meta['global_movie_flag'] = True
@@ -1577,7 +1616,9 @@ class CronJobMonitor(Thread):
 			elif int(time.time()) > self.next_time and trakt_kodi_mode == 'Trakt Only': 
 				try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
 				except: trakt_token = None
-
+				#if trakt_token:
+				#	xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
+				#	self.xbmc_monitor.waitForAbort(5)
 				self.next_time = self.curr_time + library_update_period*60*60
 			if int(time.time()) > self.next_clean_time and auto_clean_cache_bool == True:
 				tools_log(str('process.auto_clean_cache(days=30)'))

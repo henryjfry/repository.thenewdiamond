@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import logging
 import os
-import warnings
 from typing import TYPE_CHECKING, Any
 
 from guessit import guessit  # type: ignore[import-untyped]
 
-from subliminal.utils import ensure_list, get_age, matches_extended_title
+from subliminal.exceptions import GuessingError
+from subliminal.utils import ensure_list, ensure_str, get_age, matches_extended_title
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, Sequence, Set
+    from collections.abc import Mapping, Sequence
     from datetime import timedelta
 
     from babelfish import Country, Language  # type: ignore[import-untyped]
@@ -111,7 +111,7 @@ class Video:
 
     Represent a video, existing or not.
 
-    :param str name: name or path of the video.
+    :param str name: name or path of the video, read-only.
     :param str source: source of the video (HDTV, Web, Blu-ray, ...).
     :param str release_group: release group of the video.
     :param str streaming_service: streaming_service of the video.
@@ -120,7 +120,8 @@ class Video:
     :param str audio_codec: codec of the main audio stream.
     :param float frame_rate: frame rate in frames per seconds.
     :param float duration: duration of the video in seconds.
-    :param dict hashes: hashes of the video file by provider names.
+    :param hashes: hashes of the video file by provider names.
+    :type hashes: dict[str, str]
     :param int size: size of the video file in bytes.
     :param subtitles: existing subtitles.
     :type subtitles: set[:class:`~subliminal.subtitle.Subtitle`]
@@ -132,8 +133,8 @@ class Video:
 
     """
 
-    #: Name or path of the video
-    name: str
+    #: Name or path of the video, read-only.
+    _name: str
 
     #: Source of the video (HDTV, Web, Blu-ray, ...)
     source: str | None
@@ -180,8 +181,11 @@ class Video:
     #: TMDB id of the video
     tmdb_id: int | None
 
+    #: Use the latest of creation time and modification time for the video age
+    use_ctime: bool
+
     #: Existing subtitle languages
-    subtitles: set[Subtitle]
+    subtitles: list[Subtitle]
 
     def __init__(
         self,
@@ -197,14 +201,15 @@ class Video:
         duration: float | None = None,
         hashes: Mapping[str, str] | None = None,
         size: int | None = None,
-        subtitles: Set[Subtitle] | None = None,
+        use_ctime: bool = True,
+        subtitles: Sequence[Subtitle] | None = None,
         title: str | None = None,
         year: int | None = None,
         country: Country | None = None,
         imdb_id: str | None = None,
         tmdb_id: int | None = None,
     ) -> None:
-        self.name = name
+        self._name = name
         self.source = source
         self.release_group = release_group
         self.streaming_service = streaming_service
@@ -215,12 +220,19 @@ class Video:
         self.duration = duration
         self.hashes = dict(hashes) if hashes is not None else {}
         self.size = size
-        self.subtitles = set(subtitles) if subtitles is not None else set()
+        self.use_ctime = use_ctime
+        self.subtitles = list(subtitles) if subtitles is not None else []
         self.title = title
         self.year = year
         self.country = country
         self.imdb_id = imdb_id
         self.tmdb_id = tmdb_id
+
+    @property
+    def name(self) -> str:
+        """Name or path of the video, read-only."""
+        # Because it is used in __hash__, it needs to be immutable.
+        return self._name
 
     @property
     def exists(self) -> bool:
@@ -230,12 +242,7 @@ class Video:
     @property
     def age(self) -> timedelta:
         """Age of the video."""
-        warnings.warn(
-            'Use `get_age(use_ctime)` instead, to specify if modification time is used or also creation time.',
-            DeprecationWarning,
-            stacklevel=1,
-        )
-        return self.get_age(use_ctime=False)
+        return get_age(self.name, use_ctime=self.use_ctime)
 
     @property
     def subtitle_languages(self) -> set[Language]:
@@ -258,7 +265,7 @@ class Video:
             return Movie.fromguess(name, guess)
 
         msg = 'The guess must be an episode or a movie guess'  # pragma: no-cover
-        raise ValueError(msg)
+        raise GuessingError(msg)
 
     @classmethod
     def fromname(cls, name: str) -> Video:
@@ -268,10 +275,6 @@ class Video:
 
         """
         return cls.fromguess(name, guessit(name))
-
-    def get_age(self, *, use_ctime: bool = False) -> timedelta:
-        """Age of the video, with an option to take into account creation time."""
-        return get_age(self.name, use_ctime=use_ctime)
 
     def __repr__(self) -> str:  # pragma: no cover
         return f'<{self.__class__.__name__} [{self.name!r}]>'
@@ -380,14 +383,14 @@ class Episode(Video):
             raise ValueError(msg)
 
         if 'title' not in guess or 'episode' not in guess:
-            msg = 'Insufficient data to process the guess'
-            raise ValueError(msg)
+            msg = f'Insufficient data to process the guess for {name!r}'
+            raise GuessingError(msg)
 
         return cls(
             name,
-            guess['title'],
-            guess.get('season', 1),
-            guess.get('episode', []),
+            series=ensure_str(guess['title']),
+            season=guess.get('season', 1),
+            episodes=guess.get('episode', []),
             title=guess.get('episode_title'),
             year=guess.get('year'),
             country=guess.get('country'),
@@ -470,8 +473,8 @@ class Movie(Video):
             raise ValueError(msg)
 
         if 'title' not in guess:
-            msg = 'Insufficient data to process the guess'
-            raise ValueError(msg)
+            msg = f'Insufficient data to process the guess for {name!r}'
+            raise GuessingError(msg)
 
         return cls(
             name,
@@ -493,12 +496,9 @@ class Movie(Video):
         return cls.fromguess(name, guessit(name, {'type': 'movie'}))
 
     def __repr__(self) -> str:
-        return '<{cn} [{title}{open}{country}{sep}{year}{close}]>'.format(
+        return '<{cn} [{title}{country}{year}]>'.format(
             cn=self.__class__.__name__,
             title=self.title,
-            year=self.year or '',
-            country=self.country or '',
-            open=' (' if self.year or self.country else '',
-            sep=') (' if self.year and self.country else '',
-            close=')' if self.year or self.country else '',
+            country=f' ({self.country})' if self.country else '',
+            year=f' ({self.year})' if self.year else '',
         )

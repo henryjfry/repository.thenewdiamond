@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 from babelfish import LANGUAGES, Language  # type: ignore[import-untyped]
 from guessit import guessit  # type: ignore[import-untyped]
 
-from subliminal.exceptions import NotInitializedProviderError, ProviderError
+from subliminal.exceptions import DiscardingError, NotInitializedProviderError
 from subliminal.matches import guess_matches
 from subliminal.subtitle import Subtitle
 from subliminal.video import Episode, Movie, Video
@@ -100,7 +100,7 @@ class MockProvider(Provider):
     subtitle_pool: list[MockSubtitle]
     is_broken: bool
 
-    def __init__(self, subtitle_pool: Sequence[MockSubtitle] | None = None) -> None:
+    def __init__(self, subtitle_pool: Sequence[MockSubtitle] | None = None, **kwargs: Any) -> None:
         self.logged_in = False
         self.subtitle_pool = list(self.internal_subtitle_pool)
         if subtitle_pool is not None:  # pragma: no cover
@@ -130,7 +130,7 @@ class MockProvider(Provider):
         """Query the provider for subtitles."""
         if self.is_broken:
             msg = f'Mock provider {self.__class__.__name__} query raised an error'
-            raise ProviderError(msg)
+            raise DiscardingError(msg)
 
         subtitles = []
         for lang in languages:
@@ -149,12 +149,12 @@ class MockProvider(Provider):
         """List all the subtitles for the video."""
         if self.is_broken:
             msg = f'Mock provider {self.__class__.__name__} list_subtitles raised an error'
-            raise ProviderError(msg)
+            raise DiscardingError(msg)
 
         subtitles = [
             subtitle
             for subtitle in self.subtitle_pool
-            if subtitle.language in languages and subtitle.video_name == video.name
+            if subtitle.language in languages and video.name.endswith(subtitle.video_name)
         ]
         logger.info(
             'Mock provider %s list subtitles for video %r and languages %s: %d',
@@ -169,14 +169,14 @@ class MockProvider(Provider):
         """Download the content of the subtitle."""
         if self.is_broken:
             msg = f'Mock provider {self.__class__.__name__} download_subtitle raised an error'
-            raise ProviderError(msg)
+            raise DiscardingError(msg)
 
         logger.info(
             'Mock provider %s download subtitle %s',
             self.__class__.__name__,
             subtitle,
         )
-        subtitle.content = subtitle.fake_content
+        subtitle.set_content(subtitle.fake_content)
 
 
 def mock_subtitle_provider(

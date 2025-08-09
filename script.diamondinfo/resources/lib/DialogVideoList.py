@@ -470,6 +470,8 @@ def get_tmdb_window(window_type):
 					listitems += ['Add to library']
 			listitems += ['Search item']
 			listitems += ['Trailer']
+			listitems += ['IMDB Trailers - Best']
+			listitems += ['IMDB Trailers - Choose']
 			listitems += ['TMDBHelper Context']
 			if self.search_str == 'Trakt Episodes/Movies in progress':
 				listitems += ['Trakt remove playback entry']
@@ -511,6 +513,25 @@ def get_tmdb_window(window_type):
 				xbmc.executebuiltin('Dialog.Close(busydialog)')
 				xbmc.executebuiltin('Dialog.Close(all,true)')
 				PLAYER.play_from_button(last_played_tmdb_helper, listitem=None, window=self, dbid=0)
+
+			if selection_text == 'IMDB Trailers - Choose' or selection_text == 'IMDB Trailers - Best':
+				#import imdb_trailers
+				if xbmc.getInfoLabel('listitem.DBTYPE') == 'movie':
+					imdb_id = TheMovieDB.get_imdb_id_from_movie_id(item_id)
+					media_type = 'movie'
+				elif xbmc.getInfoLabel('listitem.DBTYPE') in ['tv', 'tvshow', 'season', 'episode']:
+					imdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(item_id), 'imdb_id')
+					media_type = 'tv'
+				if selection_text == 'IMDB Trailers - Best':
+					url = 'plugin://%s?info=imdb_trailers_best&&imdb_id=%s' % (str(addon_ID()), str(imdb_id))
+					if media_type == 'tv':
+						url = url + '&season=1'
+				else:
+					url = 'plugin://%s?info=imdb_trailers_choice&&imdb_id=%s&&select=True' % (str(addon_ID()), str(imdb_id))
+				xbmc.executebuiltin('Dialog.Close(busydialog)')
+				xbmc.executebuiltin('Dialog.Close(all,true)')
+				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+
 			if selection_text == 'Play first episode' or selection_text == 'Play':
 				if (self.search_str == 'Trakt Episodes/Movies in progress' or self.search_str == 'Trakt Calendar Episodes')and xbmc.getInfoLabel('listitem.DBTYPE') == 'episode':
 					item_id = self.listitem.getProperty('tmdb_id')

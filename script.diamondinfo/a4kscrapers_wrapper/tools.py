@@ -419,12 +419,15 @@ INFO_TYPES = {
 	"MP4": ["mp4"],
 	"WMV": ["wmv"],
 	"MPEG": ["mpeg"],
+	"OPUS": ["opus"],
+	"AV1": ["av1"],
+	"HI10": ["hi10"],
 	"REMUX": ["remux", "bdremux"],
 	"DV": [" dv ", "dovi", "dolby vision", "dolbyvision"],
 	"HDR": [
 		" hdr ",
 		"hdr10",
-		"hdr 10",
+		"hdr 10","10 bit","10bit",
 		"uhd bluray 2160p",
 		"uhd blu ray 2160p",
 		"2160p uhd bluray",
@@ -659,19 +662,6 @@ def clean_title(title, broken=None):
 	return title.strip()
 
 from difflib import SequenceMatcher
-
-def get_accepted_resolution_set():
-	"""
-	Fetches set of accepted resolutions per settings
-	:return: set of resolutions
-	:rtype set
-	"""
-	resolutions = approved_qualities
-	max_res = get_setting("general.maxResolution", 'int')
-	min_res = get_setting("general.minResolution", 'int')
-
-	return set(resolutions[max_res:min_res+1])
-	#return set(resolutions)
 
 
 
@@ -1542,18 +1532,22 @@ class SourceSorter:
 		self.mediatype = self.item_information['info']['mediatype']
 
 		# Filter settings
-		self.resolution_set = get_accepted_resolution_set()
+		self.resolution_set = self.get_accepted_resolution_set()
 		self.disable_dv = False
 		self.disable_hdr = False
 		self.disable_hevc = False
+		self.downloader = False
 		self.filter_set = self._get_filters()
 
 		# Size filter settings
 		self.enable_size_limit = get_setting("general.enablesizelimit", 'bool')
+		self.download_enable_size_limit = get_setting("download.enablesizelimit", 'bool')
 		setting_mediatype = 'episode' if self.mediatype == 'episode' else 'movie'
 
-		self.size_limit = get_setting("general.sizelimit.{}".format(setting_mediatype), 'float') * 1024
-		self.size_minimum = get_setting("general.sizeminimum.{}".format(setting_mediatype), 'float') * 1024
+		self.size_limit = (get_setting("general.sizelimit.{}".format(setting_mediatype), 'float') * 1024)/1
+		self.download_size_limit =  (get_setting("download.sizelimit.{}".format(setting_mediatype), 'float') * 1024)/1024
+		self.size_minimum =  (get_setting("general.sizeminimum.{}".format(setting_mediatype), 'float') * 1024)/1
+		self.download_size_minimum =  (get_setting("download.sizeminimum.{}".format(setting_mediatype), 'float') * 1024)/1024
 
 		# Sort Settings
 		self.quality_priorities = {
@@ -1565,6 +1559,45 @@ class SourceSorter:
 
 		# Sort Methods
 		self._get_sort_methods()
+
+	def get_accepted_resolution_set_download(self):
+		"""
+		Fetches set of accepted resolutions per settings
+		:return: set of resolutions
+		:rtype set
+		"""
+		resolutions = approved_qualities
+		max_res = get_setting("download.maxResolution", 'int')
+		min_res = get_setting("download.minResolution", 'int')
+
+		return set(resolutions[max_res:min_res+1])
+		#return set(resolutions)
+
+
+	def get_accepted_resolution_set(self):
+		"""
+		Fetches set of accepted resolutions per settings
+		:return: set of resolutions
+		:rtype set
+		"""
+		resolutions = approved_qualities
+		max_res = get_setting("general.maxResolution", 'int')
+		min_res = get_setting("general.minResolution", 'int')
+
+		return set(resolutions[max_res:min_res+1])
+		#return set(resolutions)
+
+
+	def download_get_filters(self):
+		filter_string = get_setting('download.filters')
+		current_filters = set() if filter_string is None else set(filter_string.split(","))
+
+		# Set HR filters and remove from set before returning due to HYBRID
+		self.disable_dv = "DV" in current_filters
+		self.disable_hdr = "HDR" in current_filters
+		self.disable_hevc = "HEVC" in current_filters
+
+		return current_filters.difference({"HDR", "DV"})
 
 	def _get_filters(self):
 		filter_string = get_setting('general.filters')
@@ -1612,7 +1645,6 @@ class SourceSorter:
 		# Iterate sources, yielding only those that are not filtered
 		for source in source_list:
 			# Quality filter
-			#log(source)
 			if source['quality'] not in self.resolution_set:
 				#print(source)
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
@@ -1642,8 +1674,17 @@ class SourceSorter:
 				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				continue
 			# File size limits filter
-			if self.enable_size_limit and not (
+			if not self.downloader and self.enable_size_limit and not (
 					self.size_limit >= float(source.get("size", 0)) >= self.size_minimum
+			):
+				#print(source)
+				#print(self.size_limit)
+				#print(self.size_minimum)
+				#print(float(source.get("size", 0)))
+				#print(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+				continue
+			if self.downloader and self.download_enable_size_limit and not (
+					self.download_size_limit >= float(source.get("size", 0)) >= self.download_size_minimum
 			):
 				#print(source)
 				#print(self.size_limit)
@@ -1675,8 +1716,19 @@ class SourceSorter:
 			#	return self._sort_sources(sources_list)
 			#else:
 			#	return []
-			return self._sort_sources(sources_list)
-		return self._sort_sources(filtered_sources)
+			filtered_sources = list(self.filter_sources2(sources_list)) 
+			if (len(filtered_sources) == 0 and len(sources_list) > 0):
+				sources_list = self._sort_sources(sources_list)
+		sources_list = self._sort_sources(filtered_sources)
+		hash_list = []
+		new_sources_list = []
+		for i in sources_list:
+			if not i['hash'] in hash_list:
+				hash_list.append(i['hash'])
+				new_sources_list.append(i)
+
+		sources_list = new_sources_list
+		return sources_list
 
 	def _get_sort_methods(self):
 		"""
@@ -1703,18 +1755,31 @@ class SourceSorter:
 		#		sort_methods.append((self._get_last_release_name_sort_key, False))
 
 		for i in range(1, 9):
-			sm = get_setting("general.sortmethod.{}".format(i),'int')
-			reverse = get_setting("general.sortmethod.{}.reverse".format(i),'bool')
+			if self.downloader:
+				sm = get_setting("download.sortmethod.{}".format(i),'int')
+				reverse = get_setting("download.sortmethod.{}.reverse".format(i),'bool')
+			else:
+				sm = get_setting("general.sortmethod.{}".format(i),'int')
+				reverse = get_setting("general.sortmethod.{}.reverse".format(i),'bool')
+			
 
 			if sort_method_settings[sm] is None:
 				break
 
-			if sort_method_settings[sm] == self._get_type_sort_key:
-				self._get_type_sort_order()
-			if sort_method_settings[sm] == self._get_debrid_priority_key:
-				self._get_debrid_sort_order()
-			if sort_method_settings[sm] == self._get_hdr_sort_key:
-				self._get_hdr_sort_order()
+			if self.downloader:
+				if sort_method_settings[sm] == self._get_type_sort_key:
+					self.download_get_type_sort_order()
+				if sort_method_settings[sm] == self._get_debrid_priority_key:
+					self.download_get_debrid_sort_order()
+				if sort_method_settings[sm] == self._get_hdr_sort_key:
+					self.download_get_hdr_sort_order()
+			else:
+				if sort_method_settings[sm] == self._get_type_sort_key:
+					self._get_type_sort_order()
+				if sort_method_settings[sm] == self._get_debrid_priority_key:
+					self._get_debrid_sort_order()
+				if sort_method_settings[sm] == self._get_hdr_sort_key:
+					self._get_hdr_sort_order()
 
 			sort_methods.append((sort_method_settings[sm], reverse))
 
@@ -1766,7 +1831,40 @@ tools.SourceSorter(info).default_sort_methods()
 		set_setting("general.debridsort.1",'2') #rd
 		set_setting("general.debridsort.2",'0') 
 		set_setting("general.debridsort.3",'0') 
-		
+
+		set_setting("download.sortmethod.1",'5') #CAM_LOW
+		set_setting("download.sortmethod.1.reverse",'false')
+		set_setting("download.sortmethod.2",'1') #Quality
+		set_setting("download.sortmethod.2.reverse",'false')
+		set_setting("download.sortmethod.3",'4') #Size
+		set_setting("download.sortmethod.3.reverse",'false')
+		set_setting("download.sortmethod.4",'0')
+		set_setting("download.sortmethod.4.reverse",'false')
+		set_setting("download.sortmethod.4",'0')
+		set_setting("download.sortmethod.5.reverse",'false')
+		set_setting("download.sortmethod.6",'0')
+		set_setting("download.sortmethod.6.reverse",'false')
+		set_setting("download.sortmethod.7",'0')
+		set_setting("download.sortmethod.7.reverse",'false')
+		set_setting("download.sortmethod.8",'0')
+		set_setting("download.sortmethod.8.reverse",'false')
+		set_setting("download.minResolution",'3') #SD_MIN
+		set_setting("download.maxResolution",'0') #4k_MAX
+		set_setting("download.enablesizelimit",'false')
+		set_setting("download.sizelimit.movie",'30')
+		set_setting("download.sizelimit.episode",'3')
+		set_setting("download.sizeminimum.movie",'0')
+		set_setting("download.sizeminimum.episode",'0')
+		set_setting("download.filters",'HI10,HC,WMV,3D,HYBRID,SCR,CAM')
+		set_setting("download.sourcetypesort.1",'1') #cloud
+		set_setting("download.sourcetypesort.2",'0') 
+		set_setting("download.sourcetypesort.3",'0') 
+		set_setting("download.sourcetypesort.4",'0') 
+		set_setting("download.hdrsort.1",'2') #HDR
+		set_setting("download.hdrsort.2",'0') 
+		set_setting("download.debridsort.1",'2') #rd
+		set_setting("download.debridsort.2",'0') 
+		set_setting("download.debridsort.3",'0') 
 
 	def get_sort_methods(self):
 		"""
@@ -1794,6 +1892,35 @@ tools.SourceSorter(info).get_sort_methods()
 		for i in ('episode','movie'):
 				size_limit = get_setting("general.sizelimit.{}".format(i), 'float') * 1024
 				size_minimum = get_setting("general.sizeminimum.{}".format(i), 'float') * 1024
+				print('SIZE_MIN=', i,self.sizeof_fmt(size_minimum*1024*1024))
+				print('SIZE_MAX=', i,self.sizeof_fmt(size_limit*1024*1024))
+				print('')
+		for i in self.sort_methods:
+			for x in sort_method_names:
+				if sort_method_names[x] in str(i):
+					print(sort_method_list[str(x)], '	REVERSE=',i[1])
+		print('')
+
+		print('FILTERS=',self.download_get_filters())
+		print('')
+		print('FILTERS=disable_hdr=',self.disable_hdr)
+		print('FILTERS=disable_dv=',self.disable_dv)
+		print('')
+		min_res = approved_qualities[get_setting("download.minResolution", 'int')]
+		max_res = approved_qualities[get_setting("download.maxResolution", 'int')]
+		print('RESOLUTION_MIN=',min_res)
+		print('RESOLUTION_MAX=',max_res)
+		print('')
+		self.download_get_type_sort_order()
+		self.download_get_hdr_sort_order()
+		self.download_get_debrid_sort_order()
+		print('SOURCE_TYPE_SORT=',list(self.type_priorities)[0])
+		print('HDR_SORT=',list(self.hdr_priorities)[0])
+		print('DEBRID_SORT=',list(self.debrid_priorities)[0])
+		print('enablesizelimit=',get_setting("download.enablesizelimit", 'bool'))
+		for i in ('episode','movie'):
+				size_limit = get_setting("download.sizelimit.{}".format(i), 'float') * 1024
+				size_minimum = get_setting("download.sizeminimum.{}".format(i), 'float') * 1024
 				print('SIZE_MIN=', i,self.sizeof_fmt(size_minimum*1024*1024))
 				print('SIZE_MAX=', i,self.sizeof_fmt(size_limit*1024*1024))
 				print('')
@@ -1979,6 +2106,181 @@ tools.SourceSorter(info).get_sort_methods()
 			filter_string = filter_string + 'DV'
 		set_setting("general.filters" , filter_string)
 
+	def download_set_quality_sort_key(self):
+		#print('_set_quality_sort_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE Source Types Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+		self._set_quality_sort_method()
+
+	def download_set_quality_sort_method(self):
+		#print('RESOLUTION_MAX_MIN')
+		sort_method_list = {
+			'4K': '0',
+			'1080p': '1',
+			'720p': '2',
+			'SD': '3',
+		}
+		for i in ('minResolution','maxResolution'):
+			result = selectFromDict(true_false, 'Select ' + i)
+			set_setting("download.{}".format(i), str(result))
+
+	def download_set_type_sort_key(self):
+		#print('_set_type_sort_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE Source Types Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+		self._set_type_sort_method()
+
+	def download_set_type_sort_method(self):
+		#print('SOURCE_TYPE_SORT')
+		set_setting("download.sourcetypesort.1",'1') #cloud
+		set_setting("download.sourcetypesort.2",'0') 
+		set_setting("download.sourcetypesort.3",'0') 
+		set_setting("download.sourcetypesort.4",'0') 
+		"""
+		type_priority_settings_list = {
+			'None': 0,
+			'cloud': 1,
+			'adaptive': 2,
+			'torrent': 3,
+			'hoster': 4,
+		}
+		for i in range(1, 5):
+			message = 'Set Types Sort Filter: ' + str(i)
+			result = selectFromDict(type_priority_settings_list, 'Pick Source Types Sort')
+			if result == '0':
+				for x in range(i, 5):
+					set_setting("download.sourcetypesort.{}".format(x),'0')
+				break
+			else:
+				set_setting("download.sourcetypesort.{}".format(x),result)
+		"""
+
+	def download_set_debrid_priority_key(self):
+		#print('_set_debrid_priority_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE Debrid Types Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+		self._set_debrid_priority_method()
+
+	def download_set_debrid_priority_method(self):
+		#print('DEBRID_TYPE_SORT')
+		set_setting("download.debridsort.1",'2') #rd
+		set_setting("download.debridsort.2",'0') 
+		set_setting("download.debridsort.3",'0') 
+		"""
+		debrid_priority_settings = {
+			'None': 0,
+			'premiumize': 1,
+			'real_debrid': 2,
+			'all_debrid': 3,
+		}
+		for i in range(1, 4):
+			message = 'Set Debrid Sort Filter: ' + str(i)
+			result = selectFromDict(type_priority_settings_list, 'Pick Debrid Types Sort')
+			if result == '0':
+				for x in range(i, 4):
+					set_setting("download.debridsort.{}".format(x),'0')
+				break
+			else:
+				set_setting("download.debridsort.{}".format(x),result)
+		"""
+
+
+	def download_set_size_sort_key(self):
+		#print('_set_size_sort_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE Sizes Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+		self._set_size_sort_method()
+
+	def download_set_size_sort_method(self):
+		#print('SIZE_LIMIT_ENABLE')
+		result = selectFromDict(true_false, 'Size Limit enable')
+		set_setting("download.enablesizelimit", result)
+		if result == 'true':
+			#print('SIZE_MAX_MIN')
+			for i in ('episode','movie'):
+					size_limit = input('Set size upper limit for ' + i + ' in Gb:  ')
+					size_minimum = input('Set size lower limit for ' + i + ' in Gb:  ')
+					set_setting("download.sizelimit.{}".format(i), str(size_limit))
+					set_setting("download.sizeminimum.{}".format(i), str(size_minimum))
+
+	def download_set_low_cam_sort_key(self):
+		#print('_set_low_cam_sort_key')
+		#print(self.sort_int)
+		#print(self.setting_int)
+		#exit()
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE Low Quality Cam Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+
+	def download_set_hevc_sort_key(self):
+		#print('_set_hevc_sort_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE HEVC Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+
+	def download_set_hdr_sort_key(self):
+		#print('_set_hdr_sort_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE HDR Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+		self._set_hdr_sort_method()
+
+
+	def download_set_hdr_sort_method(self):
+		#print('HDR_SORT')
+		hdr_priority_settings = {
+			'None': 0,
+			'DV': 1,
+			'HDR': 2,
+		}
+		for i in range(1, 3):
+			message = 'Set HDR Sort Filter: ' + str(i)
+			result = selectFromDict(type_priority_settings_list, 'Pick Debrid Types Sort')
+			if result == '0':
+				for x in range(i, 3):
+					set_setting("download.hdrsort.{}".format(x),'0')
+				break
+			else:
+				set_setting("download.hdrsort.{}".format(x),result)
+
+
+	def download_set_audio_channels_sort_key():
+		#print('_set_audio_channels_sort_key')
+		set_setting("download.sortmethod.{}".format(self.sort_int),self.setting_int)
+		#print('REVERSE/TRUE/FALSE')
+		result = selectFromDict(true_false, 'REVERSE AUDIO Sort')
+		set_setting("download.sortmethod.{}.reverse".format(self.sort_int), result)
+
+	def download_set_filters():
+		#print('_set_filters')
+		filter_string = ''
+		curr_filters = self._get_filters()
+		if len(curr_filters) == 1:
+			filter_string = curr_filters[0]
+		else:
+			for i in curr_filters:
+				filter_string = filter_string + i + ','
+			filter_string = filter_string[:-1]
+		result = selectFromDict(true_false, 'HDR Disable')
+		if result == 'true':
+			filter_string = filter_string + 'HDR'
+		#print('HDR_DISABLE')
+		#print('DV_DISABLE')
+		result = selectFromDict(true_false, 'DV Disable')
+		if result == 'true':
+			filter_string = filter_string + 'DV'
+		set_setting("download.filters" , filter_string)
 
 	def set_sort_method_settings(self):
 		"""
@@ -1986,6 +2288,7 @@ import getSources, get_meta, tools
 info = get_meta.blank_meta()
 tools.SourceSorter(info).set_sort_method_settings()
 """
+
 		sort_method_settings = {
 				0: None,
 				1: self._set_quality_sort_key,
@@ -2044,6 +2347,86 @@ tools.SourceSorter(info).set_sort_method_settings()
 				self.default_sort_methods()
 		self.get_sort_methods()
 
+	def set_download_sort_method_settings(self):
+		"""
+import getSources, get_meta, tools
+info = get_meta.blank_meta()
+tools.SourceSorter(info).set_download_sort_method_settings()
+"""
+
+		sort_method_settings = {
+				0: None,
+				1: self.download_set_quality_sort_key,
+				2: self.download_set_type_sort_key,
+				3: self.download_set_debrid_priority_key,
+				4: self.download_set_size_sort_key,
+				5: self.download_set_low_cam_sort_key,
+				6: self.download_set_hevc_sort_key,
+				7: self.download_set_hdr_sort_key,
+				8: self.download_set_audio_channels_sort_key
+			}
+		self.get_sort_methods()
+		sort_method_list2 = {}
+		for i in sort_method_list:
+			sort_method_list2[sort_method_list[i]] = i
+		for i in range(1, 9):
+			message = 'Set Sort Filter Number: ' + str(i) + '	(DEFAULT=CAM_LOW//QUALITY//SIZE)'
+			print(message)
+			result = selectFromDict(sort_method_list2, ' Sorting method')
+			if result == '0':
+				for x in range(i, 9):
+					set_setting("download.sortmethod.{}".format(x),'0')
+					set_setting("download.sortmethod.{}.reverse".format(x), 'false')
+				break
+			else:
+				self.setting_int = result
+				self.sort_int = i
+				sort_method_settings[int(result)]()
+		sort_method_settings = {
+			'None (Exit)': 0,
+			'HDR Sorting': 1,
+			'Size limits': 2,
+			#'Debrid Type Sorting': 3,
+			#'Source Type Sorting': 4,
+			'Quality Limits': 5,
+			'Set Filters': 6,
+			'Defaults': 7
+			}
+		for i in range(1, 7):
+			result = selectFromDict(sort_method_settings, 'Setup Further Sorts/Filters/Limits')
+			if result == 0:
+				break
+			if result == 1:
+				self.download_set_hdr_sort_method
+			if result == 2:
+				self.download_set_size_sort_method
+			if result == 3:
+				self.download_set_debrid_priority_method
+			if result == 4:
+				self.download_set_type_sort_method
+			if result == 5:
+				self.download_set_quality_sort_method
+			if result == 6:
+				self.download_set_filters
+			if result == 7:
+				self.default_sort_methods()
+		self.get_sort_methods()
+
+	def download_get_type_sort_order(self):
+		"""
+		Get seren settings for type sort priority
+		"""
+		type_priorities = {}
+
+		for i in range(1, 5):
+			tp = type_priority_settings.get(
+				get_setting("download.sourcetypesort.{}".format(i), 'int')
+			)
+			if tp is None:
+				break
+			type_priorities[tp] = -i
+		self.type_priorities = type_priorities
+
 	def _get_type_sort_order(self):
 		"""
 		Get seren settings for type sort priority
@@ -2058,6 +2441,24 @@ tools.SourceSorter(info).set_sort_method_settings()
 				break
 			type_priorities[tp] = -i
 		self.type_priorities = type_priorities
+
+	def download_get_hdr_sort_order(self):
+		"""
+		Get seren settings for type sort priority
+		"""
+		hdr_priorities = {}
+		hdr_priority_settings = {
+			0: None,
+			1: "DV",
+			2: "HDR",
+		}
+
+		for i in range(1, 3):
+			hdrp = hdr_priority_settings.get(get_setting("download.hdrsort.{}".format(i), 'int'))
+			if hdrp is None:
+				break
+			hdr_priorities[hdrp] = -i
+		self.hdr_priorities = hdr_priorities
 
 	def _get_hdr_sort_order(self):
 		"""
@@ -2076,6 +2477,27 @@ tools.SourceSorter(info).set_sort_method_settings()
 				break
 			hdr_priorities[hdrp] = -i
 		self.hdr_priorities = hdr_priorities
+
+	def download_get_debrid_sort_order(self):
+		"""
+		Get seren settings for debrid sort priority
+		"""
+		debrid_priorities = {}
+		debrid_priority_settings = {
+			0: None,
+			1: "premiumize",
+			2: "real_debrid",
+			3: "all_debrid",
+		}
+
+		for i in range(1, 4):
+			debridp = debrid_priority_settings.get(
+				get_setting("download.debridsort.{}".format(i),'int')
+			)
+			if debridp is None:
+				break
+			debrid_priorities[debridp] = -i
+		self.debrid_priorities = debrid_priorities
 
 	def _get_debrid_sort_order(self):
 		"""

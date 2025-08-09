@@ -159,6 +159,7 @@ def main():
 	elif result == 11:
 		info = get_meta.blank_meta()
 		tools.SourceSorter(info).set_sort_method_settings()
+		tools.SourceSorter(info).set_download_sort_method_settings()
 	elif result == 12:
 		info = get_meta.blank_meta()
 		tools.SourceSorter(info).get_sort_methods()
