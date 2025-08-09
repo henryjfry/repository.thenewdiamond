@@ -12,152 +12,136 @@ def print_log(log_item1, log_item2=None):
 		print(str(log_item1)+str(log_item2)+'===>OPENINFO')
 
 def get_imdb_videos(imdb_id):
+	import re, requests
+	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
+	HEADERS = {
+		'Referer': 'https://www.imdb.com/',
+		'Origin': 'https://www.imdb.com',
+		'User-Agent': 'Mozilla/5.0'
+	}
 
-	def get_first_page(imdb_id, locale="en-GB", page_size=50):
-		url = "https://api.graphql.imdb.com/"
-		headers = {
-			"Content-Type": "application/json",
-			"User-Agent": "Mozilla/5.0",
-			"Accept": "application/json"
-		}
-		variables = {
-			"const": imdb_id,
-			"first": page_size,
-			"filter": {
-				"maturityLevel": "INCLUDE_MATURE",
-				"nameConstraints": {},
-				"titleConstraints": {}
-			},
-			"locale": locale,
-			"sort": {
-				"by": "DATE",
-				"order": "DESC"
+	def gqlmin(q):
+		return re.sub(' {4}', '', q)
+
+	query_subpage = '''
+	query TitleVideoGallerySubPage(
+		$const: ID!,
+		$first: Int!,
+		$filter: VideosQueryFilter,
+		$sort: VideoSort
+	) {
+		title(id: $const) {
+			titleText { text }
+			plot { plotText { plainText } }
+			videoStrip(first: $first, filter: $filter, sort: $sort) {
+				...VideoGalleryItems
 			}
 		}
-		payload = {
-			"operationName": "TitleVideoGallerySubPage",
-			"variables": variables,
-			"extensions": {
-				"persistedQuery": {
-					"version": 1,
-					"sha256Hash": "e65c5b1d7cfedf8728d046ff3a76a323b20702713f5c03c8810dd9b09835d873"
+	}
+	'''
+	query_pagination = '''
+	query TitleVideoGalleryPagination(
+		$const: ID!,
+		$first: Int!,
+		$after: ID!,
+		$filter: VideosQueryFilter,
+		$sort: VideoSort
+	) {
+		title(id: $const) {
+			videoStrip(first: $first, after: $after, filter: $filter, sort: $sort) {
+				...VideoGalleryItems
+			}
+		}
+	}
+	'''
+	fragment = '''
+	fragment VideoGalleryItems on VideoConnection {
+		pageInfo {
+			endCursor
+			hasNextPage
+		}
+		total
+		edges {
+			node {
+				id
+				contentType { id }
+				name { value }
+				runtime { value }
+				thumbnail { url }
+				primaryTitle {
+					series {
+						displayableEpisodeNumber {
+							displayableSeason {
+								season
+							}
+						}
+						series {
+							titleText { text }
+						}
+					}
 				}
 			}
 		}
-		response = requests.post(url, headers=headers, data=json.dumps(payload))
-		x = 0
-		if 'PersistedQueryNotFound' in str(response.text):
-			while 'PersistedQueryNotFound' in str(response.text):
-				response = requests.post(url, headers=headers, data=json.dumps(payload))
-				time.sleep(0.3)
-				x = x + 1
-				if x == 100:
-					break
-		if "errorType" in str(response.text):
-			print_log(response.text,'get_first_page'+str(x))
-		data = response.json()
-		video_data = data.get("data", {}).get("title", {}).get("videoStrip", {})
-		plot = data.get("data", {}).get("title", {}).get("plot", {}).get("plotText", {}).get("plainText", "")
-		edges = video_data.get("edges", [])
-		videos = [edge.get("node", {}) for edge in edges]
-		total = video_data.get("total", {})
-		title = data.get("data", {}).get("title", {}).get("titleText", {}).get("text", {})
-		print_log(videos)
-		for idx, key in enumerate(videos):
-			videos[idx]["plot"] = plot
-			videos[idx]["total"] = total
-			videos[idx]["item_title"] = title
-		end_cursor = video_data.get("pageInfo", {}).get("endCursor")
-		
-		return videos, end_cursor
+	}
+	'''
 
-	def get_next_page(imdb_id, after_cursor):
-		url = "https://caching.graphql.imdb.com/"
-		headers = {
-			"accept": "application/graphql+json, application/json",
-			"content-type": "application/json",
-			"x-imdb-client-name": "imdb-web-next",
-			"x-imdb-user-country": "GB",
-			"x-imdb-user-language": "en-GB",
-			"user-agent": "Mozilla/5.0"
+	variables = {
+		"const": imdb_id,
+		"first": 50,
+		"filter": {"maturityLevel": "INCLUDE_MATURE"},
+		"sort": {"by": "DATE", "order": "DESC"}
+	}
+
+	videos = []
+	plot_text = ""
+	item_title = ""
+	total_videos = None
+
+	# First page
+	pdata = {
+		'operationName': "TitleVideoGallerySubPage",
+		'query': gqlmin(query_subpage + fragment),
+		'variables': variables
+	}
+	r = requests.post(API_URL, headers=HEADERS, json=pdata)
+	r.raise_for_status()
+	json_data = r.json()
+
+	title_data = json_data.get('data', {}).get('title', {})
+	plot_text = title_data.get('plot', {}).get('plotText', {}).get('plainText', "")
+	item_title = title_data.get('titleText', {}).get('text', "")
+
+	video_data = title_data.get('videoStrip', {})
+	total_videos = video_data.get('total')
+	videos.extend([edge.get('node', {}) for edge in video_data.get('edges', [])])
+
+	cursor = video_data.get('pageInfo', {}).get('endCursor')
+	has_next = video_data.get('pageInfo', {}).get('hasNextPage', False)
+
+	# Pagination loop
+	while has_next and cursor:
+		variables["after"] = cursor
+		pdata = {
+			'operationName': "TitleVideoGalleryPagination",
+			'query': gqlmin(query_pagination + fragment),
+			'variables': variables
 		}
-		payload = {
-			"operationName": "TitleVideoGalleryPagination",
-			"variables": {
-				"after": after_cursor,
-				"const": imdb_id,
-				"filter": {
-					"maturityLevel": "INCLUDE_MATURE",
-					"nameConstraints": {},
-					"titleConstraints": {}
-				},
-				"first": 50,
-				"locale": "en-GB",
-				"sort": {
-					"by": "DATE",
-					"order": "DESC"
-				}
-			},
-			"extensions": {
-				"persistedQuery": {
-					"sha256Hash": "e1710d91c7f00600952ca606dd8af0815f7448b173140e01bdbaf79d582b0187",
-					"version": 1
-				}
-			}
-		}
-		response = requests.post(url, json=payload, headers=headers)
-		#print_log(response.text,'get_next_page')
+		r = requests.post(API_URL, headers=HEADERS, json=pdata)
+		r.raise_for_status()
+		video_data = r.json().get('data', {}).get('title', {}).get('videoStrip', {})
+		videos.extend([edge.get('node', {}) for edge in video_data.get('edges', [])])
+		cursor = video_data.get('pageInfo', {}).get('endCursor')
+		has_next = video_data.get('pageInfo', {}).get('hasNextPage', False)
+		time.sleep(0.3)
 
-		x = 0
-		if 'PersistedQueryNotFound' in str(response.text):
-			while 'PersistedQueryNotFound' in str(response.text):
-				response = requests.post(url, json=payload, headers=headers)
-				time.sleep(0.3)
-				x = x + 1
-				if x == 100:
-					break
+	# Match old output: inject plot, total, and item_title
+	for idx, v in enumerate(videos):
+		v["plot"] = plot_text
+		v["total"] = total_videos
+		v["item_title"] = item_title
+		videos[idx] = v
 
-		if "errorType" in str(response.text):
-			print_log(response.text,'get_next_page'+str(x))
-
-		data = response.json()
-		video_data = data.get("data", {}).get("title", {}).get("videoStrip", {})
-		edges = video_data.get("edges", [])
-		videos = [edge.get("node", {}) for edge in edges]
-		end_cursor = video_data.get("pageInfo", {}).get("endCursor")
-		has_next_page = video_data.get("pageInfo", {}).get("hasNextPage", False)
-		return videos, end_cursor, has_next_page
-
-	def fetch_all_imdb_videos(imdb_id):
-		all_videos = []
-		videos, cursor = get_first_page(imdb_id)
-
-		all_videos.extend(videos)
-		print_log(f"Fetched {len(videos)} videos from first page")
-		if len(videos) == 0:
-			videos, cursor = get_first_page(imdb_id)
-			if len(videos) == 0:
-				return None
-		plot = videos[0]['plot']
-		total = videos[0]['total']
-		item_title = videos[0]['item_title']
-		while cursor:
-			if len(all_videos) == total:
-				break
-			videos, cursor, has_next = get_next_page(imdb_id, cursor)
-			for key in videos:
-				videos[key]["plot"] = plot
-				videos[key]["item_title"] = item_title
-			all_videos.extend(videos)
-			print_log(f"Fetched {len(videos)} more videos, total: {len(all_videos)}")
-			if not has_next:
-				break
-			time.sleep(0.5)  # Be polite to the server
-
-		return all_videos
-
-	all_videos = fetch_all_imdb_videos(imdb_id)
-	return all_videos
+	return videos
 
 def time_format(seconds: int) -> str:
 	if seconds is not None:
