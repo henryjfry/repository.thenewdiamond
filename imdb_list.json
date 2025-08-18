@@ -4,10 +4,10 @@
 		{"ls_imdb_coming_soon" : "IMDB Coming Soon"},
 		{"ls_imdb_movies_near_you" : "IMDB Movies Near You"},
 
-		{"ls_popular" : "IMDB Popular"},
-		{"ls_trending" : "IMDB Trending"},
-		{"ls_anticipated" : "IMDB Anticipated"},
-		{"ls_recent" : "IMDB Recent"},
+		{"ls_popular" : "IMDB PopularTitles"},
+		{"ls_trending" : "IMDB TrendingTitles"},
+		{"ls_anticipated" : "IMDB Anticipated PopularTitles"},
+		{"ls_recent" : "IMDB RecentVideos Trailers"},
 
 		{"ls562384988" : "IMDB Nowtflix"},
 		{"ur24116780" : "IMDB stevenroose's Watchlist"},
