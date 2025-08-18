@@ -51,7 +51,7 @@ except ImportError:
 def patch_ak4_core_find_url():
 
 	patch_line_434 = """if self.caller_name in ['anirena'"""
-	patch_update_434 = """        if self.caller_name in ['anirena', 'btdig', 'bt4g', 'btscene', 'glo', 'eztv', 'lime', 'rutor', 'torrentapi', 'torrentz2', 'showrss', 'scenerls', 'piratebay', 'magnetdl', 'torrentio', 'elfhosted']: ## PATCH
+	patch_update_434 = """		if self.caller_name in ['anirena', 'btdig', 'bt4g', 'btscene', 'glo', 'eztv', 'lime', 'rutor', 'torrentapi', 'torrentz2', 'showrss', 'scenerls', 'piratebay', 'magnetdl', 'torrentio', 'elfhosted']: ## PATCH
 """
 	file_path = os.path.join(os.path.join(tools.ADDON_USERDATA_PATH, 'providerModules', 'a4kScrapers') , 'core.py')
 	file1 = open(file_path, 'r')
@@ -77,21 +77,21 @@ def patch_ak4_core_find_url():
 def patch_ak4_requests():
 	#tools.log('NO_PATCH')
 	#return
-	patch_line_147 = '            response = None'
-	patch_update_147 = """            response = response_err ## PATCH
+	patch_line_147 = '			response = None'
+	patch_update_147 = """			response = response_err ## PATCH
 """
 
-	patch_line_150 = '                response = request(None)'
-	patch_update_150 = """                try: response = request(None) ## PATCH
-                except requests.exceptions.ConnectionError: return response ## PATCH
+	patch_line_150 = '				response = request(None)'
+	patch_update_150 = """				try: response = request(None) ## PATCH
+				except requests.exceptions.ConnectionError: return response ## PATCH
 """
 
-	patch_line_154 = '                response_err = response'
-	patch_update_154 = """                if response: ## PATCH
-                    response_err = response ## PATCH
-                    self._verify_response(response) ## PATCH
-                else: ## PATCH
-                    self._verify_response(response_err) ## PATCH
+	patch_line_154 = '				response_err = response'
+	patch_update_154 = """				if response: ## PATCH
+					response_err = response ## PATCH
+					self._verify_response(response) ## PATCH
+				else: ## PATCH
+					self._verify_response(response_err) ## PATCH
 """
 
 
@@ -1734,11 +1734,14 @@ getSources.check_rd_cloud(meta)
 		meta['episode_meta'] = {}
 	else:
 		info = None
-		for i in meta['tvmaze_seasons']['episodes']:
-			if i['episode'] == meta['episode_meta']['episode']:
-				info = i
-				break
-		if not info:
+		try:
+			for i in meta['tvmaze_seasons']['episodes']:
+				if i['episode'] == meta['episode_meta']['episode']:
+					info = i
+					break
+			if not info:
+				info = meta['episode_meta'] ##info = meta['tmdb_seasons']['episodes'][int(meta['episode_meta']['episode'])-1] #info = meta['episode_meta']
+		except:
 			info = meta['episode_meta'] ##info = meta['tmdb_seasons']['episodes'][int(meta['episode_meta']['episode'])-1] #info = meta['episode_meta']
 		download_type = meta.get('download_type',False)
 	if meta['episode_meta'].get('special',False) == True:
@@ -2678,11 +2681,80 @@ getSources.get_providers_dict()
 	#log(providers_dict)
 	return providers_dict
 
+def setup_coco_scrapers():
+	import os
+	import tempfile
+	import requests
+	import xml.etree.ElementTree as ET
+	import xbmc
+	import xbmcaddon
+	import xbmcgui
+	XML_URL = "https://raw.githubusercontent.com/CocoJoe2411/repository.cocoscrapers/master/zips/addons.xml"
+
+	#try:
+	if 1==1:
+		# Fetch and parse the XML
+		response = requests.get(XML_URL)
+		root = ET.fromstring(response.content)
+
+		# Find the addon and repository info
+		addon_id = None
+		addon_version = None
+		repo_base_url = None
+
+		for addon in root.findall('addon'):
+			if addon.get('id') == "script.module.cocoscrapers":
+				addon_id = addon.get('id')
+				addon_version = addon.get('version')
+			elif addon.get('id') == "repository.cocoscrapers":
+				dir_tag = addon.find(".//dir")
+				datadir_tag = dir_tag.find("datadir") if dir_tag is not None else None
+				if datadir_tag is not None:
+					repo_base_url = datadir_tag.text
+
+		if not addon_id or not addon_version or not repo_base_url:
+			xbmcgui.Dialog().notification("Setup Failed", "Missing addon or repo info", xbmcgui.NOTIFICATION_ERROR, 5000)
+			return
+
+		# Download and install the addon zip
+		zip_url = f"{repo_base_url}{addon_id}/{addon_id}-{addon_version}.zip"
+		temp_dir = tempfile.gettempdir()
+		zip_path = os.path.join(temp_dir, f"{addon_id}-{addon_version}.zip")
+		#tools.log(zip_path)
+
+		# Check if addon is already installed
+		try:
+			addon = xbmcaddon.Addon(id=addon_id)
+			installed_version = addon.getAddonInfo('version')
+			if installed_version == addon_version:
+				xbmcgui.Dialog().notification("Addon Already Installed", f"{addon_id} v{addon_version}", xbmcgui.NOTIFICATION_INFO, 5000)
+				return
+		except:
+			pass  # Not installed
+
+
+
+		response = requests.get(zip_url)
+		with open(zip_path, 'wb') as f:
+			f.write(response.content)
+
+		xbmc.executebuiltin(f'InstallAddon({zip_path})')
+		os.remove(zip_path)
+
+		xbmcgui.Dialog().notification("Installation Complete", f"{addon_id} v{addon_version} installed", xbmcgui.NOTIFICATION_INFO, 5000)
+
+	#except Exception as e:
+	#	xbmc.log(f"Setup error: {e}", xbmc.LOGERROR)
+	#	xbmcgui.Dialog().notification("Setup Error", str(e), xbmcgui.NOTIFICATION_ERROR, 5000)
+
+
+
+"""
 def setup_providers(provider_url):
-	"""
+	'''
 import getSources
 getSources.setup_providers('https://bit.ly/a4kScrapers')
-"""
+'''
 	if os.path.exists(tools.A4KPROVIDERS_PATH_original):
 		shutil.rmtree(tools.A4KPROVIDERS_PATH_original)
 	if os.path.exists(tools.A4KPROVIDERS_PATH):
@@ -2718,7 +2790,7 @@ getSources.setup_providers('https://bit.ly/a4kScrapers')
 		json.dump(file_data, file, indent = 4)
 	patch_ak4_core_find_url()
 
-	"""
+	'''
 	rutor_path = os.path.join(current_directory, 'rutor.py')
 	new_rutor_path = os.path.join(tools.A4KPROVIDERS_PATH, 'a4kScrapers', 'en', 'torrent', 'rutor.py')
 
@@ -2736,14 +2808,15 @@ getSources.setup_providers('https://bit.ly/a4kScrapers')
 		#file_data['trackers']["mirrorbay"] = mirrorbay_urls_dict
 		file.seek(0)
 		json.dump(file_data, file, indent = 4)
-	"""
+	'''
 	
 	tools.findReplace(tools.A4KPROVIDERS_PATH, "'providers.", "'providers2.", "*.py")
 	tools.findReplace(tools.A4KPROVIDERS_PATH, "from providers.a4kScrapers", "from providers2.a4kScrapers", "*.py")
 	providers_dict = get_providers_dict()
 	tools.write_all_text(tools.PROVIDERS_JSON,str(providers_dict))
+"""
 
-
+"""
 def get_providers():
 	try: providers_dict = eval(tools.read_all_text(tools.PROVIDERS_JSON))
 	except: providers_dict = get_providers_dict()
@@ -2753,6 +2826,7 @@ def get_providers():
 			if x[3] == False or str(x[3]) == 'False':
 				providers_dict[i].pop(xdx)
 	return providers_dict
+"""
 
 def setup_userdata_folder():
 	"""
@@ -2761,7 +2835,7 @@ getSources.setup_userdata_folder()
 """
 	tools.setup_userdata()
 
-
+"""
 def enable_disable_providers_kodi():
 	import xbmcgui, xbmc
 
@@ -2803,13 +2877,14 @@ def enable_disable_providers_kodi():
 	if provider_dict:
 		tools.write_all_text(tools.PROVIDERS_JSON,str(provider_dict))
 	return
+"""
 
-
+"""
 def enable_disable_providers():
-	"""
+	'''
 import getSources
 getSources.enable_disable_providers()
-"""
+'''
 	providers_dict = eval(tools.read_all_text(tools.PROVIDERS_JSON))
 	providers_dict_test = providers_dict
 	for idx, i in enumerate(providers_dict_test):
@@ -2836,7 +2911,7 @@ getSources.enable_disable_providers()
 		for xdx, x in enumerate(providers_dict_test[i]):
 			log(x)
 	return
-
+"""
 
 def coco_sources(item_information=None,x264_only=False):
 	import sys
@@ -2911,6 +2986,12 @@ def coco_sources(item_information=None,x264_only=False):
 
 			for provider_name in providers:
 				
+				provider_enabled = tools.get_setting(setting_name='provider.' + provider_name, var_type = 'string', SETTING_XML=tools.COCO_SETTING_XML)
+				if str(provider_enabled).lower() == 'false':
+					tools.log('DISABLED_'+provider_name)
+					continue
+				else:
+					tools.log('ENABLED_'+provider_name)
 				try:
 				#if 1==1:
 					safe_name = provider_name #if provider_name[0].isalpha() else f'_{provider_name}'
@@ -2925,6 +3006,9 @@ def coco_sources(item_information=None,x264_only=False):
 							'imdb': imdb,
 						}
 						results = scraper.sources(data, hostDict={})
+						try: len_results = len(results)
+						except: len_results = 0
+						tools.log(str(len_results)+'_'+provider_name+'_RESULTS')
 						try: all_results.extend(results)
 						except: continue
 
@@ -2940,6 +3024,9 @@ def coco_sources(item_information=None,x264_only=False):
 							'imdb': imdb,
 						}
 						results = scraper.sources(data, hostDict={})
+						try: len_results = len(results)
+						except: len_results = 0
+						tools.log(str(len_results)+ '_'+provider_name+'_RESULTS')
 						try: all_results.extend(results)
 						except: continue
 
@@ -2953,6 +3040,9 @@ def coco_sources(item_information=None,x264_only=False):
 								'imdb': imdb,  # Optional, can be filled if available
 							}
 							pack_results = scraper.sources_packs(pack_data, hostDict={}, search_series=False)
+							try: len_results = len(pack_results)
+							except: len_results = 0
+							tools.log(str(len_results)+ '_PACK_RESULTS')
 							try: all_results.extend(pack_results)
 							except: continue
 

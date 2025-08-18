@@ -85,6 +85,10 @@ def start_info_actions(infos, params):
 			else:
 				context_info2()
 
+		if info == 'setup_coco_scrapers':
+			from a4kscrapers_wrapper import getSources
+			getSources.setup_coco_scrapers()
+
 		if info == 'a4kProviders':
 			from a4kscrapers_wrapper import getSources
 			getSources.setup_providers('https://bit.ly/a4kScrapers')
@@ -389,7 +393,7 @@ def start_info_actions(infos, params):
 				return
 			xbmc.log(str('start...')+'play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
 			time_start = time.time()
-			time_end = time_start + 145
+			time_end = time_start + 215
 			tmdb_plugin_flag = False
 			tmdb_helper_finished = 0
 			plugin_finished = 0
@@ -680,6 +684,10 @@ def start_info_actions(infos, params):
 			xbmc.executebuiltin('Addon.OpenSettings(%s)' % addon_ID())
 			Utils.hide_busy()
 
+		elif info == 'open_settings_coco_scrapers':
+			xbmc.executebuiltin('Addon.OpenSettings(script.module.cocoscrapers)')
+			Utils.hide_busy()
+			
 		elif info == 'setup_fen_light_players':
 			Utils.show_busy()
 			from pathlib import Path

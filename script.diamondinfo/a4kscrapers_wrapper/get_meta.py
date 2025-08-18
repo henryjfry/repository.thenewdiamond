@@ -739,80 +739,87 @@ def get_episode_meta(season, episode,tmdb=None, show_name=None, year=None, inter
 			try: test = response['id']
 			except: response = eval(str(response).replace('null','"null"'))
 
-			show['tvmaze_runtime'] = response['runtime']
+			try: show['tvmaze_runtime'] = response['runtime']
+			except: show['tvmaze_runtime'] = None
 			if show['tvmaze_runtime'] == 'None' or show['tvmaze_runtime'] == None:
 				show['tvmaze_runtime'] = 60
-			show['tvmaze_averageRuntime'] = response['averageRuntime']
+			try: show['tvmaze_averageRuntime'] = response['averageRuntime']
+			except: show['tvmaze_averageRuntime'] = None
 			if show['tvmaze_averageRuntime'] == 'None' or show['tvmaze_averageRuntime'] == None:
 				show['tvmaze_runtime'] = 60
-			show['tvmaze_premiered'] = response['premiered']
-			show['tvmaze_show_id'] = response['id']
+			try:
+				show['tvmaze_premiered'] = response['premiered']
+			except:
+				show['tvmaze_premiered'] = '1970-01-01'
+			try: show['tvmaze_show_id'] = response['id']
+			except: show['tvmaze_show_id'] = False
 
-			url = 'http://api.tvmaze.com/shows/'+str(show['tvmaze_show_id'])+'/episodes?specials=1'
-			response = get_response_cache(url=url, cache_days=7.0, folder='TVMaze')
+			if show['tvmaze_show_id']:
+				url = 'http://api.tvmaze.com/shows/'+str(show['tvmaze_show_id'])+'/episodes?specials=1'
+				response = get_response_cache(url=url, cache_days=7.0, folder='TVMaze')
 
-			try: test = response[0]['id']
-			except: response = eval(str(response).replace('null','"null"'))
+				try: test = response[0]['id']
+				except: response = eval(str(response).replace('null','"null"'))
 
-			season_dict = {}
-			season_dict['episodes'] = []
-			tot_episode_count = 0
-			runtime_list = []
+				season_dict = {}
+				season_dict['episodes'] = []
+				tot_episode_count = 0
+				runtime_list = []
 
-			for i in response: #year
-				if i.get('number',-1):
-					i_number = int(i.get('number',-1))
-				else:
-					i_number = -1
-				if int(i.get('season',-1)) > 0:
-					tot_episode_count = tot_episode_count + 1
-				if int(i.get('season',-1)) == int(season):
-					try: still_path = i['image']['original']
-					except: still_path = None
-					try: runtime_list.append(int(i['runtime']))
-					except: runtime_list.append(0)
+				for i in response: #year
+					if i.get('number',-1):
+						i_number = int(i.get('number',-1))
+					else:
+						i_number = -1
+					if int(i.get('season',-1)) > 0:
+						tot_episode_count = tot_episode_count + 1
+					if int(i.get('season',-1)) == int(season):
+						try: still_path = i['image']['original']
+						except: still_path = None
+						try: runtime_list.append(int(i['runtime']))
+						except: runtime_list.append(0)
 
-					curr_episode = {'aliases': alternative_titles,'originaltitle': i['name'], 'tvshowtitle': show_name, 'tvshow': show_name, 'download_type': 'episode', 'episode': i_number, 'air_date': i['airdate'], 'episode_air_date': i['airdate'],'episode_number': i_number,'episode_type': i['type'],'name': i['name'],'runtime': i['runtime'],'season_number': i.get('season',-1),'show_id': show['tvmaze_show_id'],'still_path': still_path,
-					'vote_average': i['rating']['average'], 'tmdb': tmdb, 'imdb': imdb, 'tvdb': tvdb, 'imdb_id': imdb,'imdbnumber': imdb, 'is_airing': is_airing, 'is_movie': False, 'is_tvshow': True, 'media_type': 'episode','mediatype': 'episode', 'season': i.get('season',-1), 'title':  i['name'], 'tmdb_id': tmdb, 'tvshow': show_name, 'tvshow_year': first_air_date[:4], 'year': i['airdate'][:4], 'tvmaze_ep_id': i['id'],
-					'info': {'aliases': alternative_titles, 'originaltitle': i['name'], 'tvshowtitle': show_name, 'episode': i_number,'imdb_id': imdb,'imdbnumber': imdb,'mediatype': 'episode','season': i.get('season',-1),'title': i['name'],'tmdb_id': tmdb,'tmdb_show_id': tmdb,'tvdb_id': tvdb,'tvdb_show_id': tvdb,'tvshow': show_name,'tvshow.imdb_id': imdb,'tvshow.tmdb_id': tmdb,'tvshow.tvdb_id': tvdb,'tvshow.year': str(first_air_date[:4]),'tvshowtitle': show_name, 'tvmaze_ep_id': i['id'], 'year': str(i['airdate'][:4])},
-					}
-					season_episodes = i_number
+						curr_episode = {'aliases': alternative_titles,'originaltitle': i['name'], 'tvshowtitle': show_name, 'tvshow': show_name, 'download_type': 'episode', 'episode': i_number, 'air_date': i['airdate'], 'episode_air_date': i['airdate'],'episode_number': i_number,'episode_type': i['type'],'name': i['name'],'runtime': i['runtime'],'season_number': i.get('season',-1),'show_id': show['tvmaze_show_id'],'still_path': still_path,
+						'vote_average': i['rating']['average'], 'tmdb': tmdb, 'imdb': imdb, 'tvdb': tvdb, 'imdb_id': imdb,'imdbnumber': imdb, 'is_airing': is_airing, 'is_movie': False, 'is_tvshow': True, 'media_type': 'episode','mediatype': 'episode', 'season': i.get('season',-1), 'title':  i['name'], 'tmdb_id': tmdb, 'tvshow': show_name, 'tvshow_year': first_air_date[:4], 'year': i['airdate'][:4], 'tvmaze_ep_id': i['id'],
+						'info': {'aliases': alternative_titles, 'originaltitle': i['name'], 'tvshowtitle': show_name, 'episode': i_number,'imdb_id': imdb,'imdbnumber': imdb,'mediatype': 'episode','season': i.get('season',-1),'title': i['name'],'tmdb_id': tmdb,'tmdb_show_id': tmdb,'tvdb_id': tvdb,'tvdb_show_id': tvdb,'tvshow': show_name,'tvshow.imdb_id': imdb,'tvshow.tmdb_id': tmdb,'tvshow.tvdb_id': tvdb,'tvshow.year': str(first_air_date[:4]),'tvshowtitle': show_name, 'tvmaze_ep_id': i['id'], 'year': str(i['airdate'][:4])},
+						}
+						season_episodes = i_number
 
-				if int(i.get('season',-1)) == int(season) and int(i_number) == int(episode):
-					absolute_tvmaze = tot_episode_count
-					episode_air_date = i['airdate']
-				if int(i.get('season',-1))== int(season):
-					curr_episode['absoluteNumber'] = tot_episode_count
-					season_dict['episodes'].append(curr_episode)
-				total_seasons = i['season']
+					if int(i.get('season',-1)) == int(season) and int(i_number) == int(episode):
+						absolute_tvmaze = tot_episode_count
+						episode_air_date = i['airdate']
+					if int(i.get('season',-1))== int(season):
+						curr_episode['absoluteNumber'] = tot_episode_count
+						season_dict['episodes'].append(curr_episode)
+					total_seasons = i['season']
 
-			for idx, x in enumerate(runtime_list):
-				season_dict['episodes'][idx]['season_count'] = total_seasons
-				season_dict['episodes'][idx]['show_episode_count'] = tot_episode_count
+				for idx, x in enumerate(runtime_list):
+					season_dict['episodes'][idx]['season_count'] = total_seasons
+					season_dict['episodes'][idx]['show_episode_count'] = tot_episode_count
 
-				try: pc_of_max_runtime = abs(100*((x-max(runtime_list))/max(runtime_list)))
-				except: pc_of_max_runtime = None
-				season_dict['episodes'][idx]['pc_of_max_runtime'] = pc_of_max_runtime
-				if max(runtime_list) == min(runtime_list):
-					season_dict['episodes'][idx]['double_ep'] = False
-				elif pc_of_max_runtime < 40:
-					season_dict['episodes'][idx]['double_ep'] = True
-				else:
-					season_dict['episodes'][idx]['double_ep'] = False
+					try: pc_of_max_runtime = abs(100*((x-max(runtime_list))/max(runtime_list)))
+					except: pc_of_max_runtime = None
+					season_dict['episodes'][idx]['pc_of_max_runtime'] = pc_of_max_runtime
+					if max(runtime_list) == min(runtime_list):
+						season_dict['episodes'][idx]['double_ep'] = False
+					elif pc_of_max_runtime < 40:
+						season_dict['episodes'][idx]['double_ep'] = True
+					else:
+						season_dict['episodes'][idx]['double_ep'] = False
 
-			#for idx, i in enumerate(season_dict['episodes']):
-			#	season_dict['episodes'][idx]['season_count'] = total_seasons
-			#	season_dict['episodes'][idx]['show_episode_count'] = tot_episode_count
-			show['tvmaze_total_seasons'] = i['season']
-			show['tvmaze_seasons'] = season_dict
-			show['tvmaze_seasons_episode_tot'] = season_episodes
-			try: 
-				show['tvmaze_absolute_number'] = absolute_tvmaze
-			except: 
-				show['tvmaze_absolute_number'] = -99
-				#tools.log(show)
-			show['tvmaze_tot_episode_count'] = max(tot_episode_count,show['tot_episode_count'])
-			show['tvmaze_total_seasons'] = max(total_seasons, show['total_seasons'])
+				#for idx, i in enumerate(season_dict['episodes']):
+				#	season_dict['episodes'][idx]['season_count'] = total_seasons
+				#	season_dict['episodes'][idx]['show_episode_count'] = tot_episode_count
+				show['tvmaze_total_seasons'] = i['season']
+				show['tvmaze_seasons'] = season_dict
+				show['tvmaze_seasons_episode_tot'] = season_episodes
+				try: 
+					show['tvmaze_absolute_number'] = absolute_tvmaze
+				except: 
+					show['tvmaze_absolute_number'] = -99
+					#tools.log(show)
+				show['tvmaze_tot_episode_count'] = max(tot_episode_count,show['tot_episode_count'])
+				show['tvmaze_total_seasons'] = max(total_seasons, show['total_seasons'])
 
 		#import pprint
 		#from pprint import pprint

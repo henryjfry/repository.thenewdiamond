@@ -350,10 +350,34 @@ def get_tmdb_window(window_type):
 				}
 			self.setProperty('Type', types[self.type])
 			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-			self.getControl(5006).setVisible(self.type != 'tv')
+			self.getControl(5006).setVisible(self.total_pages > 1)
 			self.getControl(5008).setVisible(self.type != 'tv')
 			self.getControl(5009).setVisible(self.type != 'tv')
 			self.getControl(5010).setVisible(self.type != 'tv')
+			if 'Similar' in str(self.filter_label) or 'IMDB' in str(self.filter_label)  or 'TasteDive' in str(self.filter_label)  or 'Trakt' in str(self.filter_label)  or 'List'in str(self.filter_label):
+				self.getControl(5002).setVisible(False)
+				self.getControl(5003).setVisible(False)
+				self.getControl(5005).setVisible(False)
+				self.getControl(5007).setVisible(False)
+				self.getControl(5008).setVisible(False)
+				self.getControl(5009).setVisible(False)
+				self.getControl(5010).setVisible(False)
+				self.getControl(5011).setVisible(False)
+				self.getControl(5012).setVisible(False)
+				self.getControl(5013).setVisible(False)
+				self.getControl(5018).setVisible(False)
+			else:
+				self.getControl(5002).setVisible(True)
+				self.getControl(5003).setVisible(True)
+				self.getControl(5005).setVisible(True)
+				self.getControl(5007).setVisible(True)
+				self.getControl(5008).setVisible(True)
+				self.getControl(5009).setVisible(True)
+				self.getControl(5010).setVisible(True)
+				self.getControl(5011).setVisible(True)
+				self.getControl(5012).setVisible(True)
+				self.getControl(5013).setVisible(True)
+				self.getControl(5018).setVisible(True)
 			super(DialogVideoList, self).update_ui()
 
 		def go_to_next_page(self):
@@ -1081,7 +1105,10 @@ def get_tmdb_window(window_type):
 				self.search_str = get_imdb_watchlist_ids(imdb_list[selection])
 				self.mode = 'imdb2'
 
-			self.filter_label = 'Results for:  ' + imdb_list_name[selection]
+			if not 'imdb' in str(imdb_list_name[selection]).lower():
+				self.filter_label = 'Results for: IMDB ' + imdb_list_name[selection]
+			else:
+				self.filter_label = 'Results for: ' + imdb_list_name[selection]
 			self.fetch_data()
 			self.update()
 
@@ -1334,7 +1361,12 @@ def get_tmdb_window(window_type):
 						trakt_sort_by = str(i['sort_by'])
 						trakt_sort_order = str(i['sort_order'])
 						self.search_str = trakt_lists(list_name=trakt_list_name,user_id=trakt_user_id,list_slug=takt_list_slug,sort_by=trakt_sort_by,sort_order=trakt_sort_order)
-			self.filter_label = 'Results for:  ' + listitems[selection]
+			
+			if not 'trakt' in str(listitems[selection]).lower():
+				self.filter_label = 'Results for: Trakt ' + listitems[selection]
+			else:
+				self.filter_label = 'Results for: ' + listitems[selection]
+
 			self.fetch_data()
 			self.update()
 			Utils.hide_busy()
@@ -1412,7 +1444,10 @@ def get_tmdb_window(window_type):
 				self.search_str = get_imdb_watchlist_ids(list_number)
 				self.mode = 'imdb2'
 
-			self.filter_label = 'Results for:  ' + listitems[selection]
+			if not 'list' in str(listitems[selection]).lower():
+				self.filter_label = 'Results for: List ' + listitems[selection]
+			else:
+				self.filter_label = 'Results for: ' + listitems[selection]
 			self.fetch_data()
 			self.update()
 			Utils.hide_busy()

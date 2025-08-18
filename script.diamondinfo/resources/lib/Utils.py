@@ -907,11 +907,19 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 				#except: trakt_item = ast.literal_eval(sql_result[0][1])
 				#try: trakt_item = eval(sql_result[0][1])
 				#except: trakt_item = eval(sql_result[0][1].replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':').replace('\'\'','"').replace(': ", ',': "", '))
-				try: 
-					trakt_item = eval(sql_result[0][1])
-				except: 
-					try: trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
-					except: trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \''))
+				try:
+					try: 
+						trakt_item = eval(sql_result[0][1])
+					except: 
+						try: 
+							trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
+						except: 
+							trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \''))
+				except:
+					item = sql_result[0][1].replace("'",'"')
+					item = re.sub(r'(?<="")([^"]*?)"([^"]*?)(""|$)', r'\1\2\3', item)
+					item = item.replace('""','"').replace('"',"'")
+					trakt_item = eval(item)
 				aired_episodes = trakt_item['show']['aired_episodes']
 				trakt_tmdb_id = trakt_item['show']['ids']['tmdb']
 				last_watched = trakt_item['last_watched_at'].split('T')[0]

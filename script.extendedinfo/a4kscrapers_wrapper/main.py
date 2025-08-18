@@ -200,13 +200,19 @@ def main():
 		print(source_dir)
 		print(file_path)
 		
-		try: subs = importlib.import_module("subs")
-		except: subs = reload_module(importlib.import_module("subs"))
-		subs.META = meta
-		meta = subs.set_size_and_hash_url(meta, file_path)
-		subs_list = subs.get_subtitles_list(meta, file_path)
-		del subs
+		#try: subs = importlib.import_module("subs")
+		#except: subs = reload_module(importlib.import_module("subs"))
+		#subs.META = meta
+		#meta = subs.set_size_and_hash_url(meta, file_path)
+		#subs_list = subs.get_subtitles_list(meta, file_path)
+		#del subs
 		#exit()
+		import sub_lim
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = file_path, same_folder=False, meta_info=meta)
+		subs_list = [subs_out_ENG]
+		if subs_out_FORCED:
+			subs_list.append(subs_out_FORCED)
+
 		if len(subs_list) > 0:
 			from subcleaner import clean_file
 			from pathlib import Path

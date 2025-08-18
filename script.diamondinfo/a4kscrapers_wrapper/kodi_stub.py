@@ -31,7 +31,7 @@ xbmc.executebuiltin = lambda command, wait=False: print(f"[xbmc.executebuiltin] 
 xbmc.executeJSONRPC = lambda query: f"Mocked JSONRPC response for: {query}"
 xbmc.getRegion = lambda key: "US"
 xbmc.getUserAgent = lambda: "Kodi/20.0 (Linux; Android 9)"
-xbmc.sleep = lambda ms: print(f"[xbmc.sleep] Sleeping for {ms}ms")
+xbmc.sleep = lambda ms: str(f"[xbmc.sleep] Sleeping for {ms}ms")
 xbmc.getProperty = lambda key: f"Mocked property for {key}"
 xbmc.setProperty = lambda key, value: print(f"[xbmc.setProperty] {key} = {value}")
 

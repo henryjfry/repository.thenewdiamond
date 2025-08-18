@@ -57,6 +57,7 @@ try:
 	A4KPROVIDERS_PATH = os.path.join(ADDON_USERDATA_PATH, 'providers2')
 	A4KPROVIDERS_PATH_original = os.path.join(ADDON_USERDATA_PATH, 'providers')
 	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
+	COCO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.cocoscrapers')
 	PROVIDERS_JSON = os.path.join(ADDON_USERDATA_PATH, 'provider.json')
 	OPENSUB_USERNAME = 'username'
 	OPENSUB_PASSWORD = 'password'
@@ -71,10 +72,11 @@ except:
 		ADDON_USERDATA_PATH = folder.replace('.kodi/addons', '.kodi/userdata/addon_data').replace('.kodi\\addons', '.kodi\\userdata\\addon_data').replace('a4kscrapers_wrapper','')
 	elif not os.path.exists(ADDON_USERDATA_PATH) or not 'user' in str(ADDON_USERDATA_PATH):
 		ADDON_USERDATA_PATH = os.path.join(folder, 'user_data')
-	ADDON_NAME = 'plugin.video.a4kWrapper'
+	ADDON_NAME = os.path.dirname('script.' + ADDON_PATH.split('script.')[1])
 	A4KPROVIDERS_PATH = os.path.join(ADDON_USERDATA_PATH, 'providers2')
 	A4KPROVIDERS_PATH_original = os.path.join(ADDON_USERDATA_PATH, 'providers')
 	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
+	COCO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.cocoscrapers')
 	PROVIDERS_JSON = os.path.join(ADDON_USERDATA_PATH, 'provider.json')
 	OPENSUB_USERNAME = 'username'
 	OPENSUB_PASSWORD = 'password'
@@ -86,6 +88,7 @@ if not os.path.exists(SETTING_XML):
 	A4KPROVIDERS_PATH = os.path.join(ADDON_USERDATA_PATH, 'providers2')
 	A4KPROVIDERS_PATH_original = os.path.join(ADDON_USERDATA_PATH, 'providers')
 	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
+	COCO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.cocoscrapers')
 	PID_FILE = os.path.join(ADDON_USERDATA_PATH, 'pid')
 	PROVIDERS_JSON = os.path.join(ADDON_USERDATA_PATH, 'provider.json')
 	diamond = False
@@ -327,7 +330,7 @@ def set_setting(setting_name, setting_value):
 			# Write new content to the file
 			file.write(new_setting_file)
 
-def get_setting(setting_name, var_type = 'string'):
+def get_setting(setting_name, var_type = 'string', SETTING_XML=SETTING_XML):
 	return_var = None
 	setting_name = setting_name + '"'
 	if diamond == False:

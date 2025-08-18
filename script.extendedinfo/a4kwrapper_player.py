@@ -271,31 +271,37 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 		for i in meta['tmdb_seasons']['episodes']:
 			if int(i['episode']) == int(show_episode) and int(i['season']) == int(show_season):
 				info1 = i
-		for i in meta['tvmaze_seasons']['episodes']:
-			if meta['episode_meta'].get('special',False):
-				for x in meta['tmdb_seasons']['episodes']:
-					if str(x['name']) in str(i.get('name')) or distance.jaro_similarity(str(x['name']),str(i.get('name'))) > 0.85:
-						tmdb_season = x['season']
-						tmdb_episode = x['episode']
-						if int(tmdb_episode) == int(show_episode) and int(tmdb_season) == int(show_season) and show_episode != 0:
-							info2 = i
-							break
-						if show_episode == 0 and (str(x['name']) in str(i.get('name')) or distance.jaro_similarity(str(x['name']),str(i.get('name'))) > 0.85):
-							info2 = i
-							break
-			elif int(i['episode']) == int(show_episode) and int(i['season']) == int(show_season):
-				info2 = i
-		try: 
-			info1['tvmaze_ep_id'] = info2['tvmaze_ep_id']
-		except: 
-			#tools.log(info2)
-			try: info1['tvmaze_ep_id'] = False
+		try: tvmaze_show_id = meta['tvmaze_seasons']['episodes']
+		except: tvmaze_show_id = False
+		if tvmaze_show_id:
+			for i in meta['tvmaze_seasons']['episodes']:
+				if meta['episode_meta'].get('special',False):
+					for x in meta['tmdb_seasons']['episodes']:
+						if str(x['name']) in str(i.get('name')) or distance.jaro_similarity(str(x['name']),str(i.get('name'))) > 0.85:
+							tmdb_season = x['season']
+							tmdb_episode = x['episode']
+							if int(tmdb_episode) == int(show_episode) and int(tmdb_season) == int(show_season) and show_episode != 0:
+								info2 = i
+								break
+							if show_episode == 0 and (str(x['name']) in str(i.get('name')) or distance.jaro_similarity(str(x['name']),str(i.get('name'))) > 0.85):
+								info2 = i
+								break
+				elif int(i['episode']) == int(show_episode) and int(i['season']) == int(show_season):
+					info2 = i
+			try: 
+				info1['tvmaze_ep_id'] = info2['tvmaze_ep_id']
 			except: 
-				info1 = info2
-				info1['tvmaze_ep_id'] = False
-			tools.log('missing on TMDB!!!')
-		try: info = info2
-		except: info = info1
+				#tools.log(info2)
+				try: info1['tvmaze_ep_id'] = False
+				except: 
+					info1 = info2
+					info1['tvmaze_ep_id'] = False
+				tools.log('missing on TMDB!!!')
+			try: info = info2
+			except: info = info1
+		else:
+			info = info1
+			info['tvmaze_ep_id'] = False
 		meta_info = info
 
 		show_title = show_title.replace('+', ' ')

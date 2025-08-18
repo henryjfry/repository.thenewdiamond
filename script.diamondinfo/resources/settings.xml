@@ -65,6 +65,11 @@
         <setting label="Trakt Userlists Enable" type="bool" id="trakt_userlist" default="true"/>
 		<setting label="Trakt User Slug" id="trakt_slug" type="text" default="" visible="false"/>
 		<setting label="Trakt User Name" id="trakt_user_name" type="text" default="" visible="false"/>
+
+		<setting label="IMDB Coming Soon Country Code" id="imdb_country" type="text" default="GB" visible="true"/>
+		<setting label="IMDB In Cinemas Latitude" id="imdb_lat" type="text" default="55.97" visible="true"/>
+		<setting label="IMDB In Cinemas Longitude" id="imdb_long" type="text" default="-3.17" visible="true"/>
+		<setting label="IMDB In Cinemas Radius" id="imdb_radius" type="text" default="5000" visible="true"/>
 	</category>
 
 	<category label="RealDerid Player + Bluray Players">
@@ -133,12 +138,12 @@
         <!--setting type="lsep" label="30084"/-->
         <setting id="providers.autoupdates" type="bool" label="30138" default="true"  visible="false"/>
 
-        <!-- Manage Provider Packages --!>
+        <!-- Manage Provider Packages -->
         <setting type="lsep" label="30140"/>
-        <setting type="action" label="Install a4kScrapers"
-                 action="RunScript(script.diamondinfo,info=a4kProviders)"/>
-        <setting type="action" label="Manage a4kScrapers"
-                 action="RunScript(script.diamondinfo,info=a4kProviders_manage)" /--->
+        <setting type="action" label="Install Coco Scrapers"
+                 action="RunScript(script.diamondinfo,info=setup_coco_scrapers)"/>
+        <setting type="action" label="Coco Scrapers Settings"
+                 action="RunScript(script.diamondinfo,info=open_settings_coco_scrapers)" />
 
 
 	

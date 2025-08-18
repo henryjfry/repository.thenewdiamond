@@ -88,7 +88,7 @@ def get_imdb_videos(imdb_id):
 	variables = {
 		"const": imdb_id,
 		"first": 50,
-		"filter": {"maturityLevel": "INCLUDE_MATURE"},
+		"filter": {"maturityLevel": "INCLUDE_MATURE","nameConstraints":{},"titleConstraints":{},"types":["TRAILER"]},
 		"sort": {"by": "DATE", "order": "DESC"}
 	}
 
@@ -294,8 +294,147 @@ def find_best_trailer(trailer_list, season_number=None):
 	#print(new_trailer_list)
 	#print(titleText)
 	return season_trailer
+	
+
+def get_video_info(viconst):
+	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
+	HEADERS = {
+		'Referer': 'https://www.imdb.com/',
+		'Origin': 'https://www.imdb.com',
+		'User-Agent': 'Mozilla/5.0',
+		'Content-Type': 'application/json'
+	}
+
+	query = '''
+	query VideoPlayback(
+	  $viconst: ID!
+	) {
+	  video(id: $viconst) {
+		contentType {
+		  displayName {
+			value
+		  }
+		}
+		videoDimensions {
+		  aspectRatio
+		}
+		...VideoInfo
+		...SharedVideoAllPlaybackUrls
+	  }
+	}
+
+	fragment VideoInfo on Video {
+	  name {
+		value
+		language
+	  }
+	  description {
+		value
+		language
+	  }
+	  primaryTitle {
+		genres {
+		  genres {
+			text
+		  }
+		}
+		...BaseTitleCard
+	  }
+	}
+
+	fragment BaseTitleCard on Title {
+	  id
+	  titleText {
+		text
+	  }
+	  titleType {
+		id
+		text
+		canHaveEpisodes
+		displayableProperty {
+		  value {
+			plainText
+		  }
+		}
+	  }
+	  originalTitleText {
+		text
+	  }
+	  primaryImage {
+		id
+		width
+		height
+		url
+		caption {
+		  plainText
+		}
+	  }
+	  releaseYear {
+		year
+		endYear
+	  }
+	  ratingsSummary {
+		aggregateRating
+		voteCount
+	  }
+	  runtime {
+		seconds
+	  }
+	  certificate {
+		rating
+	  }
+	  canRate {
+		isRatable
+	  }
+	  titleGenres {
+		genres(limit: 3) {
+		  genre {
+			text
+		  }
+		}
+	  }
+	}
+
+	fragment SharedVideoAllPlaybackUrls on Video {
+	  playbackURLs {
+		displayName {
+		  value
+		  language
+		}
+		videoMimeType
+		videoDefinition
+		url
+	  }
+	}
+	'''
+
+	variables = {
+		"viconst": viconst,
+		"userAgent": "Mozilla/5.0",
+		"pageType": "VIDEO",
+		"subPageType": "VIDEO",
+		"viewportSize": {
+			"width": 1920,
+			"height": 1080
+		},
+		"autoStartVideo": False
+	}
+
+	response = requests.post(API_URL, headers=HEADERS, json={
+		"operationName": "VideoPlayback",
+		"query": query,
+		"variables": variables
+	})
+
+	data = response.json()
+	for i in data['data']['video']['playbackURLs']:
+		if i['videoMimeType'] == 'MP4':
+			url = i['url']
+			video = i
+	return url, video
 
 def extract_imdb_mp4_url(video_id, best_trailer):
+	"""
 	url = f"https://www.imdb.com/video/{video_id}?ref_=ttvg_vi_26"
 	headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
@@ -315,6 +454,8 @@ def extract_imdb_mp4_url(video_id, best_trailer):
 				video = i
 		#print(i['videoDefinition'])
 		#print(i['videoMimeType'])
+	"""
+	url, video = get_video_info(video_id)
 	return best_trailer, url, video
 
 def play_imdb_video(video_url, video, video_info):
@@ -408,5 +549,6 @@ def play_imdb_trailer(imdb_id=None, select=False, season=None):
 			idx = 0
 		best_trailer = find_best_trailer([all_videos_new[idx]], season_number=None)
 
-	best_trailer, video_url, video = extract_imdb_mp4_url(best_trailer['id'], best_trailer)
+	try:best_trailer, video_url, video = extract_imdb_mp4_url(best_trailer['id'], best_trailer)
+	except TypeError: return None
 	return play_imdb_video(video_url=video_url, video=video, video_info=best_trailer)
