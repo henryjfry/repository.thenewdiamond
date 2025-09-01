@@ -316,8 +316,17 @@ class RealDebrid:
 			return None
 
 		response = self.session.post(url, data=post_data, headers=self._get_headers(), timeout=5)
-		if 'infringing_file' in str(response.text) or '{files} is missing' in str(response.text) or 'too_manny_requests' in str(response.text) or 'unknown_ressource' in str(response.text):
-			tools.log('infringing_file__{files} is missing_unknown_ressource')
+		count = 0
+		while response == None and count <= 10:
+			count = count + 1
+			xbmc.sleep(500)
+			response = self.session.post(url, data=post_data, headers=self._get_headers(), timeout=5)
+		try:
+			if 'infringing_file' in str(response.text) or '{files} is missing' in str(response.text) or 'too_manny_requests' in str(response.text) or 'unknown_ressource' in str(response.text):
+				tools.log('infringing_file__{files} is missing_unknown_ressource')
+				return None
+		except AttributeError:
+			tools.log('RD_post_url_===NONE!!!!')
 			return None
 		if not self._is_response_ok(response) and not fail_check:
 			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))

@@ -218,8 +218,13 @@ def db_delete_expired(connection=None):
 		sql_query = """DELETE FROM %s
 		where expire < %s
 		""" % (folder, curr_time)
-		sql_result = cur.execute(sql_query).fetchall()
-		tools.log(str(len(sql_result1))+str(folder),'===>DELETED')
+		try:
+			sql_result = cur.execute(sql_query).fetchall()
+			tools.log(str(len(sql_result1))+str(folder),'===>DELETED')
+		except OperationalError:
+			connection.commit()
+			sql_result = cur.execute(sql_query).fetchall()
+			tools.log(str(len(sql_result1))+str(folder),'===>DELETED')
 	connection.commit()
 	try: cur.execute('VACUUM')
 	except Exception as ex:

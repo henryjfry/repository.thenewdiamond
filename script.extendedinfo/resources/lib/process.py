@@ -1739,6 +1739,7 @@ def authorize_trakt(**kwargs):
     from tmdbhelper.lib.api.trakt.api import TraktAPI
     from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
     trakt_api = TraktAPI(force=False)
+    TraktStoredAccessToken(trakt_api).winprop_traktusertoken = ''
     refresh_token = TraktStoredAccessToken(trakt_api).refresh_token
     response = trakt_api.set_authorisation_token(refresh_token)
     if response != {}:
@@ -1747,6 +1748,7 @@ def authorize_trakt(**kwargs):
     trakt_api.user_token.value = data_dumps(response)
     from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
     USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
+    TraktStoredAccessToken(trakt_api).winprop_traktusertoken = USER_TOKEN.value
     TraktStoredAccessToken(trakt_api).confirm_authorization()
     return
 
@@ -1863,7 +1865,6 @@ def revoke_trakt(**kwargs): ## PATCH
 				file1.close()
 				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
 
-
 			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api', 'trakt') , 'api.py')
 			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
 			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
@@ -1872,19 +1873,27 @@ def revoke_trakt(**kwargs): ## PATCH
 			lines = file1.readlines()
 			new_file = ''
 			update_flag = False
-			line_update = '''    def get_headers(self, access_token=None):  ## PATCH
-        headers = {}
-        headers.update(self.headers_base)
-
+			line_update = '''    def access_token(self):   ## PATCH
+        #if not self.authenticator.access_token:
+        #    return
+        #if not self.authenticator.trakt_stored_access_token.has_valid_token:
+        #    self.refresh_authenticator()
+        #return self.authenticator.access_token
+        if not self.authenticator.trakt_stored_access_token.has_valid_token:
+            self.refresh_authenticator()
         from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
         from tmdbhelper.lib.files.futils import json_loads as data_loads
         USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
         access_token = data_loads(USER_TOKEN.value)['access_token']
+        if access_token != self.authenticator.access_token:
+            #self.authenticator.access_token = access_token
+            from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
+            TraktStoredAccessToken(self).on_success()
+            self.refresh_authenticator()
+        return access_token
 
-        headers.update(self.get_headers_authorization(access_token))
-        return headers
-
-    def get_headers_authorization(self, access_token=None):  ## PATCH
+    @cached_property
+    def authenticator(self):  ## PATCH
 '''
 			keep_update = False
 			for idx, line in enumerate(lines):
@@ -1894,12 +1903,55 @@ def revoke_trakt(**kwargs): ## PATCH
 					break
 				#try: test_var = lines[idx+1]
 				#except: test_var = ''
-				if "    def get_headers(self, access_token=None):" in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+				if "    def access_token(self):" in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
 					new_file = new_file + line_update
 					update_flag = True
 					keep_update = True
 				elif update_flag == True and keep_update == True:
-					if "    def get_headers_authorization(self, access_token=None):" in str(line):
+					if "    def authenticator(self):" in str(line):
+						keep_update = False
+				elif keep_update == False:
+					new_file = new_file + line
+			file1.close()
+			if update_flag:
+				file1 = open(file_path, 'w')
+				file1.writelines(new_file)
+				file1.close()
+				xbmc.log(str(file_path)+'_PATCH_TMDB_HELPER===>OPENINFO', level=xbmc.LOGINFO)
+
+			file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api', 'trakt') , 'token.py')
+			themoviedb_helper_path = os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'))
+			xbmc.log(str(file_path)+'===>OPENINFO', level=xbmc.LOGINFO)
+
+			file1 = open(file_path, 'r')
+			lines = file1.readlines()
+			new_file = ''
+			update_flag = False
+			line_update = '''    def update_stored_authorization(self):  ## PATCH
+        test_user_token = self.winprop_traktusertoken
+        self.trakt_api.user_token.value = self.winprop_traktusertoken = data_dumps(self.stored_authorization)
+        if test_user_token != self.trakt_api.user_token.value and len(test_user_token) > 4:
+            self.trakt_api.user_token.value = data_dumps(test_user_token)
+            self.stored_authorization = data_dumps(test_user_token)
+            self.winprop_traktusertoken = data_dumps(test_user_token)
+
+    @property
+    def winprop_traktusertoken(self):  ## PATCH
+'''
+			keep_update = False
+			for idx, line in enumerate(lines):
+				if '## PATCH' in str(line):
+					update_flag = False
+					xbmc.log('ALREADY_PATCHED_TMDB_HELPER_===>OPENINFO', level=xbmc.LOGINFO)
+					break
+				#try: test_var = lines[idx+1]
+				#except: test_var = ''
+				if "    def update_stored_authorization(self):" in str(line):# and 'TMDbHelper cannot be used with Fen Light' in str(test_var):
+					new_file = new_file + line_update
+					update_flag = True
+					keep_update = True
+				elif update_flag == True and keep_update == True:
+					if "    def winprop_traktusertoken(self):" in str(line):
 						keep_update = False
 				elif keep_update == False:
 					new_file = new_file + line

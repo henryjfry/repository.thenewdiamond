@@ -537,7 +537,7 @@ def get_tastedive_data_scrape(url='', query='', year='', limit=20, media_type=No
 			if i.get('poster_path','') == '' or i.get('poster_path','') == None or i.get('poster_path','') == 'None':
 				continue
 			try: votes = i['Votes']
-			except: votes = i['vote_count']
+			except: votes = i.get('vote_count',0)
 			if votes >= 100:
 				try: title = i['title']
 				except: title = i['name']

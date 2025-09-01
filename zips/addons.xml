@@ -355,7 +355,7 @@ v1.0.25 (marcelveldt)
   </extension>
 </addon>
 
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.08" provider-name="fryhenryj">
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.09" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -387,10 +387,6 @@ v1.0.25 (marcelveldt)
 			<item library="context2.py">
 				<label>TMDBHelper Trakt Menu</label>
 				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode)</visible>
-			</item>
-			<item library="context3.py">
-				<label>Diamond Info - In Trakt Lists</label>
-				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) </visible>
 			</item>
 		</menu>
 	</extension>
@@ -539,7 +535,7 @@ v1.0.25 (marcelveldt)
   </extension>
 </addon>
 
-<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.19" provider-name="fryhenryj">
+<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.20" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -1951,7 +1947,7 @@ provider-name="jurialmunkey">
 
 </addon>
 
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.08" provider-name="fryhenryj">
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.09" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -1983,10 +1979,6 @@ provider-name="jurialmunkey">
 			<item library="context2.py">
 				<label>TMDBHelper Trakt Menu</label>
 				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) | String.IsEqual(ListItem.dbtype,season) | String.IsEqual(ListItem.dbtype,episode)</visible>
-			</item>
-			<item library="context3.py">
-				<label>Diamond Info - In Trakt Lists</label>
-				<visible>String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow) </visible>
 			</item>
 		</menu>
 	</extension>
