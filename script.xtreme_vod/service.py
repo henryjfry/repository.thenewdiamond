@@ -41,8 +41,8 @@ import functools
 
 import sqlite3
 
-from resources.lib.xtream2m3u_run import generate_m3u
-from resources.lib.xtream2m3u_run import generate_xmltv
+from xtream2m3u_run import generate_m3u
+from xtream2m3u_run import generate_xmltv
 
 def get_guess(release_title, options=None):
 	guess = api.guessit(release_title, options)
@@ -882,6 +882,10 @@ class PlayerMonitor(xbmc.Player):
 		except: self.player_meta['playlist_position'] = 0
 
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('script.xtreme_vod.ResolvedUrl')
+		if self.player_meta['Next_EP_ResolvedUrl'] == 'suppress_reopen_window':
+			self.clearProperty('script.xtreme_vod.ResolvedUrl')
+			self.player_meta['script.xtreme_vod_started'] = False
+			
 		self.clearProperty('script.xtreme_vod.ResolvedUrl_playlist')
 		self.clearProperty('trakt_scrobble_details')
 		if int(time.time()) < self.player_meta['script.xtreme_vod_player_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
@@ -1274,9 +1278,9 @@ class PlayerMonitor(xbmc.Player):
 			self.trakt_scrobble_details()
 
 			tools_log('PLAYBACK STARTED_imdb=%s, %s=dbID, %s=duration, %s=movie_title, %s=title===>___OPEN_INFO' % (self.player_meta['imdb_id'],str(self.player_meta['dbID']),str(self.player_meta['resume_duration']),self.player_meta['movie_title'],self.player_meta['title']))
-			url = 'plugin://%s?info=a4kwrapper_player&amp;type=movie&amp;movie_year=%s&amp;movie_title=%s&amp;tmdb=%s' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
+			url = 'plugin://%s?info=play_vod_player&amp;type=movie&amp;movie_year=%s&amp;movie_title=%s&amp;tmdb=%s' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
 			tools_log(url)
-			kodi_send_command = 'kodi-send --action="RunScript(%s,info=a4kwrapper_player,type=movie,movie_year=%s,movie_title=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
+			kodi_send_command = 'kodi-send --action="RunScript(%s,info=play_vod_player,type=movie,movie_year=%s,movie_title=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
 			self.setProperty('last_played_tmdb_helper', url)
 			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
@@ -1285,9 +1289,9 @@ class PlayerMonitor(xbmc.Player):
 		if self.type == 'episode':
 			self.player_meta['global_movie_flag'] = False
 			tools_log('PLAYBACK STARTED_tmdb=%s, %s=dbID, %s=duration, %s=tv_show_name, %s=season_num, %s=ep_num, %s=title===>___OPEN_INFO' % (str(self.player_meta['tmdb_id']),str(self.player_meta['dbID']) ,str(self.player_meta['resume_duration']),self.player_meta['tv_title'],str(self.player_meta['tv_season']),str(self.player_meta['tv_episode']),self.player_meta['title']))
-			url = 'plugin://%s?info=a4kwrapper_player&amp;type=tv&amp;show_title=%s&amp;show_season=%s&amp;show_episode=%s&amp;tmdb=%s"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
+			url = 'plugin://%s?info=play_vod_player&amp;type=tv&amp;show_title=%s&amp;show_season=%s&amp;show_episode=%s&amp;tmdb=%s"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(url)
-			kodi_send_command = 'kodi-send --action="RunScript(%s,info=a4kwrapper_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
+			kodi_send_command = 'kodi-send --action="RunScript(%s,info=play_vod_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
 			self.setProperty('last_played_tmdb_helper', url)
 			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
@@ -1474,7 +1478,7 @@ class PlayerMonitor(xbmc.Player):
 				#next_ep_play_details = next_ep_play(show_title=next_ep_details['next_ep_show'], show_season=next_ep_details['next_ep_season'], show_episode=next_ep_details['next_ep_episode'], tmdb=next_ep_details['tmdb_id'])
 				xbmcgui.Window(10000).clearProperty('script.xtreme_vod_download_link')
 				tools_log('next_ep_play!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
-				kodi_send_command = 'RunScript(%s,info=a4kwrapper_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,prescrape=True)' % (addon_ID(), next_ep_details['next_ep_show'], next_ep_details['next_ep_season'], next_ep_details['next_ep_episode'], next_ep_details['tmdb_id'])
+				kodi_send_command = 'RunScript(%s,info=play_vod_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,prescrape=True)' % (addon_ID(), next_ep_details['next_ep_show'], next_ep_details['next_ep_season'], next_ep_details['next_ep_episode'], next_ep_details['tmdb_id'])
 				#xbmc.executebuiltin(kodi_send_command)
 				PLAYER.prepare_play_VOD_episode(tmdb = next_ep_details['tmdb_id'], series_id=None, search_str = None,episode=next_ep_details['next_ep_episode'], season=next_ep_details['next_ep_season'], window=None)
 				prescrape = True

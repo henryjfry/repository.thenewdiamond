@@ -145,7 +145,10 @@ class VideoPlayer(xbmc.Player):
 		from resources.lib.TheMovieDB import get_vod_alltv
 		import xbmcplugin
 		import time, sys
-		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+
+		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
+		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
+			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
 		Utils.show_busy()
 
 		response_extended_season_info = extended_season_info(tmdb,season)
@@ -357,8 +360,9 @@ class VideoPlayer(xbmc.Player):
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+30))
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_player_time', str(int(time.time())+30))
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_download_link', full_url)
-		xbmcgui.Window(10000).setProperty('script.xtreme_vod.ResolvedUrl', 'true')
-
+		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
+		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
+			xbmcgui.Window(10000).setProperty('script.xtreme_vod.ResolvedUrl', 'true')
 		tvdb_id = Utils.fetch(get_tvshow_ids(tmdb), 'tvdb_id')
 		TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'episode', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'tvdb_id': str(tvdb_id), 'season': str(infolabels['season']), 'episode': str(infolabels['episode'])}
 		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
@@ -429,7 +433,9 @@ class VideoPlayer(xbmc.Player):
 		from resources.lib.TheMovieDB import handle_tmdb_movies
 		import xbmcplugin
 		movielogo, hdmovielogo, movieposter, hdmovieclearart, movieart, moviedisc, moviebanner, moviethumb, moviebackground = get_fanart_results_full(tvdb_id=tmdb, media_type='movie')
-		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
+		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
+			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
 		Utils.show_busy()
 		#hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo = get_fanart_results_full(tvdb_id, media_type='tv_tvdb',show_season=show_season )
 
@@ -449,7 +455,7 @@ class VideoPlayer(xbmc.Player):
 			results = []
 			for idx,i in enumerate(search_str):
 				response2 = response1
-				
+
 				if i['tmdb'] == tmdb:
 					#Utils.tools_log(i['title'])
 					response2['OriginalTitle'] = i['title']
@@ -462,24 +468,27 @@ class VideoPlayer(xbmc.Player):
 					results.append(idx)
 					responses['results'].append(response2)
 					response2 = None
-			#for i in results:
-			#	Utils.tools_log(i['OriginalTitle'])
-			#selection = xbmcgui.Dialog().select('LINK', full_url_titles)
-			#Utils.tools_log(responses['results'])
-			listitems=handle_tmdb_movies(responses['results'])
-			for idx, i in enumerate(results):
-				Utils.tools_log(search_str[i]['title'])
-				listitems[idx]['title'] = search_str[i]['title']
-				listitems[idx]['Label'] = search_str[i]['title']
-				listitems[idx]['OriginalTitle'] = search_str[i]['title']
-				#Utils.tools_log(idx)
-				#Utils.tools_log(listitems[idx])
-			listitem, index = wm.open_selectdialog(listitems=listitems)
-			
-			if index > -1:
-				full_url = search_str[results[index]]['full_url']
+			if len(responses['results']) == 1:
+				full_url = responses['results'][0]['full_url']
 			else:
-				return
+				#for i in results:
+				#	Utils.tools_log(i['OriginalTitle'])
+				#selection = xbmcgui.Dialog().select('LINK', full_url_titles)
+				#Utils.tools_log(responses['results'])
+				listitems=handle_tmdb_movies(responses['results'])
+				for idx, i in enumerate(results):
+					Utils.tools_log(search_str[i]['title'])
+					listitems[idx]['title'] = search_str[i]['title']
+					listitems[idx]['Label'] = search_str[i]['title']
+					listitems[idx]['OriginalTitle'] = search_str[i]['title']
+					#Utils.tools_log(idx)
+					#Utils.tools_log(listitems[idx])
+				listitem, index = wm.open_selectdialog(listitems=listitems)
+				
+				if index > -1:
+					full_url = search_str[results[index]]['full_url']
+				else:
+					return
 
 		if tmdb:
 			response_extended_movie_info = extended_movie_info(movie_id=tmdb)

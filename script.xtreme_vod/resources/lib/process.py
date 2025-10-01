@@ -31,6 +31,30 @@ def start_info_actions(infos, params):
 		Utils.show_busy()
 		data = [], ''
 
+		if info == 'output_lists_pastebin':
+			from xtream2m3u_run import output_lists_pastebin
+			url = output_lists_pastebin()
+			dialog = xbmcgui.Dialog()
+			dialog.ok('PasteBin Channel List + EPG Group List', url)
+			Utils.hide_busy()
+			return
+
+		if info == 'save_channel_order':
+			from xtream2m3u_run import save_channel_order
+			dialog = xbmcgui.Dialog()
+			url = dialog.input('Enter Channel Order list Pastebin URL', default='https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
+			save_channel_order(url)
+			Utils.hide_busy()
+			return
+
+		if info == 'save_allowed_groups':
+			from xtream2m3u_run import save_allowed_groups
+			dialog = xbmcgui.Dialog()
+			url = dialog.input('Enter Allowed Groups list Pastebin URL', default='https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
+			save_allowed_groups(url)
+			Utils.hide_busy()
+			return
+
 		if info == 'delete_db_expired':
 			Utils.db_delete_expired(Utils.db_con)
 
@@ -77,7 +101,7 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			#from traceback import format_exc
 			#from resources.lib.xtream2m3u_run import app as flask_app
-			from resources.lib.xtream2m3u_run import start
+			from xtream2m3u_run import start
 			#Utils.tools_log('STARTING__SERVER')
 			#flask_app.run(debug=False, host='0.0.0.0')
 			start()
@@ -586,22 +610,17 @@ def start_info_actions(infos, params):
 
 				TheMovieDB.play_tv_trailer_fullscreen(tvshow_id)
 
-		elif info == 'a4kwrapper_player':
-		#kodi-send --action="RunScript(script.extendedinfo,info=diamond_rd_player,type=tv,show_title=Star Trek: Enterprise,show_season=4,show_episode=20,tmdb=314)"
-		#kodi-send --action="RunScript(script.extendedinfo,info=diamond_rd_player,type=movie,movie_year=,movie_title=Elf,tmdb=)"
+		elif info == 'play_vod_player':
+			from resources.lib.VideoPlayer import PLAYER
+			#kodi-send --action="RunScript(script.xtreme_vod,info=prepare_play_VOD_movie,type=tv,show_title=Star Trek: Enterprise,show_season=4,show_episode=20,tmdb=314)"
+			#kodi-send --action="RunScript(script.extendedinfo,info=prepare_play_VOD_movie,type=movie,movie_year=,movie_title=Elf,tmdb=)"
+			xbmcgui.Window(10000).setProperty('script.xtreme_vod.ResolvedUrl', 'suppress_reopen_window')
 			if params.get('type') == 'tv':
-				from a4kwrapper_player import next_ep_play
-				show_title = params.get('show_title')
-				show_season = params.get('show_season')
-				show_episode = params.get('show_episode')
-				tmdb = params.get('tmdb')
-				next_ep_play(show_title, show_season, show_episode, tmdb)
+				PLAYER.prepare_play_VOD_episode(tmdb = params.get('tmdb'), series_id=None, search_str = None,episode=params.get('show_episode'), season=params.get('show_season'), window=False)
 			elif params.get('type') == 'movie':
-				from a4kwrapper_player import next_ep_play_movie
-				movie_year = params.get('movie_year')
-				movie_title = params.get('movie_title')
-				tmdb = params.get('tmdb')
-				next_ep_play_movie(movie_year, movie_title, tmdb)
+				PLAYER.prepare_play_VOD_movie(tmdb = params.get('tmdb'), title = params.get('movie_title'), stream_id=None, search_str = None, window=False)
+				#movie_year = params.get('movie_year')
+
 
 
 		elif info == 'string':

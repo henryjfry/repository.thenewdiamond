@@ -10,20 +10,22 @@
 		<setting id="xtreme_codes.password" type="text" label="xtreme_codes_password" default="" />
 		<setting id="xtreme_codes.username" type="text" label="xtreme_codes_username" default="" />
 		<setting id="xtreme_codes.base_url" type="text" label="xtreme_codes_server_path" default="http://name.server.xyz:80/" />
+		<setting id="xtreme_sport_categories" type="text" label="xtreme_sport_categories" default="Formula1,MotoGP,Boxing,EPL,UFC,Sport" />
+		<setting label="Get Lists of Channel Names and Group Names saved to PasteBin" type="lsep"/>
+		<setting label="output_lists_pastebin" type="action" action="RunScript(script.xtreme_vod,info=output_lists_pastebin)" visible="true"/>
+		<setting label="Order Channels by providing list of channel names to sort to top" type="lsep"/>
+		<setting label="save_channel_order" type="action" action="RunScript(script.xtreme_vod,info=save_channel_order)" visible="true"/>
+		<setting label="Only include channels in allowed groups" type="lsep"/>
+		<setting label="save_allowed_groups" type="action" action="RunScript(script.xtreme_vod,info=save_allowed_groups)" visible="true"/>
+
 		<setting label="List group names/partial names to include (non matching = EXCLUDE), comma separated" type="lsep"/>
-		<setting id="xtreme_wanted_groups" type="text" label="xtreme_wanted_groups" default="U.K,Scotland,Ireland,U.S.A,Canada,New Zeeland,UEFA,All Channels,BeIn,Australia" />
 		<setting label="Sort Channels File - 1 Channel per line" type="lsep"/>
-		 <setting label="Channels Order File" type="file" id="channel_order" default=""/>
-		 <setting label="Channels Order Remote" type="text" id="channel_order_remote" default="https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/refs/heads/main/script.xtreme_vod/channel_order.txt"/>
 		<setting label="Server  http://localhost:5000/m3u / http://localhost:5000/xml" type="lsep"/>
 		<setting label="Auto start M3U/XMLTV server" type="bool" id="auto_start_server" default="false"/>
 		<setting label="STOP Server  http://localhost:5000/stop" type="lsep"/>
 		<setting label="Create Local XML/M3U Files" type="bool" id="local_xml_m3u" default="true"/>
 		<setting label="Local XML/M3U Refresh period (hours - default = 8)" type="number" id="xml_m3u_sync_hours" default="8"/>
 		<setting label="STARTUP_Create Local XML/M3U Files" type="bool" id="startup_local_xml_m3u" default="true"/>
-		<setting id="output_folder_select" type="select" label="Output Folder Method" values="Folder Picker|Type Folder Path" default="Folder Picker"/>
-		<setting label="Output XML/M3U Folder (PICKER)" type="folder" id="output_folder" default=""/>
-		<setting label="Output XML/M3U Folder (Type)" type="text" id="output_folder_string" default="special://profile"/>
 		<setting label="TMDB Options" type="lsep"/>
 		<!--setting label="Language" type="select" values="bg|cs|da|de|el|en|es|fi|fr|he|hr|hu|it|ja|ko|nl|no|pl|pt|ru|sl|sv|tr|zh" id="LanguageID" default="en"/>
 		<setting label="Include adult?" type="bool" id="include_adults" default="false"/-->

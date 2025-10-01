@@ -453,7 +453,9 @@ def get_vod_data(action= None,series_ID = None, cache_days=1, folder='VOD'):
 
 
 categories = get_vod_data(action= 'get_vod_categories' ,cache_days=1) 
-bad_categories = ['Formula1','MotoGP','Boxing','EPL','UFC','Sport']
+
+xtreme_sport_categories = xbmcaddon.Addon().getSetting('xtreme_sport_categories')
+bad_categories = [i for  i in xtreme_sport_categories.split(',')]
 bad_category_ids = [cat['category_id']  for cat in categories  if any(bad.lower() in cat['category_name'].lower() for bad in bad_categories)]
 
 
