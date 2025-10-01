@@ -144,8 +144,12 @@
                  action="RunScript(script.extendedinfo,info=setup_coco_scrapers)"/>
         <setting type="action" label="Coco Scrapers Settings"
                  action="RunScript(script.extendedinfo,info=open_settings_coco_scrapers)" />
-
-
+        <setting type="lsep" label="30140"/>
+        <setting type="action" label="Install Magneto Scrapers"
+                 action="RunScript(script.extendedinfo,info=setup_magneto_scrapers)"/>
+        <setting type="action" label="Magneto Scrapers Settings"
+                 action="RunScript(script.extendedinfo,info=open_settings_magneto_scrapers)" />
+		<setting label="Scraper" type="select" values="Coco|Magneto" id="scraper" default="Magneto"/>
 	
         <!-- Preemptive Termination -->
         <!--setting type="lsep" label="30121"/-->

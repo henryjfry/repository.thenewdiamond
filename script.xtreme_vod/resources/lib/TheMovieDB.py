@@ -411,6 +411,32 @@ def get_set_id(set_name):
 	else:
 		return ''
 
+def sort_nested(data, sort_key, asc=True):
+	# Helper to recursively find the sort_key in nested structures
+	def find_key(obj):
+		if isinstance(obj, dict):
+			if sort_key in obj:
+				return obj[sort_key]
+			for value in obj.values():
+				result = find_key(value)
+				if result is not None:
+					return result
+		elif isinstance(obj, list):
+			for item in obj:
+				result = find_key(item)
+				if result is not None:
+					return result
+		return None
+
+	# Determine if input is a list or dict and sort accordingly
+	if isinstance(data, dict):
+		sorted_items = sorted(data.items(), key=lambda item: find_key(item[1]), reverse=not asc)
+		return dict(sorted_items)
+	elif isinstance(data, list):
+		return sorted(data, key=lambda item: find_key(item), reverse=not asc)
+	else:
+		raise TypeError("Input must be a list or dictionary")
+
 def get_vod_data(action= None,series_ID = None, cache_days=1, folder='VOD'):
 	#url = 'https://api.themoviedb.org/3/%sapi_key=%s' % (url, API_key)
 	xtreme_codes_password = Utils.xtreme_codes_password
@@ -425,14 +451,24 @@ def get_vod_data(action= None,series_ID = None, cache_days=1, folder='VOD'):
 	#xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
 	return Utils.get_JSON_response(url, cache_days, folder)
 
+
+categories = get_vod_data(action= 'get_vod_categories' ,cache_days=1) 
+bad_categories = ['Formula1','MotoGP','Boxing','EPL','UFC','Sport']
+bad_category_ids = [cat['category_id']  for cat in categories  if any(bad.lower() in cat['category_name'].lower() for bad in bad_categories)]
+
+
 def get_vod_allmovies(category = None):
 	#from resources.lib.TheMovieDB import get_vod_data
 	if category == None:
 		movies = get_vod_data(action= 'get_vod_streams' ,cache_days=1) 
 	else:
 		movies = get_vod_data(action= 'get_vod_streams&category_id=%s' % (str(category)) ,cache_days=1) 
+	movies = sort_nested(movies,'added',False)
 	search_str = []
 	for i in movies:
+		if category == None:
+			if str(i.get('category_id',0)) in [str(x) for x in bad_category_ids]:
+				continue
 		if i['name'][:7].lower() == 'movie: ':
 			i['name'] = i['name'][7:]
 		elif i['name'][:6].lower() == 'movie:':
@@ -449,6 +485,7 @@ def get_vod_alltv(category = None):
 		movies = get_vod_data(action= 'get_series' ,cache_days=1) 
 	else:
 		movies = get_vod_data(action= 'get_series&category_id=%s' % (str(category)) ,cache_days=1) 
+	movies = sort_nested(movies,'last_modified',False)
 	search_str = []
 	for i in movies:
 		#full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,i['stream_type'],Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['stream_id']),str(i['container_extension']))

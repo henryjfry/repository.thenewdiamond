@@ -44,7 +44,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	# configure the cache
 	region.configure('dogpile.cache.dbm', arguments={'filename': cache_file},replace_existing_backend=True)
 
-	import subs_hash
+	#import subs_hash
 
 	file_path = video_path
 
@@ -53,27 +53,31 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	dir_source = None
 	if not os.path.isfile(file_path):
 		#use a temp folder where file isnt a file, eg a url
-		same_folder = False
-		MBFACTOR = float(1 << 20)
+		#same_folder = False
+		#MBFACTOR = float(1 << 20)
 		response = requests.head(file_path, allow_redirects=True)
 		size = response.headers.get('content-length', 0)
-		file_path = unquote(file_path)
+		#file_path = unquote(file_path)
 		size = int(size)
-		#'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
-		http_file = True
-		returnedhash, filesize = subs_hash.hashFile_url(file_path)
-		#tools.log(returnedhash, filesize)
-		hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+		filesize = size
+		##'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
+		#http_file = True
+		##returnedhash, filesize = subs_hash.hashFile_url(file_path)
+		##tools.log(returnedhash, filesize)
+		##hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+		hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
 	else:
 		dir_source =  os.path.dirname(file_path)
 		size = os.stat(file_path).st_size
-		http_file = False
-		returnedhash, filesize = subs_hash.hashFile_url(file_path)
+		#http_file = False
+		#returnedhash, filesize = subs_hash.hashFile_url(file_path)
 		#tools.log(returnedhash, filesize)
-		hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+		#hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+		filesize = size
+		hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
 
 	subs_out = os.path.basename(file_path)
-	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.FOREIGN.PARTS.srt')
+	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.ENG.FOREIGN.PARTS.srt')
 	subs_out_ENG = os.path.splitext(subs_out)[0] + str('.ENG.srt')
 	subs_out_HEARING = os.path.splitext(subs_out)[0] + str('.ENG.srt')
 
@@ -87,17 +91,13 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	#	video = refiners.hash.refine(video, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],languages={Language('eng')})
 
 	#tools.log(meta_info)
-	try:
-		video = Video.fromname(file_path)
-		video = refiners.tmdb.refine(video, apikey=tmdb_apikey)
-	except:
-		if meta_info['mediatype'] == 'movie':
-			from subliminal.video import Movie
-			video = Movie(name=meta_info['title'],title=meta_info['title'], year=meta_info['year'])
-		else:
-			from subliminal.video import Episode
-			video = Episode(name=meta_info['tvshow'], season=meta_info['season'], episode=meta_info['episode'])
-		video = refiners.tmdb.refine(video, apikey=tmdb_apikey)
+	if meta_info['mediatype'] == 'movie':
+		from subliminal.video import Movie
+		video = Movie(name=meta_info['title'],title=meta_info['title'], year=meta_info['year'])
+	else:
+		from subliminal.video import Episode
+		video = Episode(name=meta_info['title'], series=meta_info['show_title'], season=meta_info['season'], episodes=[meta_info['episode']])
+	video = refiners.tmdb.refine(video, apikey=tmdb_apikey)
 
 
 	video.__dict__['size'] = filesize
@@ -118,11 +118,11 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	#else:
 	#	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 	all_subtitles = None
-	for provider in ['addic7ed','opensubtitles','podnapisi','tvsubtitles','napiprojekt','opensubtitlescom']:
+	for provider in ['addic7ed','opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']:
 		try: mediatype = meta['episode_meta']['mediatype']
 		except: mediatype = 'movie'
-		if provider == 'opensubtitlescom' and mediatype == 'movie' and len(all_subtitles[video]) >= 80:
-			continue
+		#if provider == 'opensubtitlescom' and mediatype == 'movie' and len(all_subtitles[video]) >= 80:
+		#	continue
 		subtitles = list_subtitles([video], languages={Language('eng')}, providers=[provider],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 		tools.log(provider + '___' + str(len(subtitles[video])))
 		if all_subtitles:
@@ -160,10 +160,20 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 
 	tools.log(limited_subtitles)
 	for i in limited_subtitles:
-		if 'parts' in str(i.__dict__) or 'foreign' in str(i.__dict__):
+		try:
+			if i.__dict__['matched_by'] == 'imdbid':
+				imdbid = True
+			else:
+				imdbid = False
+		except:
+			imdbid = False
+
+		if 'parts' in str(i.__dict__).lower() or 'foreign' in str(i.__dict__).lower() or 'Forced' in str(i.__dict__):
 			#tools.log()
 			#tools.log(i)
 			curr_score_forced = compute_score(i, video)
+			if imdbid:
+				curr_score_forced = curr_score_forced + 200
 			if curr_score_forced > high_score_forced:
 				if high_score_forced == 0 and curr_score_forced < 500:
 					matches = i.get_matches(video)
@@ -176,15 +186,19 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					if curr_subs_forced_dict.get('filename','') == '':
 						curr_subs_forced_dict['filename'] = curr_subs_forced_dict['file_name']
 				except:
-					tools.log('except')
+					#tools.log(i.__dict__)
+					curr_subs_forced_dict['filename'] = subs_out_FORCED
+					#tools.log('except')
 					#tools.log(curr_subs_forced_dict)
 			#tools.log(i.__dict__)
 			#tools.log(video.__dict__)
 			#tools.log(i.get_matches(video))
 			#sorted(i.get_matches(video))
 			#tools.log()
-		if not ('parts' in str(i.__dict__) or 'foreign' in str(i.__dict__)) and not 'HEARING' in str(i.__dict__):
+		if not ('parts' in str(i.__dict__).lower() or 'foreign' in str(i.__dict__).lower() or 'Forced' in str(i.__dict__)) and not 'HEARING' in str(i.__dict__):
 			curr_score = compute_score(i, video)
+			if imdbid:
+				curr_score = curr_score + 200
 			if curr_score > high_score:
 				high_score = curr_score
 				curr_subs = i
@@ -193,10 +207,14 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					if curr_subs_dict.get('filename','') == '':
 						curr_subs_dict['filename'] = curr_subs_dict['file_name']
 				except:
-					tools.log('except')
+					#tools.log(i.__dict__)
+					curr_subs_dict['filename'] = subs_out_ENG
+					#tools.log('except')
 					#tools.log(curr_subs_dict)
-		elif not ('parts' in str(i.__dict__) or 'foreign' in str(i.__dict__)) and 'HEARING' in str(i.__dict__):
+		elif not ('parts' in str(i.__dict__).lower() or 'foreign' in str(i.__dict__).lower()  or 'Forced' in str(i.__dict__)) and 'HEARING' in str(i.__dict__):
 			curr_score_HEARING = compute_score(i, video)
+			if imdbid:
+				curr_score_HEARING = curr_score_HEARING + 200
 			if curr_score_HEARING > high_score_HEARING:
 				high_score_HEARING = curr_score_HEARING
 				curr_subs_HEARING = i
@@ -205,7 +223,9 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					if curr_subs_HEARING_dict.get('filename','') == '':
 						curr_subs_HEARING_dict['filename'] = curr_subs_HEARING_dict['file_name']
 				except:
-					tools.log('except')
+					#tools.log(i.__dict__)
+					curr_subs_dict['filename'] = subs_out_HEARING
+					#tools.log('except')
 					#tools.log(curr_subs_dict)
 	if curr_subs_forced:
 		tools.log(curr_subs_forced_dict)

@@ -1,14 +1,12 @@
 """A sandbox layer that ensures unsafe operations cannot be performed.
 Useful when the template itself comes from an untrusted source.
 """
-
 import operator
 import types
 import typing as t
 from _string import formatter_field_name_split  # type: ignore
 from collections import abc
 from collections import deque
-from functools import update_wrapper
 from string import Formatter
 
 from markupsafe import EscapeFormatter
@@ -39,7 +37,7 @@ UNSAFE_COROUTINE_ATTRIBUTES = {"cr_frame", "cr_code"}
 #: unsafe attributes on async generators
 UNSAFE_ASYNC_GENERATOR_ATTRIBUTES = {"ag_code", "ag_frame"}
 
-_mutable_spec: t.Tuple[t.Tuple[t.Type[t.Any], t.FrozenSet[str]], ...] = (
+_mutable_spec: t.Tuple[t.Tuple[t.Type, t.FrozenSet[str]], ...] = (
     (
         abc.MutableSet,
         frozenset(
@@ -61,9 +59,7 @@ _mutable_spec: t.Tuple[t.Tuple[t.Type[t.Any], t.FrozenSet[str]], ...] = (
     ),
     (
         abc.MutableSequence,
-        frozenset(
-            ["append", "clear", "pop", "reverse", "insert", "sort", "extend", "remove"]
-        ),
+        frozenset(["append", "reverse", "insert", "sort", "extend", "remove"]),
     ),
     (
         deque,
@@ -82,6 +78,20 @@ _mutable_spec: t.Tuple[t.Tuple[t.Type[t.Any], t.FrozenSet[str]], ...] = (
         ),
     ),
 )
+
+
+def inspect_format_method(callable: t.Callable) -> t.Optional[str]:
+    if not isinstance(
+        callable, (types.MethodType, types.BuiltinMethodType)
+    ) or callable.__name__ not in ("format", "format_map"):
+        return None
+
+    obj = callable.__self__
+
+    if isinstance(obj, str):
+        return obj
+
+    return None
 
 
 def safe_range(*args: int) -> range:
@@ -303,9 +313,6 @@ class SandboxedEnvironment(Environment):
                     except AttributeError:
                         pass
                     else:
-                        fmt = self.wrap_str_format(value)
-                        if fmt is not None:
-                            return fmt
                         if self.is_safe_attribute(obj, argument, value):
                             return value
                         return self.unsafe_undefined(obj, argument)
@@ -323,9 +330,6 @@ class SandboxedEnvironment(Environment):
             except (TypeError, LookupError):
                 pass
         else:
-            fmt = self.wrap_str_format(value)
-            if fmt is not None:
-                return fmt
             if self.is_safe_attribute(obj, attribute, value):
                 return value
             return self.unsafe_undefined(obj, attribute)
@@ -341,49 +345,34 @@ class SandboxedEnvironment(Environment):
             exc=SecurityError,
         )
 
-    def wrap_str_format(self, value: t.Any) -> t.Optional[t.Callable[..., str]]:
-        """If the given value is a ``str.format`` or ``str.format_map`` method,
-        return a new function than handles sandboxing. This is done at access
-        rather than in :meth:`call`, so that calls made without ``call`` are
-        also sandboxed.
+    def format_string(
+        self,
+        s: str,
+        args: t.Tuple[t.Any, ...],
+        kwargs: t.Dict[str, t.Any],
+        format_func: t.Optional[t.Callable] = None,
+    ) -> str:
+        """If a format call is detected, then this is routed through this
+        method so that our safety sandbox can be used for it.
         """
-        if not isinstance(
-            value, (types.MethodType, types.BuiltinMethodType)
-        ) or value.__name__ not in ("format", "format_map"):
-            return None
-
-        f_self: t.Any = value.__self__
-
-        if not isinstance(f_self, str):
-            return None
-
-        str_type: t.Type[str] = type(f_self)
-        is_format_map = value.__name__ == "format_map"
         formatter: SandboxedFormatter
-
-        if isinstance(f_self, Markup):
-            formatter = SandboxedEscapeFormatter(self, escape=f_self.escape)
+        if isinstance(s, Markup):
+            formatter = SandboxedEscapeFormatter(self, escape=s.escape)
         else:
             formatter = SandboxedFormatter(self)
 
-        vformat = formatter.vformat
+        if format_func is not None and format_func.__name__ == "format_map":
+            if len(args) != 1 or kwargs:
+                raise TypeError(
+                    "format_map() takes exactly one argument"
+                    f" {len(args) + (kwargs is not None)} given"
+                )
 
-        def wrapper(*args: t.Any, **kwargs: t.Any) -> str:
-            if is_format_map:
-                if kwargs:
-                    raise TypeError("format_map() takes no keyword arguments")
+            kwargs = args[0]
+            args = ()
 
-                if len(args) != 1:
-                    raise TypeError(
-                        f"format_map() takes exactly one argument ({len(args)} given)"
-                    )
-
-                kwargs = args[0]
-                args = ()
-
-            return str_type(vformat(f_self, args, kwargs))
-
-        return update_wrapper(wrapper, value)
+        rv = formatter.vformat(s, args, kwargs)
+        return type(s)(rv)
 
     def call(
         __self,  # noqa: B902
@@ -393,6 +382,9 @@ class SandboxedEnvironment(Environment):
         **kwargs: t.Any,
     ) -> t.Any:
         """Call an object from sandboxed code."""
+        fmt = inspect_format_method(__obj)
+        if fmt is not None:
+            return __self.format_string(fmt, args, kwargs, __obj)
 
         # the double prefixes are to avoid double keyword argument
         # errors when proxying the call.

@@ -871,6 +871,8 @@ class PlayerMonitor(xbmc.Player):
 
 		if self.player_meta['script.xtreme_vod_player_time'] == '':
 			self.player_meta['script.xtreme_vod_player_time'] = 0
+			if self.player_meta['script.xtreme_vod_time'] != '':
+				self.player_meta['script.xtreme_vod_player_time'] = int(self.player_meta['script.xtreme_vod_time'])
 		else:
 			self.player_meta['script.xtreme_vod_player_time'] = int(self.player_meta['script.xtreme_vod_player_time'])
 
@@ -1248,7 +1250,7 @@ class PlayerMonitor(xbmc.Player):
 			TMDbHelper_PlayerInfoString = eval(xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString'))
 			TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': self.type, 'tmdb_id': str(TMDbHelper_PlayerInfoString['tmdb_id']), 'imdb_id': str(TMDbHelper_PlayerInfoString['imdb_id']), 'tvdb_id': str(TMDbHelper_PlayerInfoString['tvdb_id']), 'season': self.player_meta['tv_season'], 'episode': self.player_meta['tv_episode']}
 			if TMDbHelper_PlayerInfoString != TMDbHelper_NEW_PlayerInfoString:
-				log('TMDbHelper_NEW_PlayerInfoString',TMDbHelper_NEW_PlayerInfoString)
+				tools_log('TMDbHelper_NEW_PlayerInfoString',TMDbHelper_NEW_PlayerInfoString)
 				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 		if self.type == 'movie':
@@ -1272,7 +1274,7 @@ class PlayerMonitor(xbmc.Player):
 			self.trakt_scrobble_details()
 
 			tools_log('PLAYBACK STARTED_imdb=%s, %s=dbID, %s=duration, %s=movie_title, %s=title===>___OPEN_INFO' % (self.player_meta['imdb_id'],str(self.player_meta['dbID']),str(self.player_meta['resume_duration']),self.player_meta['movie_title'],self.player_meta['title']))
-			url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % (str(self.player_meta['tmdb_id']))
+			url = 'plugin://%s?info=a4kwrapper_player&amp;type=movie&amp;movie_year=%s&amp;movie_title=%s&amp;tmdb=%s' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
 			tools_log(url)
 			kodi_send_command = 'kodi-send --action="RunScript(%s,info=a4kwrapper_player,type=movie,movie_year=%s,movie_title=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
@@ -1283,7 +1285,7 @@ class PlayerMonitor(xbmc.Player):
 		if self.type == 'episode':
 			self.player_meta['global_movie_flag'] = False
 			tools_log('PLAYBACK STARTED_tmdb=%s, %s=dbID, %s=duration, %s=tv_show_name, %s=season_num, %s=ep_num, %s=title===>___OPEN_INFO' % (str(self.player_meta['tmdb_id']),str(self.player_meta['dbID']) ,str(self.player_meta['resume_duration']),self.player_meta['tv_title'],str(self.player_meta['tv_season']),str(self.player_meta['tv_episode']),self.player_meta['title']))
-			url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=%s' % (str(self.player_meta['tmdb_id']), str(self.player_meta['tv_season']), str(self.player_meta['tv_episode']))
+			url = 'plugin://%s?info=a4kwrapper_player&amp;type=tv&amp;show_title=%s&amp;show_season=%s&amp;show_episode=%s&amp;tmdb=%s"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(url)
 			kodi_send_command = 'kodi-send --action="RunScript(%s,info=a4kwrapper_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
@@ -1316,7 +1318,7 @@ class PlayerMonitor(xbmc.Player):
 			self.trakt_scrobble_details()
 			self.speed_time = int(time.time()) + 5
 
-		tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started===>script.xtreme_vod_started')
+		#tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started===>script.xtreme_vod_started')
 		if self.player_meta['script.xtreme_vod_player'] == False:
 			tools_log('EXIT__script.xtreme_vod_player')
 			return
@@ -1393,6 +1395,9 @@ class PlayerMonitor(xbmc.Player):
 
 			if (self.player_meta['percentage'] > 85) and player.isPlayingVideo()==1 and self.player_meta['resume_duration'] > 300 and self.trakt_watched != 'true':
 				self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
+				xbmc.sleep(250)
+				if self.trakt_error:
+					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				self.trakt_scrobble_details()
 
 			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlayingVideo()==1:
@@ -1495,6 +1500,9 @@ class PlayerMonitor(xbmc.Player):
 
 			if player.isPlaying()==1 and self.player_meta['percentage'] > 85 and self.trakt_watched == False:
 				self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
+				xbmc.sleep(250)
+				if self.trakt_error:
+					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				self.trakt_scrobble_details()
 
 			if player.isPlayingVideo()==1 and self.player_meta['percentage'] > 85 and self.library_refresh == False:
@@ -1727,6 +1735,9 @@ class ServiceMonitor(object):
 		ServiceStarted = 'True'
 		window_stack = xbmcvfs.translatePath('special://profile/addon_data/'+addon_ID()+ '/window_stack.db')
 
+		library.auto_setup_xml_filenames()
+		self.player_monitor = PlayerMonitor()
+
 		if xbmcvfs.exists(window_stack):
 			os.remove(window_stack)
 
@@ -1757,9 +1768,8 @@ class ServiceMonitor(object):
 			generate_m3u(mode='startup')
 			generate_xmltv(mode='startup')
 
-		library.auto_setup_xml_filenames()
+
 		self.cron_job.start()
-		self.player_monitor = PlayerMonitor()
 		self.poller()
 
 if __name__ == '__main__':

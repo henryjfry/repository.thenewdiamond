@@ -1,5 +1,4 @@
 """Built-in template tests used with the ``is`` operator."""
-
 import operator
 import typing as t
 from collections import abc
@@ -170,7 +169,7 @@ def test_sequence(value: t.Any) -> bool:
     """
     try:
         len(value)
-        value.__getitem__  # noqa B018
+        value.__getitem__
     except Exception:
         return False
 
@@ -205,7 +204,7 @@ def test_escaped(value: t.Any) -> bool:
     return hasattr(value, "__html__")
 
 
-def test_in(value: t.Any, seq: t.Container[t.Any]) -> bool:
+def test_in(value: t.Any, seq: t.Container) -> bool:
     """Check if value is in seq.
 
     .. versionadded:: 2.10

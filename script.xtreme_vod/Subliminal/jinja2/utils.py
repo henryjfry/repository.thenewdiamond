@@ -18,17 +18,8 @@ if t.TYPE_CHECKING:
 
 F = t.TypeVar("F", bound=t.Callable[..., t.Any])
 
-
-class _MissingType:
-    def __repr__(self) -> str:
-        return "missing"
-
-    def __reduce__(self) -> str:
-        return "missing"
-
-
-missing: t.Any = _MissingType()
-"""Special singleton representing missing values for the runtime."""
+# special singleton representing missing values for the runtime
+missing: t.Any = type("MissingType", (), {"__repr__": lambda x: "missing"})()
 
 internal_code: t.MutableSet[CodeType] = set()
 
@@ -161,7 +152,7 @@ def import_string(import_name: str, silent: bool = False) -> t.Any:
             raise
 
 
-def open_if_exists(filename: str, mode: str = "rb") -> t.Optional[t.IO[t.Any]]:
+def open_if_exists(filename: str, mode: str = "rb") -> t.Optional[t.IO]:
     """Returns a file descriptor for the filename if that file exists,
     otherwise ``None``.
     """
@@ -191,7 +182,7 @@ def object_type_repr(obj: t.Any) -> str:
 
 def pformat(obj: t.Any) -> str:
     """Format an object using :func:`pprint.pformat`."""
-    from pprint import pformat
+    from pprint import pformat  # type: ignore
 
     return pformat(obj)
 
@@ -268,7 +259,7 @@ def urlize(
     if trim_url_limit is not None:
 
         def trim_url(x: str) -> str:
-            if len(x) > trim_url_limit:
+            if len(x) > trim_url_limit:  # type: ignore
                 return f"{x[:trim_url_limit]}..."
 
             return x
@@ -333,8 +324,6 @@ def urlize(
         elif (
             "@" in middle
             and not middle.startswith("www.")
-            # ignore values like `@a@b`
-            and not middle.startswith("@")
             and ":" not in middle
             and _email_re.match(middle)
         ):
@@ -439,7 +428,7 @@ class LRUCache:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self._mapping: t.Dict[t.Any, t.Any] = {}
-        self._queue: te.Deque[t.Any] = deque()
+        self._queue: "te.Deque[t.Any]" = deque()
         self._postinit()
 
     def _postinit(self) -> None:
@@ -461,10 +450,10 @@ class LRUCache:
         self.__dict__.update(d)
         self._postinit()
 
-    def __getnewargs__(self) -> t.Tuple[t.Any, ...]:
+    def __getnewargs__(self) -> t.Tuple:
         return (self.capacity,)
 
-    def copy(self) -> "te.Self":
+    def copy(self) -> "LRUCache":
         """Return a shallow copy of the instance."""
         rv = self.__class__(self.capacity)
         rv._mapping.update(self._mapping)

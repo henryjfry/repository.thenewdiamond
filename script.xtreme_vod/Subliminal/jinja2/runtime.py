@@ -1,5 +1,4 @@
 """The runtime functions and state used by compiled templates."""
-
 import functools
 import sys
 import typing as t
@@ -29,9 +28,7 @@ F = t.TypeVar("F", bound=t.Callable[..., t.Any])
 
 if t.TYPE_CHECKING:
     import logging
-
     import typing_extensions as te
-
     from .environment import Environment
 
     class LoopRenderFunc(te.Protocol):
@@ -40,7 +37,8 @@ if t.TYPE_CHECKING:
             reciter: t.Iterable[V],
             loop_render_func: "LoopRenderFunc",
             depth: int = 0,
-        ) -> str: ...
+        ) -> str:
+            ...
 
 
 # these variables are exported to the template runtime
@@ -172,7 +170,7 @@ class Context:
     ):
         self.parent = parent
         self.vars: t.Dict[str, t.Any] = {}
-        self.environment: Environment = environment
+        self.environment: "Environment" = environment
         self.eval_ctx = EvalContext(self.environment, name)
         self.exported_vars: t.Set[str] = set()
         self.name = name
@@ -261,10 +259,7 @@ class Context:
 
     @internalcode
     def call(
-        __self,
-        __obj: t.Callable[..., t.Any],
-        *args: t.Any,
-        **kwargs: t.Any,  # noqa: B902
+        __self, __obj: t.Callable, *args: t.Any, **kwargs: t.Any  # noqa: B902
     ) -> t.Union[t.Any, "Undefined"]:
         """Call the callable with the arguments and keyword arguments
         provided but inject the active context or environment as first
@@ -277,9 +272,9 @@ class Context:
         # Allow callable classes to take a context
         if (
             hasattr(__obj, "__call__")  # noqa: B004
-            and _PassArg.from_obj(__obj.__call__) is not None
+            and _PassArg.from_obj(__obj.__call__) is not None  # type: ignore
         ):
-            __obj = __obj.__call__
+            __obj = __obj.__call__  # type: ignore
 
         pass_arg = _PassArg.from_obj(__obj)
 
@@ -367,7 +362,7 @@ class BlockReference:
 
     @internalcode
     async def _async_call(self) -> str:
-        rv = self._context.environment.concat(  # type: ignore
+        rv = concat(
             [x async for x in self._stack[self._depth](self._context)]  # type: ignore
         )
 
@@ -381,9 +376,7 @@ class BlockReference:
         if self._context.environment.is_async:
             return self._async_call()  # type: ignore
 
-        rv = self._context.environment.concat(  # type: ignore
-            self._stack[self._depth](self._context)
-        )
+        rv = concat(self._stack[self._depth](self._context))
 
         if self._context.eval_ctx.autoescape:
             return Markup(rv)
@@ -593,7 +586,7 @@ class AsyncLoopContext(LoopContext):
 
     @staticmethod
     def _to_iterator(  # type: ignore
-        iterable: t.Union[t.Iterable[V], t.AsyncIterable[V]],
+        iterable: t.Union[t.Iterable[V], t.AsyncIterable[V]]
     ) -> t.AsyncIterator[V]:
         return auto_aiter(iterable)
 
@@ -794,8 +787,8 @@ class Macro:
 
 
 class Undefined:
-    """The default undefined type. This can be printed, iterated, and treated as
-    a boolean. Any other operation will raise an :exc:`UndefinedError`.
+    """The default undefined type.  This undefined type can be printed and
+    iterated over, but every other access will raise an :exc:`UndefinedError`:
 
     >>> foo = Undefined(name='foo')
     >>> str(foo)
@@ -860,11 +853,7 @@ class Undefined:
 
     @internalcode
     def __getattr__(self, name: str) -> t.Any:
-        # Raise AttributeError on requests for names that appear to be unimplemented
-        # dunder methods to keep Python's internal protocol probing behaviors working
-        # properly in cases where another exception type could cause unexpected or
-        # difficult-to-diagnose failures.
-        if name[:2] == "__" and name[-2:] == "__":
+        if name[:2] == "__":
             raise AttributeError(name)
 
         return self._fail_with_undefined_error()
@@ -938,7 +927,9 @@ def make_logging_undefined(
         logger.addHandler(logging.StreamHandler(sys.stderr))
 
     def _log_message(undef: Undefined) -> None:
-        logger.warning("Template variable warning: %s", undef._undefined_message)
+        logger.warning(  # type: ignore
+            "Template variable warning: %s", undef._undefined_message
+        )
 
     class LoggingUndefined(base):  # type: ignore
         __slots__ = ()
@@ -988,20 +979,10 @@ class ChainableUndefined(Undefined):
     def __html__(self) -> str:
         return str(self)
 
-    def __getattr__(self, name: str) -> "ChainableUndefined":
-        # Raise AttributeError on requests for names that appear to be unimplemented
-        # dunder methods to avoid confusing Python with truthy non-method objects that
-        # do not implement the protocol being probed for. e.g., copy.copy(Undefined())
-        # fails spectacularly if getattr(Undefined(), '__setstate__') returns an
-        # Undefined object instead of raising AttributeError to signal that it does not
-        # support that style of object initialization.
-        if name[:2] == "__" and name[-2:] == "__":
-            raise AttributeError(name)
-
+    def __getattr__(self, _: str) -> "ChainableUndefined":
         return self
 
-    def __getitem__(self, _name: str) -> "ChainableUndefined":  # type: ignore[override]
-        return self
+    __getitem__ = __getattr__  # type: ignore
 
 
 class DebugUndefined(Undefined):
@@ -1060,3 +1041,13 @@ class StrictUndefined(Undefined):
     __iter__ = __str__ = __len__ = Undefined._fail_with_undefined_error
     __eq__ = __ne__ = __bool__ = __hash__ = Undefined._fail_with_undefined_error
     __contains__ = Undefined._fail_with_undefined_error
+
+
+# Remove slots attributes, after the metaclass is applied they are
+# unneeded and contain wrong data for subclasses.
+del (
+    Undefined.__slots__,
+    ChainableUndefined.__slots__,
+    DebugUndefined.__slots__,
+    StrictUndefined.__slots__,
+)

@@ -1215,16 +1215,17 @@ class PlayerMonitor(xbmc.Player):
 			force_toggle = False
 			try:
 				for i in sub_audio_json['result']['subtitles']:
-					if 'External' in str(i) and i['isforced'] == True:
-						force_toggle = True
-						break
+					if 'External' in str(i):
+						if i['isforced'] == True or 'FOREIGN PARTS' in str(i['name']) or 'foreign' in str(i['name']).lower():
+							force_toggle = True
+							break
 			except:
 				pass
 
 
 			if lang_toggle == True or force_toggle == True:
 				for i in reversed(sub_audio_json['result']['subtitles']):
-					if i['language'] == 'eng' and (i['isforced'] == True or i['isforced'] == 'True' or 'forced' in str(i['name']).lower()):
+					if i['language'] == 'eng' and (i['isforced'] == True or i['isforced'] == 'True' or 'forced' in str(i['name']).lower() or 'FOREIGN PARTS' in str(i['name']) or 'foreign' in str(i['name']).lower()):
 						if sub_audio_json['result']['subtitleenabled'] == False or sub_audio_json['result']['subtitleenabled'] == 'False':
 							player.setSubtitleStream(i['index'])
 							player.showSubtitles(True)
@@ -1244,12 +1245,12 @@ class PlayerMonitor(xbmc.Player):
 			if languages[0] == 'English' and (subtitleenabled['result']['subtitleenabled'] == 'True' or subtitleenabled['result']['subtitleenabled'] == True):
 				forced_external = False
 				for i in reversed(sub_audio_json['result']['subtitles']):
-					if i['language'] == 'eng' and (i['isforced'] == True or i['isforced'] == 'True' or 'forced' in str(i['name']).lower()) and i['name'] == '(External)':
+					if i['language'] == 'eng' and (i['isforced'] == True or i['isforced'] == 'True' or 'forced' in str(i['name']).lower() or 'FOREIGN PARTS' in str(i['name']) or 'foreign' in str(i['name']).lower()) and i['name'] == '(External)':
 						forced_external = True
 						break
 				if forced_external == True:
 					for i in reversed(sub_audio_json['result']['subtitles']):
-						if i['language'] == 'eng' and (i['isforced'] == True or i['isforced'] == 'True' or 'forced' in str(i['name']).lower()) and i['name'] != '(External)':
+						if i['language'] == 'eng' and (i['isforced'] == True or i['isforced'] == 'True' or 'forced' in str(i['name']).lower() or 'FOREIGN PARTS' in str(i['name']) or 'foreign' in str(i['name']).lower()) and i['name'] != '(External)':
 							player.setSubtitleStream(i['index'])
 							player.showSubtitles(True)
 							tools.log('ENGLISH_LANG_FORCED_EXTERNAL_SUBS_FIX')
@@ -1405,6 +1406,9 @@ class PlayerMonitor(xbmc.Player):
 
 			if (self.player_meta['percentage'] > 85) and player.isPlayingVideo()==1 and self.player_meta['resume_duration'] > 300 and self.trakt_watched != 'true':
 				self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
+				xbmc.sleep(250)
+				if self.trakt_error:
+					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				self.trakt_scrobble_details()
 
 			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlayingVideo()==1:
@@ -1506,6 +1510,9 @@ class PlayerMonitor(xbmc.Player):
 
 			if player.isPlaying()==1 and self.player_meta['percentage'] > 85 and self.trakt_watched == False:
 				self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
+				xbmc.sleep(250)
+				if self.trakt_error:
+					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				self.trakt_scrobble_details()
 
 			if player.isPlayingVideo()==1 and self.player_meta['percentage'] > 85 and self.library_refresh == False:
@@ -1754,6 +1761,9 @@ class ServiceMonitor(object):
 		ServiceStarted = 'True'
 		window_stack = xbmcvfs.translatePath('special://profile/addon_data/'+addon_ID()+ '/window_stack.db')
 
+		library.auto_setup_xml_filenames()
+		self.player_monitor = PlayerMonitor()
+
 		if xbmcvfs.exists(window_stack):
 			os.remove(window_stack)
 
@@ -1764,9 +1774,9 @@ class ServiceMonitor(object):
 				xbmc.executebuiltin('RunPlugin(%s)' % auto_plugin_route)
 			if auto_plugin_route[0:7] == 'script.':
 				xbmc.executebuiltin('RunScript(%s)' % auto_plugin_route)
-		library.auto_setup_xml_filenames()
+
 		self.cron_job.start()
-		self.player_monitor = PlayerMonitor()
+
 		self.poller()
 
 if __name__ == '__main__':

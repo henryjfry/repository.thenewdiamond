@@ -1,5 +1,4 @@
 """Extension API for adding custom tags and behavior."""
-
 import pprint
 import re
 import typing as t
@@ -19,23 +18,23 @@ from .utils import pass_context
 
 if t.TYPE_CHECKING:
     import typing_extensions as te
-
     from .lexer import Token
     from .lexer import TokenStream
     from .parser import Parser
 
     class _TranslationsBasic(te.Protocol):
-        def gettext(self, message: str) -> str: ...
+        def gettext(self, message: str) -> str:
+            ...
 
         def ngettext(self, singular: str, plural: str, n: int) -> str:
             pass
 
     class _TranslationsContext(_TranslationsBasic):
-        def pgettext(self, context: str, message: str) -> str: ...
+        def pgettext(self, context: str, message: str) -> str:
+            ...
 
-        def npgettext(
-            self, context: str, singular: str, plural: str, n: int
-        ) -> str: ...
+        def npgettext(self, context: str, singular: str, plural: str, n: int) -> str:
+            ...
 
     _SupportedTranslations = t.Union[_TranslationsBasic, _TranslationsContext]
 
@@ -89,7 +88,7 @@ class Extension:
     def __init__(self, environment: Environment) -> None:
         self.environment = environment
 
-    def bind(self, environment: Environment) -> "te.Self":
+    def bind(self, environment: Environment) -> "Extension":
         """Create a copy of this extension bound to another environment."""
         rv = object.__new__(self.__class__)
         rv.__dict__.update(self.__dict__)
@@ -219,7 +218,7 @@ def _make_new_pgettext(func: t.Callable[[str, str], str]) -> t.Callable[..., str
 
 
 def _make_new_npgettext(
-    func: t.Callable[[str, str, str, int], str],
+    func: t.Callable[[str, str, str, int], str]
 ) -> t.Callable[..., str]:
     @pass_context
     def npgettext(
@@ -292,17 +291,17 @@ class InternationalizationExtension(Extension):
 
         if hasattr(translations, "pgettext"):
             # Python < 3.8
-            pgettext = translations.pgettext
+            pgettext = translations.pgettext  # type: ignore
         else:
 
-            def pgettext(c: str, s: str) -> str:  # type: ignore[misc]
+            def pgettext(c: str, s: str) -> str:
                 return s
 
         if hasattr(translations, "npgettext"):
-            npgettext = translations.npgettext
+            npgettext = translations.npgettext  # type: ignore
         else:
 
-            def npgettext(c: str, s: str, p: str, n: int) -> str:  # type: ignore[misc]
+            def npgettext(c: str, s: str, p: str, n: int) -> str:
                 return s if n == 1 else p
 
         self._install_callables(
@@ -496,26 +495,16 @@ class InternationalizationExtension(Extension):
                 parser.stream.expect("variable_end")
             elif parser.stream.current.type == "block_begin":
                 next(parser.stream)
-                block_name = (
-                    parser.stream.current.value
-                    if parser.stream.current.type == "name"
-                    else None
-                )
-                if block_name == "endtrans":
+                if parser.stream.current.test("name:endtrans"):
                     break
-                elif block_name == "pluralize":
+                elif parser.stream.current.test("name:pluralize"):
                     if allow_pluralize:
                         break
                     parser.fail(
                         "a translatable section can have only one pluralize section"
                     )
-                elif block_name == "trans":
-                    parser.fail(
-                        "trans blocks can't be nested; did you mean `endtrans`?"
-                    )
                 parser.fail(
-                    f"control structures in translatable sections are not allowed; "
-                    f"saw `{block_name}`"
+                    "control structures in translatable sections are not allowed"
                 )
             elif parser.stream.eos:
                 parser.fail("unclosed translation block")

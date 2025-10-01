@@ -2681,6 +2681,72 @@ getSources.get_providers_dict()
 	#log(providers_dict)
 	return providers_dict
 
+def setup_magneto_scrapers():
+	import os
+	import tempfile
+	import requests
+	import xml.etree.ElementTree as ET
+	import xbmc
+	import xbmcaddon
+	import xbmcgui
+	XML_URL = "https://raw.githubusercontent.com/kodiyashimaru/repo/refs/heads/master/packages/addons.xml"
+
+	#try:
+	if 1==1:
+		# Fetch and parse the XML
+		response = requests.get(XML_URL)
+		root = ET.fromstring(response.content)
+
+		# Find the addon and repository info
+		addon_id = None
+		addon_version = None
+		repo_base_url = None
+
+		for addon in root.findall('addon'):
+			if addon.get('id') == "script.module.magneto":
+				addon_id = addon.get('id')
+				addon_version = addon.get('version')
+			#elif addon.get('id') == "repository.cocoscrapers":
+			#	dir_tag = addon.find(".//dir")
+			#	datadir_tag = dir_tag.find("datadir") if dir_tag is not None else None
+			#	if datadir_tag is not None:
+			#		repo_base_url = datadir_tag.text
+
+		if not addon_id or not addon_version or not repo_base_url:
+			xbmcgui.Dialog().notification("Setup Failed", "Missing addon or repo info", xbmcgui.NOTIFICATION_ERROR, 5000)
+			return
+
+		# Download and install the addon zip
+		zip_url = f"{repo_base_url}{addon_id}/{addon_id}-{addon_version}.zip"
+		temp_dir = tempfile.gettempdir()
+		zip_path = os.path.join(temp_dir, f"{addon_id}-{addon_version}.zip")
+		#tools.log(zip_path)
+
+		# Check if addon is already installed
+		try:
+			addon = xbmcaddon.Addon(id=addon_id)
+			installed_version = addon.getAddonInfo('version')
+			if installed_version == addon_version:
+				xbmcgui.Dialog().notification("Addon Already Installed", f"{addon_id} v{addon_version}", xbmcgui.NOTIFICATION_INFO, 5000)
+				return
+		except:
+			pass  # Not installed
+
+
+
+		response = requests.get(zip_url)
+		with open(zip_path, 'wb') as f:
+			f.write(response.content)
+
+		xbmc.executebuiltin(f'InstallAddon({zip_path})')
+		os.remove(zip_path)
+
+		xbmcgui.Dialog().notification("Installation Complete", f"{addon_id} v{addon_version} installed", xbmcgui.NOTIFICATION_INFO, 5000)
+
+	#except Exception as e:
+	#	xbmc.log(f"Setup error: {e}", xbmc.LOGERROR)
+	#	xbmcgui.Dialog().notification("Setup Error", str(e), xbmcgui.NOTIFICATION_ERROR, 5000)
+
 def setup_coco_scrapers():
 	import os
 	import tempfile
@@ -2921,12 +2987,17 @@ def coco_sources(item_information=None,x264_only=False):
 		import os
 		pass
 	from importlib import import_module
+	scraper_flag = tools.get_setting(setting_name='scraper', var_type = 'string', SETTING_XML=tools.SETTING_XML)
 
 	def append_module_to_syspath(path):
+		scraper_flag = tools.get_setting(setting_name='scraper', var_type = 'string', SETTING_XML=tools.SETTING_XML)
 		try:
 			full_path = translatePath(path)
 		except: 
-			full_path = os.path.join(os.path.dirname(tools.ADDON_PATH.replace('/script.extendedinfo','')), 'script.module.cocoscrapers','lib')
+			if scraper_flag == 'Coco':
+				full_path = os.path.join(os.path.dirname(tools.ADDON_PATH.replace('/script.extendedinfo','')), 'script.module.cocoscrapers','lib')
+			elif scraper_flag == 'Magneto':
+				full_path = os.path.join(os.path.dirname(tools.ADDON_PATH.replace('/script.extendedinfo','')), 'script.module.magneto','lib')
 			from a4kscrapers_wrapper import kodi_stub
 			#import xbmc
 			#import xbmcaddon
@@ -2973,20 +3044,29 @@ def coco_sources(item_information=None,x264_only=False):
 
 
 	def search_all_cocoscrapers_torrents(query, year=None, media_type=None, season=None, episode=None, aliases=None,imdb=None):
+		scraper_flag = tools.get_setting(setting_name='scraper', var_type = 'string', SETTING_XML=tools.SETTING_XML)
 		try:
 		#if 1==1:
-			append_module_to_syspath('special://home/addons/script.module.cocoscrapers/lib')
+			if scraper_flag == 'Coco':
+				append_module_to_syspath('special://home/addons/script.module.cocoscrapers/lib')
+				torrents_module = import_module('cocoscrapers.sources_cocoscrapers.torrents')
+			elif scraper_flag == 'Magneto':
+				append_module_to_syspath('special://home/addons/script.module.magneto/lib')
+				torrents_module = import_module('magneto.providers.torrents')
 
-			torrents_module = import_module('cocoscrapers.sources_cocoscrapers.torrents')
 			providers = torrents_module.__all__
 			tools.log(providers)
-			comment_internal_imports_in_folder()
+			if scraper_flag == 'Coco':
+				comment_internal_imports_in_folder()
 
 			all_results = []
 
 			for provider_name in providers:
 				
-				provider_enabled = tools.get_setting(setting_name='provider.' + provider_name, var_type = 'string', SETTING_XML=tools.COCO_SETTING_XML)
+				if scraper_flag == 'Coco':
+					provider_enabled = tools.get_setting(setting_name='provider.' + provider_name, var_type = 'string', SETTING_XML=tools.COCO_SETTING_XML)
+				elif scraper_flag == 'Magneto':
+					provider_enabled = tools.get_setting(setting_name='provider.' + provider_name, var_type = 'string', SETTING_XML=tools.MAGNETO_SETTING_XML)
 				if str(provider_enabled).lower() == 'false':
 					tools.log('DISABLED_'+provider_name)
 					continue
@@ -2995,7 +3075,10 @@ def coco_sources(item_information=None,x264_only=False):
 				try:
 				#if 1==1:
 					safe_name = provider_name #if provider_name[0].isalpha() else f'_{provider_name}'
-					provider_module = import_module(f'cocoscrapers.sources_cocoscrapers.torrents.{safe_name}')
+					if scraper_flag == 'Coco':
+						provider_module = import_module(f'cocoscrapers.sources_cocoscrapers.torrents.{safe_name}')
+					elif scraper_flag == 'Magneto':
+						provider_module = import_module(f'magneto.providers.torrents.{safe_name}')
 					scraper = provider_module.source()
 
 					if media_type == 'movie' and getattr(scraper, 'hasMovies', False):

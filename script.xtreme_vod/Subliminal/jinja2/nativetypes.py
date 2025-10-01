@@ -106,7 +106,7 @@ class NativeTemplate(Template):
 
         try:
             return self.environment_class.concat(  # type: ignore
-                self.root_render_func(ctx)
+                self.root_render_func(ctx)  # type: ignore
             )
         except Exception:
             return self.environment.handle_exception()

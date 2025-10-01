@@ -145,7 +145,9 @@ class VideoPlayer(xbmc.Player):
 		from resources.lib.TheMovieDB import get_vod_alltv
 		import xbmcplugin
 		import time, sys
-		
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		Utils.show_busy()
+
 		response_extended_season_info = extended_season_info(tmdb,season)
 		response_extended_episode_info = extended_episode_info(tmdb,season, episode)
 		response_extended_tvshow_info = extended_tvshow_info(tmdb)
@@ -159,7 +161,7 @@ class VideoPlayer(xbmc.Player):
 		#Utils.tools_log(series_id)
 		from resources.lib.TheMovieDB import get_vod_data
 		movies = get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
-		#Utils.tools_log(movies)
+
 		try:
 			for i in movies['episodes'][str(season)]:
 				if str(i['episode_num']) == str(episode):
@@ -329,10 +331,39 @@ class VideoPlayer(xbmc.Player):
 		except:
 			li.setInfo(type='Video', infoLabels = infolabels)
 
+		from get_meta import get_episode_meta
+		meta = get_episode_meta(season=int(season), episode=int(episode),tmdb=tmdb, show_name=infolabels['tvshowtitle'], year=infolabels['year'] , interactive=False)
+
+		import sub_lim, tools
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta['episode_meta'])
+		subs_list = [subs_out_ENG]
+		if subs_out_FORCED:
+			subs_list.append(subs_out_FORCED)
+
+		#tools.log(subs_list)
+		if len(subs_list) > 0:
+			from subcleaner import clean_file
+			from pathlib import Path
+			for i in subs_list:
+				sub = Path(i)
+				clean_file.clean_file(sub)
+			tools.sub_cleaner_log_clean()
+			clean_file.files_handled = []
+
+		if len(subs_list) > 0:
+			li.setSubtitles(subs_list)
+
 		xbmcplugin.setContent(handle, 'episodes')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+30))
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_player_time', str(int(time.time())+30))
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_download_link', full_url)
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod.ResolvedUrl', 'true')
+
+		tvdb_id = Utils.fetch(get_tvshow_ids(tmdb), 'tvdb_id')
+		TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'episode', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'tvdb_id': str(tvdb_id), 'season': str(infolabels['season']), 'episode': str(infolabels['episode'])}
+		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
+
+
 		if 'test=True' in str(sys.argv):
 
 			xbmc.executebuiltin('Dialog.Close(busydialog)')
@@ -398,7 +429,8 @@ class VideoPlayer(xbmc.Player):
 		from resources.lib.TheMovieDB import handle_tmdb_movies
 		import xbmcplugin
 		movielogo, hdmovielogo, movieposter, hdmovieclearart, movieart, moviedisc, moviebanner, moviethumb, moviebackground = get_fanart_results_full(tvdb_id=tmdb, media_type='movie')
-
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		Utils.show_busy()
 		#hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo = get_fanart_results_full(tvdb_id, media_type='tv_tvdb',show_season=show_season )
 
 		if tmdb == None or tmdb == '':
@@ -604,6 +636,8 @@ class VideoPlayer(xbmc.Player):
 		li.setProperty('FileNameAndPath', str(full_url))
 		infolabels['path'] = full_url
 
+		TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'movie', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}
+		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 		try:
 			info_tag = ListItemInfoTag(li, 'video')
@@ -614,8 +648,27 @@ class VideoPlayer(xbmc.Player):
 		if tmdb:
 			li.setArt({ 'poster': poster, 'fanart': fanart, 'banner': banner, 'clearlogo': clearlogo, 'landscape': landscape, 'thumb': thumb})
 
+		from get_meta import get_movie_meta
+		meta = get_movie_meta(tmdb=tmdb, movie_name=infolabels['title'], year=infolabels['year'] , imdb=infolabels['imdbnumber'], interactive=False)
 
+		import sub_lim, tools
+		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta)
+		subs_list = [subs_out_ENG]
+		if subs_out_FORCED:
+			subs_list.append(subs_out_FORCED)
 
+		#tools.log(subs_list)
+		if len(subs_list) > 0:
+			from subcleaner import clean_file
+			from pathlib import Path
+			for i in subs_list:
+				sub = Path(i)
+				clean_file.clean_file(sub)
+			tools.sub_cleaner_log_clean()
+			clean_file.files_handled = []
+
+		if len(subs_list) > 0:
+			li.setSubtitles(subs_list)
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))

@@ -6,9 +6,6 @@ from functools import wraps
 from .utils import _PassArg
 from .utils import pass_eval_context
 
-if t.TYPE_CHECKING:
-    import typing_extensions as te
-
 V = t.TypeVar("V")
 
 
@@ -50,7 +47,7 @@ def async_variant(normal_func):  # type: ignore
         if need_eval_context:
             wrapper = pass_eval_context(wrapper)
 
-        wrapper.jinja_async_variant = True  # type: ignore[attr-defined]
+        wrapper.jinja_async_variant = True
         return wrapper
 
     return decorator
@@ -67,30 +64,18 @@ async def auto_await(value: t.Union[t.Awaitable["V"], "V"]) -> "V":
     if inspect.isawaitable(value):
         return await t.cast("t.Awaitable[V]", value)
 
-    return value
+    return t.cast("V", value)
 
 
-class _IteratorToAsyncIterator(t.Generic[V]):
-    def __init__(self, iterator: "t.Iterator[V]"):
-        self._iterator = iterator
-
-    def __aiter__(self) -> "te.Self":
-        return self
-
-    async def __anext__(self) -> V:
-        try:
-            return next(self._iterator)
-        except StopIteration as e:
-            raise StopAsyncIteration(e.value) from e
-
-
-def auto_aiter(
+async def auto_aiter(
     iterable: "t.Union[t.AsyncIterable[V], t.Iterable[V]]",
 ) -> "t.AsyncIterator[V]":
     if hasattr(iterable, "__aiter__"):
-        return iterable.__aiter__()
+        async for item in t.cast("t.AsyncIterable[V]", iterable):
+            yield item
     else:
-        return _IteratorToAsyncIterator(iter(iterable))
+        for item in t.cast("t.Iterable[V]", iterable):
+            yield item
 
 
 async def auto_to_list(

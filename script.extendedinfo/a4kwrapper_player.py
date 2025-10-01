@@ -194,11 +194,18 @@ def get_next_ep_details(show_title, season_num, ep_num, tmdb):
 	if daily_show_flag:
 		response = {'id': None, 'summary': None, '_embedded': {'show': {'genres': []}}}
 	else:
-		url = 'http://api.tvmaze.com/episodes/'+str(next_ep_id)+'?embed=show'
-		#response = get_JSON_response(url=url, cache_days=7.0, folder='TVMaze')
-		response = get_meta.get_response_cache(url=url, cache_days=7.0, folder='TVMaze')
+		try: 
+			url = 'http://api.tvmaze.com/episodes/'+str(next_ep_id)+'?embed=show'
+			#response = get_JSON_response(url=url, cache_days=7.0, folder='TVMaze')
+			response = get_meta.get_response_cache(url=url, cache_days=7.0, folder='TVMaze')
+		except:
+			response = {'id': None, 'summary': None, '_embedded': {'show': {'genres': []}}}
 	next_ep_genre = response['_embedded']['show']['genres']
-	strm_title = '%s - S%sE%s - %s' % (next_ep_show, str(next_ep_season).zfill(2),str(next_ep_episode).zfill(2), next_ep_title)
+	try:
+		strm_title = '%s - S%sE%s - %s' % (next_ep_show, str(next_ep_season).zfill(2),str(next_ep_episode).zfill(2), next_ep_title)
+	except:
+		print_log(str('EXCEPTION___!!!???___NET_EP_NOT_AIRED')+'===>PHIL')
+		return None
 	
 	#plot = response['summary'].replace('<p>','').replace('</p>','')
 	#runtime = response['runtime']
@@ -646,7 +653,7 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 	else:
 		subs_list = []
 
-
+	xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
 	con = db_connection()
 	cur = con.cursor()
 	sql_result1 = cur.execute("SELECT idepisode, * from files,episode,tvshow where episode.idfile = files.idfile and episode.idshow = tvshow.idshow and tvshow.c00 = '"+str(show_title).replace("'","''")+"' and episode.c12 = '"+str(show_season)+"' and episode.c13 = '"+str(show_episode)+"' order by dateadded asc").fetchall()
@@ -1329,6 +1336,12 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 	movie_title_clean, tmdb_id, runtime_seconds, resume_progress_seconds, movie_year, movie_vote_count, movie_vote_average, movie_title, movie_release_date, movie_poster, movie_popularity, movie_plot, movie_original_title, movie_original_language, movie_genre, movie_backdrop, imdb_id, genres, alternate_titles = meta_process(new_meta)
 
 	movielogo, hdmovielogo, movieposter, hdmovieclearart, movieart, moviedisc, moviebanner, moviethumb, moviebackground = get_fanart_results(tvdb_id=tmdb, media_type='movie')
+
+	xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
+	if movieposter == None and movie_poster:
+		movieposter = movie_poster
+		poster = movie_poster 
+	tools.log(movieposter)
 
 	con = db_connection()
 	cur = con.cursor()

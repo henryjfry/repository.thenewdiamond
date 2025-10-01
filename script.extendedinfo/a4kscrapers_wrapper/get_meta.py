@@ -728,7 +728,8 @@ def get_episode_meta(season, episode,tmdb=None, show_name=None, year=None, inter
 			#	season_dict['episodes'][idx]['show_episode_count'] = tot_episode_count
 			show = {'tmdb': tmdb, 'imdb': imdb, 'tvdb': tvdb, 'name': show_name, 'first_air_date': first_air_date, 'tot_episode_count': tot_episode_count, 'total_seasons': total_seasons, 'backdrop_path': backdrop_path, 'episode_run_time': episode_run_time}
 			show['tmdb_seasons'] = season_dict
-			show['tmdb_seasons_episode_tot'] = season_episodes
+			try: show['tmdb_seasons_episode_tot'] = season_episodes
+			except: show['tmdb_seasons_episode_tot'] = 0
 			show['tmdb_absolute_number'] = absolute_tmdb
 			show['status'] = status
 			show['alternative_titles'] = alternative_titles
@@ -812,7 +813,8 @@ def get_episode_meta(season, episode,tmdb=None, show_name=None, year=None, inter
 				#	season_dict['episodes'][idx]['show_episode_count'] = tot_episode_count
 				show['tvmaze_total_seasons'] = i['season']
 				show['tvmaze_seasons'] = season_dict
-				show['tvmaze_seasons_episode_tot'] = season_episodes
+				try: show['tvmaze_seasons_episode_tot'] = season_episodes
+				except: show['tvmaze_seasons_episode_tot'] = 0
 				try: 
 					show['tvmaze_absolute_number'] = absolute_tvmaze
 				except: 
@@ -824,6 +826,8 @@ def get_episode_meta(season, episode,tmdb=None, show_name=None, year=None, inter
 		#import pprint
 		#from pprint import pprint
 		#pprint(show)
+		try: episode_air_date = episode_air_date
+		except: episode_air_date = ''
 		episode_meta = {'show_aliases': alternative_titles, 'season_number': season, 'show_title': show_name, 'year': episode_year, 'episode': episode,'imdb_id': imdb,'imdbnumber': imdb,'mediatype': 'episode','season': season,'title': episode_title,'tvshow_year': first_air_date[:4], 'tvshow': show_name,'is_movie': False, 'is_tvshow': True, 'tmdb_id': tmdb,'imdb_id': imdb, 'media_type': 'episode', 'download_type': 'episode','absoluteNumber': show['tmdb_absolute_number'],'episode_count': show['tmdb_seasons_episode_tot'],'info': {'show_aliases': alternative_titles, 'season_number': season, 'show_title': show_name, 'tvshow': show_name, 'episode': episode,'imdb_id': imdb,'imdbnumber': imdb,'mediatype': 'episode','season': season,'title': episode_title,'tmdb_id': tmdb,'tmdb_show_id': tmdb,
 		'tvdb_id': tvdb,'tvdb_show_id': tvdb,'tvshow.imdb_id': imdb,'tvshow.tmdb_id': tmdb,'tvshow.tvdb_id': tvdb,'tvshow.year': first_air_date[:4],'tvshowtitle': show_name,'year': episode_year},'is_airing': is_airing,'season_count': show['total_seasons'],'show_episode_count': show['tot_episode_count'], 'episode_air_date': episode_air_date}
 		show['episode_meta'] = episode_meta

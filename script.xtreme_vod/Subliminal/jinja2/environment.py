@@ -1,7 +1,6 @@
 """Classes for managing templates and their runtime and compile time
 options.
 """
-
 import os
 import typing
 import typing as t
@@ -21,10 +20,10 @@ from .defaults import BLOCK_END_STRING
 from .defaults import BLOCK_START_STRING
 from .defaults import COMMENT_END_STRING
 from .defaults import COMMENT_START_STRING
-from .defaults import DEFAULT_FILTERS  # type: ignore[attr-defined]
+from .defaults import DEFAULT_FILTERS
 from .defaults import DEFAULT_NAMESPACE
 from .defaults import DEFAULT_POLICIES
-from .defaults import DEFAULT_TESTS  # type: ignore[attr-defined]
+from .defaults import DEFAULT_TESTS
 from .defaults import KEEP_TRAILING_NEWLINE
 from .defaults import LINE_COMMENT_PREFIX
 from .defaults import LINE_STATEMENT_PREFIX
@@ -56,7 +55,6 @@ from .utils import missing
 
 if t.TYPE_CHECKING:
     import typing_extensions as te
-
     from .bccache import BytecodeCache
     from .ext import Extension
     from .loaders import BaseLoader
@@ -81,7 +79,7 @@ def get_spontaneous_environment(cls: t.Type[_env_bound], *args: t.Any) -> _env_b
 
 def create_cache(
     size: int,
-) -> t.Optional[t.MutableMapping[t.Tuple["weakref.ref[t.Any]", str], "Template"]]:
+) -> t.Optional[t.MutableMapping[t.Tuple[weakref.ref, str], "Template"]]:
     """Return the cache class for the given size."""
     if size == 0:
         return None
@@ -93,13 +91,13 @@ def create_cache(
 
 
 def copy_cache(
-    cache: t.Optional[t.MutableMapping[t.Any, t.Any]],
-) -> t.Optional[t.MutableMapping[t.Tuple["weakref.ref[t.Any]", str], "Template"]]:
+    cache: t.Optional[t.MutableMapping],
+) -> t.Optional[t.MutableMapping[t.Tuple[weakref.ref, str], "Template"]]:
     """Create an empty copy of the given cache."""
     if cache is None:
         return None
 
-    if type(cache) is dict:  # noqa E721
+    if type(cache) is dict:
         return {}
 
     return LRUCache(cache.capacity)  # type: ignore
@@ -123,7 +121,7 @@ def load_extensions(
     return result
 
 
-def _environment_config_check(environment: _env_bound) -> _env_bound:
+def _environment_config_check(environment: "Environment") -> "Environment":
     """Perform a sanity check on the environment."""
     assert issubclass(
         environment.undefined, Undefined
@@ -406,8 +404,8 @@ class Environment:
         cache_size: int = missing,
         auto_reload: bool = missing,
         bytecode_cache: t.Optional["BytecodeCache"] = missing,
-        enable_async: bool = missing,
-    ) -> "te.Self":
+        enable_async: bool = False,
+    ) -> "Environment":
         """Create a new overlay environment that shares all the data with the
         current environment except for cache and the overridden attributes.
         Extensions cannot be removed for an overlayed environment.  An overlayed
@@ -419,11 +417,8 @@ class Environment:
         copied over so modifications on the original environment may not shine
         through.
 
-        .. versionchanged:: 3.1.5
-            ``enable_async`` is applied correctly.
-
         .. versionchanged:: 3.1.2
-            Added the ``newline_sequence``, ``keep_trailing_newline``,
+            Added the ``newline_sequence``,, ``keep_trailing_newline``,
             and ``enable_async`` parameters to match ``__init__``.
         """
         args = dict(locals())
@@ -675,7 +670,7 @@ class Environment:
             stream = ext.filter_stream(stream)  # type: ignore
 
             if not isinstance(stream, TokenStream):
-                stream = TokenStream(stream, name, filename)
+                stream = TokenStream(stream, name, filename)  # type: ignore
 
         return stream
 
@@ -706,17 +701,18 @@ class Environment:
 
         .. versionadded:: 2.5
         """
-        return compile(source, filename, "exec")
+        return compile(source, filename, "exec")  # type: ignore
 
     @typing.overload
-    def compile(
+    def compile(  # type: ignore
         self,
         source: t.Union[str, nodes.Template],
         name: t.Optional[str] = None,
         filename: t.Optional[str] = None,
         raw: "te.Literal[False]" = False,
         defer_init: bool = False,
-    ) -> CodeType: ...
+    ) -> CodeType:
+        ...
 
     @typing.overload
     def compile(
@@ -726,7 +722,8 @@ class Environment:
         filename: t.Optional[str] = None,
         raw: "te.Literal[True]" = ...,
         defer_init: bool = False,
-    ) -> str: ...
+    ) -> str:
+        ...
 
     @internalcode
     def compile(
@@ -817,7 +814,7 @@ class Environment:
 
     def compile_templates(
         self,
-        target: t.Union[str, "os.PathLike[str]"],
+        target: t.Union[str, os.PathLike],
         extensions: t.Optional[t.Collection[str]] = None,
         filter_func: t.Optional[t.Callable[[str], bool]] = None,
         zip: t.Optional[str] = "deflated",
@@ -861,10 +858,7 @@ class Environment:
                     f.write(data.encode("utf8"))
 
         if zip is not None:
-            from zipfile import ZIP_DEFLATED
-            from zipfile import ZIP_STORED
-            from zipfile import ZipFile
-            from zipfile import ZipInfo
+            from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED, ZIP_STORED
 
             zip_file = ZipFile(
                 target, "w", dict(deflated=ZIP_DEFLATED, stored=ZIP_STORED)[zip]
@@ -926,7 +920,7 @@ class Environment:
                 )
 
             def filter_func(x: str) -> bool:
-                return "." in x and x.rsplit(".", 1)[1] in extensions
+                return "." in x and x.rsplit(".", 1)[1] in extensions  # type: ignore
 
         if filter_func is not None:
             names = [name for name in names if filter_func(name)]
@@ -1251,7 +1245,7 @@ class Template:
         namespace: t.MutableMapping[str, t.Any],
         globals: t.MutableMapping[str, t.Any],
     ) -> "Template":
-        t: Template = object.__new__(cls)
+        t: "Template" = object.__new__(cls)
         t.environment = environment
         t.globals = globals
         t.name = namespace["name"]
@@ -1259,7 +1253,7 @@ class Template:
         t.blocks = namespace["blocks"]
 
         # render function and module
-        t.root_render_func = namespace["root"]
+        t.root_render_func = namespace["root"]  # type: ignore
         t._module = None
 
         # debug and loader helpers
@@ -1285,7 +1279,19 @@ class Template:
         if self.environment.is_async:
             import asyncio
 
-            return asyncio.run(self.render_async(*args, **kwargs))
+            close = False
+
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                close = True
+
+            try:
+                return loop.run_until_complete(self.render_async(*args, **kwargs))
+            finally:
+                if close:
+                    loop.close()
 
         ctx = self.new_context(dict(*args, **kwargs))
 
@@ -1343,13 +1349,13 @@ class Template:
         ctx = self.new_context(dict(*args, **kwargs))
 
         try:
-            yield from self.root_render_func(ctx)
+            yield from self.root_render_func(ctx)  # type: ignore
         except Exception:
             yield self.environment.handle_exception()
 
     async def generate_async(
         self, *args: t.Any, **kwargs: t.Any
-    ) -> t.AsyncGenerator[str, object]:
+    ) -> t.AsyncIterator[str]:
         """An async version of :meth:`generate`.  Works very similarly but
         returns an async iterator instead.
         """
@@ -1361,14 +1367,8 @@ class Template:
         ctx = self.new_context(dict(*args, **kwargs))
 
         try:
-            agen = self.root_render_func(ctx)
-            try:
-                async for event in agen:  # type: ignore
-                    yield event
-            finally:
-                # we can't use async with aclosing(...) because that's only
-                # in 3.10+
-                await agen.aclose()  # type: ignore
+            async for event in self.root_render_func(ctx):  # type: ignore
+                yield event
         except Exception:
             yield self.environment.handle_exception()
 
@@ -1417,9 +1417,7 @@ class Template:
         """
         ctx = self.new_context(vars, shared, locals)
         return TemplateModule(
-            self,
-            ctx,
-            [x async for x in self.root_render_func(ctx)],  # type: ignore
+            self, ctx, [x async for x in self.root_render_func(ctx)]  # type: ignore
         )
 
     @internalcode
@@ -1534,7 +1532,7 @@ class TemplateModule:
                     " API you are using."
                 )
 
-            body_stream = list(template.root_render_func(context))
+            body_stream = list(template.root_render_func(context))  # type: ignore
 
         self._body_stream = body_stream
         self.__dict__.update(context.get_exported())
@@ -1566,7 +1564,7 @@ class TemplateExpression:
 
     def __call__(self, *args: t.Any, **kwargs: t.Any) -> t.Optional[t.Any]:
         context = self._template.new_context(dict(*args, **kwargs))
-        consume(self._template.root_render_func(context))
+        consume(self._template.root_render_func(context))  # type: ignore
         rv = context.vars["result"]
         if self._undefined_to_none and isinstance(rv, Undefined):
             rv = None
@@ -1590,7 +1588,7 @@ class TemplateStream:
 
     def dump(
         self,
-        fp: t.Union[str, t.IO[bytes]],
+        fp: t.Union[str, t.IO],
         encoding: t.Optional[str] = None,
         errors: t.Optional[str] = "strict",
     ) -> None:
@@ -1608,25 +1606,22 @@ class TemplateStream:
             if encoding is None:
                 encoding = "utf-8"
 
-            real_fp: t.IO[bytes] = open(fp, "wb")
+            fp = open(fp, "wb")
             close = True
-        else:
-            real_fp = fp
-
         try:
             if encoding is not None:
                 iterable = (x.encode(encoding, errors) for x in self)  # type: ignore
             else:
                 iterable = self  # type: ignore
 
-            if hasattr(real_fp, "writelines"):
-                real_fp.writelines(iterable)
+            if hasattr(fp, "writelines"):
+                fp.writelines(iterable)
             else:
                 for item in iterable:
-                    real_fp.write(item)
+                    fp.write(item)
         finally:
             if close:
-                real_fp.close()
+                fp.close()
 
     def disable_buffering(self) -> None:
         """Disable the output buffering."""

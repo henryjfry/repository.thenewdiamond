@@ -58,6 +58,7 @@ try:
 	A4KPROVIDERS_PATH_original = os.path.join(ADDON_USERDATA_PATH, 'providers')
 	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
 	COCO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.cocoscrapers')
+	MAGNETO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.magneto')
 	PROVIDERS_JSON = os.path.join(ADDON_USERDATA_PATH, 'provider.json')
 	OPENSUB_USERNAME = 'username'
 	OPENSUB_PASSWORD = 'password'
@@ -77,6 +78,7 @@ except:
 	A4KPROVIDERS_PATH_original = os.path.join(ADDON_USERDATA_PATH, 'providers')
 	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
 	COCO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.cocoscrapers')
+	MAGNETO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.magneto')
 	PROVIDERS_JSON = os.path.join(ADDON_USERDATA_PATH, 'provider.json')
 	OPENSUB_USERNAME = 'username'
 	OPENSUB_PASSWORD = 'password'
@@ -89,6 +91,7 @@ if not os.path.exists(SETTING_XML):
 	A4KPROVIDERS_PATH_original = os.path.join(ADDON_USERDATA_PATH, 'providers')
 	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
 	COCO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.cocoscrapers')
+	MAGNETO_SETTING_XML = SETTING_XML.replace(ADDON_NAME,'script.module.magneto')
 	PID_FILE = os.path.join(ADDON_USERDATA_PATH, 'pid')
 	PROVIDERS_JSON = os.path.join(ADDON_USERDATA_PATH, 'provider.json')
 	diamond = False

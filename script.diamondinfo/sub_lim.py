@@ -87,7 +87,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 		hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
 
 	subs_out = os.path.basename(file_path)
-	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.FOREIGN.PARTS.srt')
+	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.ENG.FOREIGN.PARTS.srt')
 	subs_out_ENG = os.path.splitext(subs_out)[0] + str('.ENG.srt')
 	subs_out_HEARING = os.path.splitext(subs_out)[0] + str('.ENG.srt')
 
@@ -110,7 +110,8 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 			video = Movie(name=meta_info['title'],title=meta_info['title'], year=meta_info['year'])
 		else:
 			from subliminal.video import Episode
-			video = Episode(name=meta_info['tvshow'], season=meta_info['season'], episode=meta_info['episode'])
+			#video = Episode(name=meta_info['tvshow'], season=meta_info['season'], episode=meta_info['episode'])
+			video = Episode(name=meta_info['title'], series=meta_info['show_title'], season=meta_info['season'], episodes=[meta_info['episode']])
 		video = refiners.tmdb.refine(video, apikey=tmdb_apikey)
 
 
@@ -174,10 +175,20 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 
 	tools.log(limited_subtitles)
 	for i in limited_subtitles:
-		if 'parts' in str(i.__dict__) or 'foreign' in str(i.__dict__):
+		try:
+			if i.__dict__['matched_by'] == 'imdbid':
+				imdbid = True
+			else:
+				imdbid = False
+		except:
+			imdbid = False
+
+		if 'parts' in str(i.__dict__).lower() or 'foreign' in str(i.__dict__).lower() or 'Forced' in str(i.__dict__):
 			#tools.log()
 			#tools.log(i)
 			curr_score_forced = compute_score(i, video)
+			if imdbid:
+				curr_score_forced = curr_score_forced + 200
 			if curr_score_forced > high_score_forced:
 				if high_score_forced == 0 and curr_score_forced < 500:
 					matches = i.get_matches(video)
@@ -190,15 +201,19 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					if curr_subs_forced_dict.get('filename','') == '':
 						curr_subs_forced_dict['filename'] = curr_subs_forced_dict['file_name']
 				except:
-					tools.log('except')
+					#tools.log(i.__dict__)
+					curr_subs_forced_dict['filename'] = subs_out_FORCED
+					#tools.log('except')
 					#tools.log(curr_subs_forced_dict)
 			#tools.log(i.__dict__)
 			#tools.log(video.__dict__)
 			#tools.log(i.get_matches(video))
 			#sorted(i.get_matches(video))
 			#tools.log()
-		if not ('parts' in str(i.__dict__) or 'foreign' in str(i.__dict__)) and not 'HEARING' in str(i.__dict__):
+		if not ('parts' in str(i.__dict__).lower() or 'foreign' in str(i.__dict__).lower() or 'Forced' in str(i.__dict__)) and not 'HEARING' in str(i.__dict__):
 			curr_score = compute_score(i, video)
+			if imdbid:
+				curr_score = curr_score + 200
 			if curr_score > high_score:
 				high_score = curr_score
 				curr_subs = i
@@ -207,10 +222,14 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					if curr_subs_dict.get('filename','') == '':
 						curr_subs_dict['filename'] = curr_subs_dict['file_name']
 				except:
-					tools.log('except')
+					#tools.log(i.__dict__)
+					curr_subs_dict['filename'] = subs_out_ENG
+					#tools.log('except')
 					#tools.log(curr_subs_dict)
-		elif not ('parts' in str(i.__dict__) or 'foreign' in str(i.__dict__)) and 'HEARING' in str(i.__dict__):
+		elif not ('parts' in str(i.__dict__).lower() or 'foreign' in str(i.__dict__).lower()  or 'Forced' in str(i.__dict__)) and 'HEARING' in str(i.__dict__):
 			curr_score_HEARING = compute_score(i, video)
+			if imdbid:
+				curr_score_HEARING = curr_score_HEARING + 200
 			if curr_score_HEARING > high_score_HEARING:
 				high_score_HEARING = curr_score_HEARING
 				curr_subs_HEARING = i
@@ -219,7 +238,9 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 					if curr_subs_HEARING_dict.get('filename','') == '':
 						curr_subs_HEARING_dict['filename'] = curr_subs_HEARING_dict['file_name']
 				except:
-					tools.log('except')
+					#tools.log(i.__dict__)
+					curr_subs_dict['filename'] = subs_out_HEARING
+					#tools.log('except')
 					#tools.log(curr_subs_dict)
 	if curr_subs_forced:
 		tools.log(curr_subs_forced_dict)

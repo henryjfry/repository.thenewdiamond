@@ -423,7 +423,7 @@ def get_tmdb_window(window_type):
 			except: UnWatchedEpisodes = 0
 			if UnWatchedEpisodes > 2:
 				tmdb_id, season, episode = trakt_next_episode_normal(tmdb_id_num=self.listitem.getProperty('id'))
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 				PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=self)
 			else:
@@ -488,8 +488,8 @@ def get_tmdb_window(window_type):
 
 			xbmcgui.Window(10000).setProperty('tmdbhelper_tvshow.poster', str(self.listitem.getProperty('poster')))
 			if selection_text == 'Last Played URL':
-				xbmc.executebuiltin('Dialog.Close(busydialog)')
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(busydialog)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				PLAYER.play_from_button(last_played_tmdb_helper, listitem=None, window=self, dbid=0)
 			if selection_text == 'Play first episode':
 				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=self.listitem.getProperty('series_id'), search_str = self.search_str,episode=1, season=1, window=self)
@@ -502,12 +502,12 @@ def get_tmdb_window(window_type):
 
 			if selection_text == 'Play Trakt Next Episode':
 				tmdb_id, season, episode = trakt_next_episode_normal(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=self.listitem.getProperty('series_id'), search_str = self.search_str,episode=episode, season=season, window=self)
 
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=None, search_str = self.search_str,episode=episode, season=season, window=self)
 
 			if selection_text == 'Trailer':

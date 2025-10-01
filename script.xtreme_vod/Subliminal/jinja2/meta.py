@@ -1,7 +1,6 @@
 """Functions that expose information about templates that might be
 interesting for introspection.
 """
-
 import typing as t
 
 from . import nodes

@@ -10,11 +10,11 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Any
 
-from babelfish import Language, LanguageReverseError  # type: ignore[import-untyped]
+from babelfish import Language  # type: ignore[import-untyped]
 from guessit import guessit  # type: ignore[import-untyped]
 
 from .archives import ARCHIVE_ERRORS, ARCHIVE_EXTENSIONS, is_supported_archive, scan_archive
-from .exceptions import ArchiveError
+from .exceptions import ArchiveError, DiscardingError
 from .extensions import (
     discarded_episode_refiners,
     discarded_movie_refiners,
@@ -25,7 +25,7 @@ from .extensions import (
 )
 from .matches import fps_matches
 from .score import compute_score as default_compute_score
-from .subtitle import SUBTITLE_EXTENSIONS, LanguageType, Subtitle
+from .subtitle import SUBTITLE_EXTENSIONS, ExternalSubtitle, LanguageType
 from .utils import get_age, handle_exception
 from .video import VIDEO_EXTENSIONS, Episode, Movie, Video
 
@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 
     from subliminal.providers import Provider
     from subliminal.score import ComputeScore
+    from subliminal.subtitle import Subtitle
 
 logger = logging.getLogger(__name__)
 
@@ -143,12 +144,17 @@ class ProviderPool:
         # list subtitles
         logger.info('Listing subtitles with provider %r and languages %r', provider, provider_languages)
         try:
-            return self[provider].list_subtitles(video, provider_languages)
-        except Exception as e:  # noqa: BLE001
+            subtitles = self[provider].list_subtitles(video, provider_languages)
+        except DiscardingError as e:
             handle_exception(e, f'Provider {provider}')
+            # return None to discard this provider with a known error
+            return None
+        except Exception as e:  # noqa: BLE001  # pragma: no cover
+            handle_exception(e, f'Provider {provider}')
+            # return [] so the provider is not discarded with unknown error
+            return []
 
-        # return None to discard this provider
-        return None
+        return subtitles
 
     def list_subtitles(self, video: Video, languages: Set[Language]) -> list[Subtitle]:
         """List subtitles.
@@ -367,7 +373,6 @@ def check_video(
     *,
     languages: Set[Language] | None = None,
     age: timedelta | None = None,
-    use_ctime: bool = False,
     undefined: bool = False,
 ) -> bool:
     """Perform some checks on the `video`.
@@ -383,8 +388,6 @@ def check_video(
     :param languages: desired languages.
     :type languages: set of :class:`~babelfish.language.Language`
     :param datetime.timedelta age: maximum age of the video.
-    :param bool use_ctime: use the latest of creation time and modification time to compute the age of the video,
-        instead of just modification time.
     :param bool undefined: fail on existing undefined language.
     :return: `True` if the video passes the checks, `False` otherwise.
     :rtype: bool
@@ -396,8 +399,7 @@ def check_video(
         return False
 
     # age test
-    file_age = video.get_age(use_ctime=use_ctime)
-    if age and file_age > age:
+    if age and video.age > age:
         logger.debug('Video is older than %r', age)
         return False
 
@@ -409,8 +411,17 @@ def check_video(
     return True
 
 
-def parse_subtitle_filename(subtitle_filename: str, video_filename: str) -> Subtitle | None:
-    """Parse the subtitle filename to extract the language."""
+def parse_language_code(subtitle_filename: str, video_filename: str) -> str | None:
+    """Parse the subtitle filename to extract the language.
+
+    Return None if the subtitle filename root is not identical to the video filename.
+
+    :param str subtitle_filename: path to the subtitle.
+    :param str video_filename: path to the video.
+    :return: the language code suffixed to the video name or None if the names are different.
+    :rtype: str | None
+
+    """
     fileroot, fileext = os.path.splitext(video_filename)
 
     # keep only valid subtitle filenames
@@ -418,25 +429,15 @@ def parse_subtitle_filename(subtitle_filename: str, video_filename: str) -> Subt
         return None
 
     # extract the potential language code
-    language = Language('und')
     language_code = subtitle_filename[len(fileroot) : -len(os.path.splitext(subtitle_filename)[1])]
-    language_code = language_code.replace(fileext, '').replace('_', '-')[1:]
-    if language_code:
-        try:
-            language = Language.fromietf(language_code)
-        except (ValueError, LanguageReverseError):
-            logger.exception('Cannot parse language code %r', language_code)
-
-    # TODO: extract the hearing_impaired or foreign_only attribute
-
-    return Subtitle(language, subtitle_id=subtitle_filename)
+    return language_code.replace(fileext, '').replace('_', '-')[1:]
 
 
 def search_external_subtitles(
     path: str | os.PathLike,
     *,
     directory: str | os.PathLike | None = None,
-) -> dict[str, Subtitle]:
+) -> dict[str, ExternalSubtitle]:
     """Search for external subtitles from a video `path` and their associated language.
 
     Unless `directory` is provided, search will be made in the same directory as the video file.
@@ -454,10 +455,11 @@ def search_external_subtitles(
     # search for subtitles
     subtitles = {}
     for p in os.listdir(directory or dirpath):
-        subtitle = parse_subtitle_filename(p, filename)
-        if subtitle is None:
+        language_code = parse_language_code(p, filename)
+        if language_code is None:
             continue
 
+        subtitle = ExternalSubtitle.from_language_code(language_code, subtitle_path=p)
         subtitles[p] = subtitle
 
     logger.debug('Found subtitles %r', subtitles)
@@ -466,20 +468,25 @@ def search_external_subtitles(
 
 
 def scan_name(path: str | os.PathLike, name: str | None = None) -> Video:
-    """Scan a video from a `path` that does not exist.
+    """Scan a video from a `path`.
 
-    :param str path: non-existing path to the video.
+    :param str path: path to the video.
     :param str name: if defined, name to use with guessit instead of the path.
     :return: the scanned video.
     :rtype: :class:`~subliminal.video.Video`
     """
     path = os.fspath(path)
     repl = name if name else path
+    if name:
+        logger.info('Scanning video %r, with replacement name %r', path, repl)
+    else:
+        logger.info('Scanning video %r', path)
+
     return Video.fromguess(path, guessit(repl))
 
 
 def scan_video(path: str | os.PathLike, name: str | None = None) -> Video:
-    """Scan a video from a `path`.
+    """Scan a video from an existing `path`.
 
     :param str path: existing path to the video.
     :param str name: if defined, name to use with guessit instead of the path.
@@ -498,15 +505,8 @@ def scan_video(path: str | os.PathLike, name: str | None = None) -> Video:
         msg = f'{os.path.splitext(path)[1]!r} is not a valid video extension'
         raise ValueError(msg)
 
-    dirpath, filename = os.path.split(path)
-    repl = name if name else path
-    if name:
-        logger.info('Scanning video %r in %r, with replacement name %r', filename, dirpath, repl)
-    else:
-        logger.info('Scanning video %r in %r', filename, dirpath)
-
     # guess
-    video = Video.fromguess(path, guessit(repl))
+    video = scan_name(path, name=name)
 
     # size
     video.size = os.path.getsize(path)
@@ -515,26 +515,72 @@ def scan_video(path: str | os.PathLike, name: str | None = None) -> Video:
     return video
 
 
-def scan_videos(
+def scan_video_or_archive(path: str | os.PathLike, name: str | None = None) -> Video:
+    """Scan a video or an archive from a `path`.
+
+    :param str path: existing path to the video or archive.
+    :param str name: if defined, name to use with guessit instead of the path.
+    :return: the scanned video.
+    :rtype: :class:`~subliminal.video.Video`
+    :raises: :class:`ValueError`: video path is not well defined.
+    """
+    path = os.fspath(path)
+    # check for non-existing path
+    if not os.path.exists(path):
+        msg = 'Path does not exist'
+        raise ValueError(msg)
+
+    # scan
+    filename = os.path.basename(path)
+    if filename.lower().endswith(VIDEO_EXTENSIONS):
+        # scan video
+        return scan_video(path, name=name)
+
+    if is_supported_archive(filename):
+        # scan archive
+        try:
+            video = scan_archive(path, name=name)
+        except ArchiveError as e:
+            # Re-raise as a ValueError
+            msg = 'Error scanning archive'
+            raise ValueError(msg) from e
+        return video
+
+    msg = f'Unsupported file {filename!r}'  # pragma: no cover
+    raise ValueError(msg)  # pragma: no cover
+
+
+def scan_path(filepath: str | os.PathLike[str], *, name: str | None = None) -> Video:
+    """Scan a video or an archive from a `path`, maybe non-existing.
+
+    :param str path: path to the video or archive, may be an existing path or not.
+    :param str name: if defined, name to use with guessit instead of the path.
+    :return: the scanned video.
+    :rtype: :class:`~subliminal.video.Video`
+    :raises: :class:`ValueError`: video path is not well defined.
+    """
+    if not os.path.isfile(filepath):
+        return scan_name(filepath, name=name)
+    return scan_video_or_archive(filepath, name=name)
+
+
+def collect_video_filepaths(
     path: str | os.PathLike,
     *,
     age: timedelta | None = None,
-    use_ctime: bool = False,
+    use_ctime: bool = True,
     archives: bool = True,
     name: str | None = None,
-) -> list[Video]:
-    """Scan `path` for videos and their subtitles.
-
-    See :func:`refine` to find additional information for the video.
+) -> list[str]:
+    """Collect video file paths in directory `path`.
 
     :param str path: existing directory path to scan.
     :param datetime.timedelta age: maximum age of the video or archive.
     :param bool use_ctime: use the latest of creation time and modification time to compute the age of the video,
         instead of just modification time.
     :param bool archives: scan videos in archives.
-    :param str name: name to use with guessit instead of the path.
-    :return: the scanned videos.
-    :rtype: list of :class:`~subliminal.video.Video`
+    :return: the collected video file names.
+    :rtype: list of str
     :raises: :class:`ValueError`: video path is not well defined.
     """
     path = os.fspath(path)
@@ -549,7 +595,7 @@ def scan_videos(
         raise ValueError(msg)
 
     # walk the path
-    videos = []
+    video_filepaths = []
     for dirpath, dirnames, filenames in os.walk(path):
         logger.debug('Walking directory %r', dirpath)
 
@@ -599,24 +645,43 @@ def scan_videos(
                     logger.debug('Skipping old file %r in %r', filename, dirpath)
                     continue
 
-            # scan
-            if filename.lower().endswith(VIDEO_EXTENSIONS):  # video
-                try:
-                    video = scan_video(filepath, name=name)
-                except ValueError:  # pragma: no cover
-                    logger.exception('Error scanning video')
-                    continue
-            elif archives and is_supported_archive(filename):  # archive
-                try:
-                    video = scan_archive(filepath, name=name)
-                except (ArchiveError, ValueError):  # pragma: no cover
-                    logger.exception('Error scanning archive')
-                    continue
-            else:  # pragma: no cover
-                msg = f'Unsupported file {filename!r}'
-                raise ValueError(msg)
+            video_filepaths.append(filepath)
 
-            videos.append(video)
+    return video_filepaths
+
+
+def scan_videos(
+    path: str | os.PathLike,
+    *,
+    age: timedelta | None = None,
+    use_ctime: bool = False,
+    archives: bool = True,
+    name: str | None = None,
+) -> list[Video]:
+    """Scan `path` for videos and their subtitles.
+
+    See :func:`refine` to find additional information for the video.
+
+    :param str path: existing directory path to scan.
+    :param datetime.timedelta age: maximum age of the video or archive.
+    :param bool use_ctime: use the latest of creation time and modification time to compute the age of the video,
+        instead of just modification time.
+    :param bool archives: scan videos in archives.
+    :param str name: name to use with guessit instead of the path.
+    :return: the scanned videos.
+    :rtype: list of :class:`~subliminal.video.Video`
+    :raises: :class:`ValueError`: video path is not well defined.
+    """
+    filepaths = collect_video_filepaths(path, age=age, use_ctime=use_ctime, archives=archives)
+
+    videos = []
+    for filepath in filepaths:
+        try:
+            video = scan_video_or_archive(filepath, name=name)
+        except ValueError:
+            logger.exception('Error scanning video')
+            continue
+        videos.append(video)
 
     return videos
 
@@ -846,7 +911,7 @@ def save_subtitles(
         if subtitle_format:
             # Use the video FPS if the FPS of the subtitle is not defined
             fps = video.frame_rate if subtitle.fps is None else None
-            subtitle.convert(subtitle_format, output_encoding=encoding, fps=fps)
+            subtitle.convert(output_format=subtitle_format, output_encoding=encoding, fps=fps)
 
         # create subtitle path
         subtitle_path = subtitle.get_path(

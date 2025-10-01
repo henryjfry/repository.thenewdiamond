@@ -450,8 +450,269 @@ def get_fanart_clearlogo(tmdb_id=None, media_type=None):
 				pass
 	return clearlogo
 
+def get_tastedive_shows_items(show_name: str, imdb_id: str) -> list:
+	import requests
+	search_url = "https://tastedive.com/api/search"
+	search_params = {
+		"query": show_name,
+		"take": "9",
+		"page": "1",
+		"searchCategory": "default",
+		"types": "urn:entity:tv_show"
+	}
+	headers = {
+		"accept": "application/json, text/plain, */*",
+		"referer": "https://tastedive.com/",
+		"user-agent": "Mozilla/5.0"
+	}
+	cookies = {
+		"__Host-next-auth.csrf-token": "1a7f094e800bdcd2074e094cbab6696019fd0de132a31c5d5544dddc40f0f273|3b43c936976ca42110e7e4811d23fa0c735b42e7f2a9b59d7c32b7382fe8fef9",
+		"__Secure-next-auth.callback-url": "https://tastedive.com"
+	}
+
+	search_response = requests.get(search_url, headers=headers, params=search_params, cookies=cookies)
+	search_data = search_response.json()
+
+	# Step 2: Find the correct entity by IMDb ID
+	entity_id = None
+	for result in search_data.get("results", []):
+		external = result.get("properties", {}).get("external", {})
+		if external.get("imdb", {}).get("id") == imdb_id:
+			entity_id = result.get("entity_id")
+			#print(result)
+			break
+	if not entity_id:
+		raise ValueError("IMDb ID not found in search results.")
+
+	# Step 3: Use entity ID to get similar movies
+
+	recs_url = "https://tastedive.com/api/getRecsByCategory"
+
+	recs_params = {
+		"page": "1",
+		"entityId": entity_id,
+		"category": "shows",
+		"limit": "18"
+	}
+
+	recs_headers = {
+		"accept": "*/*",
+		"accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+		"priority": "u=1, i",
+		"referer": "https://tastedive.com/",
+		"sec-ch-ua": '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+		"sec-ch-ua-mobile": "?0",
+		"sec-ch-ua-platform": '"Windows"',
+		"sec-fetch-dest": "empty",
+		"sec-fetch-mode": "cors",
+		"sec-fetch-site": "same-origin",
+		"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+	}
+
+	recs_response = requests.get(recs_url, headers=recs_headers, params=recs_params, cookies=cookies)
+	#print(recs_response)
+	recs_data = recs_response.json()
+	#print(recs_data)
+
+	# Step 4: Extract IMDb IDs and movie names
+	similar_shows = []
+	for item in recs_data:
+		similar_shows.append((item.get("properties", {}).get("release_year", ''), item.get("entityName"), item.get("slug")))
+
+	recs_params = {
+		"page": "2",
+		"entityId": entity_id,
+		"category": "shows",
+		"limit": "18"
+	}
+	recs_response = requests.get(recs_url, headers=recs_headers, params=recs_params, cookies=cookies)
+	#print(recs_response)
+	recs_data = recs_response.json()
+	for item in recs_data:
+		similar_shows.append((item.get("properties", {}).get("release_year", ''), item.get("entityName"), item.get("slug")))
+
+	return similar_shows
+
+def get_tastedive_shows(item_id, cache_days=14, folder='TasteDive'):
+	import time, hashlib, xbmcvfs, os
+	import re, json, requests, html
+
+	from urllib.parse import quote_plus
+	url = 'https://tastedive.com/%s/%s/api_taste' % (item_id,'show')
+	show_info = single_tvshow_info(tvshow_id=item_id, cache_time=7 )
+
+	now = time.time()
+	url = url.encode('utf-8')
+	hashed_url = hashlib.md5(url).hexdigest()
+
+	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
+	cache_seconds = int(cache_days * 86400.0)
+	path = os.path.join(cache_path, '%s.txt' % hashed_url)
+
+	try: 
+		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+	except:
+		db_result = None
+	db_result = None
+	if db_result:
+		return db_result
+	else:
+		response = get_tastedive_shows_items(show_name = show_info['title'], imdb_id = show_info['imdb_id'])
+		results = []
+		for i in response:
+			show_response = get_tvshow_info(tvshow_label=i[1], year=i[0],use_dialog=False)
+			if show_response:
+				#results.append(show_response['id'])
+				results.append({'name': show_response['original_name'], 'year': show_response['first_air_date'][:4], 'media_type':  'tv', 'item_id': show_response['id']})
+
+	Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	if not results:
+		return []
+	else:
+		return results
+
+def get_tastedive_movies_items(movie_name: str, imdb_id: str) -> list:
+	import requests
+	"""
+	Given a movie name and IMDb ID, this function:
+	1. Searches Tastedive for the movie.
+	2. Identifies the correct entity using the IMDb ID.
+	3. Uses the entity ID to query similar movies.
+	4. Returns a list of tuples with IMDb IDs and movie names of similar items.
+	"""
+	# Step 1: Search for the movie
+	search_url = "https://tastedive.com/api/search"
+	search_params = {
+		"query": movie_name,
+		"take": "9",
+		"page": "1",
+		"searchCategory": "default",
+		"types": "urn:entity:movie"
+	}
+	headers = {
+		"accept": "application/json, text/plain, */*",
+		"referer": "https://tastedive.com/",
+		"user-agent": "Mozilla/5.0"
+	}
+	cookies = {
+		"__Host-next-auth.csrf-token": "1a7f094e800bdcd2074e094cbab6696019fd0de132a31c5d5544dddc40f0f273|3b43c936976ca42110e7e4811d23fa0c735b42e7f2a9b59d7c32b7382fe8fef9",
+		"__Secure-next-auth.callback-url": "https://tastedive.com"
+	}
+
+	search_response = requests.get(search_url, headers=headers, params=search_params, cookies=cookies)
+	search_data = search_response.json()
+
+	# Step 2: Find the correct entity by IMDb ID
+	entity_id = None
+	for result in search_data.get("results", []):
+		external = result.get("properties", {}).get("external", {})
+		if external.get("imdb", {}).get("id") == imdb_id:
+			entity_id = result.get("entity_id")
+			#print(result)
+			break
+	if not entity_id:
+		raise ValueError("IMDb ID not found in search results.")
+
+	# Step 3: Use entity ID to get similar movies
+
+	recs_url = "https://tastedive.com/api/getRecsByCategory"
+
+	recs_params = {
+		"page": "1",
+		"entityId": entity_id,
+		"category": "movies",
+		"limit": "18"
+	}
+
+	recs_headers = {
+		"accept": "*/*",
+		"accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+		"priority": "u=1, i",
+		"referer": "https://tastedive.com/",
+		"sec-ch-ua": '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+		"sec-ch-ua-mobile": "?0",
+		"sec-ch-ua-platform": '"Windows"',
+		"sec-fetch-dest": "empty",
+		"sec-fetch-mode": "cors",
+		"sec-fetch-site": "same-origin",
+		"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+	}
+
+	recs_response = requests.get(recs_url, headers=recs_headers, params=recs_params, cookies=cookies)
+	#print(recs_response)
+	recs_data = recs_response.json()
+	#print(recs_data)
+
+	# Step 4: Extract IMDb IDs and movie names
+	similar_movies = []
+	for item in recs_data:
+		similar_movies.append((item.get("properties", {}).get("release_year", ''), item.get("entityName"), item.get("slug")))
+
+	recs_params = {
+		"page": "2",
+		"entityId": entity_id,
+		"category": "movies",
+		"limit": "18"
+	}
+	recs_response = requests.get(recs_url, headers=recs_headers, params=recs_params, cookies=cookies)
+	#print(recs_response)
+	recs_data = recs_response.json()
+	for item in recs_data:
+		similar_movies.append((item.get("properties", {}).get("release_year", ''), item.get("entityName"), item.get("slug")))
+
+	return similar_movies
+
+def get_tastedive_movies(item_id, cache_days=14, folder='TasteDive'):
+	import time, hashlib, xbmcvfs, os
+	import re, json, requests, html
+
+	from urllib.parse import quote_plus
+	url = 'https://tastedive.com/%s/%s/api_taste' % (item_id,'movie')
+	movie_info = single_movie_info(movie_id=item_id, cache_time=7, notify=False)
+
+	now = time.time()
+	url = url.encode('utf-8')
+	hashed_url = hashlib.md5(url).hexdigest()
+
+	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
+	cache_seconds = int(cache_days * 86400.0)
+	path = os.path.join(cache_path, '%s.txt' % hashed_url)
+
+	try: 
+		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+	except:
+		db_result = None
+	if db_result:
+		return db_result
+	else:
+		response = get_tastedive_movies_items(movie_name = movie_info['title'], imdb_id = movie_info['imdb_id'])
+		results = []
+		for i in response:
+			movie_response = get_movie_info(movie_label=i[1], year=i[0],use_dialog=False, notify = False)
+			if movie_response:
+				#results.append(movie_response['id'])
+				results.append({'name': movie_response['title'], 'year': movie_response['release_date'][:4], 'media_type':  'movie', 'item_id': movie_response['id']})
+			else:
+				movie_response = get_movie_info(movie_label=i[1],use_dialog=False, notify = False)
+				if movie_response:
+					#results.append(movie_response['id'])
+					results.append({'name': movie_response['title'], 'year': movie_response['release_date'][:4], 'media_type':  'movie', 'item_id': movie_response['id']})
+
+	Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	if not results:
+		return []
+	else:
+		return results
 
 def get_tastedive_data_scrape(url='', query='', year='', limit=20, media_type=None, cache_days=14, folder='TasteDive', item_id=None):
+	if media_type == 'movie' or media_type == 'movies':
+		results = get_tastedive_movies(item_id=item_id)
+	else: 
+		results = get_tastedive_shows(item_id=item_id)
+
+	return results
+
+def get_tastedive_data_scrape_old(url='', query='', year='', limit=20, media_type=None, cache_days=14, folder='TasteDive', item_id=None):
 	import time, hashlib, xbmcvfs, os
 	import re, json, requests, html
 	

@@ -85,6 +85,10 @@ def start_info_actions(infos, params):
 			else:
 				context_info2()
 
+		if info == 'setup_magneto_scrapers':
+			from a4kscrapers_wrapper import getSources
+			getSources.setup_magneto_scrapers()
+
 		if info == 'setup_coco_scrapers':
 			from a4kscrapers_wrapper import getSources
 			getSources.setup_coco_scrapers()
@@ -682,6 +686,10 @@ def start_info_actions(infos, params):
 
 		elif info == 'open_settings':
 			xbmc.executebuiltin('Addon.OpenSettings(%s)' % addon_ID())
+			Utils.hide_busy()
+
+		elif info == 'open_settings_magneto_scrapers':
+			xbmc.executebuiltin('Addon.OpenSettings(script.module.magneto)')
 			Utils.hide_busy()
 
 		elif info == 'open_settings_coco_scrapers':

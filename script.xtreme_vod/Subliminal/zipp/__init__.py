@@ -1,26 +1,13 @@
-"""
-A Path-like interface for zipfiles.
-
-This codebase is shared between zipfile.Path in the stdlib
-and zipp in PyPI. See
-https://github.com/python/importlib_metadata/wiki/Development-Methodology
-for more detail.
-"""
-
-import functools
 import io
-import itertools
-import pathlib
 import posixpath
-import re
-import stat
-import sys
 import zipfile
+import itertools
+import contextlib
+import pathlib
+import re
 
-from .compat.py310 import text_encoding
-from .glob import Translator
-
-from ._functools import save_method_args
+from .py310compat import text_encoding
+from .glob import translate
 
 
 __all__ = ['Path']
@@ -48,7 +35,7 @@ def _parents(path):
 def _ancestry(path):
     """
     Given a path with elements separated by
-    posixpath.sep, generate all elements of that path.
+    posixpath.sep, generate all elements of that path
 
     >>> list(_ancestry('b/d'))
     ['b/d', 'b']
@@ -60,14 +47,9 @@ def _ancestry(path):
     ['b']
     >>> list(_ancestry(''))
     []
-
-    Multiple separators are treated like a single.
-
-    >>> list(_ancestry('//b//d///f//'))
-    ['//b//d///f', '//b//d', '//b']
     """
     path = path.rstrip(posixpath.sep)
-    while path.rstrip(posixpath.sep):
+    while path and path != posixpath.sep:
         yield path
         path, tail = posixpath.split(path)
 
@@ -89,12 +71,13 @@ class InitializedState:
     Mix-in to save the initialization state for pickling.
     """
 
-    @save_method_args
     def __init__(self, *args, **kwargs):
+        self.__args = args
+        self.__kwargs = kwargs
         super().__init__(*args, **kwargs)
 
     def __getstate__(self):
-        return self._saved___init__.args, self._saved___init__.kwargs
+        return self.__args, self.__kwargs
 
     def __setstate__(self, state):
         args, kwargs = state
@@ -165,16 +148,6 @@ class CompleteDirs(InitializedState, zipfile.ZipFile):
         source.__class__ = cls
         return source
 
-    @classmethod
-    def inject(cls, zf: zipfile.ZipFile) -> zipfile.ZipFile:
-        """
-        Given a writable zip file zf, inject directory entries for
-        any directories implied by the presence of children.
-        """
-        for name in cls._implied_dirs(zf.namelist()):
-            zf.writestr(name, b"")
-        return zf
-
 
 class FastLookup(CompleteDirs):
     """
@@ -183,33 +156,26 @@ class FastLookup(CompleteDirs):
     """
 
     def namelist(self):
-        return self._namelist
-
-    @functools.cached_property
-    def _namelist(self):
-        return super().namelist()
+        with contextlib.suppress(AttributeError):
+            return self.__names
+        self.__names = super().namelist()
+        return self.__names
 
     def _name_set(self):
-        return self._name_set_prop
-
-    @functools.cached_property
-    def _name_set_prop(self):
-        return super()._name_set()
+        with contextlib.suppress(AttributeError):
+            return self.__lookup
+        self.__lookup = super()._name_set()
+        return self.__lookup
 
 
 def _extract_text_encoding(encoding=None, *args, **kwargs):
-    # compute stack level so that the caller of the caller sees any warning.
-    is_pypy = sys.implementation.name == 'pypy'
-    stack_level = 3 + is_pypy
-    return text_encoding(encoding, stack_level), args, kwargs
+    # stacklevel=3 so that the caller of the caller see any warning.
+    return text_encoding(encoding, 3), args, kwargs
 
 
 class Path:
     """
-    A :class:`importlib.resources.abc.Traversable` interface for zip files.
-
-    Implements many of the features users enjoy from
-    :class:`pathlib.Path`.
+    A pathlib-compatible interface for zip files.
 
     Consider a zip file with this structure::
 
@@ -284,7 +250,7 @@ class Path:
     >>> str(path.parent)
     'mem'
 
-    If the zipfile has no filename, such attributes are not
+    If the zipfile has no filename, such attribtues are not
     valid and accessing them will raise an Exception.
 
     >>> zf.filename = None
@@ -343,7 +309,7 @@ class Path:
         if self.is_dir():
             raise IsADirectoryError(self)
         zip_mode = mode[0]
-        if zip_mode == 'r' and not self.exists():
+        if not self.exists() and zip_mode == 'r':
             raise FileNotFoundError(self)
         stream = self.root.open(self.at, zip_mode, pwd=pwd)
         if 'b' in mode:
@@ -412,19 +378,16 @@ class Path:
 
     def is_symlink(self):
         """
-        Return whether this path is a symlink.
+        Return whether this path is a symlink. Always false (python/cpython#82102).
         """
-        info = self.root.getinfo(self.at)
-        mode = info.external_attr >> 16
-        return stat.S_ISLNK(mode)
+        return False
 
     def glob(self, pattern):
         if not pattern:
             raise ValueError(f"Unacceptable pattern: {pattern!r}")
 
         prefix = re.escape(self.at)
-        tr = Translator(seps='/')
-        matches = re.compile(prefix + tr.translate(pattern)).fullmatch
+        matches = re.compile(prefix + translate(pattern)).fullmatch
         return map(self._next, filter(matches, self.root.namelist()))
 
     def rglob(self, pattern):
