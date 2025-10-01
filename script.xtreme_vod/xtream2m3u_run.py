@@ -491,4 +491,48 @@ def serve_m3u():
 #save_channel_order('https://pastebin.com/ky4LX0M2')
 #save_allowed_groups('https://pastebin.com/CRYd6dFM')
 
-#generate_xmltv()
+
+
+
+def update_iptv_simple_settings():
+	import os
+	import shutil
+	source_file    = os.path.join(Utils.ADDON_PATH,'instance-settings-_xml')
+	iptv_data_dir = str(Utils.ADDON_DATA_PATH).replace('script.xtreme_vod','pvr.iptvsimple') 
+	if not os.path.exists(iptv_data_dir):
+		Utils.tools_log("IPTV Simple addon data folder not found")
+		return
+	
+	# Step 1: Rename any instance-settings-*.xml files
+	number = 1
+	for fname in os.listdir(iptv_data_dir):
+		if fname.startswith("instance-settings-") and fname.endswith(".xml"):
+			src = os.path.join(iptv_data_dir, fname)
+			dst = os.path.join(iptv_data_dir, "disabled-" + fname)
+			number_curr = int(fname.replace('instance-settings-','').replace('.xml',''))
+			if number_curr > number:
+				number = number_curr
+			Utils.tools_log(f"Renaming {src} -> {dst}")
+			os.rename(src, dst)
+
+	# Step 2: Copy in the local replacement file
+	if os.path.exists(source_file):
+		target_file = os.path.join(iptv_data_dir, 'instance-settings-' + str(number+1) + '.xml')
+		Utils.tools_log(f"Copying {source_file} -> {target_file}")
+		shutil.copyfile(source_file, target_file)
+	else:
+		Utils.tools_log(f"Source file missing: {source_file}")
+
+def setup_iptv_simple_settings():
+	import xbmc
+	import xbmcvfs
+	Utils.tools_log('disable_IPTV_SIMPLE')
+	xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": {"addonid": "pvr.iptvsimple", "enabled": false}, "id": 1}')
+	Utils.tools_log('update_iptv_simple_settings')
+	update_iptv_simple_settings()
+	Utils.tools_log('PVR.Cleardata')
+	xbmc.executebuiltin("PVR.Cleardata")
+	Utils.tools_log('Sleep_5')
+	xbmc.sleep(5* 1000)
+	Utils.tools_log('enable_IPTV_SIMPLE')
+	xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": {"addonid": "pvr.iptvsimple", "enabled": true}, "id": 1}')

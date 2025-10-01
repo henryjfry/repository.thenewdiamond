@@ -31,6 +31,21 @@ def start_info_actions(infos, params):
 		Utils.show_busy()
 		data = [], ''
 
+
+		if info == 'generate_m3u_xml':
+			from xtream2m3u_run import generate_m3u
+			from xtream2m3u_run import generate_xmltv
+			generate_m3u()
+			generate_xmltv()
+			Utils.hide_busy()
+			return
+
+		if info == 'setup_iptv_simple_settings':
+			from xtream2m3u_run import setup_iptv_simple_settings
+			setup_iptv_simple_settings()
+			Utils.hide_busy()
+			return
+
 		if info == 'output_lists_pastebin':
 			from xtream2m3u_run import output_lists_pastebin
 			url = output_lists_pastebin()
@@ -57,14 +72,19 @@ def start_info_actions(infos, params):
 
 		if info == 'delete_db_expired':
 			Utils.db_delete_expired(Utils.db_con)
+			Utils.hide_busy()
+			return
 
 		if info == 'clear_db':
 			table_name = params.get('table_name', False)
 			Utils.clear_db(Utils.db_con,table_name)
+			Utils.hide_busy()
+			return
 
 		if info == 'getplayingfile':
 			xbmc.log(str(xbmc.Player().getPlayingFile())+'===>OPENINFO', level=xbmc.LOGINFO)
-
+			Utils.hide_busy()
+			return
 
 		if info == 'get_trakt_playback':
 			from resources.lib import TheMovieDB

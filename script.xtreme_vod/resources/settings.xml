@@ -17,6 +17,11 @@
 		<setting label="save_channel_order" type="action" action="RunScript(script.xtreme_vod,info=save_channel_order)" visible="true"/>
 		<setting label="Only include channels in allowed groups" type="lsep"/>
 		<setting label="save_allowed_groups" type="action" action="RunScript(script.xtreme_vod,info=save_allowed_groups)" visible="true"/>
+		<setting label="Generate XML+M3U" type="lsep"/>
+		<setting label="generate_m3u_xml" type="action" action="RunScript(script.xtreme_vod,info=generate_m3u_xml)" visible="true"/>
+		<setting label="Setup iptv simple settings" type="lsep"/>
+		<setting label="setup_iptv_simple_settings" type="action" action="RunScript(script.xtreme_vod,info=setup_iptv_simple_settings)" visible="true"/>
+
 
 		<setting label="List group names/partial names to include (non matching = EXCLUDE), comma separated" type="lsep"/>
 		<setting label="Sort Channels File - 1 Channel per line" type="lsep"/>
