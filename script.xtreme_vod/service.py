@@ -43,12 +43,26 @@ tools_log('PYTHON__VERSION')
 version_float = float('.'.join(version_str.split('.')[:2]))
 if version_float >= 3.9:
 	import importlib_resources_new as importlib_resources
-	import fake_useragent_new as fake_useragent
 else:
 	import importlib_resources_old as importlib_resources
-	import fake_useragent_old as fake_useragent
 sys.modules["importlib_resources"] = importlib_resources
-sys.modules["fake_useragent"] = fake_useragent
+
+import sys
+import glob as real_glob
+
+class GlobWrapper:
+    def __call__(self, *args, **kwargs):
+        return real_glob.glob(*args, **kwargs)  # make glob(...) work
+
+    def __getattr__(self, attr):
+        return getattr(real_glob, attr)  # pass-through attributes
+
+sys.modules['glob'] = GlobWrapper()
+glob = sys.modules['glob']
+
+import click
+
+import importlib
 import guessit
 from guessit import api
 import functools
@@ -1603,7 +1617,6 @@ class CronJobMonitor(Thread):
 		else:
 			local_xml_m3u = False
 
-		import importlib
 		importlib.reload(Utils)
 		
 		library.trakt_refresh_all()

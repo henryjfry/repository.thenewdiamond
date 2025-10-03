@@ -141,7 +141,8 @@ def _db_execute(db_name, command):
 
 def _get_database(db_name):
 	path_db = 'special://profile/Database/%s' % db_name
-	filelist = glob.glob(xbmcvfs.translatePath(path_db))
+	try: filelist = glob.glob(xbmcvfs.translatePath(path_db))
+	except AttributeError: filelist = glob(xbmcvfs.translatePath(path_db))
 	if filelist:
 		return filelist[-1]
 	return None

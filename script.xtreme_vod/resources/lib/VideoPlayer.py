@@ -346,7 +346,9 @@ class VideoPlayer(xbmc.Player):
 		from get_meta import get_episode_meta
 		meta = get_episode_meta(season=int(season), episode=int(episode),tmdb=tmdb, show_name=infolabels['tvshowtitle'], year=infolabels['year'] , interactive=False)
 
+		#import sys, importlib
 		import sub_lim, tools
+
 		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta['episode_meta'])
 		subs_list = [subs_out_ENG]
 		if subs_out_FORCED:
@@ -428,7 +430,7 @@ class VideoPlayer(xbmc.Player):
 			xbmcplugin.addDirectoryItem(handle=handle, url=full_url , listitem=li, isFolder=False)
 			xbmcplugin.setResolvedUrl(handle, True, li)
 			xbmcplugin.endOfDirectory(handle)
-			xbmc.Player().play(playlist)
+			return xbmc.Player().play(playlist)
 
 
 		return
@@ -669,7 +671,9 @@ class VideoPlayer(xbmc.Player):
 		from get_meta import get_movie_meta
 		meta = get_movie_meta(tmdb=tmdb, movie_name=infolabels['title'], year=infolabels['year'] , imdb=infolabels['imdbnumber'], interactive=False)
 
-		import sub_lim, tools
+		import tools
+		import sub_lim
+
 		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta)
 		subs_list = [subs_out_ENG]
 		if subs_out_FORCED:
@@ -687,6 +691,8 @@ class VideoPlayer(xbmc.Player):
 
 		if len(subs_list) > 0:
 			li.setSubtitles(subs_list)
+
+
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
@@ -734,14 +740,12 @@ class VideoPlayer(xbmc.Player):
 		playlist.add(full_url, li)
 		xbmcplugin.setResolvedUrl(0, True, li)
 		xbmcplugin.endOfDirectory(0)
-		xbmc.Player().play(playlist)
 
-		
 		#xbmc.executebuiltin('RunPlugin(%s)' % url)
 		#xbmc.log(str('play_from_button')+'_________________________play_from_button===>OPENINFO', level=xbmc.LOGINFO)
 		tools_log(str(str('play_from_button')+'_________________________play_from_button'))
 		tools_log(str(str(item)+'_________________________play_from_button'))
-		return
+		return xbmc.Player().play(playlist)
 
 
 	def play(self, url, listitem, window=False):

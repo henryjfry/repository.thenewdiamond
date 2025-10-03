@@ -10,24 +10,22 @@ from inspect import currentframe, getframeinfo
 # Add Subliminal folder (contains zipp)
 subliminal_path = os.path.join(Utils.ADDON_PATH, "Subliminal")
 if subliminal_path not in sys.path:
-    sys.path.insert(0, subliminal_path)
+	sys.path.insert(0, subliminal_path)
 
 # Add Subliminal root to sys.path
 if subliminal_path not in sys.path:
-    sys.path.insert(0, sublimiminal_path)
+	sys.path.insert(0, sublimiminal_path)
 
 # Add all subfolders in Subliminal to sys.path
 for entry in os.listdir(subliminal_path):
-    full_path = os.path.join(subliminal_path, entry)
-    if os.path.isdir(full_path) and full_path not in sys.path:
-        sys.path.insert(0, full_path)
+	full_path = os.path.join(subliminal_path, entry)
+	if os.path.isdir(full_path) and full_path not in sys.path:
+		sys.path.insert(0, full_path)
 
 
 # Add importlib_resources and fake_useragent paths
 sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "importlib_resources_old"))
-sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "fake_useragent_old"))
 sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "importlib_resources_new"))
-sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "fake_useragent_new"))
 
 # -----------------------------
 # Now import everything else
@@ -38,15 +36,11 @@ version_str = sys.version.split()[0]   # e.g. '3.9.2'
 version_float = float('.'.join(version_str.split('.')[:2]))
 
 if version_float >= 3.9:
-    import importlib_resources_new as importlib_resources
-    sys.modules["importlib_resources"] = importlib_resources
-    import fake_useragent_new as fake_useragent
-    sys.modules["fake_useragent"] = fake_useragent
+	import importlib_resources_new as importlib_resources
+	sys.modules["importlib_resources"] = importlib_resources
 else:
-    import importlib_resources_old as importlib_resources
-    sys.modules["importlib_resources"] = importlib_resources
-    import fake_useragent_old as fake_useragent
-    sys.modules["fake_useragent"] = fake_useragent
+	import importlib_resources_old as importlib_resources
+	sys.modules["importlib_resources"] = importlib_resources
 
 import importlib
 importlib.invalidate_caches()
@@ -54,8 +48,6 @@ importlib.invalidate_caches()
 import json
 import urllib.parse
 import requests
-from fake_useragent import UserAgent
-
 
 
 import flask
@@ -108,6 +100,57 @@ def stop():
 	#Utils.tools_log('exit 3')
 
 
+@app.route('/log-viewer')
+def log_viewer():
+	import xbmcvfs
+	import os
+	log_path =  xbmcvfs.translatePath('special://logpath')
+	if not 'kodi.log' in log_path:
+		log_path = os.path.join(log_path, 'kodi.log')
+
+	if not os.path.isfile(log_path):
+		log_content = 'Kodi log file not found.'
+	else:
+		try:
+			with open(log_path, 'r') as f:
+				lines = f.readlines()[-500:]
+			log_content = ''.join(lines)
+		except Exception as e:
+			log_content = f'Error reading log file: {str(e)}'
+
+	html = f"""
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Kodi Log Viewer</title>
+		<meta http-equiv="refresh" content="10">
+		<style>
+			body {{
+				font-family: monospace;
+				background-color: #1e1e1e;
+				color: #dcdcdc;
+				padding: 20px;
+			}}
+			pre {{
+				background-color: #2e2e2e;
+				padding: 15px;
+				border-radius: 5px;
+				overflow-x: auto;
+				max-height: 90vh;
+			}}
+		</style>
+	</head>
+	<body>
+		<h2>Kodi Log - Last 50 Lines (Auto-refresh every 10s)</h2>
+		<pre>{log_content}</pre>
+	</body>
+	</html>
+	"""
+	return Response(html, mimetype='text/html')
+
+
+
 def get_vod_data(action= None,series_ID = None, cache_days=1, folder='VOD'):
 	#url = 'https://api.themoviedb.org/3/%sapi_key=%s' % (url, API_key)
 	xtreme_codes_password = Utils.xtreme_codes_password
@@ -129,9 +172,8 @@ def curl_request(url, binary=False, cache_days=7.0):
 	binary: If True, return raw bytes instead of text (for images)
 	"""
 	try:
-		ua = UserAgent()
 		headers = {
-			'User-Agent': ua.chrome,
+			'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
 			'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 			'Accept-Language': 'en-US,en;q=0.5',
 			'Connection': 'keep-alive',
@@ -153,6 +195,17 @@ def encode_image_url(url):
 		return ''
 	return urllib.parse.quote(url, safe='')
 
+
+from flask import Flask, jsonify, request
+import json, os
+
+
+def start():
+	Utils.tools_log('STARTING__SERVER')
+	server = make_server("0.0.0.0", 5000, app)
+	server_thread = threading.Thread(target=server.serve_forever)
+	server_thread.start()
+	server_thread.join()
 
 
 #@app.route('/xmltv', methods=['GET'])
@@ -183,9 +236,8 @@ def generate_xmltv(mode=None):
 	#priority_names = []
 
 	no_stream_proxy = True
-	ua = UserAgent()
 	headers = {
-		'User-Agent': ua.chrome,
+		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
 		'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 		'Accept-Language': 'en-US,en;q=0.5',
 		'Connection': 'keep-alive',
@@ -373,6 +425,7 @@ def save_pastebin_to_file(url, file_name):
 	f = open(file_out, "w")
 	f.write(file)
 	f.close()
+	Utils.notify('SAVED', file_out)
 	return True
 
 def save_channel_order(paste_bin_url):
@@ -540,7 +593,7 @@ def serve_m3u():
 def update_iptv_simple_settings():
 	import os
 	import shutil
-	source_file    = os.path.join(Utils.ADDON_PATH,'instance-settings-_xml')
+	source_file	= os.path.join(Utils.ADDON_PATH,'instance-settings-_xml')
 	iptv_data_dir = str(Utils.ADDON_DATA_PATH).replace('script.xtreme_vod','pvr.iptvsimple') 
 	if not os.path.exists(iptv_data_dir):
 		Utils.tools_log("IPTV Simple addon data folder not found")

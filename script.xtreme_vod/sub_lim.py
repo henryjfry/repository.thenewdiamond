@@ -28,7 +28,8 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	if not os.path.exists(temp_directory):
 		os.mkdir(temp_directory)
 	else:
-		files = glob.glob(os.path.join(temp_directory,'*'))
+		try: files = glob.glob(os.path.join(temp_directory,'*'))
+		except AttributeError: files = glob(os.path.join(temp_directory,'*'))
 		for f in files:
 			os.remove(f)
 	cache_file = os.path.join(cache_directory,'cachefile.dbm')

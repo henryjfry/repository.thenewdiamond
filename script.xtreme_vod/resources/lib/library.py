@@ -62,7 +62,8 @@ def db_path():
 	import glob
 	db_name = 'MyVideos*.db'
 	path_db = 'special://profile/Database/%s' % db_name
-	filelist = sorted(glob.glob(xbmcvfs.translatePath(path_db)))
+	try: filelist = sorted(glob.glob(xbmcvfs.translatePath(path_db)))
+	except AttributeError: sorted(glob(xbmcvfs.translatePath(path_db)))
 	if filelist:
 		return filelist[-1]
 

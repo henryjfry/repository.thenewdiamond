@@ -50,6 +50,7 @@ def start_info_actions(infos, params):
 		if info == 'generate_m3u_xml':
 			from xtream2m3u_run import generate_m3u
 			from xtream2m3u_run import generate_xmltv
+			Utils.show_busy()
 			generate_m3u()
 			generate_xmltv()
 			Utils.hide_busy()
@@ -57,6 +58,7 @@ def start_info_actions(infos, params):
 
 		if info == 'setup_iptv_simple_settings':
 			from xtream2m3u_run import setup_iptv_simple_settings
+			Utils.show_busy()
 			setup_iptv_simple_settings()
 			Utils.hide_busy()
 			return
@@ -73,7 +75,8 @@ def start_info_actions(infos, params):
 			from xtream2m3u_run import save_channel_order
 			dialog = xbmcgui.Dialog()
 			url = dialog.input('Enter Channel Order list Pastebin URL', 'https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
-			if url != '' and len(url ) > 'https://pastebin.com/':
+			Utils.show_busy()
+			if url != '' and len(url ) > len('https://pastebin.com/'):
 				save_channel_order(url)
 			Utils.hide_busy()
 			return
@@ -82,7 +85,8 @@ def start_info_actions(infos, params):
 			from xtream2m3u_run import save_allowed_groups
 			dialog = xbmcgui.Dialog()
 			url = dialog.input('Enter Allowed Groups list Pastebin URL', 'https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
-			if url != '' and len(url ) > 'https://pastebin.com/':
+			Utils.show_busy()
+			if url != '' and len(url ) > len('https://pastebin.com/'):
 				save_allowed_groups(url)
 			Utils.hide_busy()
 			return
