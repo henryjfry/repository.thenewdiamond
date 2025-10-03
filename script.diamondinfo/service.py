@@ -1141,7 +1141,7 @@ class PlayerMonitor(xbmc.Player):
 			curr_sub_audio_json  = json.loads(json_result)
 
 			lang_toggle = False
-			lang_log_dict = {'languages':languages, 'audio_languages': audio_languages, 'subtitle_languages': subtitle_languages, 'current_sub_language2': current_sub_language2,'current_audio_language': current_audio_language,'sub_audio_json': sub_audio_json,'curr_sub_audio_json': curr_sub_audio_json)
+			lang_log_dict = {'languages':languages, 'audio_languages': audio_languages, 'subtitle_languages': subtitle_languages, 'current_sub_language2': current_sub_language2,'current_audio_language': current_audio_language,'sub_audio_json': sub_audio_json,'curr_sub_audio_json': curr_sub_audio_json}
 			#tools.log('languages',languages, 'audio_languages', audio_languages, 'subtitle_languages', subtitle_languages,   'current_sub_language2',current_sub_language2,'current_audio_language',current_audio_language,'sub_audio_json',sub_audio_json,'curr_sub_audio_json',curr_sub_audio_json)
 			if languages[0] == 'English':
 				if current_audio_language != 'eng' or not 'eng' in str(curr_sub_audio_json['result']['currentaudiostream']).lower():
