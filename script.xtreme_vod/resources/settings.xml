@@ -58,21 +58,7 @@
 		<setting label="fenlight_patch" type="action" action="RunScript(script.extendedinfo,info=patch_fen_light)" visible="System.HasAddon(plugin.video.fenlight)"/>
 		<setting label="fen_light_players" type="action" action="RunScript(script.extendedinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/--->
 	</category>
-    <!---category label="Trakt Collection Library Options">
-		<setting label="TMDBHelper Trakt Authentication" type="action" action="RunScript(plugin.video.themoviedb.helper,authenticate_trakt)"/>
-		<setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt Only"/>
-        <setting label="Auto Add Trakt Calendar items to collection" type="bool" id="trakt_calendar_auto_sync" default="false"/>
-        <setting label="Auto Sync Collection to library" type="bool" id="library_auto_sync" default="false"/>
-		<setting label="Library Sync Period (hours - default = 8)" type="number" id="library_sync_hours" default="8"/>
-		<setting label="Root folder for ./Movies + ./TVShows STRM files with tmdb.nfo" type="lsep"/>
-		<setting label="Collection Library Root Folder" type="folder" id="library_folder" source="files" option="writeable" default=""/>
-		<setting label="Auto Sync TV Collection" type="bool" id="library_tv_sync" default="false"/>
-		<setting label="Auto Sync Movies Collection" type="bool" id="library_movies_sync" default="false"/>
-		<setting label="SETUP SOURCES.XML" type="action" action="RunScript(script.extendedinfo,info=setup_sources)"/>
-		<setting label="Library Auto Sync" type="action" action="RunScript(script.extendedinfo,info=auto_library)"/>
-		<setting id="last_played_tmdb_helper"           type="text"   default="false" visible="false"/>
 
-	</category--->
 
 	<category label="DOWNLOADS">
 

@@ -90,7 +90,7 @@ class DialogBaseList(object):
 		if wm.window_stack_len > 0:
 			onback = None
 			#self.window_stack_len2 = self.window_stack_len2 - 1
-			xbmcgui.Window(10000).setProperty('diamond_info_started','True')
+			xbmcgui.Window(10000).setProperty('script.xtreme_vod_started','True')
 			self.close()
 			try: self.pop_window_stack_table()
 			except KeyError: wm.pop_stack()

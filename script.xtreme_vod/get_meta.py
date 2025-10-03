@@ -166,9 +166,10 @@ def get_rss_cache(rss_feed=None, cache_days=30, folder='rss'):
 			hashed_url = hashlib.md5(url).hexdigest()
 
 			try: 
-				db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+				db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
 			except:
-				db_result = None
+				db_result, expired_db_result = None, None
+
 			if db_result:
 				continue
 			else:
@@ -198,45 +199,28 @@ def get_response_cache(url='', cache_days=7.0, folder=False, headers=False):
 	now = time.time()
 	url = url.encode('utf-8')
 	hashed_url = hashlib.md5(url).hexdigest()
-	#try: cache_path = os.path.join(g.ADDON_USERDATA_PATH, folder)
-	#except: cache_path = os.path.join(Utils.ADDON_USERDATA_PATH, folder)
-	cache_path = os.path.join(ADDON_USERDATA_PATH, folder)
+	cache_seconds = int(cache_days * 86400.0)
 
+	db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
 	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result:
 		return db_result
 	else:
-
-	#if not os.path.exists(cache_path):
-	#	os.mkdir(cache_path)
-	#cache_seconds = int(cache_days * 86400.0)
-	#path = os.path.join(cache_path, '%s.txt' % hashed_url)
-	#if os.path.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	try: 
-	#		results = read_all_text(path)
-	#	except: 
-	#		Utils.log(path)
-	#		results = read_all_text(path)
-	#	try: results = eval(results)
-	#	except: pass
-	#else:
 		response = get_http(url, headers)
-		try:
-			results = json.loads(response)
-			Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-			#save_to_file(results, hashed_url, cache_path)
-			#file_path = os.path.join(cache_path, hashed_url)
-			#write_all_text(path, str(results))
-		except:
-			log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-			log(response)
-			results = None
-			#results = read_all_text(path) if os.path.exists(path) else []
-	if not results:
-		return None
+		try: results = json.loads(response)
+		except: results = []
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
+	else:
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 def get_tmdb_from_imdb(imdb, media_type):
@@ -247,7 +231,7 @@ def get_tmdb_from_imdb(imdb, media_type):
 		tmdb = response['tv_results'][0]['id']
 	return tmdb
 
-def get_tmdb_data(url='', cache_days=14, folder='TheMovieDB'):
+def get_tmdb_data(url='', cache_days=14, folder='tmdb'):
 	url = 'https://api.themoviedb.org/3/%sapi_key=%s' % (url, tmdb_API_key)
 	return get_response_cache(url, cache_days, folder)
 

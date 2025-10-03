@@ -31,6 +31,21 @@ def start_info_actions(infos, params):
 		Utils.show_busy()
 		data = [], ''
 
+		if info == 'imdb_trailers_best' or info == 'imdb_trailers_choice':
+			import imdb_trailers
+			imdb_id = params.get('imdb_id')
+			if info == 'imdb_trailers_best':
+				select = False
+			else:
+				try: select = params.get('select')
+				except: select = False
+				if str(select).lower() == 'true' or select == True:
+					select = True
+				else:
+					select = False
+			try: season = int(params.get('season'))
+			except: season = None
+			imdb_trailers.play_imdb_trailer(imdb_id=imdb_id, select=select, season=season)
 
 		if info == 'generate_m3u_xml':
 			from xtream2m3u_run import generate_m3u
@@ -104,18 +119,6 @@ def start_info_actions(infos, params):
 			from resources.player import PlayerDialogs
 			PlayerDialogs().display_dialog(str(next_ep_url), str(title), str(thumb), str(rating), str(show), str(season), str(episode), str(year))
 
-		elif info == 'test_movies2':
-			Utils.show_busy()
-			from resources.lib.TheMovieDB import get_vod_alltv
-			search_str = get_vod_alltv()
-			Utils.tools_log(search_str[-1])
-			Utils.hide_busy()
-
-		elif info == 'service2':
-			Utils.show_busy()
-			import service2
-			Utils.hide_busy()
-
 		elif info == 'xtream2m3u_run':
 			Utils.show_busy()
 			Utils.hide_busy()
@@ -147,47 +150,70 @@ def start_info_actions(infos, params):
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_coll&trakt_type=movie&script=True)'
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_coll&trakt_type=tv&script=True)'
 			Utils.show_busy()
-			#log(addon_ID())
-			trakt_type = 'movie'
+			media_type = 'movie'
 			if info == 'allmovies2':
-				#from resources.lib.TheMovieDB import get_vod_data
-				#movies = get_vod_data(action= 'get_vod_streams' ,cache_days=1) 
 				from resources.lib.TheMovieDB import get_vod_allmovies
 				search_str = get_vod_allmovies()
-				#search_str = []
-				trakt_label = 'VOD Movies'
-				#for i in movies:
-				#	#if len(i.get('tmdb','0')) == 0:
-				#	#	log(i)
-				#	full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,i['stream_type'],Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['stream_id']),str(i['container_extension']))
-				#	search_str.append({'type': 'movie','title':i['name'],'tmdb':i['tmdb'], 'full_url': full_url, 'stream_type': i['stream_type'],'stream_icon': i['stream_icon'], 'rating': i['rating'],'category_ids': i['category_ids']})
+				filter_label = 'VOD Movies'
 
-				#Utils.tools_log(search_str)
 				if keep_stack == None or keep_stack == False:
 					wm.window_stack_empty()
-				return wm.open_video_list(mode='allmovies2', listitems=[], search_str=search_str, media_type=trakt_type, filter_label=trakt_label)
-
-		elif info == 'allmovies':
-			wm.window_stack_empty()
-			wm.open_video_list(media_type='movie',mode='filter')
+				return wm.open_video_list(mode='allmovies2', listitems=[], search_str=search_str, media_type=media_type, filter_label=filter_label)
 
 		elif info == 'alltvshows2':
 			Utils.show_busy()
 			#log(addon_ID())
-			trakt_type = 'tv'
+			media_type = 'tv'
 			if info == 'alltvshows2':
 				from resources.lib.TheMovieDB import get_vod_alltv
 				search_str = get_vod_alltv()
-				#search_str = []
-				trakt_label = 'VOD TV'
-				#Utils.tools_log(search_str)
+				filter_label = 'VOD TV'
 				if keep_stack == None or keep_stack == False:
 					wm.window_stack_empty()
-				return wm.open_video_list(mode='alltvshows2', listitems=[], search_str=search_str, media_type=trakt_type, filter_label=trakt_label)
+				return wm.open_video_list(mode='alltvshows2', listitems=[], search_str=search_str, media_type=media_type, filter_label=filter_label)
 
-		elif info == 'alltvshows':
+
+		elif info == 'calendar_eps':
+			search_str = 'Trakt Episodes/Movies in progress'
+			from resources.lib.library import trakt_calendar_eps
+			#type = 'movie'
+			movies = trakt_calendar_eps()
 			wm.window_stack_empty()
-			wm.open_video_list(media_type='tv',mode='filter')
+			trakt_label = 'Trakt Calendar Episodes'
+			return wm.open_video_list(mode='trakt', listitems=[], search_str=movies, media_type='tv', filter_label=trakt_label)
+
+		elif info == 'ep_movie_progress':
+			search_str = 'Trakt Episodes/Movies in progress'
+			from resources.lib.library import trakt_eps_movies_in_progress
+			#type = 'movie'
+			movies = trakt_eps_movies_in_progress()
+			wm.window_stack_empty()
+			trakt_label = 'Trakt Episodes/Movies in progress'
+			return wm.open_video_list(mode='trakt', listitems=[], search_str=movies, media_type='movie', filter_label=trakt_label)
+
+		elif info == 'trakt_watched':
+			#kodi-send --action='RunPlugin(plugin://script.extendedinfo/?info=trakt_watched&trakt_type=movie&script=True)'
+			#kodi-send --action='RunPlugin(plugin://script.extendedinfo/?info=trakt_watched&trakt_type=tv&script=True)'
+			trakt_type = str(params['trakt_type'])
+			Utils.show_busy()
+			try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+			except: trakt_token = None
+			if not trakt_token:
+				Utils.hide_busy()
+				return
+			trakt_script = 'True'
+			if info == 'trakt_watched' and trakt_type == 'movie':
+				from resources.lib.library import trakt_watched_movies
+				movies = trakt_watched_movies()
+				trakt_label = 'Trakt Watched Movies'
+			elif info == 'trakt_watched' and trakt_type == 'tv':
+				from resources.lib.library import trakt_watched_tv_shows
+				movies = trakt_watched_tv_shows()
+				trakt_label = 'Trakt Watched Shows'
+
+			if keep_stack == None or keep_stack == False:
+				wm.window_stack_empty()
+			return wm.open_video_list(mode='trakt', listitems=[], search_str=movies, media_type=trakt_type, filter_label=trakt_label)
 
 		elif info == 'search_menu':
 			search_str = xbmcgui.Dialog().input(heading='Enter search string', type=xbmcgui.INPUT_ALPHANUM)
@@ -221,20 +247,18 @@ def start_info_actions(infos, params):
 			stop_downloader = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list').replace('magnet_list.txt','stop_downloader')
 			if os.path.exists(stop_downloader):
 				os.remove(stop_downloader)
-
 			magnet_list = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list')
 			download_path = xbmcaddon.Addon(addon_ID()).getSetting('download_path')
 			xbmc.log(str('run_downloader___')+'run_downloader===>OPENINFO', level=xbmc.LOGINFO)
 			return vod_main.run_downloader(magnet_list, download_path)
-			
+
 		elif info == 'stop_downloader':
 			Utils.hide_busy()
 			#filename = "stop_downloader"
 			stop_downloader = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list').replace('magnet_list.txt','stop_downloader')
 			open(stop_downloader, 'w')
 			xbmc.log(str('stop_downloader__')+'stop_downloader===>OPENINFO', level=xbmc.LOGINFO)
-			
-	
+
 		elif info == 'manage_download_list':
 			magnet_list = xbmcaddon.Addon(addon_ID()).getSetting('magnet_list')
 			from tools import read_all_text
@@ -291,114 +315,12 @@ def start_info_actions(infos, params):
 			log('wm.pop_stack()',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			return wm.pop_stack()
 
-		elif info == 'play_test_pop_stack_new':
-			reopen_play_fail = xbmcaddon.Addon(addon_ID()).getSetting('reopen_play_fail')
-			xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
-			if reopen_play_fail == 'false':
-				return
-			xbmc.log(str('start...')+'play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-			time_start = time.time()
-			time_end = time_start + 145
-			tmdb_plugin_flag = False
-			tmdb_helper_finished = 0
-			plugin_finished = 0
-			plugin_name = 'not.a.plugin'
-			reset_flag = False
-			pop_flag = False
-			old_line = ''
-			line = ''
-			while time.time() < time_end:
-
-				if line == '':
-					line = follow2()
-					full_line = line
-				else:
-					old_line = full_line
-					line = follow2()
-					full_line = line
-					line = line.replace(old_line,'')
-
-
-				if tmdb_helper_finished != 0 and time.time() > tmdb_helper_finished +1.5 and plugin_name == 'not.a.plugin':
-					xbmc.log('NO_ITEM'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					reset_flag = True
-					pop_flag = True
-
-				if 'VideoPlayerVideo::OpenStream' in str(line) or 'diamond_info_started===>diamond_info_started' in str(line) or 'Creating InputStream' in str(line) or 'onPlayBackStarted===>___OPEN_INFO' in str(line):
-					xbmc.log('PLAYBACK_STARTED'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					reset_flag = True
-					pop_flag = False
-				if plugin_finished != 0 and time.time() > plugin_finished +1.5:
-					xbmc.log('NO_ITEM'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					pop_flag = True
-					reset_flag = True
-				if 'The following content is not available on this app' in str(line) or '.YouTubeException:' in str(line):
-					xbmc.log('Youtube_playback_failed'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					reset_flag = True
-					pop_flag = True
-				if 'Playlist Player: skipping unplayable item:' in str(line):
-					xbmc.log('Video_playback_failed'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					pop_flag = True
-					reset_flag = True
-
-				if old_line == line and reset_flag == False:
-					xbmc.sleep(50)
-					continue
-				xbmc.sleep(50)
-
-				if tmdb_helper_finished == 0 and 'TMDbHelper - Done!' in str(line):
-					pop_flag = False
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
-					xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
-					xbmc.log('tmdb_helper_started'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-				if 'lib.player - playing path with PlayMedia' in str(line):
-					tmdb_plugin_flag = True
-				elif tmdb_plugin_flag == True:
-					plugin_name = line.split('plugin://')[1].split('/')[0]
-					xbmc.log(plugin_name+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					tmdb_plugin_flag = False
-					tmdb_helper_finished = 0
-				if tmdb_helper_finished == 0 and 'DestroyWindow' in str(line):
-					xbmc.log('tmdb_helper_finished'+'__play_test_pop_stack1===>OPENINFO', level=xbmc.LOGINFO)
-					tmdb_helper_finished = time.time()
-				if tmdb_helper_finished != 0 and plugin_finished == 0 and 'DestroyWindow' in str(line):
-					xbmc.log(str('%s_finished' % plugin_name)+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					plugin_finished = time.time()
-					plugin_name = 'not.a.plugin'
-					tmdb_helper_finished = 0
-				if tmdb_helper_finished == 0 and 'script successfully run' in str(line) and 'plugin.video.themoviedb.helper' in str(line):
-					xbmc.log('tmdb_helper_finished'+'__play_test_pop_stack1===>OPENINFO', level=xbmc.LOGINFO)
-					tmdb_helper_finished = time.time()
-				if ('script aborted' in str(line) or 'script successfully run' in str(line)) and plugin_name in str(line) and not 'plugin.video.themoviedb.helper/plugin.py): script successfully run' in str(line):
-					xbmc.log(str('%s_finished' % plugin_name)+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					plugin_finished = time.time()
-					plugin_name = 'not.a.plugin'
-					tmdb_helper_finished = 0
-				if 'Playlist Player: skipping unplayable item:' in str(line):
-					xbmc.log('Video_playback_failed'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					pop_flag = True
-					reset_flag = True
-				if reset_flag == True:
-					tmdb_plugin_flag = False
-					tmdb_helper_finished = 0
-					plugin_finished = 0
-					plugin_name = 'not.a.plugin'
-					if pop_flag == True:
-						#xbmc.log('pop_the_stack!!!_return'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-						log('wm.pop_stack()',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
-						return wm.pop_stack()
-						pop_flag = False
-					reset_flag = False
-					pop_flag = False
-					xbmc.log('return'+'__play_test_pop_stack===>OPENINFO', level=xbmc.LOGINFO)
-					return
-
 
 		elif info == 'play_test_pop_stack':
 			import json
 			tmdbhelper_flag = False
 			reopen_play_fail = xbmcaddon.Addon(addon_ID()).getSetting('reopen_play_fail')
-			xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+			xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 			xbmc.sleep(3000)
 			if reopen_play_fail == 'false':
 				return
@@ -463,13 +385,6 @@ def start_info_actions(infos, params):
 			return
 
 
-		elif info == 'test_route':
-			from resources.lib.con_man_fix import list_and_select_wifi
-			list_and_select_wifi()
-			Utils.hide_busy()
-			return
-
-
 		elif info == 'setup_trakt_watched':
 			Utils.show_busy()
 			from resources.lib import library
@@ -483,57 +398,14 @@ def start_info_actions(infos, params):
 			xbmc.executebuiltin('Addon.OpenSettings(%s)' % addon_ID())
 			Utils.hide_busy()
 
-		elif info == 'setup_sources':
-			from resources.lib.library import basedir_tv_path
-			from resources.lib.library import basedir_movies_path
-			from resources.lib.library import library_source_exists_tv
-			from resources.lib.library import setup_library_tv
-			from resources.lib.library import library_source_exists_movies
-			from resources.lib.library import setup_library_movies
-			from resources.lib.library import icon_path
-			library_tv_sync = str(xbmcaddon.Addon(addon_ID()).getSetting('library_tv_sync'))
-			library_movies_sync = str(xbmcaddon.Addon(addon_ID()).getSetting('library_movies_sync'))
-			library_folder = str(basedir_tv_path())
-			if not xbmcvfs.exists(library_folder):
-				xbmcvfs.mkdir(library_folder)
-			library_folder = str(basedir_movies_path())
-			if not xbmcvfs.exists(library_folder):
-				xbmcvfs.mkdir(library_folder)
-			if not library_source_exists_tv():
-				response = setup_library_tv()
-			if not library_source_exists_movies():
-				response = setup_library_movies()
-			xbmcgui.Dialog().notification(heading='Setup Sources', message='Sources Setup, Please Reboot to finish setup.', icon=icon_path(),time=2000,sound=False)
-			Utils.hide_busy()
-
-		elif info == 'setup_xml_filenames':
-			from resources.lib.library import setup_xml_filenames
-			setup_xml_filenames()
-			xbmcgui.Dialog().notification(heading='Setup XML Names', message='XML files renamed to match = '+ addon_ID(), icon=icon_path(),time=2000,sound=False)
-			return
-
-		elif info == 'auto_library':
-			auto_library()
-
 		elif info == 'search_string':
 			search_str = params['str']
 			wm.window_stack_empty()
 			return wm.open_video_list(search_str=search_str, mode='search')
 
 
-		elif info == 'afteradd':
-			return Utils.after_add(params.get('type'))
 
-
-		elif info == 'playmovie':
-			resolve_url(params.get('handle'))
-			Utils.get_kodi_json(method='Player.Open', params='{"item": {"movieid": %s}, "options": {"resume": true}}' % params.get('dbid'))
-
-		elif info == 'playepisode':
-			resolve_url(params.get('handle'))
-			Utils.get_kodi_json(method='Player.Open', params='{"item": {"episodeid": %s}, "options": {"resume": true}}' % params.get('dbid'))
-
-		elif info == 'diamondinfodialog' or info == 'extendedinfodialog' or info == str(addon_ID_short()) + 'dialog':
+		elif info == 'VOD_infodialog' or info == str(addon_ID_short()) + 'dialog':
 			resolve_url(params.get('handle'))
 			if xbmc.getCondVisibility('System.HasActiveModalDialog | System.HasModalDialog'):
 				container_id = ''
@@ -556,7 +428,7 @@ def start_info_actions(infos, params):
 			else:
 				Utils.notify('Error', 'Could not find valid content type')
 
-		elif info == 'diamondinfo' or info == 'extendedinfo' or info == str(addon_ID_short()):
+		elif info == 'VOD_info' or info == str(addon_ID_short()):
 			resolve_url(params.get('handle'))
 			xbmcgui.Window(10000).setProperty('infodialogs.active', 'true')
 			if not params.get('id'):
@@ -575,9 +447,6 @@ def start_info_actions(infos, params):
 			wm.open_movie_info(movie_id=params.get('id'), dbid=params.get('dbid'), imdb_id=params.get('imdb_id'), name=params.get('name'))
 			xbmcgui.Window(10000).clearProperty('infodialogs.active')
 
-		elif info == 'setfocus':
-			resolve_url(params.get('handle'))
-			xbmc.executebuiltin('SetFocus(22222)')
 
 		elif info == 'slideshow':
 			resolve_url(params.get('handle'))
@@ -587,11 +456,6 @@ def start_info_actions(infos, params):
 			num_items = itemlist.getSelectedPosition()
 			for i in range(0, num_items):
 				Utils.notify(item.getProperty('Image'))
-
-		elif info == 'action':
-			resolve_url(params.get('handle'))
-			for builtin in params.get('id', '').split('$$'):
-				xbmc.executebuiltin(builtin)
 
 		elif info == 'youtubevideo':
 			from resources.lib.VideoPlayer import PLAYER
@@ -643,28 +507,10 @@ def start_info_actions(infos, params):
 
 
 
-		elif info == 'string':
-			resolve_url(params.get('handle'))
-			xbmcgui.Window(10000).setProperty('infodialogs.active', 'true')
-			dialog = xbmcgui.Dialog()
-			if params.get('type', '') == 'movie':
-				moviesearch = dialog.input('MovieSearch')
-				xbmc.executebuiltin('Skin.SetString(MovieSearch,%s)' % moviesearch)
-				xbmc.executebuiltin('Container.Refresh')
-			elif params.get('type', '') == 'tv':
-				showsearch = dialog.input('ShowSearch')
-				xbmc.executebuiltin('Skin.SetString(ShowSearch,%s)' % showsearch)
-				xbmc.executebuiltin('Container.Refresh')
-			elif params.get('type', '') == 'youtube':
-				youtubesearch = dialog.input('YoutubeSearch')
-				xbmc.executebuiltin('Skin.SetString(YoutubeSearch,%s)' % youtubesearch)
-				xbmc.executebuiltin('Container.Refresh')
-			xbmcgui.Window(10000).clearProperty('infodialogs.active')
-
 		elif info == 'deletecache':
 			resolve_url(params.get('handle'))
 			xbmcgui.Window(10000).clearProperty('infodialogs.active')
-			xbmcgui.Window(10000).clearProperty(str(addon_ID_short())+'_running')
+			xbmcgui.Window(10000).clearProperty('xtreme_vod_running')
 			for rel_path in os.listdir(Utils.ADDON_DATA_PATH):
 				path = os.path.join(Utils.ADDON_DATA_PATH, rel_path)
 				try:
@@ -679,7 +525,7 @@ def start_info_actions(infos, params):
 			days = params.get('days')
 			resolve_url(params.get('handle'))
 			xbmcgui.Window(10000).clearProperty('infodialogs.active')
-			xbmcgui.Window(10000).clearProperty(str(addon_ID_short())+'_running')
+			xbmcgui.Window(10000).clearProperty('xtreme_vod_running')
 			auto_clean_cache(days=days)
 			Utils.notify('Cache deleted')
 
@@ -772,49 +618,4 @@ def auto_clean_cache(days=None):
 	Utils.db_delete_expired(connection=Utils.db_con)
 	#Utils.db_con.close()
 	#auto_clean_cache_seren_downloader(days=30)
-
-def auto_library():
-	Utils.hide_busy()
-	#xbmc.log(str('auto_library')+'===>OPEN_INFO', level=xbmc.LOGINFO)
-	#return
-	from resources.lib.library import library_auto_tv
-	from resources.lib.library import library_auto_movie
-	from resources.lib.library import trakt_calendar_list
-	from resources.lib.library import refresh_recently_added
-	from resources.lib.library import basedir_tv_path
-	from resources.lib.library import basedir_movies_path
-	Utils.hide_busy()
-	library_tv_sync = str(xbmcaddon.Addon(addon_ID()).getSetting('library_tv_sync'))
-	if library_tv_sync == 'true':
-		library_tv_sync = True
-	if library_tv_sync == 'false':
-		library_tv_sync = False
-	library_movies_sync = str(xbmcaddon.Addon(addon_ID()).getSetting('library_movies_sync'))
-	if library_movies_sync == 'true':
-		library_movies_sync = True
-	if library_movies_sync == 'false':
-		library_movies_sync = False
-
-	if not xbmc.Player().isPlaying() and (library_tv_sync or library_movies_sync):
-		xbmcgui.Dialog().notification(heading='Startup Tasks', message='TRAKT_SYNC', icon=icon_path(),time=1000,sound=False)
-	if library_movies_sync:
-		library_auto_movie()
-	if library_tv_sync:
-		library_auto_tv()
-		xbmc.log(str('refresh_recently_added')+'===>OPEN_INFO', level=xbmc.LOGFATAL)
-		refresh_recently_added()
-		xbmc.log(str('trakt_calendar_list')+'===>OPEN_INFO', level=xbmc.LOGFATAL)
-		if not xbmc.Player().isPlaying():
-			xbmcgui.Dialog().notification(heading='Startup Tasks', message='trakt_calendar_list', icon=icon_path(),time=1000,sound=False)
-		trakt_calendar_list()
-	if not xbmc.Player().isPlaying() and (library_tv_sync or library_movies_sync):
-		xbmcgui.Dialog().notification(heading='Startup Tasks', message='Startup Complete!', icon=icon_path(), time=1000,sound=False)
-
-	if library_movies_sync:
-		xbmc.log(str('UpdateLibrary_MOVIES')+'===>OPEN_INFO', level=xbmc.LOGFATAL)
-		xbmc.executebuiltin('UpdateLibrary(video, {})'.format(basedir_movies_path()))
-	if library_tv_sync:
-		xbmc.log(str('UpdateLibrary_TV')+'===>OPEN_INFO', level=xbmc.LOGFATAL)
-		xbmc.executebuiltin('UpdateLibrary(video, {})'.format(basedir_tv_path()))
-	return
 

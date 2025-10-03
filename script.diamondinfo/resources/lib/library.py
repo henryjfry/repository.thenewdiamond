@@ -1247,7 +1247,8 @@ def trakt_watched_tv_movies_cleanup():
 	params = {'limit': 100}
 	response = requests.get(url, headers=headers, params=params)
 	total_items = response.headers.get('X-Pagination-Item-Count')
-	response = response.json()
+	try: response = response.json()
+	except: return
 	#xbmc.log(str(total_items)+'===>OPEN_INFO', level=xbmc.LOGFATAL)
 
 	last_movie = None

@@ -51,7 +51,7 @@ import json, os
 
 def start():
 	Utils.tools_log('STARTING__SERVER')
-	server = make_server("localhost", 5000, app)
+	server = make_server("0.0.0.0", 5000, app)
 	server_thread = threading.Thread(target=server.serve_forever)
 	server_thread.start()
 	server_thread.join()

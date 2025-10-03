@@ -112,8 +112,8 @@ class WindowManager(object):
 		sql_result = cur.execute(sql_result).fetchall()
 		self.window_stack_len = len(sql_result)
 		xbmc.log(str(self.window_stack_len)+'__self.window_stack_len', level=xbmc.LOGINFO)
-		diamond_info_started = xbmcgui.Window(10000).getProperty('diamond_info_started')
-		if diamond_info_started != 'True':
+		script_xtreme_vod_started = xbmcgui.Window(10000).getProperty('script.xtreme_vod_started')
+		if script_xtreme_vod_started != 'True':
 			self.window_stack_len = 0
 		cur.close()
 		con.close()
@@ -271,6 +271,9 @@ class WindowManager(object):
 		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
 		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
+		for i in ['script.xtreme_vod_started','reopen_window_var','script.xtreme_vod_time','script.xtreme_vod_player_time','xtreme_vod_player_time','xtreme_vod_time','script.xtreme_vod_started','xtreme_vod_running','xtreme_vod_started','script.xtreme_vod.ResolvedUrl','trakt_scrobble_details','script.xtreme_vod.ResolvedUrl_playlist','xtreme_vod.ResolvedUrl_playlist','xtreme_vod.ResolvedUrl']:
+			xbmcgui.Window(10000).clearProperty(i)
+
 		##xbmc.log(str(self.focus_id)+'focus_id===POP_STACK===>OPENINFO', level=xbmc.LOGINFO)
 		##xbmc.log(str(self.position)+'position===POP_STACK===>OPENINFO', level=xbmc.LOGINFO)
 		#xbmc.log(str(window)+'pop_window_stack_table===POP_STACK===>OPENINFO', level=xbmc.LOGINFO)
@@ -352,7 +355,7 @@ class WindowManager(object):
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
 		if xbmc.Player().isPlaying() or xbmc.getCondVisibility('Window.IsActive(12005)') or currentwindow_id >= 13001:
 			if currentwindow_id >= 13001:
-				xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+15))
+				xbmcgui.Window(10000).setProperty('xtreme_vod_time', str(int(time.time())+15))
 			return
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
 		self.window_stack_len = self.window_stack_length()
@@ -383,7 +386,7 @@ class WindowManager(object):
 	def open_movie_info(self, prev_window=None, movie_id=None, dbid=None, name=None, imdb_id=None):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_movie_info', 'params': {'movie_id': movie_id, 'dbid': dbid, 'name': name, 'imdb_id': imdb_id}}
 
@@ -410,7 +413,7 @@ class WindowManager(object):
 	def open_tvshow_info(self, prev_window=None, tmdb_id=None, dbid=None, tvdb_id=None, imdb_id=None, name=None):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_tvshow_info', 'params': {'tmdb_id': tmdb_id, 'dbid': dbid, 'tvdb_id': tvdb_id, 'imdb_id': imdb_id, 'name': name}}
 
@@ -473,7 +476,7 @@ class WindowManager(object):
 	def open_season_info(self, prev_window=None, tvshow_id=None, season=None, tvshow=None, dbid=None):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_season_info', 'params': {'tvshow_id': tvshow_id, 'season': season, 'tvshow': tvshow, 'dbid': dbid}}
 
@@ -505,7 +508,7 @@ class WindowManager(object):
 	def open_episode_info(self, prev_window=None, tvshow_id=None, tvdb_id=None, season=None, episode=None, tvshow=None, dbid=None):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_episode_info', 'params': {'tvshow_id': tvshow_id, 'tvdb_id': tvdb_id, 'season': season, 'episode': episode, 'tvshow': tvshow, 'dbid': dbid}}
 
@@ -541,7 +544,7 @@ class WindowManager(object):
 	def open_actor_info(self, prev_window=None, actor_id=None, name=None):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_actor_info', 'params': {'actor_id': actor_id, 'name': name}}
 
@@ -590,7 +593,7 @@ class WindowManager(object):
 	def open_video_list(self, prev_window=None, listitems=None, filters=[], mode='filter', list_id=False, filter_label='', media_type='movie', search_str=''):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': listitems, 'filters': filters, 'mode': mode, 'list_id': list_id, 'filter_label': filter_label, 'media_type': media_type, 'search_str': search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items,'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': filter, 'sort': self.sort, 'sort_label': self.sort_label}}
 		if mode == 'reopen_window':
@@ -655,7 +658,7 @@ class WindowManager(object):
 		"""
 		#xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		#self.pop_window_stack_table(mode='youtube')
 		if curr_window:
 			self.prev_window = curr_window
@@ -748,7 +751,7 @@ class WindowManager(object):
 
 	def open_dialog(self, dialog, prev_window):
 		#global dialog
-		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		if dialog.data:
 			if Utils.window_stack_enable == 'true':
 				self.active_dialog = dialog

@@ -14,8 +14,6 @@ from inspect import currentframe, getframeinfo
 
 if XBMC_RUNNING:
 	from resources.lib.library import addon_ID
-	from resources.lib.library import basedir_tv_path
-	from resources.lib.library import basedir_movies_path
 	#from resources.lib.library import fanart_api_key
 
 	try: from infotagger.listitem import ListItemInfoTag
@@ -31,8 +29,7 @@ if XBMC_RUNNING:
 	#AUTOPLAY_TRAILER = xbmcaddon.Addon().getSetting('autoplay_trailer')
 	#NETFLIX_VIEW = xbmcaddon.Addon().getSetting('netflix_view')
 	#NETFLIX_VIEW2 = xbmcaddon.Addon().getSetting('netflix_info_view')
-	DIAMONDPLAYER_TV_FOLDER = basedir_tv_path()
-	DIAMONDPLAYER_MOVIE_FOLDER = basedir_movies_path()
+
 	window_stack_enable = xbmcaddon.Addon().getSetting('window_stack_enable')
 	trakt_kodi_mode = xbmcaddon.Addon().getSetting('trakt_kodi_mode')
 	imdb_recommendations = xbmcaddon.Addon().getSetting('imdb_recommendations')
@@ -107,7 +104,7 @@ def tools_log(*args, **kwargs):
 	for i in args:
 		try:
 			import xbmc
-			xbmc.log(str(i)+'===>A4K_Wrapper', level=xbmc.LOGINFO)
+			xbmc.log(str(i)+'===>xtreme_vod', level=xbmc.LOGINFO)
 		except:
 			print(i)
 
@@ -169,8 +166,8 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 	except: pass
 	hashed_url = hashlib.md5(url).hexdigest()
 	cache_seconds = int(cache_days * 86400.0)
-	#xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>OPENINFO', level=xbmc.LOGFATAL)
-	#xbmc.log(str(url)+'===>OPENINFO', level=xbmc.LOGFATAL)
+	#tools_log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))
+	#tools_log(str(url))
 	if isinstance(cache_val, str) == True:
 		cache_val = encode_db(cache_val)
 		cache_type = 'str'
@@ -213,8 +210,6 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 	try: 
 		connection.commit()
 	except:
-	#	xbmc.log(str(url)+'===>OPENINFO', level=xbmc.LOGFATAL)
-	#	xbmc.log(str(cache_val)+'===>OPENINFO', level=xbmc.LOGFATAL)
 		try: connection.commit()
 		except: pass
 	cur.close()
@@ -240,19 +235,27 @@ def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=Fal
 		sql_result = cur.execute(sql_query).fetchall()
 	except Exception as ex:
 		if 'no such table' in str(ex):
-			return None
+			return None, None
 		else:
-			xbmc.log(str(ex)+'===>OPENINFO', level=xbmc.LOGINFO)
+			tools.log(str(ex))
 	if len(sql_result) ==0:
 		cur.close()
-		return None
+		return None, None
 
 	#if cache_days <=0.00001:
-	#	xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>OPENINFO', level=xbmc.LOGFATAL)
-	#	xbmc.log(str(url)+'===>OPENINFO', level=xbmc.LOGFATAL)
-	#	xbmc.log(str(int(time.time()))+str('<><>')+str(int(sql_result[0][1]))+'===>OPENINFO', level=xbmc.LOGFATAL)
+	#	tools_log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))
+	#	tools_log(str(url))
+	#	tools_log(str(int(time.time()))+str('<><>')+str(int(sql_result[0][1])))
 	
 	expire = round(time.time() + cache_seconds,0)
+	cache_type = sql_result[0][2]
+	if cache_type == 'str':
+		cache_val = decode_db(sql_result[0][0])
+	elif cache_type == 'list':
+		cache_val = eval(decode_db(sql_result[0][0]))
+	elif cache_type == 'json':
+		cache_val = json.loads(decode_db(sql_result[0][0]))
+
 	if int(time.time()) >= int(sql_result[0][1]) or expire <= int(sql_result[0][1]) :
 		sql_query = """DELETE FROM %s
 		where url = '%s'
@@ -260,17 +263,10 @@ def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=Fal
 		sql_result = cur.execute(sql_query).fetchall()
 		connection.commit()
 		cur.close()
-		return None
+		return None, cache_val
 	else:
-		cache_type = sql_result[0][2]
-		if cache_type == 'str':
-			cache_val = decode_db(sql_result[0][0])
-		elif cache_type == 'list':
-			cache_val = eval(decode_db(sql_result[0][0]))
-		elif cache_type == 'json':
-			cache_val = json.loads(decode_db(sql_result[0][0]))
 		cur.close()
-		return cache_val
+		return cache_val, None
 
 def db_delete_expired(connection=None):
 	if db_con == None:
@@ -284,12 +280,12 @@ def db_delete_expired(connection=None):
 	for i in sql_result:
 		folder = i[1]
 		#tools_log(folder)
-		#xbmc.log(str(folder)+'===>PHIL', level=xbmc.LOGINFO)
+		#tools_log(str(folder))
 		#sql_query = """select * FROM %s
 		#where expire < %s
 		#""" % (folder, curr_time)
 		#sql_result = cur.execute(sql_query).fetchall()
-		#xbmc.log(str(len(sql_result))+str(folder)+'===>PHIL', level=xbmc.LOGINFO)
+		#tools_log(str(len(sql_result))+str(folder))
 		sql_query = """select * FROM %s
 		where expire < %s
 		""" %  (folder, curr_time)
@@ -308,7 +304,7 @@ def db_delete_expired(connection=None):
 		if 'SQL statements in progress' in str(ex):
 			return None
 		else:
-			xbmc.log(str(ex)+'===>OPENINFO', level=xbmc.LOGINFO)
+			tools_log(str(ex))
 	cur.close()
 	tools_log('DELETED')
 	return None
@@ -338,6 +334,8 @@ def hide_busy():
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
 		xbmc.executebuiltin('Dialog.Close(busydialog)')
+		xbmc.executebuiltin('Dialog.Close(ExtendedProgressDialog,True)')
+		xbmc.executebuiltin('Dialog.Close(progressdialog,True)')
 	else:
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialog)')
@@ -346,15 +344,10 @@ def hide_busy():
 def context_play(window=None,tmdb_id=None):
 	from resources.lib.VideoPlayer import PLAYER
 	import json
-	#base = 'RunScript('+str(addon_ID())+',info='
-	#info = sys.listitem.getVideoInfoTag()
-	#xbmc.executebuiltin('Dialog.Close(busydialog)')
 	hide_busy()
 	json_result = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"XBMC.GetInfoLabels","params": {"labels":["ListItem.Title", "ListItem.Label",  "ListItem.MovieTitle",    "ListItem.DBTYPE",  "ListItem.Season", "ListItem.Episode", "ListItem.Year",  "ListItem.IMDBNumber", "ListItem.Property(tmdb_id)","ListItem.DBID",   "ListItem.TVShowTitle", "ListItem.FileNameAndPath", "ListItem.UniqueID(tmdb)", "ListItem.UniqueID(imdb)", "Container.ListItem.UniqueID(imdb)"]}, "id":1}')
 	json_object  = json.loads(json_result)
-	#xbmc.log(str(window.info)+'===>PHIL', level=xbmc.LOGINFO)
-	#xbmc.log(str(json_object)+'===>PHIL', level=xbmc.LOGINFO)
-	#show_busy()
+
 	dbid = json_object['result']['ListItem.DBID']
 	type = json_object['result']['ListItem.DBTYPE']
 	try: type = window.info['media_type']
@@ -386,7 +379,7 @@ def context_play(window=None,tmdb_id=None):
 	IMDBNumber = json_object['result']['ListItem.IMDBNumber']
 	if (IMDBNumber == '' or IMDBNumber == None):
 		IMDBNumber = imdb
-	#xbmc.log(str(json_object)+'===>PHIL2', level=xbmc.LOGINFO)
+	#tools_log(str(json_object))
 
 	if not type in ['movie','tvshow','season','episode','actor','director']:
 		if (episode == '' or episode == None) and (TVShowTitle == '' or TVShowTitle == None):
@@ -394,89 +387,29 @@ def context_play(window=None,tmdb_id=None):
 		else:
 			type = 'tvshow'
 
+	tools_log(json_object)
 	params = {}
 	infos = []
 	if (TVShowTitle == '' or TVShowTitle == None):
 		TVShowTitle = Title
 	if type   == 'movie':
-		#base = 'RunScript('+str(addon_ID())+',info='+str(addon_ID_short())
 		if (MovieTitle == '' or MovieTitle == None):
 			MovieTitle = Title
-		#url = '%s,dbid=%s,id=%s,imdb_id=%s,name=%s)' % (base, dbid, remote_id, IMDBNumber, MovieTitle)
-		#infos.append(str(addon_ID_short()))
-		#params['dbid'] = dbid
-		#params['id'] = remote_id
-		#params['imdb_id'] = IMDBNumber
-		#params['name'] = MovieTitle
-
-		url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % remote_id
 		PLAYER.prepare_play_VOD_movie(tmdb = remote_id, title = None, stream_id=None, search_str = None, window=window)
 		return
-		#if dbid != None or dbid != '' or dbid != 0:
-		#	url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % remote_id
-		#	xbmc.executebuiltin('Dialog.Close(all,true)')
-		#	PLAYER.play_from_button(url, listitem=None, window=self, type='movieid', dbid=dbid)
-		#else:
-		#	dbid = 0
-		#	url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % remote_id
-		#	xbmc.executebuiltin('Dialog.Close(all,true)')
-		#	PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
-
-
 	elif type == 'tvshow':
-		#infos.append('extendedtvinfo')
-		#params['dbid'] = dbid
-		#params['id'] = remote_id
-		#params['imdb_id'] = IMDBNumber
-		#params['name'] = TVShowTitle
-		#xbmc.executebuiltin('%sextendedtvinfo,dbid=%s,id=%s,name=%s)' % (base, dbid, remote_id, info.getTVShowTitle()))
 		from resources.lib.library import trakt_next_episode_rewatch
-
 		tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=remote_id)
-		url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=%s' % (tmdb_id, season, episode)
-		tools_log(url)
 		PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=window)
 		return
-		#xbmc.executebuiltin('Dialog.Close(all,true)')
-		#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
-
 	elif type == 'season':
-		#infos.append('seasoninfo')
-		#params['dbid'] = dbid
-		#params['id'] = remote_id
-		#params['tvshow'] = TVShowTitle
-		#params['season'] = Season
 		episode = 1
-		#params['episode'] = episode
-
-		url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=%s' % (remote_id, Season, episode)
-		tools_log(url)
 		PLAYER.prepare_play_VOD_episode(tmdb = remote_id, series_id=None, search_str = None,episode=episode, season=Season, window=window)
 		return
-		#xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
-		#xbmc.executebuiltin('Dialog.Close(busydialog)')
-		#xbmc.executebuiltin('Dialog.Close(all,true)')
-		#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
-
-		#xbmc.executebuiltin('%sseasoninfo,dbid=%s,id=%s,tvshow=%s,season=%s)' % (base, dbid, remote_id, info.getTVShowTitle(), info.getSeason()))
 	elif type == 'episode':
-		#infos.append('extendedepisodeinfo')
-		#params['dbid'] = dbid
-		#params['id'] = remote_id
-		#params['tvshow'] = TVShowTitle
-		#params['season'] = Season
-		#params['episode'] = episode
-
-		url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=%s' % (remote_id, Season, episode)
 		PLAYER.prepare_play_VOD_episode(tmdb = remote_id, series_id=None, search_str = None,episode=episode, season=Season, window=window)
 		return
-	#from resources.lib.VideoPlayer import PLAYER
-	#xbmc.log(str(url)+'===>context_play', level=xbmc.LOGINFO)
-	#xbmc.executebuiltin('Dialog.Close(all,true)')
-	#PLAYER.play_from_button(url, listitem=None, window=window, dbid=dbid)
-	#return
-	#if infos:
-	#	start_info_actions(infos, params)
+
 
 def busy_dialog(func):
 	@wraps(func)
@@ -499,22 +432,6 @@ def run_async(func):
 def translate_path(*args):
 	return xbmcvfs.translatePath(os.path.join(*args))
 
-def after_add(type=False):
-	basepath = os.path.join(ADDON_DATA_PATH, 'TheMovieDB')
-	path1 = os.path.join(basepath, '0ec735169a3d0b98719c987580e419e5.txt')
-	path2 = os.path.join(basepath, 'c36fcc8e9da1fe1a16fded10581fcc15.txt')
-	if os.path.exists(path1):
-		os.remove(path1)
-	if os.path.exists(path2):
-		os.remove(path2)
-	empty_list = []
-	if not type or type == 'movie':
-		xbmcgui.Window(10000).setProperty('id_list.JSON', json.dumps(empty_list))
-		xbmcgui.Window(10000).setProperty('title_list.JSON', json.dumps(empty_list))
-	if not type or type == 'tv':
-		xbmcgui.Window(10000).setProperty('tvshow_id_list.JSON', json.dumps(empty_list))
-		xbmcgui.Window(10000).setProperty('tvshow_title_list.JSON', json.dumps(empty_list))
-	force = True
 
 def dictfind(lst, key, value):
 	for i, dic in enumerate(lst):
@@ -660,25 +577,12 @@ def get_JSON_response(url='', cache_days=7.0, folder=False, headers=False):
 	now = time.time()
 	url = url.encode('utf-8')
 	hashed_url = hashlib.md5(url).hexdigest()
-	#cache_path = translate_path(ADDON_DATA_PATH, folder) if folder else translate_path(ADDON_DATA_PATH)
 	cache_seconds = int(cache_days * 86400.0)
-	#if not cache_days:
-	#	xbmcgui.Window(10000).clearProperty(hashed_url)
-	#	xbmcgui.Window(10000).clearProperty('%s_timestamp' % hashed_url)
-	#prop_time = xbmcgui.Window(10000).getProperty('%s_timestamp' % hashed_url)
-	#if prop_time and now - float(prop_time) < cache_seconds:
-	#	try:
-	#		prop = json.loads(xbmcgui.Window(10000).getProperty(hashed_url))
-	#		if prop:
-	#			return prop
-	#	except Exception as e:
-	#		pass
-	#path = os.path.join(cache_path, '%s.txt' % hashed_url)
 
 	try: 
-		db_result = query_db(connection=db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
+		db_result, expired_db_result = query_db(connection=db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result:
 		return db_result
 	else:
@@ -686,32 +590,16 @@ def get_JSON_response(url='', cache_days=7.0, folder=False, headers=False):
 		try: results = json.loads(response)
 		except: results = []
 	if not results or len(results) == 0:
-		return None
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
 	else:
 		write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
-	
-	#if xbmcvfs.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	results = read_from_file(path)
-	#else:
-	#	response = get_http(url, headers)
-	#	try:
-	#		results = json.loads(response)
-	#		save_to_file(results, hashed_url, cache_path)
-	#		
-	#	except:
-	#		log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-	#		log(response)
-	#		results = read_from_file(path) if xbmcvfs.exists(path) else []
-	#if not results:
-	#	return None
-	##xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	##xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
 
-	#if db_result == None:
-	#	write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-
-	#return results
 
 class GetFileThread(threading.Thread):
 	def __init__(self, url):
@@ -883,8 +771,8 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 	addonID = addon.getAddonInfo('id')
 	addonUserDataFolder = xbmcvfs.translatePath("special://profile/addon_data/"+addonID)
 	#fanart_api = fanart_api_key()
-	#xbmc.log(str(enable_clearlogo)+'===>OPENINFO', level=xbmc.LOGINFO)
-	#xbmc.log(str('create_listitems')+'===>OPENINFO', level=xbmc.LOGINFO)
+	#tools_log(str(enable_clearlogo))
+	#tools_log(str('create_listitems'))
 	INT_INFOLABELS = ['year', 'episode', 'season', 'tracknumber', 'playcount', 'overlay', 'percentplayed']
 	FLOAT_INFOLABELS = ['rating']
 	#STRING_INFOLABELS = ['mediatype', 'genre', 'director', 'mpaa', 'plot', 'plotoutline', 'title', 'originaltitle', 'sorttitle', 'duration', 'studio', 'tagline', 'writer', 'tvshowtitle', 'premiered', 'status', 'code', 'aired', 'credits', 'lastplayed', 'album', 'votes', 'trailer', 'dateadded', 'IMDBNumber']
@@ -942,7 +830,7 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 		elif mediatype == 'tvshow':
 			listitem.setProperty("tmdb_id", str(result['id']))
 		elif mediatype == 'episode':
-			#xbmc.log(str(result)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+			#tools_log(str(result))
 			listitem.setProperty("tmdb_id", str(show_id))
 
 		if mediatype == 'movie' and tmdb_id != 0 and trakt_movies:
@@ -964,11 +852,19 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 				#except: trakt_item = ast.literal_eval(sql_result[0][1])
 				#try: trakt_item = eval(sql_result[0][1])
 				#except: trakt_item = eval(sql_result[0][1].replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':').replace('\'\'','"').replace(': ", ',': "", '))
-				try: 
-					trakt_item = eval(sql_result[0][1])
-				except: 
-					try: trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
-					except: trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \''))
+				try:
+					try: 
+						trakt_item = eval(sql_result[0][1])
+					except: 
+						try: 
+							trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
+						except: 
+							trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \''))
+				except:
+					item = sql_result[0][1].replace("'",'"')
+					item = re.sub(r'(?<="")([^"]*?)"([^"]*?)(""|$)', r'\1\2\3', item)
+					item = item.replace('""','"').replace('"',"'")
+					trakt_item = eval(item)
 				aired_episodes = trakt_item['show']['aired_episodes']
 				trakt_tmdb_id = trakt_item['show']['ids']['tmdb']
 				last_watched = trakt_item['last_watched_at'].split('T')[0]
@@ -1188,8 +1084,8 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 								info_tag.set_info({key.lower(): total_seconds})
 							else:
 								#info_tag.set_info({key.lower(): value})
-								xbmc.log(str(key.lower())+'===>EXCEPTION!!', level=xbmc.LOGINFO)
-								xbmc.log(str(value)+'===>EXCEPTION!!', level=xbmc.LOGINFO)
+								tools_log(str(key.lower()),'===>EXCEPTION!!')
+								tools_log(str(value),'===>EXCEPTION!!')
 				except:
 					listitem.setInfo('video', {key.lower(): value})
 			elif key.lower() in FLOAT_INFOLABELS:

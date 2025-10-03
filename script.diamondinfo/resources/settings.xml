@@ -88,6 +88,7 @@
 		<setting label="SETUP TMDBHelper Players" type="action" action="RunScript(script.diamondinfo,info=setup_players)"/>
 		<!---setting label="RD Player Seren Prescrape fallback" type="bool" id="rd_seren_prescrape" default="false" /--->
 		<setting id="last_played_tmdb_helper"           type="text"   default="false" visible="false"/>
+		<setting id="last_played_a4kwrapper_player"           type="text"   default="false" visible="false"/>
 
 	<!---/category>
 

@@ -136,48 +136,57 @@ class VideoPlayer(xbmc.Player):
 		return next_ep_details
 
 	def prepare_play_VOD_episode(self, tmdb = None, series_id=None, search_str = None, episode=None, season=None, window=False):
+		from resources.lib.TheMovieDB import get_vod_data
+		from resources.lib.TheMovieDB import get_vod_alltv
+		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
+		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
+			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		Utils.show_busy()
+		if series_id == None:
+			search_str = get_vod_alltv()
+			for i in search_str:
+				if str(i['tmdb']) == str(tmdb):
+					series_id = i['series_id']
+					break
+
+		vod_series = get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
+		full_url = None
+		if vod_series.get('episodes',False) != False:
+			episodes = []
+			for ic in vod_series['episodes']:
+				if type(ic) == type(''):
+					if int(season) == int(ic):
+						for jc in vod_series['episodes'][ic]:
+							try: episode_num = int(jc['episode'])
+							except: episode_num = int(jc['episode_num'])
+							if int(episode_num) == int(episode):
+								full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jc['id']),str(jc['container_extension']))
+								break
+				elif type(ic) == type([]):
+					for jk in ic:
+						if int(jk['season']) == int(season):
+							if int(jk['episode']) == int(episode):
+								full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jk['id']),str(jk['container_extension']))
+								break
+		Utils.tools_log(full_url)
+		if full_url == None:
+			Utils.notify('EPISODE URL not found - s%sE%s!' % (str(season).zfill(2),str(episode).zfill(2)), sound=False)
+			Utils.hide_busy()
+			return
+
 		from resources.lib.library import get_fanart_results_full
 		from resources.lib.TheMovieDB import get_trakt_playback
 		from resources.lib.TheMovieDB import extended_season_info
 		from resources.lib.TheMovieDB import extended_episode_info
 		from resources.lib.TheMovieDB import extended_tvshow_info
 		from resources.lib.TheMovieDB import get_tvshow_ids
-		from resources.lib.TheMovieDB import get_vod_alltv
 		import xbmcplugin
 		import time, sys
-
-		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
-		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
-			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
-		Utils.show_busy()
 
 		response_extended_season_info = extended_season_info(tmdb,season)
 		response_extended_episode_info = extended_episode_info(tmdb,season, episode)
 		response_extended_tvshow_info = extended_tvshow_info(tmdb)
 
-		if series_id == None:
-			search_str = get_vod_alltv()
-			for i in search_str:
-				if str(i['tmdb']) == str(tmdb):
-					series_id = i['series_id']
-
-		#Utils.tools_log(series_id)
-		from resources.lib.TheMovieDB import get_vod_data
-		movies = get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
-
-		try:
-			for i in movies['episodes'][str(season)]:
-				if str(i['episode_num']) == str(episode):
-					#Utils.tools_log(i)
-					full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['id']),str(i['container_extension']))
-					#Utils.tools_log(full_url)
-		except:
-			for i in movies['episodes']:
-				for x in i:
-					if str(x['episode_num']) == str(episode) and str(x['season']) == str(season):
-						#Utils.tools_log(i)
-						full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(x['id']),str(x['container_extension']))
-						#Utils.tools_log(full_url)
 
 		trakt_progress = get_trakt_playback('tv')
 		runtime_seconds = response_extended_episode_info[1]['runtime'] * 60
@@ -706,7 +715,7 @@ class VideoPlayer(xbmc.Player):
 			#try: self.close()
 			#except: pass
 			return
-		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
+		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
 		if window:
@@ -743,7 +752,7 @@ class VideoPlayer(xbmc.Player):
 		position = int(xbmc.getInfoLabel('Container('+str(container)+').CurrentItem'))-1
 		#window.close()
 		#super(VideoPlayer, self).play(item=url, listitem=listitem, windowed=False, startpos=-1)
-		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
+		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
 		wm.add_to_stack(window, 'curr_window')
@@ -779,6 +788,25 @@ class VideoPlayer(xbmc.Player):
 					return wm.pop_stack()
 			xbmc.sleep(50)
 
+	def play_url(self, url=None, window=False):
+		import time
+		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
+
+		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
+		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
+		if window:
+			wm.add_to_stack(window, 'curr_window')
+			window.close()
+		xbmc.executebuiltin('Dialog.Close(all,true)')
+		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		tools_log(str(str(url)+'_________________________play_url'))
+		xbmc.executebuiltin(url)
+		#xbmc.Player().play(url)
+		return 
+
 	def play_from_button(self, url=None, listitem=None, window=False, type='', dbid=0):
 		#from resources.lib.WindowManager import wm
 		import time
@@ -799,7 +827,7 @@ class VideoPlayer(xbmc.Player):
 			#try: self.close()
 			#except: pass
 			return
-		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
+		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
 		if window:
@@ -839,7 +867,7 @@ class VideoPlayer(xbmc.Player):
 
 	def playtube(self, youtube_id=False, listitem=None, window=False):
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
-		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
+		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		url = 'plugin://plugin.video.youtube/play/?video_id=%s' % str(youtube_id)
 		self.play(url=url, listitem=listitem, window=window)
 

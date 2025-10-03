@@ -51,7 +51,6 @@ def get_guess(release_title, options=None):
 from resources.lib import process
 
 ServiceStop = ''
-#xbmc.executebuiltin('RunScript('+str(addon_ID())+',info=service2)')
 Utils.hide_busy()
 
 
@@ -715,31 +714,30 @@ class PlayerMonitor(xbmc.Player):
 
 
 	def reopen_window(self):
-		window_open = self.getProperty(str(addon_ID_short())+'_running')
+
+		window_open = self.getProperty('xtreme_vod_running')
 		self.player_meta['script.xtreme_vod_started'] = self.getProperty('script.xtreme_vod_started')
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('script.xtreme_vod.ResolvedUrl')
+
 		if self.window_stack_enable == 'true' and (window_open == 'False' or self.player_meta['script.xtreme_vod_started'] == 'True'):
-			tools_log('reopen_window(self)', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			xbmc.sleep(100)
 			if xbmc.Player().isPlaying()==0:
 				if self.getProperty('script.xtreme_vod_started') == 'True':
 					xbmc.sleep(1000)
-					tools_log('wm.pop_stack()', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 					reopen_window_var = self.getProperty('reopen_window_var')
-					tools_log(reopen_window_var,'reopen_window_var')
-					if reopen_window_var == 'Started':
-						wm.pop_stack()
-						self.clearProperty('reopen_window_var')
-						reopen_window_var = ''
 					self.player_meta['script.xtreme_vod_started'] = False
 					self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
-					return
+					if reopen_window_var == 'Started':
+						self.clearProperty('reopen_window_var')
+						reopen_window_var = ''
+					return wm.pop_stack()
 				else:
 					return
 		elif self.reopen_window_bool == 'true' and self.getProperty('script.xtreme_vod_started') == 'True' and not xbmc.getCondVisibility('Window.IsActive(10138)'):
 			xbmc.sleep(100)
 			if not xbmc.getCondVisibility('Window.IsActive(10138)') and xbmc.Player().isPlaying()==0:
 				if self.getProperty('script.xtreme_vod_started') == 'True':
+					tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 					self.player_meta['script.xtreme_vod_started'] = False
 					self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
 					tools_log(str('RunScript(%s,info=reopen_window)' % (addon_ID())))
@@ -763,29 +761,21 @@ class PlayerMonitor(xbmc.Player):
 			if self.player_meta['global_movie_flag'] == False:
 				try:
 					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
-					#tools_log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:
 					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 					pass
 			else:
 				try: 
 					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-					#tools_log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:
 					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 					pass
 
 		self.clearProperty('trakt_scrobble_details')
-		self.player_meta['script.xtreme_vod_started'] = addon_ID_short()+'_running'
-		if self.getProperty('script.xtreme_vod_started') == 'True':
-			self.setProperty(self.player_meta['script.xtreme_vod_started'], 'True')
-		else:
-			self.clearProperty(self.player_meta['script.xtreme_vod_started'])
 
 		xbmc.sleep(100)
 		gc.collect()
-		self.reopen_window()
-		return
+		return self.reopen_window()
 
 	def onPlayBackStopped(self):
 		tools_log(str('onPlayBackStopped'))
@@ -799,21 +789,19 @@ class PlayerMonitor(xbmc.Player):
 		else:
 			return
 		trakt_meta = self.get_trakt_scrobble_details()
-		for i in ['script.xtreme_vod_player_time', 'script.xtreme_vod.ResolvedUrl_playlist', 'script.xtreme_vod.ResolvedUrl','trakt_scrobble_details']:
+		for i in ['script.xtreme_vod_time', 'xtreme_vod.ResolvedUrl_playlist', 'xtreme_vod.ResolvedUrl','trakt_scrobble_details']:
 			self.clearProperty(i)
 
 		if self.player_meta['percentage'] > 85:
 			if self.player_meta['global_movie_flag'] == False:
 				try:
 					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
-					#tools_log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:
 					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 					pass
 			else:
 				try: 
 					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-					#tools_log(str(response), 'TheMovieDB.update_trakt_playback')
 				except:
 					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 					pass
@@ -850,11 +838,9 @@ class PlayerMonitor(xbmc.Player):
 
 		except:
 			tools_log(str('EXCEPTION_onPlayBackStopped')+'===>OPENINFO')
-			self.reopen_window()
-			return
+			return self.reopen_window()
 
-		self.reopen_window()
-		return
+		return self.reopen_window()
 
 
 	def onPlayBackStarted(self):
@@ -863,6 +849,7 @@ class PlayerMonitor(xbmc.Player):
 		#wm.reopen_window_var = 'Started'
 		self.setProperty('reopen_window_var','Started')
 
+		self.player_meta['script.xtreme_vod_player'] = None
 		self.player_meta['script.xtreme_vod_started'] = None
 		self.trakt_error = None
 
@@ -914,18 +901,17 @@ class PlayerMonitor(xbmc.Player):
 			self.clearProperty('script.xtreme_vod_time')
 
 		self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
-		tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started_onPlayBackStarted===>script.xtreme_vod_started')
+		#tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started_onPlayBackStarted===>script.xtreme_vod_started')
 
 		if self.player_meta['script.xtreme_vod_player'] == False:
 			tools_log('EXIT__script.xtreme_vod_player')
 			return
 
-		script_xtreme_vod_running = addon_ID_short()+'_running'
+
 		if self.player_meta['script.xtreme_vod_started'] == True:
-			self.setProperty(script_xtreme_vod_running, 'True')
-			#xbmc.executebuiltin('Dialog.Close(all,true)')
+			self.setProperty('script.xtreme_vod_started', 'True')
 		else:
-			self.clearProperty(script_xtreme_vod_running)
+			self.clearProperty('script_xtreme_vod_running')
 
 		if self.trakt_scrobble == 'false':
 			tools_log(str(' self.trakt_scrobble == "false":'))
@@ -1251,8 +1237,10 @@ class PlayerMonitor(xbmc.Player):
 		"""
 
 		if self.type == 'episode':
-			TMDbHelper_PlayerInfoString = eval(xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString'))
-			TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': self.type, 'tmdb_id': str(TMDbHelper_PlayerInfoString['tmdb_id']), 'imdb_id': str(TMDbHelper_PlayerInfoString['imdb_id']), 'tvdb_id': str(TMDbHelper_PlayerInfoString['tvdb_id']), 'season': self.player_meta['tv_season'], 'episode': self.player_meta['tv_episode']}
+			try: TMDbHelper_PlayerInfoString = eval(xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString'))
+			except: TMDbHelper_PlayerInfoString = {}
+			response = TheMovieDB.get_tvshow_ids(self.player_meta['tmdb_id'])
+			TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': self.type, 'tmdb_id': str(self.player_meta['tmdb_id']), 'imdb_id': str(self.player_meta['imdb_id']), 'tvdb_id': str(response['tvdb_id']), 'season': self.player_meta['tv_season'], 'episode': self.player_meta['tv_episode']}
 			if TMDbHelper_PlayerInfoString != TMDbHelper_NEW_PlayerInfoString:
 				tools_log('TMDbHelper_NEW_PlayerInfoString',TMDbHelper_NEW_PlayerInfoString)
 				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
@@ -1616,7 +1604,7 @@ class CronJobMonitor(Thread):
 				library_update_period = int(xml_m3u_sync_hours)
 				self.next_time = self.curr_time + xml_m3u_sync_hours*60*60
 				tools_log(str('process.auto_sync'))
-				#process.auto_library()
+
 				movies = TheMovieDB.get_vod_data(action= 'get_vod_streams' ,cache_days=0.00001) 
 				movies = TheMovieDB.get_vod_data(action= 'get_series' ,cache_days=0.00001) 
 				if os.environ['first_run'] == str('True'):
@@ -1739,7 +1727,6 @@ class ServiceMonitor(object):
 		ServiceStarted = 'True'
 		window_stack = xbmcvfs.translatePath('special://profile/addon_data/'+addon_ID()+ '/window_stack.db')
 
-		library.auto_setup_xml_filenames()
 		self.player_monitor = PlayerMonitor()
 
 		if xbmcvfs.exists(window_stack):

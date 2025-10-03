@@ -498,7 +498,7 @@ def get_vod_alltv(category = None):
 
 
 
-def get_tmdb_data(url='', cache_days=14, folder='TheMovieDB'):
+def get_tmdb_data(url='', cache_days=14, folder='tmdb'):
 	url = 'https://api.themoviedb.org/3/%sapi_key=%s' % (url, API_key)
 	#xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
 	return Utils.get_JSON_response(url, cache_days, folder)

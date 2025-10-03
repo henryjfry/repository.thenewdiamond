@@ -41,6 +41,34 @@ def get_season_window(window_type):
 				try: filter_thread.terminate()
 				except: pass
 			"""
+
+			TV = TheMovieDB.get_vod_alltv()
+			season_number = kwargs.get('season')
+			for x in TV:
+				if x['tmdb'] == self.tvshow_id:
+					series_id = x['series_id']
+					break
+			vod_series = TheMovieDB.get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
+			tv_item = vod_series['info']
+			if vod_series.get('episodes',False) != False:
+				episodes = []
+				for ic in vod_series['episodes']:
+					if type(ic) == type(''):
+						if int(season_number) == int(ic):
+							for jc in vod_series['episodes'][ic]:
+								episodes.append(jc['episode'])
+					elif type(ic) == type([]):
+						for jk in ic:
+							if int(jk['season']) == int(season_number):
+								episodes.append(jc['episode'])
+
+			pop_idx = []
+			for idx, i in enumerate(self.data['episodes']):
+				if not int(i['episode']) in episodes:
+					pop_idx.append(idx)
+			for i in reversed(pop_idx):
+				self.data['episodes'].pop(i)
+
 			self.listitems = [
 				(2000, self.data['episodes']),
 				(1150, self.data['videos']),
@@ -131,17 +159,11 @@ def get_season_window(window_type):
 			if season == '':
 				season = 0
 			if selection == 0:
-				#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (self.tvshow_id, season, self.listitem.getProperty('episode'))
 				xbmc.executebuiltin('Dialog.Close(all,true)')
-				#PLAYER.play_from_button(url, listitem=None, window=self)
 				PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=self.listitem.getProperty('episode'), season=season, window=self)
 			if selection == 1:
 				wm.open_tvshow_info(prev_window=self, tmdb_id=self.tvshow_id, dbid=0)
 			if selection == 2:
-				#url = 'RunScript(%s,info=diamond_rd_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s)' % (addon_ID(), self.info['TVShowTitle'], season, self.listitem.getProperty('episode'), self.tvshow_id)
-				#xbmc.executebuiltin('Dialog.Close(all,true)')
-				#xbmc.executebuiltin('RunScript(%s,info=play_test_pop_stack)' % addon_ID())
-				#xbmc.executebuiltin(url)
 				PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=self.listitem.getProperty('episode'), season=season, window=self)
 
 
@@ -151,40 +173,26 @@ def get_season_window(window_type):
 		@ch.action('pause', 2000)
 		def play_episode(self):
 			episode_id = self.listitem.getProperty('episode')
-			#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (self.tvshow_id, self.listitem.getProperty('season'), episode_id)
 			xbmc.executebuiltin('Dialog.Close(all,true)')
-			#PLAYER.play_from_button(url, listitem=None, window=self)
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=episode_id, season=self.listitem.getProperty('season'), window=self)
 
 		@ch.click(10)
 		def play_season(self):
-			#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=1' % (self.tvshow_id, self.info['season'])
-			#xbmc.executebuiltin('RunPlugin(%s)' % url)
 			xbmc.executebuiltin('Dialog.Close(all,true)')
-			#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=1, season=self.info['season'], window=self)
 
 		@ch.action('contextmenu', 10)
 		def play_season_choose_player(self):
 			url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=1' % (self.tvshow_id, self.info['season'])
-			#xbmc.executebuiltin('RunPlugin(%s)' % url)
 			xbmc.executebuiltin('Dialog.Close(all,true)')
-			#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=1, season=self.info['season'], window=self)
 
 		@ch.click(445)
 		def show_manage_dialog(self):
 			manage_list = []
 			manage_list.append(["Xtreme VOD's settings", 'Addon.OpenSettings("'+str(addon_ID())+'")'])
-			#manage_list.append(["TmdbHelper Context", 'RunScript(plugin.video.themoviedb.helper,sync_trakt,tmdb_type=movie,tmdb_id='+str(self.info.get('id', ''))+')'])
-			#manage_list.append(["TmdbHelper settings", 'Addon.OpenSettings("plugin.video.themoviedb.helper")'])
-			#manage_list.append(["YouTube's settings", 'Addon.OpenSettings("plugin.video.youtube")'])
+
 			import xbmcaddon
-			#settings_user_config = xbmcaddon.Addon(addon_ID()).getSetting('settings_user_config')
-			#if settings_user_config == 'Settings Selection Menu':
-			#	selection = xbmcgui.Dialog().select(heading='Settings', list=[i[0] for i in manage_list])
-			#else:
-			#	selection = 1
 			selection = 0
 			if selection > -1:
 				for item in manage_list[selection][1].split('||'):

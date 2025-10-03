@@ -109,8 +109,8 @@ def start_info_actions(infos, params):
 
 		if info == 'get_imdb_language':
 			from resources.lib import TheMovieDB
-			lang = TheMovieDB.get_imdb_language('tt2191671')
-			log(lang)
+			languages = TheMovieDB.get_imdb_language('tt8421350')
+			log(languages)
 
 		if info == 'url_encode_test':
 			meta_filters = "{'filters' : {'sort': 'desc', 'sort_string': 'revenue', 'with_genres': ['action','comedy'], 'without_genres': ['horror','reality','documentary'], 'with_original_language': 'en', 'vote_count.gte': '10', 'vote_count.lte': '10 000 000', 'lower_year': '1990', 'upper_year': '1999' } }"
@@ -1835,17 +1835,20 @@ def revoke_trakt(**kwargs): ## PATCH
 			line_update = '''    def onAVStarted(self):  ## PATCH
         import xbmc
         xbmc.sleep(5*1000)
-        self.get_playingitem()
+        try: self.get_playingitem()
+        except: return
 
     def onPlayBackStarted(self):
         import xbmc
         xbmc.sleep(5*1000)
-        self.get_playingitem()
+        try: self.get_playingitem()
+        except: return
 
     def onAVChange(self):
         import xbmc
         xbmc.sleep(5*1000)
-        self.get_playingitem()
+        try: self.get_playingitem()
+        except: return
 
     def onPlayBackEnded(self):  ## PATCH
 '''
@@ -1892,7 +1895,8 @@ def revoke_trakt(**kwargs): ## PATCH
         from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
         from tmdbhelper.lib.files.futils import json_loads as data_loads
         USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
-        access_token = data_loads(USER_TOKEN.value)['access_token']
+        try: access_token = data_loads(USER_TOKEN.value)['access_token']
+        except: return None
         if access_token != self.authenticator.access_token:
             #self.authenticator.access_token = access_token
             from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken

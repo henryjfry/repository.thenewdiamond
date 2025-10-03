@@ -9,11 +9,9 @@ from resources.lib.OnClickHandler import OnClickHandler
 from resources.lib.DialogBaseInfo import DialogBaseInfo
 from resources.lib.library import addon_ID
 from resources.lib.library import addon_ID_short
-from resources.lib.library import basedir_tv_path
-from resources.lib.library import basedir_movies_path
+
 #from resources.lib.library import trakt_add_tv
 #from resources.lib.library import trakt_add_movie
-from resources.lib.library import next_episode_show
 from resources.lib.library import trakt_next_episode_normal
 from resources.lib.library import trakt_next_episode_rewatch
 #from resources.lib.library import trakt_calendar_hide_show
@@ -88,17 +86,44 @@ def get_tvshow_window(window_type):
 						self.data['similar'].append(i)
 				self.data['similar'] = sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True)
 
-			movies = TheMovieDB.get_vod_alltv()
+			TV = TheMovieDB.get_vod_alltv()
 			for i in reversed(self.data['similar']):
 				match = False
 				idx = self.data['similar'].index(i)
-				for x in movies:
+				for x in TV:
 					if str(i['id']) == x['tmdb']:
 						self.data['similar'][idx]['series_id'] = x['series_id']
 						match = True
 						break
 				if match == False:
 					self.data['similar'].pop(idx)
+
+			for x in TV:
+				if x['tmdb'] == self.tmdb_id:
+					series_id = x['series_id']
+					break
+			vod_series = TheMovieDB.get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
+			tv_item = vod_series['info']
+			if vod_series.get('episodes',False) != False:
+				seasons = []
+				for ic in vod_series['episodes']:
+					if type(ic) == type(''):
+						seasons.append(int(ic))
+					elif type(ic) == type([]):
+						for jk in ic:
+							seasons.append(int(jk['season']))
+							break
+			pop_idx = []
+			Utils.tools_log(series_id)
+			Utils.tools_log(seasons)
+			Utils.tools_log(self.data['seasons'])
+
+			for idx, i in enumerate(self.data['seasons']):
+				if not int(i['season']) in seasons:
+					pop_idx.append(idx)
+			for i in reversed(pop_idx):
+				self.data['seasons'].pop(i)
+
 
 			self.listitems = [
 				(250, self.data['seasons']),
