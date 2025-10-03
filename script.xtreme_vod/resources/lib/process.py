@@ -72,16 +72,18 @@ def start_info_actions(infos, params):
 		if info == 'save_channel_order':
 			from xtream2m3u_run import save_channel_order
 			dialog = xbmcgui.Dialog()
-			url = dialog.input('Enter Channel Order list Pastebin URL', default='https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
-			save_channel_order(url)
+			url = dialog.input('Enter Channel Order list Pastebin URL', 'https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
+			if url != '' and len(url ) > 'https://pastebin.com/':
+				save_channel_order(url)
 			Utils.hide_busy()
 			return
 
 		if info == 'save_allowed_groups':
 			from xtream2m3u_run import save_allowed_groups
 			dialog = xbmcgui.Dialog()
-			url = dialog.input('Enter Allowed Groups list Pastebin URL', default='https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
-			save_allowed_groups(url)
+			url = dialog.input('Enter Allowed Groups list Pastebin URL', 'https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
+			if url != '' and len(url ) > 'https://pastebin.com/':
+				save_allowed_groups(url)
 			Utils.hide_busy()
 			return
 

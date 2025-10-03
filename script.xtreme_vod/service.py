@@ -1764,7 +1764,7 @@ class ServiceMonitor(object):
 			local_xml_m3u = False
 		startup_local_xml_m3u = xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u')
 
-		if auto_start_server and if Utils.xtreme_codes_password != '':
+		if auto_start_server and Utils.xtreme_codes_password != '':
 			tools_log('STARTING SERVER -  http://localhost:5000/m3u  http://localhost:5000/xml  http://localhost:5000/stop')
 			xbmc.executebuiltin('RunScript(script.xtreme_vod,info=xtream2m3u_run)')
 		if (startup_local_xml_m3u == True or startup_local_xml_m3u == 'true') and Utils.xtreme_codes_password != '':

@@ -1,40 +1,74 @@
-import json
-import os
-import urllib.parse
-
-from inspect import currentframe, getframeinfo
+from resources.lib import Utils
 
 import sys
-folder = str(os.path.split(str(getframeinfo(currentframe()).filename))[0])
-current_directory = os.path.dirname(os.path.dirname(folder))
-sys.path.append(current_directory)
+import os
+from inspect import currentframe, getframeinfo
 
-from resources.lib import Utils
-#Utils.tools_log(current_directory)
+# -----------------------------
+# VERY FIRST: patch sys.path
+# -----------------------------
+# Add Subliminal folder (contains zipp)
+subliminal_path = os.path.join(Utils.ADDON_PATH, "Subliminal")
+if subliminal_path not in sys.path:
+    sys.path.insert(0, subliminal_path)
+
+# Add Subliminal root to sys.path
+if subliminal_path not in sys.path:
+    sys.path.insert(0, sublimiminal_path)
+
+# Add all subfolders in Subliminal to sys.path
+for entry in os.listdir(subliminal_path):
+    full_path = os.path.join(subliminal_path, entry)
+    if os.path.isdir(full_path) and full_path not in sys.path:
+        sys.path.insert(0, full_path)
 
 
-current_directory2 = os.path.join(current_directory,'Subliminal')
-#sys.path.append(current_directory2)
-sys.path.insert(0, current_directory2)
-#Utils.tools_log(current_directory2)
+# Add importlib_resources and fake_useragent paths
+sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "importlib_resources_old"))
+sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "fake_useragent_old"))
+sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "importlib_resources_new"))
+sys.path.insert(0, os.path.join(Utils.ADDON_PATH, "fake_useragent_new"))
 
-import requests
-from fake_useragent import UserAgent
+# -----------------------------
+# Now import everything else
+# -----------------------------
+
+
+version_str = sys.version.split()[0]   # e.g. '3.9.2'
+version_float = float('.'.join(version_str.split('.')[:2]))
+
+if version_float >= 3.9:
+    import importlib_resources_new as importlib_resources
+    sys.modules["importlib_resources"] = importlib_resources
+    import fake_useragent_new as fake_useragent
+    sys.modules["fake_useragent"] = fake_useragent
+else:
+    import importlib_resources_old as importlib_resources
+    sys.modules["importlib_resources"] = importlib_resources
+    import fake_useragent_old as fake_useragent
+    sys.modules["fake_useragent"] = fake_useragent
 
 import importlib
 importlib.invalidate_caches()
-import flask
-from flask import Flask, Response, request
-from requests.exceptions import SSLError
 
+import json
+import urllib.parse
+import requests
+from fake_useragent import UserAgent
+
+
+
+import flask
+from flask import Flask, Response, request, jsonify
+from requests.exceptions import SSLError
+from werkzeug.serving import make_server
+import threading
+from time import sleep
 
 
 from time import sleep
-from flask import Flask
 #from flask_cors import CORS
 import threading
-
-from werkzeug.serving import make_server
 
 thread_event = threading.Event()
 
@@ -54,6 +88,7 @@ app = Flask(__name__)
 
 from flask import Flask, jsonify, request
 import json, os
+
 
 def start():
 	Utils.tools_log('STARTING__SERVER')
