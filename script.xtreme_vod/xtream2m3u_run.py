@@ -12,12 +12,18 @@ sys.path.append(current_directory)
 from resources.lib import Utils
 #Utils.tools_log(current_directory)
 
+
 current_directory2 = os.path.join(current_directory,'Subliminal')
-sys.path.append(current_directory2)
+#sys.path.append(current_directory2)
+sys.path.insert(0, current_directory2)
 #Utils.tools_log(current_directory2)
 
 import requests
 from fake_useragent import UserAgent
+
+import importlib
+importlib.invalidate_caches()
+import flask
 from flask import Flask, Response, request
 from requests.exceptions import SSLError
 
@@ -132,6 +138,7 @@ def generate_xmltv(mode=None):
 
 	channel_order_file = os.path.join(Utils.ADDON_DATA_PATH, 'channel_order.txt')
 	channel_order_lists = []
+	channel_order = False
 	if os.path.isfile(channel_order_file):
 		Utils.tools_log('EXISTS__'+channel_order_file)
 		channel_order_f = open(channel_order_file, "r")
@@ -364,6 +371,7 @@ def generate_m3u(mode=None):
 
 	channel_order_file = os.path.join(Utils.ADDON_DATA_PATH, 'channel_order.txt')
 	channel_order_lists = []
+	channel_order = False
 	if os.path.isfile(channel_order_file):
 		Utils.tools_log('EXISTS__'+channel_order_file)
 		channel_order_f = open(channel_order_file, "r")

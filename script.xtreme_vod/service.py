@@ -35,6 +35,18 @@ current_directory = str(getframeinfo(currentframe()).filename.replace(os.path.ba
 
 from resources.lib.VideoPlayer import PLAYER
 #from a4kscrapers_wrapper import source_tools, babelfish, get_meta
+
+import sys
+version_str = sys.version.split()[0]   # '3.9.2'
+version_float = float('.'.join(version_str.split('.')[:2]))
+if version_float >= 3.9:
+	import importlib_resources_new as importlib_resources
+	import fake_useragent_new as fake_useragent
+else:
+	import importlib_resources_old as importlib_resources
+	import fake_useragent_old as fake_useragent
+sys.modules["importlib_resources"] = importlib_resources
+sys.modules["fake_useragent"] = fake_useragent
 import guessit
 from guessit import api
 import functools
@@ -1752,10 +1764,10 @@ class ServiceMonitor(object):
 			local_xml_m3u = False
 		startup_local_xml_m3u = xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u')
 
-		if auto_start_server:
+		if auto_start_server and if Utils.xtreme_codes_password != '':
 			tools_log('STARTING SERVER -  http://localhost:5000/m3u  http://localhost:5000/xml  http://localhost:5000/stop')
 			xbmc.executebuiltin('RunScript(script.xtreme_vod,info=xtream2m3u_run)')
-		if startup_local_xml_m3u == True or startup_local_xml_m3u == 'true':
+		if (startup_local_xml_m3u == True or startup_local_xml_m3u == 'true') and Utils.xtreme_codes_password != '':
 			generate_m3u(mode='startup')
 			generate_xmltv(mode='startup')
 
