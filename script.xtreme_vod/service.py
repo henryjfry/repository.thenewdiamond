@@ -38,6 +38,8 @@ from resources.lib.VideoPlayer import PLAYER
 
 import sys
 version_str = sys.version.split()[0]   # '3.9.2'
+tools_log(sys.version)
+tools_log('PYTHON__VERSION')
 version_float = float('.'.join(version_str.split('.')[:2]))
 if version_float >= 3.9:
 	import importlib_resources_new as importlib_resources

@@ -6,12 +6,21 @@ import tempfile
 
 __version__ = '0.1.11'
 
-DB = os.path.join(
-    tempfile.gettempdir(),
-    'fake_useragent_{version}.json'.format(
-        version=__version__,
-    ),
-)
+try:
+	DB = os.path.join(
+		tempfile.gettempdir(),
+		'fake_useragent_{version}.json'.format(
+			version=__version__,
+		),
+	)
+except:
+	from resources.lib import Utils
+	DB = os.path.join(
+		Utils.ADDON_DATA_PATH,
+		'fake_useragent_{version}.json'.format(
+			version=__version__,
+		),
+	)
 
 CACHE_SERVER = 'https://fake-useragent.herokuapp.com/browsers/{version}'.format(
     version=__version__,
