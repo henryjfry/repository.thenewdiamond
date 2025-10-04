@@ -437,10 +437,12 @@ class VideoPlayer(xbmc.Player):
 		if tmdb == None or tmdb == '':
 			tmdb = None
 
-		if search_str:
+		if search_str and type(search_str) != type(''):
 			for i in search_str:
 				if str(i['stream_id']) == str(stream_id):
 					full_url = i['full_url']
+		elif search_str and type(search_str) == type('') and Utils.xtreme_codes_password in str(search_str):
+			full_url = search_str
 		else:
 			search_str = get_vod_allmovies()
 			full_url_list = []
@@ -474,7 +476,7 @@ class VideoPlayer(xbmc.Player):
 					listitems[idx]['OriginalTitle'] = search_str[i]['title']
 
 				listitem, index = wm.open_selectdialog(listitems=listitems)
-				
+
 				if index > -1:
 					full_url = search_str[results[index]]['full_url']
 				else:

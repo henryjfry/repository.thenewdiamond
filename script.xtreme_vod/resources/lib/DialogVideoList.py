@@ -408,6 +408,8 @@ def get_tmdb_window(window_type):
 			#Utils.tools_log(self.listitem.getProperty('media_type'))
 			if self.listitem.getProperty('media_type') == 'movie' or self.listitem.getProperty('media_type') == '':
 				search_str = self.search_str
+				if type(search_str) == type(''):
+					search_str = self.listitem.getProperty('full_url')
 				stream_id = self.listitem.getProperty('stream_id')
 				title = self.listitem.getProperty('Label')
 				tmdb = self.listitem.getProperty('id')
