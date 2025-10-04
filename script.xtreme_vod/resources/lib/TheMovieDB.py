@@ -84,6 +84,8 @@ def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
 				original_title = original_title2
 		except KeyError:
 			pass
+		except TypeError:
+			pass
 		listitem = {
 			'title': Utils.fetch(movie, 'title'),
 			'Label': Utils.fetch(movie, 'title'),
@@ -725,29 +727,30 @@ def single_movie_info(movie_id=None, dbid=None, cache_time=14, notify = True):
 	if not response and notify:
 		Utils.notify('Could not get movie information', sound=False)
 		return {}
-	genres = [i['id'] for i in response['genres']]
+	try: genres = [i['id'] for i in response['genres']]
+	except KeyError: genres = []
 	results = {
 			'media_type': 'movie',
 			'mediatype': 'movie',
-			'adult': response['adult'],
-			'backdrop_path': response['backdrop_path'],
+			'adult': Utils.fetch(response,'adult'),
+			'backdrop_path': Utils.fetch(response,'backdrop_path'),
 			'genre_ids': genres,
-			'id': response['id'],
+			'id': Utils.fetch(response,'id'),
 			'imdb_id': Utils.fetch(Utils.fetch(response, 'external_ids'), 'imdb_id'),
-			'original_language': response['original_language'],
-			'original_title': response['original_title'],
+			'original_language': Utils.fetch(response,'original_language'),
+			'original_title': Utils.fetch(response,'original_title'),
 			'alternative_titles': response.get('alternative_titles',[]),
-			'overview': response['overview'],
-			'similar': response['recommendations'],
+			'overview': Utils.fetch(response,'overview'),
+			'similar': Utils.fetch(response,'recommendations'),
 			'Rating': Utils.fetch(response, 'vote_average'),
 			'Votes': Utils.fetch(response, 'vote_count'),
-			'popularity': response['popularity'],
-			'poster_path': response['poster_path'],
-			'release_date': response['release_date'],
-			'title': response['title'],
-			'video': response['video'],
-			'vote_average': response['vote_average'],
-			'vote_count': response['vote_count']
+			'popularity': Utils.fetch(response,'popularity'),
+			'poster_path': Utils.fetch(response,'poster_path'),
+			'release_date': Utils.fetch(response,'release_date'),
+			'title': Utils.fetch(response,'title'),
+			'video': Utils.fetch(response,'video'),
+			'vote_average': Utils.fetch(response,'vote_average'),
+			'vote_count': Utils.fetch(response,'vote_count')
 			}
 	return results
 
