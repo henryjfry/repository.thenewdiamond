@@ -38,6 +38,7 @@ class WindowManager(object):
 		self.order = None
 		self.sort = None
 		self.sort_label = None
+		self.category_id = None
 		self.type = None
 		self.filter = None
 		self.prev_page_flag = False
@@ -128,6 +129,7 @@ class WindowManager(object):
 		self.order = wm.curr_window['params']['order']
 
 		self.sort_label = wm.curr_window['params']['sort_label']
+		self.category_id = wm.curr_window['params']['category_id']
 		self.sort = wm.curr_window['params']['sort']
 
 		self.filter_url = wm.curr_window['params']['filter_url']
@@ -513,7 +515,7 @@ class WindowManager(object):
 		Utils.show_busy()
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 		self.prev_window = self.curr_window 
-		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': listitems, 'filters': filters, 'mode': mode, 'list_id': list_id, 'filter_label': filter_label, 'media_type': media_type, 'search_str': search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items,'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': filter, 'sort': self.sort, 'sort_label': self.sort_label}}
+		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': listitems, 'filters': filters, 'mode': mode, 'list_id': list_id, 'filter_label': filter_label, 'media_type': media_type, 'search_str': search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items,'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': filter, 'sort': self.sort, 'category_id': self.category_id ,'sort_label': self.sort_label,}}
 		if mode == 'reopen_window':
 			self.window_stack_empty()
 			prev_window = None

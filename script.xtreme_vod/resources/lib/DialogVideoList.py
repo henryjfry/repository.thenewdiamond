@@ -221,21 +221,12 @@ def get_tmdb_window(window_type):
 			self.action2  = None
 			self.listitems = []
 			self.listitems2 = []
+			
+			self.category_id = None
 			xbmcgui.Window(10000).clearProperty('ImageFilter')
 			xbmcgui.Window(10000).clearProperty('ImageColor')
 
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-			#if wm.custom_filter:
-			#	self.setup_filter(wm.custom_filter)
-			#	wm.custom_filter = None
-			#	self.update_content(force_update=kwargs.get('force', False))
-
 			if self.listitem_list:
-				#xbmc.log(str(wm.page), level=xbmc.LOGINFO)
-				#xbmc.log(str(self.page), level=xbmc.LOGINFO)
-
-				#self.listitems = Utils.create_listitems(self.listitem_list)
-				#self.total_items = len(self.listitem_list)
 				self.update_content(force_update=kwargs.get('force', False))
 			elif self.filters == []:
 				self.filters = []
@@ -248,6 +239,7 @@ def get_tmdb_window(window_type):
 			fetch_data_dict['self.mode'] = self.mode
 			fetch_data_dict['self.sort'] = self.sort
 			fetch_data_dict['self.sort_label'] = self.sort_label
+			fetch_data_dict['self.category_id'] = self.category_id
 			fetch_data_dict['self.order'] = self.order
 			fetch_data_dict['self.type'] = self.type
 			fetch_data_dict['self.search_str'] = self.search_str
@@ -271,6 +263,8 @@ def get_tmdb_window(window_type):
 			try: self.type = fetch_data_dict_read['self.type']
 			except: pass
 			try: self.sort_label = fetch_data_dict_read['self.sort_label']
+			except: pass
+			try: self.category_id = fetch_data_dict_read['self.category_id']
 			except: pass
 			try: self.sort = fetch_data_dict_read['self.sort']
 			except: pass
@@ -307,8 +301,6 @@ def get_tmdb_window(window_type):
 			return info
 
 		def onClick(self, control_id):
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-			#xbmc.log('%s,%s,%s,%s,' % (control_id,self.focus_id,self.position,self.listitems[self.position].getProperty('tmdb_id'))+'===>OPENINFO', level=xbmc.LOGINFO)
 			if (self.filter_label == 'Trakt Episodes/Movies in progress' or self.filter_label == 'Trakt Calendar Episodes') and xbmc.getInfoLabel('listitem.DBTYPE') == 'episode':
 				try: wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitem.getProperty('tmdb_id'), dbid=self.listitem.getProperty('dbid'))
 				except: wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitems[self.position].getProperty('tmdb_id'), dbid=self.listitems[self.position].getProperty('dbid'))
@@ -329,7 +321,7 @@ def get_tmdb_window(window_type):
 				'person': 'Persons'
 				}
 			self.setProperty('Type', types[self.type])
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
+
 			self.getControl(5006).setVisible(True) ##PAGES
 			self.getControl(5008).setVisible(False)
 			self.getControl(5009).setVisible(False)
@@ -610,10 +602,10 @@ def get_tmdb_window(window_type):
 				self.order = 'desc'
 			if self.type == 'tv':
 				from resources.lib.TheMovieDB import get_vod_alltv
-				self.search_str = get_vod_alltv(category = None, sort_by = self.sort, order_by = self.order )
+				self.search_str = get_vod_alltv(category = self.category_id, sort_by = self.sort, order_by = self.order )
 			elif self.type == 'movie':
 				from resources.lib.TheMovieDB import get_vod_allmovies
-				self.search_str = get_vod_allmovies(category = None, sort_by = self.sort, order_by = self.order )
+				self.search_str = get_vod_allmovies(category = self.category_id, sort_by = self.sort, order_by = self.order )
 			self.update()
 
 		def add_filter(self, key, value, typelabel, label):
@@ -627,16 +619,17 @@ def get_tmdb_window(window_type):
 			self.order = 'desc' if self.order == 'asc' else 'asc'
 			if self.type == 'tv':
 				from resources.lib.TheMovieDB import get_vod_alltv
-				self.search_str = get_vod_alltv(category = None, sort_by = self.sort, order_by = self.order )
+				self.search_str = get_vod_alltv(category = self.category_id, sort_by = self.sort, order_by = self.order )
 			elif self.type == 'movie':
 				from resources.lib.TheMovieDB import get_vod_allmovies
-				self.search_str = get_vod_allmovies(category = None, sort_by = self.sort, order_by = self.order )
+				self.search_str = get_vod_allmovies(category = self.category_id, sort_by = self.sort, order_by = self.order )
 			self.update()
 
 		@ch.click(5001)
 		def toggle_media_type(self):
 			self.filters = []
 			self.page = 1
+			self.category_id = None
 
 			if self.mode == 'trakt':
 				self.mode = 'alltvshows2' if self.type == 'tv' else 'allmovies2'
@@ -668,7 +661,6 @@ def get_tmdb_window(window_type):
 			wm.page = -1
 			if (self.filter_label == 'Trakt Episodes/Movies in progress' or self.filter_label == 'Trakt Calendar Episodes'):
 				self.search_str = ''
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			self.update()
 
 
@@ -687,7 +679,8 @@ def get_tmdb_window(window_type):
 					selection = xbmcgui.Dialog().select(heading='Choose option', list=listitems)
 				if selection == -1:
 					return
-				self.sort_label = movies[selection]['category_id']
+				#self.sort_label = movies[selection]['category_id']
+				self.category_id = movies[selection]['category_id']
 				self.filter_label = 'VOD:  ' + movies[selection]['category_name']
 			else:
 				self.mode = 'allmovies2'
@@ -701,9 +694,10 @@ def get_tmdb_window(window_type):
 					selection = xbmcgui.Dialog().select(heading='Choose option', list=listitems)
 				if selection == -1:
 					return
-				self.sort_label = movies[selection]['category_id']
+				#self.sort_label = movies[selection]['category_id']
+				self.category_id = movies[selection]['category_id']
 				self.filter_label = 'VOD:  ' + movies[selection]['category_name']
-			self.fetch_data()
+			#self.fetch_data()
 			self.update()
 			return
 
@@ -754,6 +748,7 @@ def get_tmdb_window(window_type):
 
 
 		def reload_trakt(self):
+			self.category_id = None
 			if 'Trakt Watched Movies' in str(self.filter_label):
 				self.search_str = trakt_watched_movies()
 				self.type = 'movie'
@@ -798,6 +793,7 @@ def get_tmdb_window(window_type):
 				Utils.hide_busy()
 				return
 
+			self.category_id = None
 			if listitems[selection] == 'Trakt Watched Movies':
 				self.search_str = trakt_watched_movies()
 				self.type = 'movie'
@@ -873,7 +869,6 @@ def get_tmdb_window(window_type):
 			return movie_tv_items
 
 		def fetch_data(self, force=False):
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			addon = xbmcaddon.Addon()
 			addon_path = addon.getAddonInfo('path')
 			addonID = addon.getAddonInfo('id')
@@ -881,11 +876,11 @@ def get_tmdb_window(window_type):
 			Utils.show_busy()
 
 			if wm.pop_video_list == True:
-				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.page = int(wm.prev_window['params']['page'])
 
 				self.sort = wm.prev_window['params']['sort']
 				self.sort_label  = wm.prev_window['params']['sort_label']
+				self.category_id = wm.prev_window['params']['category_id']
 
 				self.mode = wm.prev_window['params']['mode']
 				self.type = wm.prev_window['params']['type']
@@ -900,6 +895,7 @@ def get_tmdb_window(window_type):
 					self.filter_label = 'Trakt Episodes/Movies in progress'
 					self.search_str = self.filter_vod(self.search_str)
 					listitems1 = self.search_str
+					self.category_id = None
 
 					x = 0
 					page = int(self.page)
@@ -944,7 +940,6 @@ def get_tmdb_window(window_type):
 				return info
 
 			if self.mode == 'reopen_window':
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				fetch_data_dict_file = read_fetch_data_dict_file()
 				import ast
 				fetch_data_dict_read = ast.literal_eval(fetch_data_dict_file.read())
@@ -987,13 +982,14 @@ def get_tmdb_window(window_type):
 			try: test_number = int(self.search_str[2:])
 			except: test_number = None
 
-			if self.sort_label.isnumeric():
-				if self.mode == 'allmovies2':
-					self.search_str = TheMovieDB.get_vod_allmovies(self.sort_label)
-					self.sort_label = '&' + self.sort_label + '&'
-				elif self.mode == 'alltvshows2':
-					self.search_str = TheMovieDB.get_vod_alltv(self.sort_label)
-					self.sort_label = '&' + self.sort_label + '&'
+			if self.category_id:
+				if self.category_id.isnumeric():
+					if self.mode == 'allmovies2':
+						self.search_str = TheMovieDB.get_vod_allmovies(category = self.category_id,sort_by = self.sort, order_by = self.order)
+						#self.sort_label = '&' + self.sort_label + '&'
+					elif self.mode == 'alltvshows2':
+						self.search_str = TheMovieDB.get_vod_alltv(category = self.category_id,sort_by = self.sort, order_by = self.order)
+						#self.sort_label = '&' + self.sort_label + '&'
 
 			#Utils.tools_log(self.mode)
 			if self.mode == 'search':
@@ -1009,6 +1005,7 @@ def get_tmdb_window(window_type):
 				fetch_data_dict['self.page'] = self.page
 				fetch_data_dict['self.sort'] = self.sort
 				fetch_data_dict['self.sort_label'] = self.sort_label
+				fetch_data_dict['self.category_id'] = self.category_id
 				fetch_data_dict['self.order'] = self.order
 				
 

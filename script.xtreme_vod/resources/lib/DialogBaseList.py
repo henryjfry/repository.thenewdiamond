@@ -152,7 +152,7 @@ class DialogBaseList(object):
 			function = 'open_youtube_list'
 		else:
 			function = 'open_video_list'
-		self.curr_window = {'function': function, 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter , 'sort': self.sort, 'sort_label': self.sort_label, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
+		self.curr_window = {'function': function, 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter , 'sort': self.sort, 'category_id': self.category_id ,'category_id': self.category_id ,'sort_label': self.sort_label, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
 		wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
 		wm.page_position = None
 		ch.serve(control_id, self)
@@ -192,7 +192,7 @@ class DialogBaseList(object):
 			#self.append_window_stack_table('curr_window')
 			self.prev_window = self.curr_window 
 			#self.curr_window = {'function': 'open_youtube_list', 'params': {'search_str': result, 'filters': self.filters, 'filter_label': self.filter_label, 'media_type': self.media_type}}
-			self.curr_window = {'function': 'open_youtube_list', 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': result, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'sort_label': self.sort_label, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
+			self.curr_window = {'function': 'open_youtube_list', 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': result, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'category_id': self.category_id ,'sort_label': self.sort_label, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
 			if wm.pop_video_list == False:
 				wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
 			else:
@@ -304,6 +304,7 @@ class DialogBaseList(object):
 		self.setProperty('CurrentPage', str(self.page))
 		self.setProperty('Filter_Label', self.filter_label)
 		self.setProperty('Sort_Label', self.sort_label)
+		self.setProperty('Category_id', self.category_id)
 		if self.page == self.total_pages:
 			self.clearProperty('ArrowDown')
 		else:
@@ -321,7 +322,7 @@ class DialogBaseList(object):
 			function = 'open_youtube_list'
 		else:
 			function = 'open_video_list'
-		self.curr_window = {'function': function, 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'sort_label': self.sort_label, 'total_items': self.total_items, 'total_pages': self.total_pages, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
+		self.curr_window = {'function': function, 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'category_id': self.category_id ,'sort_label': self.sort_label, 'total_items': self.total_items, 'total_pages': self.total_pages, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
 		#if wm.pop_video_list == False:
 		#	wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
 		#else:
@@ -486,8 +487,9 @@ class DialogBaseList(object):
 		#	#xbmc.executebuiltin('Dialog.Close(all)')
 		#	xbmc.executebuiltin('Dialog.Close(all,true)')
 
-		xbmc.log(str('BASE_LIST')+'append_window_stack_table_BASE_LIST===>OPENINFO', level=xbmc.LOGINFO)
+		#xbmc.log(str('BASE_LIST')+'append_window_stack_table_BASE_LIST===>OPENINFO', level=xbmc.LOGINFO)
 		#xbmc.log(str(mode)+'BASE_mode_append_window_stack_table_BASE_LIST===>OPENINFO', level=xbmc.LOGINFO)
+		Utils.tools_log(str('BASE_LIST')+'___append_window_stack_table__' + str(wm.window_stack_length()))
 		return
 
 
@@ -517,7 +519,7 @@ class DialogBaseList(object):
 
 		self.update_content(force_update=force_update)
 		self.update_ui()
-		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'sort_label': self.sort_label,'total_items': self.total_items, 'total_pages': self.total_pages, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
+		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'category_id': self.category_id ,'sort_label': self.sort_label,'total_items': self.total_items, 'total_pages': self.total_pages, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
 
 
 	def get_column(self):
