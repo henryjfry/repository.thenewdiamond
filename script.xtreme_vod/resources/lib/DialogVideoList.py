@@ -32,23 +32,18 @@ import math
 from inspect import currentframe, getframeinfo
 #xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 ch = OnClickHandler()
-"""
+
 SORTS = {
 	'movie': {
-		'popularity': 'Popularity',
-		'vote_average': 'Vote average',
-		'vote_count': 'Vote count',
-		'release_date': 'Release date',
-		'revenue': 'Revenue',
-		'original_title': 'Original title'
+		'added': 'Added',
+		'name': 'Title'
 		},
 	'tv': {
-		'popularity': 'Popularity',
-		'vote_average': 'Vote average',
-		'vote_count': 'Vote count',
-		'first_air_date': 'First aired'
+		'last_modified': 'Added/Updated',
+		'name': 'Title',
+		'release_date': 'Premiere Date'
 		}}
-
+"""
 LANGUAGES = [
 	{'id': '', 'name': ''},
 	{'id': 'bg', 'name': 'Bulgarian'},
@@ -210,8 +205,12 @@ def get_tmdb_window(window_type):
 			self.type = kwargs.get('type', 'movie')
 			self.media_type = self.type
 			self.list_id = kwargs.get('list_id', False)
-			self.sort = kwargs.get('sort', 'popularity')
-			self.sort_label = kwargs.get('sort_label', 'Popularity')
+			if self.type == 'movie':
+				self.sort = kwargs.get('sort', 'added')
+				self.sort_label = kwargs.get('sort_label', 'Added')
+			else:
+				self.sort = kwargs.get('sort', 'last_modified')
+				self.sort_label = kwargs.get('sort_label', 'Added/Updated')
 			self.order = kwargs.get('order', 'desc')
 			self.mode2 = None
 			self.curr_window = None
@@ -338,8 +337,14 @@ def get_tmdb_window(window_type):
 			
 			self.getControl(6000).setVisible(True)
 			self.getControl(6001).setVisible(False)
-			self.getControl(5002).setVisible(False)
-			self.getControl(5003).setVisible(False)
+			
+			if self.mode == 'trakt':
+				self.getControl(5002).setVisible(False)
+				self.getControl(5003).setVisible(False)
+			else:
+				self.getControl(5002).setVisible(True)
+				self.getControl(5003).setVisible(True)
+
 			self.getControl(5005).setVisible(False)
 			self.getControl(5007).setVisible(False)
 			self.getControl(5008).setVisible(False)
@@ -584,20 +589,31 @@ def get_tmdb_window(window_type):
 
 		@ch.click(5002)
 		def get_sort_type(self):
-			if self.mode in ['list']:
-				sort_key = self.mode
-			else:
-				sort_key = self.type
+			#if self.mode in ['list']:
+			#	sort_key = self.mode
+			#else:
+			#	sort_key = self.type
+			sort_key = self.type
 			listitems = [key for key in list(SORTS[sort_key].values())]
 			sort_strings = [value for value in list(SORTS[sort_key].keys())]
 			index = xbmcgui.Dialog().select(heading='Sort by', list=listitems)
 
 			if index == -1:
 				return None
-			if sort_strings[index] == 'vote_average':
-				self.add_filter('vote_count.gte', '10', '%s (%s)' % ('Vote count', 'greater than'), '10')
+
 			self.sort = sort_strings[index]
 			self.sort_label = listitems[index]
+
+			if self.sort == 'name':
+				self.order = 'asc'
+			else:
+				self.order = 'desc'
+			if self.type == 'tv':
+				from resources.lib.TheMovieDB import get_vod_alltv
+				self.search_str = get_vod_alltv(category = None, sort_by = self.sort, order_by = self.order )
+			elif self.type == 'movie':
+				from resources.lib.TheMovieDB import get_vod_allmovies
+				self.search_str = get_vod_allmovies(category = None, sort_by = self.sort, order_by = self.order )
 			self.update()
 
 		def add_filter(self, key, value, typelabel, label):
@@ -609,24 +625,42 @@ def get_tmdb_window(window_type):
 		@ch.click(5003)
 		def toggle_order(self):
 			self.order = 'desc' if self.order == 'asc' else 'asc'
+			if self.type == 'tv':
+				from resources.lib.TheMovieDB import get_vod_alltv
+				self.search_str = get_vod_alltv(category = None, sort_by = self.sort, order_by = self.order )
+			elif self.type == 'movie':
+				from resources.lib.TheMovieDB import get_vod_allmovies
+				self.search_str = get_vod_allmovies(category = None, sort_by = self.sort, order_by = self.order )
 			self.update()
 
 		@ch.click(5001)
 		def toggle_media_type(self):
 			self.filters = []
 			self.page = 1
+
+			if self.mode == 'trakt':
+				self.mode = 'alltvshows2' if self.type == 'tv' else 'allmovies2'
+				self.type = 'tv' if self.type == 'tv' else 'movie'
+
 			if self.mode == 'allmovies2':
 				self.type = 'tv'
 				self.mode = 'alltvshows2'
 				from resources.lib.TheMovieDB import get_vod_alltv
 				self.search_str = get_vod_alltv()
 				self.filter_label = 'VOD TV'
+				self.sort_label = 'Added/Updated'
+				self.sort = 'last_modified'
+				self.order = 'desc'
+
 			elif self.mode == 'alltvshows2':
 				self.type = 'movie'
 				self.mode = 'allmovies2'
 				from resources.lib.TheMovieDB import get_vod_allmovies
 				self.search_str = get_vod_allmovies()
 				self.filter_label = 'VOD Movies'
+				self.sort_label = 'Added'
+				self.sort = 'added'
+				self.order = 'desc'
 			else:
 				self.mode = 'filter'
 				self.type = 'movie' if self.type == 'tv' else 'tv'
@@ -722,11 +756,13 @@ def get_tmdb_window(window_type):
 		def reload_trakt(self):
 			if 'Trakt Watched Movies' in str(self.filter_label):
 				self.search_str = trakt_watched_movies()
+				self.type = 'movie'
 			if 'Trakt Watched Shows' in str(self.filter_label):
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>PHIL', level=xbmc.LOGINFO)
 				self.search_str = trakt_watched_tv_shows()
+				self.type = 'tv'
 			if 'Trakt Unwatched Shows' in str(self.filter_label):
 				self.search_str = trakt_unwatched_tv_shows()
+				self.type = 'tv'
 			else:
 				return
 			self.fetch_data()
@@ -784,7 +820,7 @@ def get_tmdb_window(window_type):
 			elif listitems[selection] == 'Trakt Calendar Episodes':
 				self.search_str = trakt_calendar_eps()
 				self.mode = 'trakt'
-				self.type = 'movie'
+				self.type = 'tv'
 				self.filter_label = 'Trakt Calendar Episodes'
 				self.fetch_data()
 				self.update()
@@ -1118,7 +1154,10 @@ def get_tmdb_window(window_type):
 					'total_results': total_results
 					}
 				self.mode = 'trakt'
-				self.type = 'movie'
+				if self.filter_label == 'Trakt Calendar Episodes':
+					self.type = 'tv'
+				else:
+					self.type = 'movie'
 				fetch_data_dict = self.update_fetch_data_dict(info, fetch_data_dict)
 				fetch_data_dict_file.write(str(fetch_data_dict))
 				fetch_data_dict_file.close()

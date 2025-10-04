@@ -78,6 +78,13 @@ def clear_db(connection=None,table_name=None):
 	cur.execute('VACUUM')
 	cur.close()
 
+def tools_log(*args, **kwargs):
+	for i in args:
+		try:
+			import xbmc
+			xbmc.log(str(i)+'===>extendedinfo', level=xbmc.LOGINFO)
+		except:
+			print(i)
 
 
 def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=None, headers=False):

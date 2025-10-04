@@ -459,13 +459,24 @@ bad_categories = [i for  i in xtreme_sport_categories.split(',')]
 bad_category_ids = [cat['category_id']  for cat in categories  if any(bad.lower() in cat['category_name'].lower() for bad in bad_categories)]
 
 
-def get_vod_allmovies(category = None):
+def get_vod_allmovies(category = None, sort_by = None, order_by = None):
 	#from resources.lib.TheMovieDB import get_vod_data
 	if category == None:
 		movies = get_vod_data(action= 'get_vod_streams' ,cache_days=1) 
 	else:
 		movies = get_vod_data(action= 'get_vod_streams&category_id=%s' % (str(category)) ,cache_days=1) 
-	movies = sort_nested(movies,'added',False)
+	if order_by:
+		if order_by == 'desc':
+			order_bool = False
+		elif order_by == 'asc':
+			order_bool = True
+	else:
+		order_bool = False
+	if sort_by == None:
+		#movies = sort_nested(movies,'added',False)
+		movies = sort_nested(movies,'added',order_bool)
+	else:
+		movies = sort_nested(movies,sort_by,order_bool)
 	search_str = []
 	for i in movies:
 		if category == None:
@@ -481,13 +492,26 @@ def get_vod_allmovies(category = None):
 	#Utils.tools_log('get_vod_allmovies')
 	return search_str
 
-def get_vod_alltv(category = None):
+def get_vod_alltv(category = None, sort_by = None, order_by = None):
 	#from resources.lib.TheMovieDB import get_vod_data
 	if category == None:
 		movies = get_vod_data(action= 'get_series' ,cache_days=1) 
 	else:
 		movies = get_vod_data(action= 'get_series&category_id=%s' % (str(category)) ,cache_days=1) 
-	movies = sort_nested(movies,'last_modified',False)
+
+	if order_by:
+		if order_by == 'desc':
+			order_bool = False
+		elif order_by == 'asc':
+			order_bool = True
+	else:
+		order_bool = False
+	if sort_by == None:
+		#movies = sort_nested(movies,'last_modified',False)
+		movies = sort_nested(movies,'last_modified',order_bool)
+	else:
+		movies = sort_nested(movies,sort_by,order_bool)
+
 	search_str = []
 	for i in movies:
 		#full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,i['stream_type'],Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['stream_id']),str(i['container_extension']))

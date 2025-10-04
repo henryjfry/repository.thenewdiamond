@@ -1275,7 +1275,8 @@ class PlayerMonitor(xbmc.Player):
 
 		if self.type == 'movie':
 			self.player_meta['global_movie_flag'] = True
-			self.player_meta['resume_position'] = player.getTime()
+			try: self.player_meta['resume_position'] = player.getTime()
+			except: return
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
 			if self.player_meta['tmdb_id'] != '':
 				try: response = self.trakt_scrobble_tmdb(self.player_meta['tmdb_id'], self.player_meta['percentage'] )
@@ -1312,7 +1313,8 @@ class PlayerMonitor(xbmc.Player):
 			self.setProperty('last_played_tmdb_helper', url)
 			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
 
-			self.player_meta['resume_position'] = player.getTime()
+			try: self.player_meta['resume_position'] = player.getTime()
+			except: return
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
 			if str(self.player_meta['tmdb_id']) == '' or self.player_meta['tmdb_id'] == None:
 				response = self.trakt_scrobble_tv(self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['percentage'])
@@ -1383,7 +1385,8 @@ class PlayerMonitor(xbmc.Player):
 		#tools_log(response)
 		if not str(self.player_meta['tmdb_id']) in str(response):
 			trakt_meta = self.get_trakt_scrobble_details()
-			self.player_meta['resume_position'] = player.getTime()
+			try: self.player_meta['resume_position'] = player.getTime()
+			except: return
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration')) * 100
 			if self.type == 'movie':
 				response = self.trakt_scrobble_title(movie_title=trakt_meta.get('movie_title'), movie_year=trakt_meta.get('movie_year'), percent=self.player_meta['percentage'], action='start')
@@ -1393,7 +1396,8 @@ class PlayerMonitor(xbmc.Player):
 				#tools_log(response)
 		self.speed_time = time.time()
 		trakt_meta = self.get_trakt_scrobble_details()
-		self.player_meta['resume_position'] = player.getTime()
+		try: self.player_meta['resume_position'] = player.getTime()
+		except: return
 		self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration',1.00)) * 100
 
 		while self.play_test and self.type == 'movie':

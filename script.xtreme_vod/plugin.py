@@ -14,10 +14,15 @@ class Main:
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
 		self._parse_argv()
 		Utils.tools_log('PLUGIN_START')
+
+		if 'play_vod_player' in self.infos:
+			return process.start_info_actions(self.infos, self.params)
+
 		xbmc.executebuiltin('Dialog.Close(all)')
 		xbmc.executebuiltin('ActivateWindow(Home)')
 		process.start_info_actions(infos=['allmovies2'],params={'handle': None, 'script.py': ''})
 		return 
+
 		self.urls = ''
 		log_urls = xbmcaddon.Addon(addon_ID()).getSetting('log_urls')
 		self.userlists_plugin_list = xbmcaddon.Addon(addon_ID()).getSetting('userlists_plugin_list')

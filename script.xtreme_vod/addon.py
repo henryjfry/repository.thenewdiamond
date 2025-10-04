@@ -9,7 +9,7 @@ os.environ['first_run'] = str('True')
 class Main:
 	def __init__(self):
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
-		self._parse_argv()
+
 		if self.infos:
 			process.start_info_actions(self.infos, self.params)
 		else:

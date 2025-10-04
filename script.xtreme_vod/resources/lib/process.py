@@ -166,11 +166,11 @@ def start_info_actions(infos, params):
 					wm.window_stack_empty()
 				return wm.open_video_list(mode='allmovies2', listitems=[], search_str=search_str, media_type=media_type, filter_label=filter_label)
 
-		elif info == 'alltvshows2':
+		elif info == 'alltvshows2' or info == 'alltv2':
 			Utils.show_busy()
 			#log(addon_ID())
 			media_type = 'tv'
-			if info == 'alltvshows2':
+			if info == 'alltvshows2' or info == 'alltv2':
 				from resources.lib.TheMovieDB import get_vod_alltv
 				search_str = get_vod_alltv()
 				filter_label = 'VOD TV'
