@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.27" provider-name="fryhenryj">
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.29" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -17,6 +17,7 @@
 		<import addon="script.module.beautifulsoup4" version="4.6.3+matrix.1"/>
 		<import addon="plugin.video.themoviedb.helper" version="4.4.6"/>
 		<import addon="plugin.program.autocompletion" version="2.0.2" optional="true" />
+		<import addon="skin.estuary_fix" version="4.1.2a" optional="true" />
 	</requires>
 	<extension point="xbmc.python.pluginsource" library="plugin.py">
 		<provides>video</provides>
