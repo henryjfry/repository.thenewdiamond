@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
-	<defaultcontrol always="true">105</defaultcontrol>
+	<defaultcontrol always="true">300</defaultcontrol>
 	<include>Keyboard_Slide_Up</include>
 	<depth>DepthDialog+</depth>
 	<controls>
@@ -590,8 +590,8 @@
 				<orientation>vertical</orientation>
 				<onleft>9010</onleft>
 				<onright>9010</onright>
-				<onup>300</onup>
-				<ondown>300</ondown>
+				<onup>noop</onup>
+				<ondown>105</ondown>
 				<visible>!Control.IsVisible(313)</visible>
 				<itemlayout width="500" height="60">
 					<control type="image">

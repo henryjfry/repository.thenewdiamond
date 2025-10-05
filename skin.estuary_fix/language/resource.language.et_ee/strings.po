@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2025-03-09 10:59+0000\n"
-"Last-Translator: rimasx <riks_12@hot.ee>\n"
+"PO-Revision-Date: 2023-12-04 09:42+0000\n"
+"Last-Translator: Christian Gade <gade@kodi.tv>\n"
 "Language-Team: Estonian <https://kodi.weblate.cloud/projects/kodi-add-ons-skins/skin-estuary/et_ee/>\n"
 "Language: et_ee\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.2\n"
+"X-Generator: Weblate 5.2.1\n"
 
 msgctxt "Addon Summary"
 msgid "Estuary skin by phil65. (Kodi's default skin)"
@@ -133,8 +133,8 @@ msgid "Choose rating to display for media items"
 msgstr "Vali meediaüksuste kuvatav hinnang"
 
 msgctxt "#31025"
-msgid "No favourites found. You can add items from media and other views by using the context menu."
-msgstr ""
+msgid "No favourites found. You can add any item from media views to this list by using the context menu."
+msgstr "Lemmikuid ei ole. Kontekstimenüüd kasutades saad sellesse nimekirja lisada üksusi meediakuvadest."
 
 msgctxt "#31026"
 msgid "Timeshift"
@@ -192,10 +192,6 @@ msgstr "Tagasi"
 msgctxt "#31039"
 msgid "Fast forward"
 msgstr "Edasi"
-
-msgctxt "#31040"
-msgid "Edit widgets"
-msgstr "Kohanda vidinaid"
 
 msgctxt "#31041"
 msgid "Camera manufacturer"
@@ -313,11 +309,6 @@ msgctxt "#31080"
 msgid "Ends at"
 msgstr "Lõpeb"
 
-#. Label to highlight that live stream is being played
-msgctxt "#31081"
-msgid "Live"
-msgstr ""
-
 msgctxt "#31082"
 msgid "Lyrics add-on"
 msgstr "Laulusõnade lisamoodul"
@@ -399,16 +390,6 @@ msgctxt "#31107"
 msgid "WideList"
 msgstr "Lai loend"
 
-#. viewtype name
-msgctxt "#31108"
-msgid "MediaList"
-msgstr ""
-
-# empty strings from id 31108 to 31108
-msgctxt "#31109"
-msgid "Video streams"
-msgstr "Videovood"
-
 msgctxt "#31110"
 msgid "Enter files section"
 msgstr "Ava jaotis 'Failid'"
@@ -418,8 +399,8 @@ msgid "View your personal pictures or download one of the many image add-ons fro
 msgstr "Vaata oma pilte või lae ametlikust hoidlast alla piltide lisamoodulid."
 
 msgctxt "#31112"
-msgid "Audio streams"
-msgstr "Helivood"
+msgid "Toggle audio stream"
+msgstr "Vaheta heliriba"
 
 msgctxt "#31113"
 msgid "Search local library"
@@ -430,8 +411,8 @@ msgid "Search YouTube"
 msgstr "Otsi YouTube-ist"
 
 msgctxt "#31115"
-msgid "Subtitles streams"
-msgstr "Subtiitrid"
+msgid "Toggle subtitle"
+msgstr "Vaheta subtiitrid"
 
 msgctxt "#31116"
 msgid "Remove this main menu item"
@@ -566,8 +547,8 @@ msgid "Categories"
 msgstr "Kategooriad"
 
 msgctxt "#31149"
-msgid "Choose genre fanart pack"
-msgstr ""
+msgid "Select genre fanart pack"
+msgstr "Vali žanri fännipiltide pakk"
 
 msgctxt "#31150"
 msgid "Origin"
@@ -690,26 +671,6 @@ msgctxt "#31176"
 msgid "Default select action for movie sets on the home screen"
 msgstr "Vaiketegevus filmikogumike valikul avalehel"
 
-msgctxt "#31177"
-msgid "Choose weather icon pack"
-msgstr ""
-
-# empty strings from id 31177 to 31596
-#. Button to select Player Process Info window
-msgctxt "#31597"
-msgid "Player info"
-msgstr "Pleieri info"
-
-#. Label to show player cache
-msgctxt "#31598"
-msgid "Player cache"
-msgstr "Pleieri vahemälu"
-
-#. Label to show the video codec name
-msgctxt "#31599"
-msgid "Audio decoder"
-msgstr "Helidekooder"
-
 # empty strings from id 31170 to 31599
 #. Label to show the video codec name
 msgctxt "#31600"
@@ -770,27 +731,6 @@ msgstr "Meedia"
 msgctxt "#31611"
 msgid "System"
 msgstr "Süsteem"
-
-#. Audio channels
-msgctxt "#31612"
-msgid "channels"
-msgstr "kanalid"
-
-#~ msgctxt "#31025"
-#~ msgid "No favourites found. You can add any item from media views to this list by using the context menu."
-#~ msgstr "Lemmikuid ei ole. Kontekstimenüüd kasutades saad sellesse nimekirja lisada üksusi meediakuvadest."
-
-#~ msgctxt "#31149"
-#~ msgid "Select genre fanart pack"
-#~ msgstr "Vali žanri fännipiltide pakk"
-
-#~ msgctxt "#31112"
-#~ msgid "Toggle audio stream"
-#~ msgstr "Vaheta heliriba"
-
-#~ msgctxt "#31115"
-#~ msgid "Toggle subtitle"
-#~ msgstr "Vaheta subtiitrid"
 
 #~ msgctxt "#31615"
 #~ msgid "Extras"

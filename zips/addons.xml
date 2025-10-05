@@ -296,7 +296,7 @@ v1.0.25 (marcelveldt)
 	</extension>
 </addon>
 
-<addon id="skin.estuary_fix" version="4.1.2b" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
+<addon id="skin.estuary_fix" version="4.1.2c" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
 	<requires>
 		<import addon="xbmc.gui" version="5.17.0"/>
 	</requires>
