@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.estuary_fix" version="4.1.0a" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
+<addon id="skin.estuary_fix" version="4.1.1a" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
 	<requires>
 		<import addon="xbmc.gui" version="5.18.0"/>
 	</requires>
