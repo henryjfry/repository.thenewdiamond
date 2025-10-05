@@ -1,0 +1,478 @@
+# Kodi Media Center language file
+# Addon Name: K_Cleaner
+# Addon id: script.k_cleaner
+# Addon Provider: Dalibor Lanik
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: sr_RS@latin\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "#30001"
+msgid "Check for addons without repo"
+msgstr "Naći adone bez repozitorija"
+
+msgctxt "#30002"
+msgid "Textures database"
+msgstr "Databaza tekstura"
+
+msgctxt "#30003"
+msgid "Clean textures DB"
+msgstr "Očistiti bazu tekstura"
+
+msgctxt "#30004"
+msgid "Clean All"
+msgstr "Čisti sve"
+
+msgctxt "#30005"
+msgid "Databases"
+msgstr "Baze podataka"
+
+msgctxt "#30006"
+msgid "Checks"
+msgstr "Provere"
+
+msgctxt "#30007"
+msgid "Check for broken sources"
+msgstr "Proveri nepostojeće izvore"
+
+msgctxt "#30010"
+msgid "K_Cleaner - Confirm cleanup of:"
+msgstr "K_Cleaner - Potvrdite čišćenje:"
+
+msgctxt "#30011"
+msgid "Scanning for temporary files"
+msgstr "Skeniranje privremenih fajlova"
+
+msgctxt "#30012"
+msgid "Checking paths..."
+msgstr "Provera puteva..."
+
+msgctxt "#30013"
+msgid "Cleaning: "
+msgstr "Čišćenje: "
+
+msgctxt "#30014"
+msgid "Deleted: "
+msgstr "Obrisano: "
+
+msgctxt "#30015"
+msgid "Items in this folder: "
+msgstr "Stavki u adresaru: "
+
+msgctxt "#30016"
+msgid "Scanning databases"
+msgstr "Skeniranje baza podataka"
+
+msgctxt "#30017"
+msgid "Compacting: "
+msgstr "Kompresuje se: "
+
+msgctxt "#30018"
+msgid "Compacted: "
+msgstr "Kompresovano: "
+
+msgctxt "#30019"
+msgid "Scanning repositories"
+msgstr "Skeniram repozitorije"
+
+msgctxt "#30020"
+msgid "Clean "
+msgstr "Očistiti "
+
+msgctxt "#30021"
+msgid "Choose action:"
+msgstr "Izaberite akciju:"
+
+msgctxt "#30022"
+msgid "Settings"
+msgstr "Podešavanja"
+
+msgctxt "#30023"
+msgid "Compact all databases"
+msgstr "Kompresuj sve databaze"
+
+msgctxt "#30024"
+msgid "Check for unused repositories"
+msgstr "Proveri nekorišćene repozitorije"
+
+msgctxt "#30025"
+msgid "Checking: "
+msgstr "Proveravam: "
+
+msgctxt "#30026"
+msgid "Checked: "
+msgstr "Provereno: "
+
+msgctxt "#30027"
+msgid "Clean All + Compact all databases"
+msgstr "Čisti sve + Kompresuj sve databaze"
+
+msgctxt "#30028"
+msgid "Confirm action:"
+msgstr "Potvrdi akciju:"
+
+msgctxt "#30030"
+msgid "Cleanup [COLOR red]interrupted[/COLOR]."
+msgstr "Čišćenje [COLOR red]prekinuto[/COLOR]."
+
+msgctxt "#30031"
+msgid "Cleanup [COLOR red]done[/COLOR]."
+msgstr "Čišćenje [COLOR red]završeno[/COLOR]."
+
+msgctxt "#30040"
+msgid "Ignore Addons"
+msgstr "Ignorisati Adone"
+
+msgctxt "#30041"
+msgid "Ignore Other"
+msgstr "Ignorisati ostalo"
+
+msgctxt "#30042"
+msgid "Etc"
+msgstr "Ostalo"
+
+msgctxt "#30043"
+msgid "Auto-Clean"
+msgstr "Auto-čišćenje"
+
+msgctxt "#30044"
+msgid "Custom Paths"
+msgstr "Lične putanje"
+
+msgctxt "#30051"
+msgid "WTF"
+msgstr "WTF"
+
+msgctxt "#30052"
+msgid "4oD"
+msgstr "4oD"
+
+msgctxt "#30053"
+msgid "BBC iPlayer"
+msgstr "BBC iPlayer"
+
+msgctxt "#30054"
+msgid "Simple Downloader"
+msgstr "Simple Downloader"
+
+msgctxt "#30055"
+msgid "ITV"
+msgstr "ITV"
+
+msgctxt "#30056"
+msgid "MP3 Streams"
+msgstr "MP3 Streams"
+
+msgctxt "#30057"
+msgid "ArtistSlideshow"
+msgstr "ArtistSlideshow"
+
+msgctxt "#30058"
+msgid "Titlovi"
+msgstr "Titlovi"
+
+msgctxt "#30059"
+msgid "Titulky"
+msgstr "Titulky"
+
+msgctxt "#30060"
+msgid "Artwork Downloader"
+msgstr "Artwork Downloader"
+
+msgctxt "#30061"
+msgid "Spotitube"
+msgstr "Spotitube"
+
+msgctxt "#30062"
+msgid "Retrospect"
+msgstr "Retrospect"
+
+msgctxt "#30063"
+msgid "Database Pre-Wash Scrub"
+msgstr "Database Pre-Wash Scrub"
+
+msgctxt "#30071"
+msgid "Animated Gifs in Thumbnails"
+msgstr "Animirani Gifovi u Thumbnails"
+
+msgctxt "#30072"
+msgid "Delete only thumbs not in database"
+msgstr "Brisati samo ikonice koje nisu u DB"
+
+msgctxt "#30073"
+msgid "Leave package backup"
+msgstr "Ostaviti bekap paketa"
+
+msgctxt "#30074"
+msgid "Fast thumb check"
+msgstr "Brza provera ikonica"
+
+msgctxt "#30081"
+msgid "Debug logging (to Kodi log)"
+msgstr "Dibag log (u Kodijev log)"
+
+msgctxt "#30082"
+msgid "Force list view in menu"
+msgstr "Prikazivati listu u menijima"
+
+msgctxt "#30083"
+msgid "Disable confirmations"
+msgstr "Isključiti potvrde"
+
+msgctxt "#30091"
+msgid "Automatic Cleaning"
+msgstr "Automatsko čišćenje"
+
+msgctxt "#30092"
+msgid "Choose what should be auto cleaned:"
+msgstr "Izaberite šta čistiti:"
+
+msgctxt "#30093"
+msgid "Cache"
+msgstr "Keš"
+
+msgctxt "#30094"
+msgid "Packages"
+msgstr "Paketi"
+
+msgctxt "#30095"
+msgid "Thumbnails"
+msgstr "Ikonice"
+
+msgctxt "#30096"
+msgid "Addons"
+msgstr "Adonovi"
+
+msgctxt "#30097"
+msgid "Database Compact"
+msgstr "Kompresija baza"
+
+msgctxt "#30098"
+msgid "Delay on startup (min)"
+msgstr "Pustiti po startu za (min)"
+
+msgctxt "#30099"
+msgid "Clean textures DB"
+msgstr "Očistiti bazu tekstura"
+
+msgctxt "#30100"
+msgid "Unused addon data folders"
+msgstr "Neiskorišćeni data adresari"
+
+msgctxt "#30101"
+msgid "ATV Screensaver files"
+msgstr "ATV Screensaver fajlovi"
+
+msgctxt "#30110"
+msgid "Database "
+msgstr "Databaze "
+
+msgctxt "#30111"
+msgid " compacted:"
+msgstr " kompresovano:"
+
+msgctxt "#30112"
+msgid "Mb"
+msgstr "Mb"
+
+msgctxt "#30113"
+msgid " cleaned:"
+msgstr " očišćeno:"
+
+msgctxt "#30114"
+msgid "Scanning Textures database..."
+msgstr "Skeniranje baze tekstura..."
+
+msgctxt "#30115"
+msgid "Checking..."
+msgstr "Proveravam..."
+
+msgctxt "#30116"
+msgid "Checking record ID: "
+msgstr "Proveravam zapis ID: "
+
+msgctxt "#30117"
+msgid "Checking unused data folders"
+msgstr "Proveravam neiskorišćene data adresare"
+
+msgctxt "#30118"
+msgid "Checking paths to be compacted..."
+msgstr "Proveravam puteve za kompresovanje..."
+
+msgctxt "#30120"
+msgid "EMPTY OR ERROR READING"
+msgstr "PRAZAN ILI GREŠKA PRI ČITANJU"
+
+msgctxt "#30121"
+msgid "CONTAINS NO LOCAL ADDONS"
+msgstr "NE SADRŽI LOKALNE ADONE"
+
+msgctxt "#30122"
+msgid "IS IN NO REPOSITORY"
+msgstr "NIJE U REPOZITORIJU"
+
+msgctxt "#30123"
+msgid "CAN NOT BE FOUND"
+msgstr "NIJE PRONADJENA"
+
+msgctxt "#30130"
+msgid "Cleaning totals:"
+msgstr "Total čišćenja:"
+
+msgctxt "#30131"
+msgid "Compacting totals:"
+msgstr "Total kompresovanja:"
+
+msgctxt "#30132"
+msgid "Following repos have no addons:"
+msgstr "Repozitori koji ne sadrže adone:"
+
+msgctxt "#30133"
+msgid "Cleanup report:"
+msgstr "Izveštaj čišćenja:"
+
+msgctxt "#30134"
+msgid "Following addons have no repo:"
+msgstr "Adoni koji nemaju repo:"
+
+msgctxt "#30135"
+msgid "Clean Textures Database:"
+msgstr "Čišćenje baze tekstura:"
+
+msgctxt "#30136"
+msgid "Deleted"
+msgstr "Obrisano"
+
+msgctxt "#30137"
+msgid "stale records from Textures13.db database"
+msgstr "neispravnih zapisa iz Textures13.db baze"
+
+msgctxt "#30138"
+msgid "Deleted unused addon data folders:"
+msgstr "Obrisano neiskorišćenih data adresara:"
+
+msgctxt "#30139"
+msgid "Compacted settings paths:"
+msgstr "Kompresovano puteva u podešavanjima:"
+
+msgctxt "#30140"
+msgid "Runs every"
+msgstr "Puštati svaki"
+
+msgctxt "#30141"
+msgid "Day"
+msgstr "Dan"
+
+msgctxt "#30142"
+msgid "Week"
+msgstr "Nedelju"
+
+msgctxt "#30143"
+msgid "Month"
+msgstr "Mesec"
+
+msgctxt "#30144"
+msgid "Quarter"
+msgstr "3 meseca"
+
+msgctxt "#30145"
+msgid "On Kodi start"
+msgstr "Pri startu Kodija"
+
+msgctxt "#30150"
+msgid "No files deleted."
+msgstr "Nijedna datoteka nije bila izbrisana."
+
+msgctxt "#30151"
+msgid "No database compacted."
+msgstr "Nijedna baza nije bila kompresovana."
+
+msgctxt "#30152"
+msgid "No records deleted."
+msgstr "Nijedan zapis nije bio izbrisan."
+
+msgctxt "#30153"
+msgid "No paths compacted."
+msgstr "Nijedan put nije bio kompresovan."
+
+msgctxt "#30160"
+msgid "Clean cache"
+msgstr "Očistiti keš"
+
+msgctxt "#30161"
+msgid "Clean packages"
+msgstr "Očistiti pakete"
+
+msgctxt "#30162"
+msgid "Clean Thumbnails"
+msgstr "Očistiti ikonice"
+
+msgctxt "#30163"
+msgid "Clean Add-ons"
+msgstr "Očistiti adonove"
+
+msgctxt "#30164"
+msgid "Compact settings paths to special://"
+msgstr "Kompresija puteva u podešavanjima na special://"
+
+msgctxt "#30170"
+msgid " /All"
+msgstr " /Sve"
+
+msgctxt "#30171"
+msgid " /Not in DB"
+msgstr " /Ako nisu u DB"
+
+msgctxt "#30172"
+msgid " /Not in DB (Fast)"
+msgstr " /Ako nisu u DB (Brza)"
+
+msgctxt "#30180"
+msgid "Display on auto-clean"
+msgstr "Prikazati pri auto-čišćenju"
+
+msgctxt "#30181"
+msgid "Progress and notification"
+msgstr "Progres i notifikaciju"
+
+msgctxt "#30182"
+msgid "Progress only"
+msgstr "Samo progres"
+
+msgctxt "#30183"
+msgid "Notification only"
+msgstr "Sanо notifikaciju"
+
+msgctxt "#30184"
+msgid "Nothing"
+msgstr "Ništa"
+
+msgctxt "#30190"
+msgid "Number of custom paths"
+msgstr "Broj ličnih putanja"
+
+msgctxt "#30191"
+msgid "Path 1"
+msgstr "Putanja 1"
+
+msgctxt "#30192"
+msgid "Path 2"
+msgstr "Putanja 2"
+
+msgctxt "#30193"
+msgid "Path 3"
+msgstr "Putanja 3"
+
+msgctxt "#30194"
+msgid "Path 4"
+msgstr "Putanja 4"
+

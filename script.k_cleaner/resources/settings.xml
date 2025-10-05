@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="30040">
+        <setting label="32000" type="bool"   id="lock"  default="false" visible="false" />
+
+        <setting label="30051" type="bool"   id="ignore1"  default="false" />
+        <setting label="30052" type="bool"   id="ignore2"  default="false" />
+        <setting label="30053" type="bool"   id="ignore3"  default="false" />
+        <setting label="30054" type="bool"   id="ignore4"  default="false" />
+        <setting label="30055" type="bool"   id="ignore5"  default="false" />
+        <setting label="30056" type="bool"   id="ignore6"  default="false" />
+        <setting label="30057" type="bool"   id="ignore7"  default="false" />
+        <setting label="30058" type="bool"   id="ignore8"  default="false" />
+        <setting label="30059" type="bool"   id="ignore9"  default="false" />
+        <setting label="30060" type="bool"   id="ignoreA"  default="false" />
+        <setting label="30061" type="bool"   id="ignoreB"  default="false" />
+        <setting label="30062" type="bool"   id="ignoreC"  default="false" />
+        <setting label="30063" type="bool"   id="ignoreD"  default="false" />
+    </category>
+    <category label="30041">
+        <setting label="30071" type="bool"   id="ignore0"  default="false" />
+        <setting label="30072" type="bool"   id="ignore_existing_thumbs"  default="false" />
+        <setting label="30074" type="bool"   id="fast_thumb_check" default="false" />
+        <setting label="30073" type="slider"   id="ignore_packages" range="0,1,3" option="int" default="0" />
+    </category>
+    <category label="30042">
+        <setting label="30081" type="bool"   id="debug"  default="false" />
+        <setting label="30082" type="bool"   id="listview"  default="true" />
+        <setting label="30083" type="bool"   id="confirm"  default="false" />
+    </category>
+    <category label="30043">
+        <setting label="30091" type="bool"   id="autoclean"  default="false" />
+        <setting label="30098" type="slider" id="autostart_delay" default="5" range="0,1,30" option="int" visible="eq(-1,true)" />
+        <setting label="30140" type="enum"   id="auto_interval" lvalues="30141|30142|30143|30144|30145"  visible="eq(-2,true)" default="2" />
+        <setting label="30180" type="enum"   id="auto_notification" lvalues="30181|30182|30183|30184"  visible="eq(-3,true)" default="0" />
+        <setting label="30092" type="lsep"   visible="eq(-4,true)" />
+        <setting label="30093" type="bool"   id="auto_cache" visible="eq(-5,true)" default="false" />
+        <setting label="30094" type="bool"   id="auto_packages" visible="eq(-6,true)" default="false" />
+        <setting label="30095" type="bool"   id="auto_thumbnails" visible="eq(-7,true)" default="false" />
+        <setting label="30096" type="bool"   id="auto_addons" visible="eq(-8,true)" default="false" />
+        <setting label="30097" type="bool"   id="auto_compact" visible="eq(-9,true)" default="false" />
+        <setting label="30099" type="bool"   id="auto_textures" visible="eq(-10,true)" default="false" />
+        <setting label="30100" type="bool"   id="auto_userdata" visible="eq(-11,true)" default="false" />
+    </category>
+    <category label="30044">
+        <setting id="numberOfPaths" label="30190" type="enum" values="0|1|2|3|4" default="0" visible="true" />
+        <setting id="path_1" type="folder" source="auto" label="30191" visible="gt(-1,0)" default="" />
+        <setting id="path_2" type="folder" source="auto" label="30192" visible="gt(-2,1)" default="" />
+        <setting id="path_3" type="folder" source="auto" label="30193" visible="gt(-3,2)" default="" />
+        <setting id="path_4" type="folder" source="auto" label="30194" visible="gt(-4,3)" default="" />
+    </category>
+</settings>
