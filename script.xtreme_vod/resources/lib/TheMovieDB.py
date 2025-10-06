@@ -1242,9 +1242,9 @@ def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
 	#		pass
 	path = os.path.join(cache_path, '%s.txt' % hashed_url)
 	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=imdb_header)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=imdb_header)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result:
 		return db_result
 	else:
@@ -1270,19 +1270,22 @@ def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
 		if country == 'US' or country == 'UK' and results[1] == 'English':
 			results[0] = 'English'
 
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-		#try:
-		#	Utils.save_to_file(results, hashed_url, cache_path)
-		#except:
-		#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-		#	Utils.log(response)
-		#	results = Utils.read_from_file(path) if xbmcvfs.exists(path) else []
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
 
-		if not results:
+	if not results or len(results) == 0:
+		if expired_db_result == None:
 			return []
-		#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-		#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-		return results
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
+	else:
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
 
 def get_trakt_playback(trakt_type=None):
 	import urllib.parse

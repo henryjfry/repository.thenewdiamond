@@ -550,10 +550,9 @@ def get_tastedive_shows(item_id, cache_days=14, folder='TasteDive'):
 	path = os.path.join(cache_path, '%s.txt' % hashed_url)
 
 	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
 	except:
-		db_result = None
-	db_result = None
+		db_result, expired_db_result = None
 	if db_result:
 		return db_result
 	else:
@@ -565,11 +564,23 @@ def get_tastedive_shows(item_id, cache_days=14, folder='TasteDive'):
 				#results.append(show_response['id'])
 				results.append({'name': show_response['original_name'], 'year': show_response['first_air_date'][:4], 'media_type':  'tv', 'item_id': show_response['id']})
 
-	Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-	if not results:
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
+
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
 		return []
 	else:
-		return results
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
+
 
 def get_tastedive_movies_items(movie_name: str, imdb_id: str) -> list:
 	import requests
@@ -679,9 +690,9 @@ def get_tastedive_movies(item_id, cache_days=14, folder='TasteDive'):
 	path = os.path.join(cache_path, '%s.txt' % hashed_url)
 
 	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result:
 		return db_result
 	else:
@@ -698,11 +709,22 @@ def get_tastedive_movies(item_id, cache_days=14, folder='TasteDive'):
 					#results.append(movie_response['id'])
 					results.append({'name': movie_response['title'], 'year': movie_response['release_date'][:4], 'media_type':  'movie', 'item_id': movie_response['id']})
 
-	Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-	if not results:
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
+
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
 		return []
 	else:
-		return results
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
 
 def get_tastedive_data_scrape(url='', query='', year='', limit=20, media_type=None, cache_days=14, folder='TasteDive', item_id=None):
 	if media_type == 'movie' or media_type == 'movies':
@@ -839,22 +861,21 @@ def get_tastedive_data_scrape_old(url='', query='', year='', limit=20, media_typ
 						results_id.append(i['id'])
 
 
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-		#try:
-		#	Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-		#	Utils.save_to_file(results, hashed_url, cache_path)
-		#except:
-		#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-		#	Utils.log(response)
-		#	results = Utils.read_from_file(path) if xbmcvfs.exists(path) else []
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
 
-	if not results:
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
 		return []
-
-	#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-
+	else:
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 
@@ -1811,117 +1832,6 @@ def get_trakt(trakt_type=None,info=None,limit=0):
 		Utils.show_busy()
 		return listitems
 
-def google_similar(search_str=None, search_year=None, cache_days=7, folder = 'Google'):
-
-	import requests, re
-	headers = {"User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
-	}
-	search_str = re.sub('[^0-9a-zA-Z]+', ' ', search_str)
-	#search_str = Utils.clean_text(search_str)
-	query = '%s %s similar movies' % (search_str,search_year)
-	query1 = '%s similar' % (search_str)
-	test_query = 'If you like %s' % (search_str) 
-
-	params = {
-		"q": query,		  # query example
-		"hl": "en",		  # language
-		"gl": "uk",		  # country of the search, UK -> United Kingdom
-		#"start": 0,		  # number page by default up to 0
-		#"num": 10		  # parameter defines the maximum number of results to return.
-	} 
-
-	import time, hashlib, xbmcvfs, os
-
-	now = time.time()
-	url = "https://www.google.com/search?q=" + query
-	url = url.encode('utf-8')
-	hashed_url = hashlib.md5(url).hexdigest()
-
-	url1 = "https://www.google.com/search?q=" + query1
-	url1 = url1.encode('utf-8')
-	hashed_url1 = hashlib.md5(url1).hexdigest()
-
-	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
-	cache_seconds = int(cache_days * 86400.0)
-
-	path = os.path.join(cache_path, '%s.txt' % hashed_url)
-
-	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
-	except:
-		db_result = None
-	try:
-		db_result1 = Utils.query_db(connection=Utils.db_con,url=url1, cache_days=cache_days, folder=folder, headers=None)
-	except:
-		db_result1 = None
-	if db_result and len(db_result) > 0:
-		return db_result
-	elif db_result1 and len(db_result1) > 0:
-		return db_result1
-	else:
-	#if 1==1:
-
-		response = requests.get("https://www.google.com/search", params=params, headers=headers)
-		response2 = response.text.encode().decode('unicode_escape').encode().decode("utf-8", "replace")
-		similar_movies = []
-		
-		#xbmc.log(str(len(response2.split('data-original-name=')))+'===>1OPENINFO', level=xbmc.LOGINFO)
-		if len(response2.split('data-original-name=')) == 1:
-			response2 = "".join(c for c in response2 if ord(c)<128)
-			#xbmc.log(str(response2.split('<body ')[1])+'===>2OPENINFO', level=xbmc.LOGINFO)
-			params = {
-				"q": query1,		  # query example
-				"hl": "en",		  # language
-				"gl": "uk",		  # country of the search, UK -> United Kingdom
-				#"start": 0,		  # number page by default up to 0
-				#"num": 10		  # parameter defines the maximum number of results to return.
-			} 
-			response = requests.get("https://www.google.com/search", params=params, headers=headers)
-			response2 = response.text.encode().decode('unicode_escape').encode().decode("utf-8", "replace")
-			#response2 = "".join(c for c in response2 if ord(c)<128)
-			#xbmc.log(str(response2.split('<body '))+'===>2OPENINFO', level=xbmc.LOGINFO)
-
-		#xbmc.log(str(len(response2.split('data-original-name=')))+'===>2OPENINFO', level=xbmc.LOGINFO)
-		for i in response2.split('data-original-name='):
-			title = i.split('href')[0]
-			year = None
-			curr = {}
-			if title[0:1] == '"' and not 'class=' in title:
-				curr['title'] = title.split('"')[1]
-			else:
-				title = None
-			try: year = i.split('cwxQAd')[1].split('cwxQAd')[0].split('<div>')[1].split('</div>')[0]
-			except: year = None
-			if year and not 'class=' in year:
-				curr['year'] = year
-			else:
-				curr['year'] = None
-			if title and not curr in similar_movies:
-				similar_movies.append(curr)
-		
-		responses = {'page': 1, 'results': [],'total_pages': 1, 'total_results': 0}
-		for i in similar_movies:
-			year_string = '&primary_release_year=' + str(i['year'])
-			response = get_tmdb_data('search/movie?query=%s%s&include_adult=%s&' % (Utils.url_quote(i['title']), year_string, xbmcaddon.Addon().getSetting('include_adults')), 30)
-			try:
-				response['results'][0]['media_type'] = 'movie'
-				responses['results'].append(response['results'][0])
-			except: continue
-		listitems = handle_tmdb_multi_search(responses['results'])
-
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=listitems)
-		#try:
-		#	Utils.save_to_file(listitems, hashed_url, cache_path)
-		#except:
-		#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-		#	Utils.log(response)
-		#	results = Utils.read_from_file(path) if xbmcvfs.exists(path) else []
-
-	if not listitems:
-		return []
-
-	return listitems
-
 
 def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 	import requests
@@ -1954,9 +1864,9 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 	imdb_url = ('https://www.imdb.com/title/' + str(imdb_id) + '/get_imdb_language').encode('utf-8')
 	imdb_header = headers
 	try:
-		db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result:
 		return db_result
 	else:
@@ -1972,10 +1882,22 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 		if "English" in language_list and country_id in english_speaking_countries:
 			language_list = ["English"] + [l for l in language_list if l != "English"]
 		results = language_list
-		Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
-		if not results:
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
+
+	if not results or len(results) == 0:
+		if expired_db_result == None:
 			return []
-		return results
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
+	else:
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
 
 def imdb_base_title_card(imdb_id: str):
 	url = "https://api.graphql.imdb.com/"
@@ -2265,9 +2187,9 @@ def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14
 	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
 	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result:
 		return db_result
 	else:
@@ -2286,10 +2208,22 @@ def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14
 			return results2
 		else:
 			results = get_imdb_watchlist_items(movies=movies, limit=0, imdb_url=imdb_url.decode('utf-8'))
-			Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
-			if not results:
-				return []
-			return results
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
+
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
+	else:
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
 
 
 def get_imdb_recommendations(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):
@@ -3647,9 +3581,9 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 	path = os.path.join(cache_path, '%s.txt' % hashed_url)
 
 	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
 	except:
-		db_result = None
+		db_result, expired_db_result = None, None
 	if db_result and len(db_result) > 0:
 		return db_result
 	else:
@@ -3683,22 +3617,16 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 				break
 			x = x + 1
 
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=listitems)
-		#try:
-		#	Utils.save_to_file(listitems, hashed_url, cache_path)
-		#except:
-		#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-		#	Utils.log(response)
-		#	results = Utils.read_from_file(path) if xbmcvfs.exists(path) else []
-
-	if not listitems:
-		return []
-	#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(listitems))
-
-	return listitems
-
-
+		if not listitems or len(listitems) == 0:
+			if expired_db_result == None:
+				return []
+			if len(expired_db_result) > 0:
+				write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+				return expired_db_result
+			return []
+		else:
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=listitems)
+		return listitems
 
 
 

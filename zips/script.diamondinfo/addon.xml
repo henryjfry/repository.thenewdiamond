@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.34" provider-name="fryhenryj">
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.36" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
 		<import addon="plugin.video.youtube" version="6.8.11+matrix.1"/>
 		<import addon="script.module.requests" version="2.25.1+matrix.1"/>
 		<import addon="script.module.infotagger" version="0.0.1" optional="true" />
-		<import addon="script.skin.helper.service" version="1.1.3"/>
+		<import addon="script.skin.helper.service" version="1.1.3" optional="true" />
 		<import addon="resource.images.studios.white" version="0.0.28"/>
 		<import addon="script.module.pil" version="0.6.0"/>
 		<import addon="script.module.musicbrainz" version="0.6.0"/>
