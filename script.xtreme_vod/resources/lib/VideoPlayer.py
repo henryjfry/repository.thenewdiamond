@@ -135,7 +135,7 @@ class VideoPlayer(xbmc.Player):
 		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
 			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
 		Utils.show_busy()
-		if series_id == None:
+		if series_id == None or str(series_id) == '':
 			search_str = get_vod_alltv()
 			for i in search_str:
 				if str(i['tmdb']) == str(tmdb):
@@ -158,9 +158,14 @@ class VideoPlayer(xbmc.Player):
 				elif type(ic) == type([]):
 					for jk in ic:
 						if int(jk['season']) == int(season):
-							if int(jk['episode']) == int(episode):
-								full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jk['id']),str(jk['container_extension']))
-								break
+							try: 
+								if int(jk['episode']) == int(episode):
+									full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jk['id']),str(jk['container_extension']))
+									break
+							except:
+								if int(jk['episode_num']) == int(episode):
+									full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jk['id']),str(jk['container_extension']))
+									break
 		Utils.tools_log(full_url)
 		if full_url == None:
 			Utils.notify('EPISODE URL not found - s%sE%s!' % (str(season).zfill(2),str(episode).zfill(2)), sound=False)

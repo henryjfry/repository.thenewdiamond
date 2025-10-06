@@ -45,7 +45,7 @@ def get_season_window(window_type):
 			TV = TheMovieDB.get_vod_alltv()
 			season_number = kwargs.get('season')
 			for x in TV:
-				if x['tmdb'] == self.tvshow_id:
+				if x['tmdb'] == self.tvshow_id or str(x['tmdb'])== str(self.tvshow_id):
 					series_id = x['series_id']
 					break
 			vod_series = TheMovieDB.get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
@@ -56,11 +56,13 @@ def get_season_window(window_type):
 					if type(ic) == type(''):
 						if int(season_number) == int(ic):
 							for jc in vod_series['episodes'][ic]:
-								episodes.append(jc['episode'])
+								try: episodes.append(jc['episode'])
+								except: episodes.append(jc['episode_num'])
 					elif type(ic) == type([]):
 						for jk in ic:
 							if int(jk['season']) == int(season_number):
-								episodes.append(jc['episode'])
+								try: episodes.append(jc['episode'])
+								except: episodes.append(jc['episode_num'])
 
 			pop_idx = []
 			for idx, i in enumerate(self.data['episodes']):

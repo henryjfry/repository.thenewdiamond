@@ -874,8 +874,11 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 				#try: trakt_item = eval(sql_result[0][1])
 				#except: trakt_item = eval(sql_result[0][1].replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
 
-				try: trakt_item = eval(sql_result[0][1])
-				except: trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
+				try: 
+					trakt_item = eval(sql_result[0][1])
+				except: 
+					try: trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
+					except: trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \''))
 
 				if int(result['season']) > 0:
 					data = extended_season_info(tvshow_id=int(show_id), season_number=int(result['season']))
@@ -915,8 +918,11 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 					show_id = result['tmdb_id']
 				sql_result = tv_cur.execute("select * from trakt where tmdb_id =" + str(int(show_id))).fetchall()
 				#trakt_item = ast.literal_eval(sql_result[0][1].replace('\'\'','"'))
-				try: trakt_item = eval(sql_result[0][1])
-				except: trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
+				try: 
+					trakt_item = eval(sql_result[0][1])
+				except: 
+					try: trakt_item = eval(sql_result[0][1].replace('“','').replace('”','').replace("': ''",'\': "').replace("'', '",'", \'').replace(": ',",": '',").replace("'overview': ''",'\'overview\': "').replace("'', 'first_aired':",'", \'first_aired\':').replace("'title': ''",'\'title\': "').replace("'', 'year':",'", \'year\':'))
+					except: trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \''))
 				for j in trakt_item['seasons']:
 					if int(result['season']) == int(j['number']):
 						for k in j['episodes']:

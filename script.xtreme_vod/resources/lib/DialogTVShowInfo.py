@@ -114,9 +114,9 @@ def get_tvshow_window(window_type):
 							seasons.append(int(jk['season']))
 							break
 			pop_idx = []
-			Utils.tools_log(series_id)
-			Utils.tools_log(seasons)
-			Utils.tools_log(self.data['seasons'])
+			#Utils.tools_log(series_id)
+			#Utils.tools_log(seasons)
+			#Utils.tools_log(self.data['seasons'])
 
 			for idx, i in enumerate(self.data['seasons']):
 				if not int(i['season']) in seasons:

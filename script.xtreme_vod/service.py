@@ -1138,7 +1138,8 @@ class PlayerMonitor(xbmc.Player):
 		if self.player_meta['dbID'] == '' and self.type == 'episode':
 			self.player_meta['dbID'] = self.episode_populate_dbid()
 
-		self.playing_file = player.getPlayingFile()
+		try:self.playing_file = player.getPlayingFile()
+		except: return
 		self.player_meta['playing_file'] = self.playing_file
 
 		"""
