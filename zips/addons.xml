@@ -296,7 +296,7 @@ v1.0.25 (marcelveldt)
 	</extension>
 </addon>
 
-<addon id="skin.estuary_fix" version="4.1.2c" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
+<addon id="skin.estuary_fix" version="4.1.2d" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
 	<requires>
 		<import addon="xbmc.gui" version="5.17.0"/>
 	</requires>
@@ -1022,7 +1022,7 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
   </extension>
 </addon>
 
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.30" provider-name="fryhenryj">
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.32" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -1353,7 +1353,7 @@ v1.0.1 (2023-07-28)
   </extension>
 </addon>
 
-<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.41" provider-name="fryhenryj">
+<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.43" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -2848,7 +2848,7 @@ provider-name="jurialmunkey">
 
 </addon>
 
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.30" provider-name="fryhenryj">
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.32" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />

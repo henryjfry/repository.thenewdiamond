@@ -1,0 +1,9 @@
+{
+    "name" : "  [B][COLOR white]xtreme_VOD[/COLOR][/B]",
+    "plugin" : "script.xtreme_vod",
+    "is_resolvable" : "true",
+    "priority" : 201,
+    "play_episode" : "plugin://script.xtreme_vod/?info=play_vod_player&type=tv&show_title={showname}&show_episode={episode}&show_season={season}&tmdb={tmdb}",
+    "play_movie" : "plugin://script.xtreme_vod/?info=play_vod_player&type=movie&movie_title={title}&movie_year={year}&tmdb={tmdb}"
+}
+

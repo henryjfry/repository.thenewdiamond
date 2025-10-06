@@ -43,7 +43,10 @@ if XBMC_RUNNING:
 	xtreme_codes_username = xbmcaddon.Addon().getSetting('xtreme_codes.username')
 	xtreme_codes_password = xbmcaddon.Addon().getSetting('xtreme_codes.password')
 	xtreme_wanted_groups = xbmcaddon.Addon().getSetting('xtreme_wanted_groups')
-
+	if xbmcaddon.Addon(addon_ID()).getSetting('subtitle_lookup') == 'true':
+		subtitle_lookup = True
+	else:
+		subtitle_lookup = False
 
 	if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
 		local_xml_m3u = True
@@ -90,6 +93,13 @@ else:
 			local_xml_m3u = True
 		elif local_xml_m3u == 'false':
 			local_xml_m3u = False
+
+		if 'subtitle_lookup"' in str(i):
+			subtitle_lookup = i.split('subtitle_lookup"')[1].split('>')[1].split('<')[0]
+		if subtitle_lookup == 'true':
+			subtitle_lookup = True
+		elif subtitle_lookup == 'false':
+			subtitle_lookup = False
 
 		if 'startup_local_xml_m3u"' in str(i):
 			startup_local_xml_m3u = i.split('startup_local_xml_m3u"')[1].split('>')[1].split('<')[0]

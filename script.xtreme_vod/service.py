@@ -1622,6 +1622,21 @@ class CronJobMonitor(Thread):
 		else:
 			local_xml_m3u = False
 
+		startup_option = xbmcaddon.Addon().getSetting('startup_option')
+		startup_url = None
+		if startup_option == 'None':
+			startup_url = None
+		elif startup_option == 'Trakt Watched Movies':
+			startup_url = 'RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=movie)'
+		elif startup_option == 'Trakt Watched TV':
+			startup_url = 'RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=tv)'
+		elif startup_option == 'Reopen Last':
+			startup_url = 'RunScript(script.xtreme_vod,info=reopen_window)'
+		elif startup_option == 'VOD TV':
+			startup_url = 'RunScript(script.xtreme_vod,info=alltv2)'
+		elif startup_option == 'VOD Movies':
+			startup_url = 'RunScript(script.xtreme_vod,info=allmovies2)'
+
 		importlib.reload(Utils)
 		
 		library.trakt_refresh_all()
@@ -1640,6 +1655,9 @@ class CronJobMonitor(Thread):
 				movies = TheMovieDB.get_vod_data(action= 'get_vod_streams' ,cache_days=0.00001) 
 				movies = TheMovieDB.get_vod_data(action= 'get_series' ,cache_days=0.00001) 
 				if os.environ['first_run'] == str('True'):
+					if startup_url:
+						xbmc.executebuiltin(startup_url)
+						startup_url = None
 					os.environ['first_run'] = str('False')
 				else:
 					if local_xml_m3u:
@@ -1656,8 +1674,12 @@ class CronJobMonitor(Thread):
 				tools_log(str('process.auto_clean_cache(days=30)'))
 				process.auto_clean_cache(days=30)
 				self.next_clean_time = self.curr_time + 24*60*60
+			if startup_url:
+				xbmc.executebuiltin(startup_url)
+				startup_url = None
 			tools_log(str('self.xbmc_monitor.waitForAbort(self.poll_time)'))
 			tools_log(str(self.poll_time))
+			
 			self.xbmc_monitor.waitForAbort(self.poll_time)
 		del self.xbmc_monitor
 

@@ -344,23 +344,24 @@ class VideoPlayer(xbmc.Player):
 
 		import sub_lim, tools
 
-		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta['episode_meta'])
-		subs_list = [subs_out_ENG]
-		if subs_out_FORCED:
-			subs_list.append(subs_out_FORCED)
+		if Utils.subtitle_lookup == True:
+			subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta['episode_meta'])
+			subs_list = [subs_out_ENG]
+			if subs_out_FORCED:
+				subs_list.append(subs_out_FORCED)
 
-		#Utils.tools_log(subs_list)
-		if len(subs_list) > 0:
-			from subcleaner import clean_file
-			from pathlib import Path
-			for i in subs_list:
-				sub = Path(i)
-				clean_file.clean_file(sub)
-			tools.sub_cleaner_log_clean()
-			clean_file.files_handled = []
+			#Utils.tools_log(subs_list)
+			if len(subs_list) > 0:
+				from subcleaner import clean_file
+				from pathlib import Path
+				for i in subs_list:
+					sub = Path(i)
+					clean_file.clean_file(sub)
+				tools.sub_cleaner_log_clean()
+				clean_file.files_handled = []
 
-		if len(subs_list) > 0:
-			li.setSubtitles(subs_list)
+			if len(subs_list) > 0:
+				li.setSubtitles(subs_list)
 
 		xbmcplugin.setContent(handle, 'episodes')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+30))
@@ -627,23 +628,24 @@ class VideoPlayer(xbmc.Player):
 		import tools
 		import sub_lim
 
-		subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta)
-		subs_list = [subs_out_ENG]
-		if subs_out_FORCED:
-			subs_list.append(subs_out_FORCED)
+		if Utils.subtitle_lookup == True:
+			subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta)
+			subs_list = [subs_out_ENG]
+			if subs_out_FORCED:
+				subs_list.append(subs_out_FORCED)
 
-		#Utils.tools_log(subs_list)
-		if len(subs_list) > 0:
-			from subcleaner import clean_file
-			from pathlib import Path
-			for i in subs_list:
-				sub = Path(i)
-				clean_file.clean_file(sub)
-			tools.sub_cleaner_log_clean()
-			clean_file.files_handled = []
+			#Utils.tools_log(subs_list)
+			if len(subs_list) > 0:
+				from subcleaner import clean_file
+				from pathlib import Path
+				for i in subs_list:
+					sub = Path(i)
+					clean_file.clean_file(sub)
+				tools.sub_cleaner_log_clean()
+				clean_file.files_handled = []
 
-		if len(subs_list) > 0:
-			li.setSubtitles(subs_list)
+			if len(subs_list) > 0:
+				li.setSubtitles(subs_list)
 
 
 		import time
