@@ -173,7 +173,7 @@ class DialogBaseInfo(object):
 			xbmc.executebuiltin(onback)
 		else:
 			self.close()
-			tools_log('wm.pop_stack()',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+			#tools_log('wm.pop_stack()',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
 			wm.pop_stack()
 

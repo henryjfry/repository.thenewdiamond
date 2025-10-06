@@ -55,14 +55,16 @@ def get_season_window(window_type):
 				for ic in vod_series['episodes']:
 					if type(ic) == type(''):
 						if int(season_number) == int(ic):
+							Utils.tools_log(ic)
 							for jc in vod_series['episodes'][ic]:
+								Utils.tools_log(jc)
 								try: episodes.append(jc['episode'])
 								except: episodes.append(jc['episode_num'])
 					elif type(ic) == type([]):
 						for jk in ic:
 							if int(jk['season']) == int(season_number):
-								try: episodes.append(jc['episode'])
-								except: episodes.append(jc['episode_num'])
+								try: episodes.append(jk['episode'])
+								except: episodes.append(jk['episode_num'])
 
 			pop_idx = []
 			for idx, i in enumerate(self.data['episodes']):
