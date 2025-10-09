@@ -901,6 +901,8 @@ def get_http(url, headers=False):
 	while (succeed < 2) :
 		try:
 			request = requests.get(url, headers=headers)
+			if 'Trakt is down for scheduled' in str(request.text):
+				return None
 			return request.text
 		except Exception as e:
 			log('get_http: could not get data from %s' % url)

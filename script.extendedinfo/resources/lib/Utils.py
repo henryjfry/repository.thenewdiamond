@@ -546,6 +546,8 @@ def get_http(url, headers=False):
 	while (succeed < 2) :
 		try:
 			request = requests.get(url, headers=headers)
+			if 'Trakt is down for scheduled' in str(request.text):
+				return None
 			return request.text
 		except Exception as e:
 			log('get_http: could not get data from %s' % url)
@@ -563,7 +565,11 @@ def get_JSON_response(url='', cache_days=7.0, folder=False, headers=False):
 		db_result, expired_db_result = query_db(connection=db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
 	except:
 		db_result, expired_db_result = None, None
-	if db_result:
+	try: 
+		db_result_flag = True if len(db_result)> 0 else False
+	except: 
+		db_result_flag = False
+	if db_result_flag:
 		return db_result
 	else:
 		response = get_http(url, headers)

@@ -430,8 +430,8 @@ def start_info_actions(infos, params):
 		elif info == 'test_route':
 			#from resources.lib.con_man_fix import list_and_select_wifi
 			#list_and_select_wifi()
-			xbmc.executebuiltin('PVR.Cleardata')
-			Utils.hide_busy()
+			from resources.lib import library
+			library.trakt_watched_movies()
 			return
 
 

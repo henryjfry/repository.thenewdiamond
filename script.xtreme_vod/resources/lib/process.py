@@ -56,6 +56,14 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+		if info == 'test':
+			Utils.tools_log('ResetEPG')
+			Utils.ResetEPG()
+			Utils.hide_busy()
+			return
+
+
+
 		if info == 'setup_iptv_simple_settings':
 			from xtream2m3u_run import setup_iptv_simple_settings
 			Utils.show_busy()
@@ -587,6 +595,12 @@ def setup_favourites():
 	return
 
 def patch_tmdbh():
+	from pathlib import Path
+	touch_file = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib') , 'PATCH')
+	if os.path.exists(touch_file):
+		Utils.tools_log('TMDBH_already_patched')
+		return 
+
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','player') , 'players.py')
 	if not os.path.exists(file_path):
 		file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'lib','player') , 'players.py')
@@ -788,6 +802,9 @@ def revoke_trakt(**kwargs): ## PATCH
 	last_line = '    def winprop_traktusertoken(self):'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
+
+	Path(touch_file).touch()
+	return
 
 
 def play_test_pop_stack():

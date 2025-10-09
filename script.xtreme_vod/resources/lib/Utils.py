@@ -354,6 +354,65 @@ def hide_busy():
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialog)')
 
+def tv_db_path():
+	import glob
+	db_name = 'TV*.db'
+	path_db = 'special://profile/Database/%s' % db_name
+	try: filelist = sorted(glob.glob(xbmcvfs.translatePath(path_db)))
+	except AttributeError: sorted(glob(xbmcvfs.translatePath(path_db)))
+	if filelist:
+		return filelist[-1]
+
+def pvr_demo_trigger(enabled=None, addonid=None):
+	import json
+	json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": {"addonid": "pvr.demo", "enabled": true}, "id": 1}')
+	json_object  = json.loads(json_result)
+	tools_log(json_object)
+	json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": {"addonid": "pvr.demo", "enabled": false}, "id": 1}')
+	json_object  = json.loads(json_result)
+	tools_log(json_object)
+
+
+def addon_disable_reable(enabled=None, addonid=None):
+	import json
+	if enabled == False:
+		kodi_params = ('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":8,"params":{"addonid":"%s","enabled":false}}' % (addonid))
+	elif enabled == True:
+		kodi_params = ('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":8,"params":{"addonid":"%s","enabled":true}}' % (addonid))
+	json_result = xbmc.executeJSONRPC(kodi_params)
+	json_object  = json.loads(json_result)
+	tools_log(json_object)
+
+def get_pvr_clients():
+	import json
+	json_result = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"PVR.GetClients","id":"1"}')
+	json_object  = json.loads(json_result)
+	pvr_clients = []
+	for i in json_object['result']['clients']:
+		pvr_clients.append(i['addonid'])
+	return pvr_clients
+
+def ResetEPG():
+	##https://github.com/xbmc/xbmc/blob/master/xbmc/pvr/PVRDatabase.cpp
+	import sqlite3
+	from pathlib import Path
+	db_path = tv_db_path()
+	db_path = Path(db_path)
+	tools_log('ResetEPG')
+	# Check the database exists
+	if not db_path.exists():
+		raise FileNotFoundError(f"Database not found at {db_path}")
+
+	# Connect to the database
+	conn = sqlite3.connect(db_path)
+	cursor = conn.cursor()
+	result = cursor.execute("UPDATE channels SET idEpg = 0").fetchall()
+	tools_log(result)
+	conn.commit()
+	cursor.close()
+	conn.close()
+	return
+
 
 def context_play(window=None,tmdb_id=None):
 	from resources.lib.VideoPlayer import PLAYER
@@ -580,6 +639,8 @@ def get_http(url, headers=False):
 	while (succeed < 2) :
 		try:
 			request = requests.get(url, headers=headers)
+			if 'Trakt is down for scheduled' in str(request.text):
+				return None
 			return request.text
 		except Exception as e:
 			log('get_http: could not get data from %s' % url)
@@ -597,7 +658,11 @@ def get_JSON_response(url='', cache_days=7.0, folder=False, headers=False):
 		db_result, expired_db_result = query_db(connection=db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
 	except:
 		db_result, expired_db_result = None, None
-	if db_result:
+	try: 
+		db_result_flag = True if len(db_result)> 0 else False
+	except: 
+		db_result_flag = False
+	if db_result_flag:
 		return db_result
 	else:
 		response = get_http(url, headers)
