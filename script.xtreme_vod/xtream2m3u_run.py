@@ -216,6 +216,18 @@ def generate_xmltv(mode=None):
 	username = Utils.xtreme_codes_username
 	password = Utils.xtreme_codes_password
 
+	guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
+	age = Utils.get_file_age(guide_out)
+	if age:
+		if float(age['hours']) <= float(4.00):
+			Utils.tools_log('XML_RETURN')
+			if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
+				return
+			with open(guide_out, "r", encoding="utf-8") as f:
+				xmltv_response = f.read()
+			# Return the M3U playlist as a downloadable file
+			return Response(xmltv_response,mimetype='application/xml',headers={"Content-Disposition": "attachment; filename=guide.xml"})
+
 	allowed_groups_file = os.path.join(Utils.ADDON_DATA_PATH, 'allowed_groups.txt')
 	allowed_groups = []
 	if os.path.isfile(allowed_groups_file):
@@ -334,7 +346,7 @@ def generate_xmltv(mode=None):
 	print('XML_RETURN', flush=True)
 
 	if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
-		guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
+		
 		Utils.tools_log(guide_out)
 		f = open(guide_out, "w")
 		f.write(xmltv_response)
@@ -449,6 +461,20 @@ def generate_m3u(mode=None):
 	username = Utils.xtreme_codes_username
 	password = Utils.xtreme_codes_password
 
+	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+	age = Utils.get_file_age(m3u_out)
+	if age:
+		if float(age['hours']) <= float(4.00):
+			Utils.tools_log('M3U_RETURN')
+			if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
+				return
+			with open(m3u_out, "r", encoding="utf-8") as f:
+				m3u_playlist = f.read()
+			# Return the M3U playlist as a downloadable file
+			return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
+
+
+
 	allowed_groups_file = os.path.join(Utils.ADDON_DATA_PATH, 'allowed_groups.txt')
 	allowed_groups = []
 	if os.path.isfile(allowed_groups_file):
@@ -533,7 +559,7 @@ def generate_m3u(mode=None):
 
 	Utils.tools_log('M3U_RETURN')
 	if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
-		m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+		
 		Utils.tools_log(m3u_out)
 		f = open(m3u_out, "w")
 		f.write(m3u_playlist)
@@ -632,3 +658,41 @@ def setup_iptv_simple_settings():
 	xbmc.sleep(5* 1000)
 	Utils.tools_log('enable_IPTV_SIMPLE')
 	xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.SetAddonEnabled", "params": {"addonid": "pvr.iptvsimple", "enabled": true}, "id": 1}')
+
+
+def xml_startup_process():
+	import xbmcaddon, xbmc
+	from resources.lib.library import addon_ID
+
+	if  xbmcaddon.Addon(addon_ID()).getSetting('auto_start_server') == 'true':
+		auto_start_server = True
+	else:
+		auto_start_server = False
+
+	if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
+		local_xml_m3u = True
+	else:
+		local_xml_m3u = False
+	startup_local_xml_m3u = xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u')
+
+	pvr_clients = Utils.get_pvr_clients()
+	try:
+		for i in pvr_clients:
+			Utils.tools_log('Disable_IPTV_Clients')
+			Utils.addon_disable_reable(addonid = i , enabled=False)
+	except:
+		pvr_clients = ['pvr.iptvsimple']
+	Utils.ResetEPG()
+
+	if auto_start_server and Utils.xtreme_codes_password != '':
+		tools_log('STARTING SERVER -  http://localhost:5000/m3u  http://localhost:5000/xml  http://localhost:5000/stop')
+		xbmc.executebuiltin('RunScript(script.xtreme_vod,info=xtream2m3u_run)')
+	if (startup_local_xml_m3u == True or startup_local_xml_m3u == 'true') and Utils.xtreme_codes_password != '':
+		generate_m3u(mode='startup')
+		generate_xmltv(mode='startup')
+
+	xbmc.sleep(5*1000)
+	for i in pvr_clients:
+		Utils.tools_log('Reable_IPTV_Clients')
+		Utils.addon_disable_reable(addonid = i , enabled=True)
+

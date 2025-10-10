@@ -58,6 +58,7 @@
 		<setting label="TEST ROUTE" type="action" action="RunScript(script.xtreme_vod,info=test_route)"/>
 	</category>
 	<category label="TOOLS">
+	<setting label="LOGIN_TRAKT" type="action" action="RunScript(script.xtreme_vod,info=login_trakt)"/>
 	<setting label="setup_favourites" type="action" action="RunScript(script.xtreme_vod,info=setup_favourites)"/>
 	<setting label="setup TMDBH player" type="action" action="RunScript(script.xtreme_vod,info=setup_players)"/>
 	<setting label="patch_tmdb_helper" type="action" action="RunScript(script.xtreme_vod,info=patch_tmdb_helper)"/>
@@ -66,6 +67,15 @@
 	<setting label="Clear cache..." type="action" action="RunScript(script.xtreme_vod,info=deletecache)"/>
 	<setting label="Auto Clear cache (>14 days)" type="action" action="RunScript(script.xtreme_vod,info=auto_clean_cache)"/>
 	<setting label="TEST ROUTE" type="action" action="RunScript(script.xtreme_vod,info=test_route)"/>
+
+<setting label="token_expires" type="text" id="token_expires" default="" visible="false" />
+<setting label="refresh_token" type="text" id="refresh_token" default="" visible="false" />
+<setting label="access_token" type="text" id="access_token" default="" visible="false" />
+<setting label="trakt_token" type="text" id="trakt_token" default="" visible="false" />
+
+
+
+
 	</category>
 
 	<category label="DOWNLOADS">

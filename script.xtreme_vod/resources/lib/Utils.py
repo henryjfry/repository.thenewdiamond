@@ -354,12 +354,36 @@ def hide_busy():
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialog)')
 
+
+def get_file_age(filepath):
+	import os
+	import time
+
+	if not os.path.exists(filepath):
+		return None
+
+	mod_time = os.path.getmtime(filepath)
+	current_time = time.time()
+	age_seconds = current_time - mod_time
+	age_minutes = age_seconds / 60
+	age_hours = age_minutes / 60
+	age_days = age_hours / 24
+
+	return {
+		"seconds": age_seconds,
+		"minutes": age_minutes,
+		"hours": age_hours,
+		"days": age_days
+	}
+
+
+
 def tv_db_path():
+	#from glob import glob as glog
 	import glob
 	db_name = 'TV*.db'
 	path_db = 'special://profile/Database/%s' % db_name
-	try: filelist = sorted(glob.glob(xbmcvfs.translatePath(path_db)))
-	except AttributeError: sorted(glob(xbmcvfs.translatePath(path_db)))
+	filelist = sorted(glob.glob(xbmcvfs.translatePath(path_db)))
 	if filelist:
 		return filelist[-1]
 
@@ -388,8 +412,11 @@ def get_pvr_clients():
 	json_result = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"PVR.GetClients","id":"1"}')
 	json_object  = json.loads(json_result)
 	pvr_clients = []
-	for i in json_object['result']['clients']:
-		pvr_clients.append(i['addonid'])
+	try:
+		for i in json_object['result']['clients']:
+			pvr_clients.append(i['addonid'])
+	except:
+		return ['pvr.iptvsimple']
 	return pvr_clients
 
 def ResetEPG():

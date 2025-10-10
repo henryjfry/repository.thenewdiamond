@@ -589,7 +589,11 @@ class PlayerMonitor(xbmc.Player):
 			else:
 				response = self.trakt_scrobble_tmdb(tmdb_id=trakt_meta.get('trakt_tmdb_id'),percent=self.player_meta['percentage'],action=action)
 		if response == 'ERROR':
-			xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
+			#xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
+			#from resources.lib.trakt_api import refresh_token
+			from resources.lib.trakt_api import get_access_token
+			#refresh_token()
+			get_access_token()
 			xbmc.sleep(5*1000)
 			self.player_meta['headers'] = library.trak_auth()
 			self.trakt_error = 'ERROR'
@@ -1625,7 +1629,7 @@ class CronJobMonitor(Thread):
 				except: trakt_token = None
 				if trakt_token:
 					trakt_calendar_auto_sync = True
-					xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
+					#xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
 					self.xbmc_monitor.waitForAbort(5)
 					#if trakt_calendar_auto_sync == 'true' or trakt_calendar_auto_sync == True:
 					#	Utils.tools_log(str('trakt_calendar_list()'))
@@ -1757,6 +1761,9 @@ class ServiceMonitor(object):
 
 		library.auto_setup_xml_filenames()
 		self.player_monitor = PlayerMonitor()
+		from resources.lib.trakt_api import get_trakt_auth
+		get_trakt_auth(startup=True)
+
 
 		if xbmcvfs.exists(window_stack):
 			os.remove(window_stack)

@@ -856,6 +856,14 @@ def trakt_watched_tv_shows(cache_days=None):
 	return response
 
 def trak_auth():
+	from resources.lib.trakt_api import get_trakt_auth
+	from resources.lib import Utils
+	#Utils.tools_log('get_trakt_auth')
+	headers = get_trakt_auth()
+	#Utils.tools_log(headers)
+	return headers
+
+def trak_auth_old():
 	import time
 	trakt_token = None
 	try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')

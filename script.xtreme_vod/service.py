@@ -47,18 +47,18 @@ else:
 	import importlib_resources_old as importlib_resources
 sys.modules["importlib_resources"] = importlib_resources
 
-import sys
-import glob as real_glob
+#import sys
+#import glob as real_glob
+#
+#class GlobWrapper:
+#    def __call__(self, *args, **kwargs):
+#        return real_glob.glob(*args, **kwargs)  # make glob(...) work
+#
+#    def __getattr__(self, attr):
+#        return getattr(real_glob, attr)  # pass-through attributes
 
-class GlobWrapper:
-    def __call__(self, *args, **kwargs):
-        return real_glob.glob(*args, **kwargs)  # make glob(...) work
-
-    def __getattr__(self, attr):
-        return getattr(real_glob, attr)  # pass-through attributes
-
-sys.modules['glob'] = GlobWrapper()
-glob = sys.modules['glob']
+#sys.modules['glob'] = GlobWrapper()
+#glob = sys.modules['glob']
 
 import click
 
@@ -71,6 +71,7 @@ import sqlite3
 
 from xtream2m3u_run import generate_m3u
 from xtream2m3u_run import generate_xmltv
+from xtream2m3u_run import xml_startup_process
 
 def get_guess(release_title, options=None):
 	guess = api.guessit(release_title, options)
@@ -634,7 +635,11 @@ class PlayerMonitor(xbmc.Player):
 			else:
 				response = self.trakt_scrobble_tmdb(tmdb_id=trakt_meta.get('trakt_tmdb_id'),percent=self.player_meta['percentage'],action=action)
 		if response == 'ERROR':
-			xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
+			#xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,authorize_trakt)')
+			#from resources.lib.trakt_api import refresh_token
+			from resources.lib.trakt_api import get_access_token
+			#refresh_token()
+			get_access_token()
 			self.trakt_error = 'ERROR'
 		return self.trakt_watched 
 
@@ -1307,7 +1312,7 @@ class PlayerMonitor(xbmc.Player):
 		if self.type == 'episode':
 			self.player_meta['global_movie_flag'] = False
 			tools_log('PLAYBACK STARTED_tmdb=%s, %s=dbID, %s=duration, %s=tv_show_name, %s=season_num, %s=ep_num, %s=title===>___OPEN_INFO' % (str(self.player_meta['tmdb_id']),str(self.player_meta['dbID']) ,str(self.player_meta['resume_duration']),self.player_meta['tv_title'],str(self.player_meta['tv_season']),str(self.player_meta['tv_episode']),self.player_meta['title']))
-			url = 'plugin://%s?info=play_vod_player&amp;type=tv&amp;show_title=%s&amp;show_season=%s&amp;show_episode=%s&amp;tmdb=%s"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
+			url = 'plugin://%s?info=play_vod_player&amp;type=tv&amp;show_title=%s&amp;show_season=%s&amp;show_episode=%s&amp;tmdb=%s' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(url)
 			kodi_send_command = 'kodi-send --action="RunScript(%s,info=play_vod_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
@@ -1662,7 +1667,7 @@ class CronJobMonitor(Thread):
 				else:
 					if local_xml_m3u:
 						generate_m3u()
-					#generate_xmltv()
+						generate_xmltv()
 			elif int(time.time()) > self.next_time and trakt_kodi_mode == 'Trakt Only': 
 				try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
 				except: trakt_token = None
@@ -1782,6 +1787,8 @@ class ServiceMonitor(object):
 		window_stack = xbmcvfs.translatePath('special://profile/addon_data/'+addon_ID()+ '/window_stack.db')
 
 		self.player_monitor = PlayerMonitor()
+		from resources.lib.trakt_api import get_trakt_auth
+		get_trakt_auth(startup=True)
 
 		if xbmcvfs.exists(window_stack):
 			os.remove(window_stack)
@@ -1794,37 +1801,9 @@ class ServiceMonitor(object):
 			if auto_plugin_route[0:7] == 'script.':
 				xbmc.executebuiltin('RunScript(%s)' % auto_plugin_route)
 
-		process.patch_tmdbh()
-		if  xbmcaddon.Addon(addon_ID()).getSetting('auto_start_server') == 'true':
-			auto_start_server = True
-		else:
-			auto_start_server = False
-
-		if xbmcaddon.Addon(addon_ID()).getSetting('local_xml_m3u') == 'true':
-			local_xml_m3u = True
-		else:
-			local_xml_m3u = False
-		startup_local_xml_m3u = xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u')
-
-		pvr_clients = Utils.get_pvr_clients()
-		for i in pvr_clients:
-				Utils.tools_log('Disable_IPTV_Clients')
-				Utils.addon_disable_reable(addonid = i , enabled=False)
-
-		if auto_start_server and Utils.xtreme_codes_password != '':
-			tools_log('STARTING SERVER -  http://localhost:5000/m3u  http://localhost:5000/xml  http://localhost:5000/stop')
-			xbmc.executebuiltin('RunScript(script.xtreme_vod,info=xtream2m3u_run)')
-		if (startup_local_xml_m3u == True or startup_local_xml_m3u == 'true') and Utils.xtreme_codes_password != '':
-			generate_m3u(mode='startup')
-			generate_xmltv(mode='startup')
-
-		Utils.ResetEPG()
-		for i in pvr_clients:
-			Utils.tools_log('Reable_IPTV_Clients')
-			Utils.addon_disable_reable(addonid = i , enabled=True)
-
 		self.cron_job.start()
 		self.poller()
 
 if __name__ == '__main__':
+	xml_startup_process()
 	ServiceMonitor().run()

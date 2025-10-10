@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window>
 	<onload condition="!Player.PauseEnabled">SetFocus(603)</onload>
-
-	<defaultcontrol always="true">70048</defaultcontrol>
+<!-- PATCH -->
+	<defaultcontrol always="true">70048</defaultcontrol><!-- PATCH -->
 	<depth>DepthOSD</depth>
 	<controls>
 		<control type="button">

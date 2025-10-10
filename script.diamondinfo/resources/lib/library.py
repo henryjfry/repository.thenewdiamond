@@ -1915,6 +1915,11 @@ def trakt_add_tv_episode(tmdb_id_num=None,season_num=None,episode_num=None,mode=
 	Utils.hide_busy()
 
 def trak_auth():
+	from resources.lib.trakt_api import get_trakt_auth
+	headers = get_trakt_auth()
+	return headers
+
+def trak_auth_old():
 	import time
 	trakt_token = None
 	try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')

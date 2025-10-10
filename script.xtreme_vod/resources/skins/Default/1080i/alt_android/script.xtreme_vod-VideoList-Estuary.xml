@@ -107,8 +107,19 @@
 					<posy>270</posy>
 					<width>395</width>
 					<height>300</height>
-					<label>[B]$INFO[Container(500).ListItem.Year][/B]</label>
+					<label>[B]$INFO[Container(500).ListItem.Year][/B] </label>
 					<font>font12</font>
+					<visible>String.IsEmpty(ListItem.TVShowTitle)|String.IsEqual(ListItem.DBTYPE,episode)</visible>
+					<textcolor>FF999999</textcolor>
+				</control>
+				<control type="textbox">
+					<posx>40</posx>
+					<posy>270</posy>
+					<width>395</width>
+					<height>300</height>
+					<label>[B]$INFO[Container(500).ListItem.Year][/B]  ($INFO[Container(500).ListItem.Label2])</label>
+					<font>font12</font>
+					<visible>!String.IsEmpty(ListItem.TVShowTitle)</visible>
 					<textcolor>FF999999</textcolor>
 				</control>
 				<control type="image">
@@ -260,7 +271,7 @@
 							<height>90</height>
 							<posy>30</posy>
 							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayWatched.png</texture>
-							<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)]</visible>
+							<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)|String.IsEqual(ListItem.DBTYPE,episode)]</visible>
 						</control>
 
 					</control>
@@ -384,13 +395,35 @@
 							<visible>Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + !String.IsEmpty(ListItem.TVShowTitle)</visible>
 						</control>
 
+
+						<control type="image">
+							<posx>223</posx>
+							<width>90</width>
+							<height>90</height>
+							<posy>137</posy>
+							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayUnwatched2.png</texture>
+							<visible>Integer.IsGreater(ListItem.Property(startpercent),0)</visible>
+						</control>
+						<control type="label">
+							<posx>262</posx>
+							<width>50</width>
+							<height>30</height>
+							<!--- MOVE LABELS UP/DOWN--->
+							<posy>151</posy>
+							<textcolor>black</textcolor>
+							<align>center</align>
+							<font>font_flag</font>
+							<label>$INFO[ListItem.Property(startpercent)]%</label>
+							<visible>Integer.IsGreater(ListItem.Property(startpercent),0)</visible>
+						</control>
+
 						<control type="image">
 							<posx>223</posx>
 							<width>90</width>
 							<height>90</height>
 							<posy>137</posy>
 							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayWatched.png</texture>
-							<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)]</visible>
+							<visible>!Integer.IsGreater(ListItem.Property(startpercent),0) + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)|String.IsEqual(ListItem.DBTYPE,episode)]</visible>
 						</control>
 
 					</control>
@@ -599,7 +632,7 @@
 					<width>1920</width>
 					<align>right</align>
 					<textcolor>FFFFFFFF</textcolor>
-					<label>$INFO[Window.Property(TotalItems),[COLOR FF999999]Items:[/COLOR] ]$INFO[Window.Property(CurrentPage),[COLOR FF999999] - Page: [/COLOR]]$INFO[Window.Property(TotalPages), / ]  - $INFO[System.Time]</label>
+					<label>$INFO[Window.Property(TotalItems),[COLOR FF999999]VOD Items:[/COLOR] ]$INFO[Window.Property(CurrentPage),[COLOR FF999999] - Page: [/COLOR]]$INFO[Window.Property(TotalPages), / ]  - $INFO[System.Time]</label>
 					<visible>![ Window.IsActive(notification) | Window.IsActive(volumebar) | Control.IsVisible(881)| Window.IsActive(extendedprogressdialog) | Control.IsVisible(77551) | Control.IsVisible(88888) | Control.IsVisible(88883)]</visible>
 				</control>
 				<control type="label">

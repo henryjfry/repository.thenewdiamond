@@ -62,6 +62,18 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+		if info == 'trakt_refresh':
+			from resources.lib.trakt_api import refresh_token
+			refresh_token()
+			Utils.hide_busy()
+			return
+
+		if info == 'login_trakt':
+			from resources.lib.trakt_api import login_trakt
+			login_trakt()
+			Utils.hide_busy()
+			return
+
 
 
 		if info == 'setup_iptv_simple_settings':
@@ -515,6 +527,13 @@ def start_info_actions(infos, params):
 
 			Utils.hide_busy()
 
+		elif info == 'xml_startup_process':
+			from xtream2m3u_run import xml_startup_process
+			xml_startup_process()
+
+
+		elif info == 'iptv_simple_enable':
+			Utils.addon_disable_reable(addonid = 'pvr.iptvsimple' , enabled=True)
 
 	return 
 
@@ -564,6 +583,8 @@ def do_patch(patch_file_path, patch_lines, log_addon_name, start_line, end_line)
 def setup_favourites():
 	file_path = xbmcvfs.translatePath('special://userdata/favourites.xml')
 	fav1_list = []
+	fav1_list.append('    <favourite name="VOD Movies" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=allmovies2)</favourite>')
+	fav1_list.append('    <favourite name="VOD TV" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=alltv2)</favourite>')
 	fav1_list.append('    <favourite name="Trakt Watched TV" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=tv)</favourite>')
 	fav1_list.append('    <favourite name="Trakt Watched Movies" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=movie)</favourite>')
 	fav1_list.append('    <favourite name="Eps_Movies Watching" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=ep_movie_progress)</favourite>')
@@ -685,6 +706,9 @@ def patch_tmdbh():
 	last_line = '            if self.xbmc_monitor.abortRequested():'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
+
+	Path(touch_file).touch()
+	return
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script','method') , 'trakt.py')
 	line_update = '''def authenticate_trakt(**kwargs): ## PATCH

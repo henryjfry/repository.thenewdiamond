@@ -35,7 +35,14 @@
 		<setting label="fen_light_players" type="action" action="RunScript(script.diamondinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/>
 	</category>
     <category label="Trakt Collection Library Options">
-		<setting label="TMDBHelper Trakt Authentication" type="action" action="RunScript(plugin.video.themoviedb.helper,authenticate_trakt)"/>
+
+<setting label="token_expires" type="text" id="token_expires" default="" visible="false" />
+<setting label="refresh_token" type="text" id="refresh_token" default="" visible="false" />
+<setting label="access_token" type="text" id="access_token" default="" visible="false" />
+<setting label="trakt_token" type="text" id="trakt_token" default="" visible="false" />
+
+
+		<setting label="Trakt Authentication" type="action" action="RunScript(script.diamondinfo,info=login_trakt)"/>
 		<setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt Only"/>
         <setting label="Auto Add Trakt Calendar items to collection" type="bool" id="trakt_calendar_auto_sync" default="false"/>
         <setting label="Auto Sync Trakt Collection to library" type="bool" id="library_auto_sync" default="false"/>

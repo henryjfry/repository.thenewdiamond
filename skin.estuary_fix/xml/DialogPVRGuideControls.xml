@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window>
-	<defaultcontrol always="true">70045</defaultcontrol>
+	<defaultcontrol always="true">70045</defaultcontrol> <!-- PATCH -->
 	<include>Animation_BottomSlide</include>
 	<depth>DepthOSD</depth>
 	<controls>
@@ -170,8 +170,8 @@
 							<include content="OSDButton">
 								<param name="texture" value="DefaultPlaylist.png"/>
 							</include>
-							<onclick>PVR.EpgGridControl(SelectGroup)</onclick>
-							<onclick>Action(Back)</onclick>
+							<onclick>PVR.EpgGridControl(SelectGroup)</onclick><!-- PATCH -->
+							<onclick>Action(Back)</onclick><!-- PATCH -->
 						</control>
 					</control>
 				</control>
