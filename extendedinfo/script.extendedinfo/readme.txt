@@ -1,1 +1,0 @@
-in resources/skin/default rename all the script.extendedinfo-DialogInfo to your script.youraddonid-DialogInfo
