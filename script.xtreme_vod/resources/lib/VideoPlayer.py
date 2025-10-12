@@ -350,7 +350,7 @@ class VideoPlayer(xbmc.Player):
 			if subs_out_FORCED:
 				subs_list.append(subs_out_FORCED)
 
-			#Utils.tools_log(subs_list)
+			Utils.tools_log(subs_list)
 			if len(subs_list) > 0:
 				from subcleaner import clean_file
 				from pathlib import Path

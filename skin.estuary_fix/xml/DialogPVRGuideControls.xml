@@ -172,6 +172,7 @@
 							</include>
 							<onclick>PVR.EpgGridControl(SelectGroup)</onclick><!-- PATCH -->
 							<onclick>Action(Back)</onclick><!-- PATCH -->
+							<onclick>PVR.EpgGridControl(FirstProgramme)</onclick><!-- PATCH -->
 						</control>
 					</control>
 				</control>
