@@ -664,6 +664,16 @@ def xml_startup_process():
 	import xbmcaddon, xbmc
 	from resources.lib.library import addon_ID
 
+
+	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+	m3u_out_age = Utils.get_file_age(m3u_out)
+	guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
+	guide_out_age = Utils.get_file_age(guide_out)
+	if m3u_out_age < 4 and guide_out_age < 4:
+		Utils.tools_log('xml_startup_process_RETURN_no_changes')
+		return
+
+
 	if  xbmcaddon.Addon(addon_ID()).getSetting('auto_start_server') == 'true':
 		auto_start_server = True
 	else:

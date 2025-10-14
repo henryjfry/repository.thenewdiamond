@@ -633,7 +633,7 @@ def get_tmdb_window(window_type):
 			self.page = 1
 			self.category_id = None
 
-			if self.mode == 'trakt':
+			if self.mode == 'trakt' or (self.mode == 'search' or self.mode == 'filter'):
 				self.mode = 'alltvshows2' if self.type == 'tv' else 'allmovies2'
 				self.type = 'tv' if self.type == 'tv' else 'movie'
 
