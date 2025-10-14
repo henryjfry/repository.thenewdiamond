@@ -838,6 +838,11 @@ class PlayerMonitor(xbmc.Player):
 	def onPlayBackStarted(self):
 		Utils.hide_busy()
 		Utils.tools_log(str('onPlayBackStarted'))
+		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+		if TMDbHelper_PlayerInfoString != '':
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
+		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW','')
+		
 		#wm.reopen_window_var = 'Started'
 		self.setProperty('reopen_window_var','Started')
 
@@ -1485,6 +1490,8 @@ class PlayerMonitor(xbmc.Player):
 				Utils.tools_log('next_ep_play!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				kodi_send_command = 'RunScript(%s,info=a4kwrapper_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,prescrape=True)' % (addon_ID(), next_ep_details['next_ep_show'], next_ep_details['next_ep_season'], next_ep_details['next_ep_episode'], next_ep_details['tmdb_id'])
 				xbmc.executebuiltin(kodi_send_command)
+				TMDbHelper_NEW_PlayerInfoString['episode'] = next_ep_details['next_ep_episode']
+				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 				prescrape = True
 
 			if self.player_meta['percentage'] > 33 and prescrape == True and self.player_meta['diamond_player'] == True:

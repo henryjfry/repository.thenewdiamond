@@ -203,45 +203,40 @@ def db_delete_expired(connection=None):
 		connection = db_start()
 	cur = connection.cursor()
 	curr_time = int(time.time())
-	sql_query = """SELECT * FROM sqlite_master WHERE type='table'
+	db_delete_expired_query = """SELECT * FROM sqlite_master WHERE type='table'
 	"""  
-	sql_result = cur.execute(sql_query).fetchall()
-	tools.log('DELETE____')
+	sql_result = cur.execute(db_delete_expired_query).fetchall()
+	tools_log('DELETE____')
 	for i in sql_result:
 		folder = i[1]
-		#tools.log(folder)
-		#tools.log(str(folder))
-		#sql_query = """select * FROM %s
+		#tools_log(folder)
+		#tools_log(str(folder))
+		#db_delete_expired_query = """select * FROM %s
 		#where expire < %s
 		#""" % (folder, curr_time)
-		#sql_result = cur.execute(sql_query).fetchall()
-		#tools.log(str(len(sql_result))+str(folder))
-		sql_query = """select * FROM %s
+		#sql_result = cur.execute(db_delete_expired_query).fetchall()
+		#tools_log(str(len(sql_result))+str(folder))
+		db_delete_expired_query = """select * FROM %s
 		where expire < %s
 		""" %  (folder, curr_time)
-		sql_result1 = cur.execute(sql_query).fetchall()
+		sql_result1 = cur.execute(db_delete_expired_query).fetchall()
 		if len(sql_result1) == 0:
 			continue
-		tools.log(folder)
-		sql_query = """DELETE FROM %s
+		tools_log(folder)
+		db_delete_expired_query = """DELETE FROM %s
 		where expire < %s
 		""" % (folder, curr_time)
-		try:
-			sql_result = cur.execute(sql_query).fetchall()
-			tools.log(str(len(sql_result1))+str(folder),'===>DELETED')
-		except OperationalError:
-			connection.commit()
-			sql_result = cur.execute(sql_query).fetchall()
-			tools.log(str(len(sql_result1))+str(folder),'===>DELETED')
+		sql_result2 = cur.execute(db_delete_expired_query).fetchall()
+		tools_log(str(len(sql_result1))+str(folder),'===>DELETED')
 	connection.commit()
 	try: cur.execute('VACUUM')
 	except Exception as ex:
 		if 'SQL statements in progress' in str(ex):
 			return None
 		else:
-			tools.log(str(ex))
+			tools_log(str(ex))
 	cur.close()
-	tools.log('DELETED')
+	tools_log('DELETED')
 	return None
 
 

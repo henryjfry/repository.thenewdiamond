@@ -574,11 +574,11 @@ def get_tastedive_shows(item_id, cache_days=14, folder='TasteDive'):
 		if expired_db_result == None:
 			return []
 		if len(expired_db_result) > 0:
-			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 			return expired_db_result
 		return []
 	else:
-		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 
@@ -719,11 +719,11 @@ def get_tastedive_movies(item_id, cache_days=14, folder='TasteDive'):
 		if expired_db_result == None:
 			return []
 		if len(expired_db_result) > 0:
-			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 			return expired_db_result
 		return []
 	else:
-		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 def get_tastedive_data_scrape(url='', query='', year='', limit=20, media_type=None, cache_days=14, folder='TasteDive', item_id=None):
@@ -871,11 +871,11 @@ def get_tastedive_data_scrape_old(url='', query='', year='', limit=20, media_typ
 		if expired_db_result == None:
 			return []
 		if len(expired_db_result) > 0:
-			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 			return expired_db_result
 		return []
 	else:
-		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 
@@ -1892,11 +1892,11 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 		if expired_db_result == None:
 			return []
 		if len(expired_db_result) > 0:
-			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 			return expired_db_result
 		return []
 	else:
-		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 def imdb_base_title_card(imdb_id: str):
@@ -2218,11 +2218,11 @@ def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14
 		if expired_db_result == None:
 			return []
 		if len(expired_db_result) > 0:
-			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 			return expired_db_result
 		return []
 	else:
-		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 
@@ -3621,7 +3621,7 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 			if expired_db_result == None:
 				return []
 			if len(expired_db_result) > 0:
-				write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+				write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 				return expired_db_result
 			return []
 		else:

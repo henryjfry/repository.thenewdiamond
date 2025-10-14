@@ -1280,11 +1280,11 @@ def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
 		if expired_db_result == None:
 			return []
 		if len(expired_db_result) > 0:
-			Utils.write_db(connection=db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
 			return expired_db_result
 		return []
 	else:
-		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
 	return results
 
 def get_trakt_playback(trakt_type=None):

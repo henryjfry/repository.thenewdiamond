@@ -975,8 +975,18 @@ def reopen_window():
 	return wm.open_video_list(search_str='', mode='reopen_window')
 
 def auto_clean_cache(days=None):
-	xbmc.log('STARTING===>auto_clean_cache', level=xbmc.LOGINFO)
-	Utils.db_delete_expired(connection=Utils.db_con)
+	Utils.tools_log('STARTING===>auto_clean_cache')
+	try:
+		Utils.db_delete_expired(connection=Utils.db_con)
+	except:
+		xbmc.sleep(2*1000)
+		try:
+			Utils.tools_log('EXCEPTION__1_auto_clean_cache')
+			Utils.db_delete_expired(connection=Utils.db_con)
+		except:
+			Utils.tools_log('EXCEPTION__2_auto_clean_cache')
+			pass
+	Utils.tools_log('FINISH===>auto_clean_cache')
 	#Utils.db_con.close()
 	#auto_clean_cache_seren_downloader(days=30)
 

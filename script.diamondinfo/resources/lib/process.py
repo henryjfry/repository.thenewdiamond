@@ -1421,8 +1421,19 @@ def auto_clean_cache_seren_downloader(days=None):
 
 def auto_clean_cache(days=None):
 	Utils.tools_log('STARTING===>auto_clean_cache')
-	Utils.db_delete_expired(connection=Utils.db_con)
-	auto_clean_cache_seren_downloader(days=30)
+	try:
+		Utils.db_delete_expired(connection=Utils.db_con)
+	except:
+		xbmc.sleep(2*1000)
+		try:
+			Utils.tools_log('EXCEPTION__1_auto_clean_cache')
+			Utils.db_delete_expired(connection=Utils.db_con)
+		except:
+			Utils.tools_log('EXCEPTION__2_auto_clean_cache')
+			pass
+	Utils.tools_log('FINISH===>auto_clean_cache')
+	#Utils.db_con.close()
+	#auto_clean_cache_seren_downloader(days=30)
 
 def auto_library():
 	Utils.hide_busy()
