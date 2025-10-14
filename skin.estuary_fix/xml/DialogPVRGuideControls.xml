@@ -172,7 +172,8 @@
 							</include>
 							<onclick>PVR.EpgGridControl(SelectGroup)</onclick><!-- PATCH -->
 							<onclick>Action(Back)</onclick><!-- PATCH -->
-							<onclick>PVR.EpgGridControl(FirstProgramme)</onclick><!-- PATCH -->
+							<onclick>PVR.EpgGridControl(currentprogramme)</onclick><!-- PATCH -->
+							<onclick>PVR.EpgGridControl(firstchannel)</onclick><!-- PATCH -->
 						</control>
 					</control>
 				</control>
