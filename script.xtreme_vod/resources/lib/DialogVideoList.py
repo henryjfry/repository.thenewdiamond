@@ -328,7 +328,7 @@ def get_tmdb_window(window_type):
 			self.getControl(5010).setVisible(False)
 			
 			self.getControl(6000).setVisible(True)
-			self.getControl(6001).setVisible(False)
+			self.getControl(6001).setVisible(True)
 			
 			if self.mode == 'trakt':
 				self.getControl(5002).setVisible(False)

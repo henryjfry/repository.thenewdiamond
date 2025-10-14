@@ -704,7 +704,7 @@
 
 			<!---OPENINFO--->
 			<control type="button" id="6001">
-				<label>Search_YouTube...</label>
+				<label>Search Channels...</label>
 				<posx>0</posx>
 				<posy>130</posy>
 				<width>400</width>

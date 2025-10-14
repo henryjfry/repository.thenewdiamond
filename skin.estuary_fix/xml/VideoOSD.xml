@@ -154,6 +154,18 @@
 						<onclick>PlayerControl(ShowVideoMenu)</onclick>
 						<visible>VideoPlayer.HasMenu</visible>
 					</control>
+
+					<control type="radiobutton" id="70039">
+						<include content="OSDButton">
+							<param name="texture" value="icons/search.png"/>
+						<param name="label" value="Search VOD" />
+						</include>
+						<onclick>RunScript(script.xtreme_vod,info=search_title,search_text=$INFO[Player.Title])</onclick>
+						<onclick>Dialog.Close(VideoOSD)</onclick>
+						<onclick>PlayerControl(Stop)</onclick>
+						<visible>VideoPlayer.Content(livetv) + VideoPlayer.HasEPG</visible>
+					</control>
+
 					<control type="radiobutton" id="70040">
 						<include content="OSDButton">
 							<param name="texture" value="osd/fullscreen/buttons/channels.png"/>

@@ -2,7 +2,7 @@
 <window>
 	<defaultcontrol always="true">500</defaultcontrol>
 	<controls>
-		<control type="image">
+		<control type="image">Search Channels...
 			<texture background="true">$INFO[Container(500).ListItem.Property(Fanart_small)]</texture>
 			<width>1920</width>
 			<height>1080</height>
@@ -701,7 +701,7 @@
 
 			<!---PHIL--->
 			<control type="button" id="6001">
-				<label>Search_YouTube...</label>
+				<label>Search Channels...</label>
 				<posx>0</posx>
 				<posy>130</posy>
 				<width>400</width>

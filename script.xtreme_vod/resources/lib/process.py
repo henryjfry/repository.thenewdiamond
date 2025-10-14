@@ -241,6 +241,12 @@ def start_info_actions(infos, params):
 				wm.window_stack_empty()
 			return wm.open_video_list(mode='trakt', listitems=[], search_str=movies, media_type=trakt_type, filter_label=trakt_label)
 
+		elif info == 'search_title':
+			search_str = params.get('search_text')
+			wm.window_stack_empty()
+			Utils.tools_log(search_str)
+			return wm.open_video_list(search_str=search_str, mode='search')
+
 		elif info == 'search_menu':
 			search_str = xbmcgui.Dialog().input(heading='Enter search string', type=xbmcgui.INPUT_ALPHANUM)
 			wm.window_stack_empty()

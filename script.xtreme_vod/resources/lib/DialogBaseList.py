@@ -187,28 +187,9 @@ class DialogBaseList(object):
 	@ch.click(6001)
 	def open_search2(self):
 		result = xbmcgui.Dialog().input(heading='Enter search string', type=xbmcgui.INPUT_ALPHANUM)
+		from resources.lib import search_channel
 		if result and len(result) > -1:
-			from resources.lib.WindowManager import wm
-			#self.append_window_stack_table('curr_window')
-			self.prev_window = self.curr_window 
-			#self.curr_window = {'function': 'open_youtube_list', 'params': {'search_str': result, 'filters': self.filters, 'filter_label': self.filter_label, 'media_type': self.media_type}}
-			self.curr_window = {'function': 'open_youtube_list', 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': result, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'category_id': self.category_id ,'sort_label': self.sort_label, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
-			if wm.pop_video_list == False:
-				wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
-			else:
-				wm.pop_video_list = False
-			wm.open_youtube_list(prev_window=self, search_str=result, curr_window=self.prev_window)
-			#xbmc.executebuiltin('RunScript(%s,info=youtube,search_str=%s)' % (addon_ID(), result))
-			try: self.close()
-			except: pass
-			try: del wm
-			except: pass
-			try: del self
-			except: pass
-			return
-
-		if self.total_items > 0:
-			self.setFocusId(500)
+			search_channel.search_and_switch_channel(result)
 		Utils.hide_busy()
 
 	def search(self, label):
