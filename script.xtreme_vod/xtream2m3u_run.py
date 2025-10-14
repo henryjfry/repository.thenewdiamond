@@ -669,7 +669,7 @@ def xml_startup_process():
 	m3u_out_age = Utils.get_file_age(m3u_out)
 	guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
 	guide_out_age = Utils.get_file_age(guide_out)
-	if float(m3u_out_age['hours']) < float(4.00): and float(guide_out_age['hours']) < float(4.00):
+	if float(m3u_out_age['hours']) < float(4.00) and float(guide_out_age['hours']) < float(4.00):
 		Utils.tools_log('xml_startup_process_RETURN_no_changes')
 		return
 
