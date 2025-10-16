@@ -217,16 +217,17 @@ def generate_xmltv(mode=None):
 	password = Utils.xtreme_codes_password
 
 	guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
-	age = Utils.get_file_age(guide_out)
-	if age:
-		if float(age['hours']) <= float(4.00):
-			Utils.tools_log('XML_RETURN')
-			if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
-				return
-			with open(guide_out, "r", encoding="utf-8") as f:
-				xmltv_response = f.read()
-			# Return the M3U playlist as a downloadable file
-			return Response(xmltv_response,mimetype='application/xml',headers={"Content-Disposition": "attachment; filename=guide.xml"})
+	if os.path.exists(guide_out):
+		age = Utils.get_file_age(guide_out)
+		if age:
+			if float(age['hours']) <= float(4.00):
+				Utils.tools_log('XML_RETURN')
+				if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
+					return
+				with open(guide_out, "r", encoding="utf-8") as f:
+					xmltv_response = f.read()
+				# Return the M3U playlist as a downloadable file
+				return Response(xmltv_response,mimetype='application/xml',headers={"Content-Disposition": "attachment; filename=guide.xml"})
 
 	allowed_groups_file = os.path.join(Utils.ADDON_DATA_PATH, 'allowed_groups.txt')
 	allowed_groups = []
@@ -484,16 +485,17 @@ def generate_m3u(mode=None):
 	password = Utils.xtreme_codes_password
 
 	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
-	age = Utils.get_file_age(m3u_out)
-	if age:
-		if float(age['hours']) <= float(4.00):
-			Utils.tools_log('M3U_RETURN')
-			if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
-				return
-			with open(m3u_out, "r", encoding="utf-8") as f:
-				m3u_playlist = f.read()
-			# Return the M3U playlist as a downloadable file
-			return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
+	if os.path.exists(m3u_out):
+		age = Utils.get_file_age(m3u_out)
+		if age:
+			if float(age['hours']) <= float(4.00):
+				Utils.tools_log('M3U_RETURN')
+				if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
+					return
+				with open(m3u_out, "r", encoding="utf-8") as f:
+					m3u_playlist = f.read()
+				# Return the M3U playlist as a downloadable file
+				return Response(m3u_playlist, mimetype='audio/x-scpls', headers={"Content-Disposition": "attachment; filename=LiveStream.m3u"})
 
 
 
@@ -552,6 +554,10 @@ def generate_m3u(mode=None):
 	unwanted_groups = []
 	wanted_groups = allowed_groups
 	m3u_playlist = "#EXTM3U\n"
+	m3u_kodi_prop = """#KODIPROP:inputstream=inputstream.ffmpegdirect
+#KODIPROP:inputstream.ffmpegdirect.stream_mode=timeshift
+#KODIPROP:http-reconnect=true
+"""
 	for channel in sorted_livechannel_response:
 		if channel['stream_type'] == 'live':
 			group_title = categoryname.get(channel["category_id"], "Uncategorized")
@@ -580,6 +586,7 @@ def generate_m3u(mode=None):
 				#	stream_url = f"{host_url}/stream-proxy/{encode_image_url(stream_url)}"
 
 				m3u_playlist += f'#EXTINF:0 tvg-name="{channel["name"]}" group-title="{group_title}" tvg-logo="{logo_url}",{channel["name"]}\n'
+				m3u_playlist += m3u_kodi_prop
 				m3u_playlist += f'{stream_url}\n'
 
 	Utils.tools_log('M3U_RETURN')
@@ -694,9 +701,10 @@ def xml_startup_process():
 	m3u_out_age = Utils.get_file_age(m3u_out)
 	guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
 	guide_out_age = Utils.get_file_age(guide_out)
-	if float(m3u_out_age['hours']) < float(4.00) and float(guide_out_age['hours']) < float(4.00):
-		Utils.tools_log('xml_startup_process_RETURN_no_changes')
-		return
+	if os.path.exists(m3u_out) and os.path.exists(guide_out):
+		if float(m3u_out_age['hours']) < float(4.00) and float(guide_out_age['hours']) < float(4.00):
+			Utils.tools_log('xml_startup_process_RETURN_no_changes')
+			return
 
 
 	if  xbmcaddon.Addon(addon_ID()).getSetting('auto_start_server') == 'true':
