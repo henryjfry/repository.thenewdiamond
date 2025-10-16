@@ -47,6 +47,21 @@ def start_info_actions(infos, params):
 			except: season = None
 			imdb_trailers.play_imdb_trailer(imdb_id=imdb_id, select=select, season=season)
 
+		if info == 'select_pvr_client':
+			client = select_pvr_client()
+			if client:
+				xbmc.executebuiltin('Dialog.Close(all,true)')
+				xbmcaddon.Addon(addon_ID()).setSetting('pvr_client', client)
+				Utils.tools_log(client)
+			xbmcgui.Dialog().notification("pvr_client_UPDATED",client)
+			Utils.hide_busy()
+			return
+
+		if info == 'reset_stuff':
+			reset_stuff()
+			Utils.hide_busy()
+			return
+
 		if info == 'm3u_ts_m3u8':
 			from xtream2m3u_run import m3u_ts_m3u8
 			m3u_ts_m3u8()
@@ -595,12 +610,12 @@ def do_patch(patch_file_path, patch_lines, log_addon_name, start_line, end_line)
 def setup_favourites():
 	file_path = xbmcvfs.translatePath('special://userdata/favourites.xml')
 	fav1_list = []
-	fav1_list.append('    <favourite name="VOD Movies" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=allmovies2)</favourite>')
-	fav1_list.append('    <favourite name="VOD TV" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=alltv2)</favourite>')
-	fav1_list.append('    <favourite name="Trakt Watched TV" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=tv)</favourite>')
-	fav1_list.append('    <favourite name="Trakt Watched Movies" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=movie)</favourite>')
-	fav1_list.append('    <favourite name="Eps_Movies Watching" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=ep_movie_progress)</favourite>')
-	fav1_list.append('    <favourite name="Reopen Last" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=reopen_window)</favourite>')
+	fav1_list.append('	<favourite name="VOD Movies" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=allmovies2)</favourite>')
+	fav1_list.append('	<favourite name="VOD TV" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=alltv2)</favourite>')
+	fav1_list.append('	<favourite name="Trakt Watched TV" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=tv)</favourite>')
+	fav1_list.append('	<favourite name="Trakt Watched Movies" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=trakt_watched,trakt_type=movie)</favourite>')
+	fav1_list.append('	<favourite name="Eps_Movies Watching" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=ep_movie_progress)</favourite>')
+	fav1_list.append('	<favourite name="Reopen Last" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=reopen_window)</favourite>')
 
 	file1 = open(file_path, 'r')
 	lines = file1.readlines()
@@ -637,85 +652,85 @@ def patch_tmdbh():
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','player') , 'players.py')
 	if not os.path.exists(file_path):
 		file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'lib','player') , 'players.py')
-	line_update = '''            for idx, i in enumerate(players_list): ## PATCH
-                if 'auto_cloud' in str(i).lower() and self.tmdb_type != 'movie': ## PATCH
-                    auto_var = idx ## PATCH
-                    break ## PATCH
-                if 'Auto_Torr_Scrape' in str(i) and self.tmdb_type == 'movie': ## PATCH
-                    auto_var = idx ## PATCH
-                    break ## PATCH
-            #return Dialog().select(header, players, useDetails=detailed) ## PATCH
-            #return Dialog().select(header, players, autoclose=30000, preselect=auto_var, useDetails=detailed) ## PATCH
-            return Dialog().select(header, players, autoclose=30000, preselect=auto_var, useDetails=detailed) ## PATCH
+	line_update = '''			for idx, i in enumerate(players_list): ## PATCH
+				if 'auto_cloud' in str(i).lower() and self.tmdb_type != 'movie': ## PATCH
+					auto_var = idx ## PATCH
+					break ## PATCH
+				if 'Auto_Torr_Scrape' in str(i) and self.tmdb_type == 'movie': ## PATCH
+					auto_var = idx ## PATCH
+					break ## PATCH
+			#return Dialog().select(header, players, useDetails=detailed) ## PATCH
+			#return Dialog().select(header, players, autoclose=30000, preselect=auto_var, useDetails=detailed) ## PATCH
+			return Dialog().select(header, players, autoclose=30000, preselect=auto_var, useDetails=detailed) ## PATCH
 '''
-	first_line = '            for idx, i in enumerate(players_list): '
+	first_line = '			for idx, i in enumerate(players_list): '
 	last_line = 'return Dialog().select(header, players, useDetails=detailed)'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','player') , 'select.py')
-	line_update = '''    def select_player(players_list, header=None, detailed=True, index=False, players=None):
-        """ Select from a list of players """
-        if 'episode' in str(players[0]['mode']):
-            db_type = 'episode'
-        else:
-            db_type = 'movie'
-        for idx, i in enumerate(players): ## PATCH
-            if 'auto_cloud' in str(i['name']).lower() and db_type != 'movie': ## PATCH
-                auto_var = idx ## PATCH
-                break ## PATCH
-            if 'Auto_Torr_Scrape' in str(i['name']) and db_type == 'movie': ## PATCH
-                auto_var = idx ## PATCH
-                break ## PATCH
-        x = Dialog().select(header or get_localized(32042), [i.listitem for i in players_list],useDetails=detailed, autoclose=30000, preselect=auto_var)
-        return x if index or x == -1 else players_list[x].posx
+	line_update = '''	def select_player(players_list, header=None, detailed=True, index=False, players=None):
+		""" Select from a list of players """
+		if 'episode' in str(players[0]['mode']):
+			db_type = 'episode'
+		else:
+			db_type = 'movie'
+		for idx, i in enumerate(players): ## PATCH
+			if 'auto_cloud' in str(i['name']).lower() and db_type != 'movie': ## PATCH
+				auto_var = idx ## PATCH
+				break ## PATCH
+			if 'Auto_Torr_Scrape' in str(i['name']) and db_type == 'movie': ## PATCH
+				auto_var = idx ## PATCH
+				break ## PATCH
+		x = Dialog().select(header or get_localized(32042), [i.listitem for i in players_list],useDetails=detailed, autoclose=30000, preselect=auto_var)
+		return x if index or x == -1 else players_list[x].posx
 
-    def get_player(self, x):
-        player = self.players_list[x]
-        player['idx'] = x
-        return player
+	def get_player(self, x):
+		player = self.players_list[x]
+		player['idx'] = x
+		return player
 
-    def select(self, header=None, detailed=True):
-        """ Select a player from the list """
-        x = self.select_player(self.players_generated_list, header=header, detailed=detailed, players=self.players)
-        return {} if x == -1 else self.get_player(x)
+	def select(self, header=None, detailed=True):
+		""" Select a player from the list """
+		x = self.select_player(self.players_generated_list, header=header, detailed=detailed, players=self.players)
+		return {} if x == -1 else self.get_player(x)
 '''
-	first_line = '    def select_player(players_list, header=None, detailed=True, index=False):'
-	last_line = '        return {} if x == -1 else self.get_player(x)'
+	first_line = '	def select_player(players_list, header=None, detailed=True, index=False):'
+	last_line = '		return {} if x == -1 else self.get_player(x)'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script','method') , 'maintenance.py')
-	line_update = '''    def vacuum(self, force=False):  ##PATCH
-        import time
-        if not force and self.is_next_vacuum == False:
-            return
-        if time.time() < self.next_vacuum:
-            return
-        self.set_next_vacuum()
-        from tmdbhelper.lib.addon.logger import TimerFunc
-        from tmdbhelper.lib.items.database.database import ItemDetailsDatabase
-        from tmdbhelper.lib.query.database.database import FindQueriesDatabase
-        with TimerFunc('Vacuuming databases:', inline=True):
-            ItemDetailsDatabase().execute_sql("VACUUM")
-            FindQueriesDatabase().execute_sql("VACUUM")
+	line_update = '''	def vacuum(self, force=False):  ##PATCH
+		import time
+		if not force and self.is_next_vacuum == False:
+			return
+		if time.time() < self.next_vacuum:
+			return
+		self.set_next_vacuum()
+		from tmdbhelper.lib.addon.logger import TimerFunc
+		from tmdbhelper.lib.items.database.database import ItemDetailsDatabase
+		from tmdbhelper.lib.query.database.database import FindQueriesDatabase
+		with TimerFunc('Vacuuming databases:', inline=True):
+			ItemDetailsDatabase().execute_sql("VACUUM")
+			FindQueriesDatabase().execute_sql("VACUUM")
 
-    def delete_legacy_folders(self, force=False): ##PATCH
+	def delete_legacy_folders(self, force=False): ##PATCH
 '''
-	first_line = '    def vacuum(self, force=False):'
-	last_line = '    def delete_legacy_folders(self, force=False):'
+	first_line = '	def vacuum(self, force=False):'
+	last_line = '	def delete_legacy_folders(self, force=False):'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api','trakt') , 'authenticator.py')
-	line_update = '''    def poller(self): ## PATCH
-        import xbmc
-        while True:
-            xbmc.log(str(self.user_code)+'===>PHIL', level=xbmc.LOGINFO)
-            if self.xbmc_monitor.abortRequested(): ## PATCH
+	line_update = '''	def poller(self): ## PATCH
+		import xbmc
+		while True:
+			xbmc.log(str(self.user_code)+'===>PHIL', level=xbmc.LOGINFO)
+			if self.xbmc_monitor.abortRequested(): ## PATCH
 '''
-	first_line = '    def poller(self):'
-	last_line = '            if self.xbmc_monitor.abortRequested():'
+	first_line = '	def poller(self):'
+	last_line = '			if self.xbmc_monitor.abortRequested():'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
@@ -724,28 +739,28 @@ def patch_tmdbh():
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script','method') , 'trakt.py')
 	line_update = '''def authenticate_trakt(**kwargs): ## PATCH
-    from tmdbhelper.lib.api.trakt.api import TraktAPI
-    TraktAPI(force=True)
-    invalidate_trakt_sync('all', notification=False)
+	from tmdbhelper.lib.api.trakt.api import TraktAPI
+	TraktAPI(force=True)
+	invalidate_trakt_sync('all', notification=False)
 
 def authorize_trakt(**kwargs):
-    import xbmc
-    from tmdbhelper.lib.addon.logger import kodi_log
-    from tmdbhelper.lib.api.trakt.api import TraktAPI
-    from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
-    trakt_api = TraktAPI(force=False)
-    TraktStoredAccessToken(trakt_api).winprop_traktusertoken = ''
-    refresh_token = TraktStoredAccessToken(trakt_api).refresh_token
-    response = trakt_api.set_authorisation_token(refresh_token)
-    if response != {}:
-        xbmc.log(str('Trakt authenticated successfully!')+'===>PHIL', level=xbmc.LOGINFO)
-    from tmdbhelper.lib.files.futils import json_dumps as data_dumps
-    trakt_api.user_token.value = data_dumps(response)
-    from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
-    USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
-    TraktStoredAccessToken(trakt_api).winprop_traktusertoken = USER_TOKEN.value
-    TraktStoredAccessToken(trakt_api).confirm_authorization()
-    return
+	import xbmc
+	from tmdbhelper.lib.addon.logger import kodi_log
+	from tmdbhelper.lib.api.trakt.api import TraktAPI
+	from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
+	trakt_api = TraktAPI(force=False)
+	TraktStoredAccessToken(trakt_api).winprop_traktusertoken = ''
+	refresh_token = TraktStoredAccessToken(trakt_api).refresh_token
+	response = trakt_api.set_authorisation_token(refresh_token)
+	if response != {}:
+		xbmc.log(str('Trakt authenticated successfully!')+'===>PHIL', level=xbmc.LOGINFO)
+	from tmdbhelper.lib.files.futils import json_dumps as data_dumps
+	trakt_api.user_token.value = data_dumps(response)
+	from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
+	USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
+	TraktStoredAccessToken(trakt_api).winprop_traktusertoken = USER_TOKEN.value
+	TraktStoredAccessToken(trakt_api).confirm_authorization()
+	return
 
 def revoke_trakt(**kwargs): ## PATCH
 '''
@@ -755,87 +770,87 @@ def revoke_trakt(**kwargs): ## PATCH
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script') , 'router.py')
-	line_update = '''        'authenticate_trakt': ## PATCH
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authenticate_trakt')(**kwargs),
-        'authorize_trakt':
-            lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authorize_trakt')(**kwargs),
-        'revoke_trakt': ## PATCH
+	line_update = '''		'authenticate_trakt': ## PATCH
+			lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authenticate_trakt')(**kwargs),
+		'authorize_trakt':
+			lambda **kwargs: importmodule('tmdbhelper.lib.script.method.trakt', 'authorize_trakt')(**kwargs),
+		'revoke_trakt': ## PATCH
 '''
-	first_line = "        'authenticate_trakt':"
-	last_line = "        'revoke_trakt':" 
+	first_line = "		'authenticate_trakt':"
+	last_line = "		'revoke_trakt':" 
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','monitor') , 'player.py')
-	line_update = '''    def onAVStarted(self):  ## PATCH
-        import xbmc
-        xbmc.sleep(5*1000)
-        try: self.get_playingitem()
-        except: return
+	line_update = '''	def onAVStarted(self):  ## PATCH
+		import xbmc
+		xbmc.sleep(5*1000)
+		try: self.get_playingitem()
+		except: return
 
-    def onPlayBackStarted(self):
-        import xbmc
-        xbmc.sleep(5*1000)
-        try: self.get_playingitem()
-        except: return
+	def onPlayBackStarted(self):
+		import xbmc
+		xbmc.sleep(5*1000)
+		try: self.get_playingitem()
+		except: return
 
-    def onAVChange(self):
-        import xbmc
-        xbmc.sleep(5*1000)
-        try: self.get_playingitem()
-        except: return
+	def onAVChange(self):
+		import xbmc
+		xbmc.sleep(5*1000)
+		try: self.get_playingitem()
+		except: return
 
-    def onPlayBackEnded(self):  ## PATCH
+	def onPlayBackEnded(self):  ## PATCH
 '''
-	first_line = '    def onAVStarted(self):'
-	last_line = '    def onPlayBackEnded(self):'
+	first_line = '	def onAVStarted(self):'
+	last_line = '	def onPlayBackEnded(self):'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api', 'trakt') , 'api.py')
-	line_update = '''    def access_token(self):   ## PATCH
-        #if not self.authenticator.access_token:
-        #    return
-        #if not self.authenticator.trakt_stored_access_token.has_valid_token:
-        #    self.refresh_authenticator()
-        #return self.authenticator.access_token
-        if not self.authenticator.trakt_stored_access_token.has_valid_token:
-            self.refresh_authenticator()
-        from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
-        from tmdbhelper.lib.files.futils import json_loads as data_loads
-        USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
-        try: access_token = data_loads(USER_TOKEN.value)['access_token']
-        except: return None
-        if access_token != self.authenticator.access_token:
-            #self.authenticator.access_token = access_token
-            from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
-            TraktStoredAccessToken(self).on_success()
-            self.refresh_authenticator()
-        return access_token
+	line_update = '''	def access_token(self):   ## PATCH
+		#if not self.authenticator.access_token:
+		#	return
+		#if not self.authenticator.trakt_stored_access_token.has_valid_token:
+		#	self.refresh_authenticator()
+		#return self.authenticator.access_token
+		if not self.authenticator.trakt_stored_access_token.has_valid_token:
+			self.refresh_authenticator()
+		from tmdbhelper.lib.api.api_keys.tokenhandler import TokenHandler
+		from tmdbhelper.lib.files.futils import json_loads as data_loads
+		USER_TOKEN = TokenHandler('trakt_token', store_as='setting')
+		try: access_token = data_loads(USER_TOKEN.value)['access_token']
+		except: return None
+		if access_token != self.authenticator.access_token:
+			#self.authenticator.access_token = access_token
+			from tmdbhelper.lib.api.trakt.token import TraktStoredAccessToken
+			TraktStoredAccessToken(self).on_success()
+			self.refresh_authenticator()
+		return access_token
 
-    @cached_property
-    def authenticator(self):  ## PATCH
+	@cached_property
+	def authenticator(self):  ## PATCH
 '''
-	first_line = '    def access_token(self):'
-	last_line = '    def authenticator(self):'
+	first_line = '	def access_token(self):'
+	last_line = '	def authenticator(self):'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','api', 'trakt') , 'token.py')
-	line_update = '''    def update_stored_authorization(self):  ## PATCH
-        test_user_token = self.winprop_traktusertoken
-        self.trakt_api.user_token.value = self.winprop_traktusertoken = data_dumps(self.stored_authorization)
-        if test_user_token != self.trakt_api.user_token.value and len(test_user_token) > 4:
-            self.trakt_api.user_token.value = data_dumps(test_user_token)
-            self.stored_authorization = data_dumps(test_user_token)
-            self.winprop_traktusertoken = data_dumps(test_user_token)
+	line_update = '''	def update_stored_authorization(self):  ## PATCH
+		test_user_token = self.winprop_traktusertoken
+		self.trakt_api.user_token.value = self.winprop_traktusertoken = data_dumps(self.stored_authorization)
+		if test_user_token != self.trakt_api.user_token.value and len(test_user_token) > 4:
+			self.trakt_api.user_token.value = data_dumps(test_user_token)
+			self.stored_authorization = data_dumps(test_user_token)
+			self.winprop_traktusertoken = data_dumps(test_user_token)
 
-    @property
-    def winprop_traktusertoken(self):  ## PATCH
+	@property
+	def winprop_traktusertoken(self):  ## PATCH
 '''
-	first_line = '    def update_stored_authorization(self):'
-	last_line = '    def winprop_traktusertoken(self):'
+	first_line = '	def update_stored_authorization(self):'
+	last_line = '	def winprop_traktusertoken(self):'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
@@ -922,10 +937,10 @@ def follow(thefile):
 def follow2():
 	logfn = xbmcvfs.translatePath(r'special://logpath\kodi.log')
 	with open(logfn, 'r') as f:
-		f.seek(0, 2)           # seek @ EOF
-		fsize = f.tell()        # Get Size
+		f.seek(0, 2)		   # seek @ EOF
+		fsize = f.tell()		# Get Size
 		f.seek(max(fsize - 9024, 0), 0)  # Set pos @ last n chars
-		lines = f.readlines()       # Read to end
+		lines = f.readlines()	   # Read to end
 	line = lines[-6:]
 	return str(line)
 
@@ -948,11 +963,11 @@ def get_log_error_flag(mode=None):
 	#logfn = '/home/osmc/.kodi/temp/kodi.log'
 	xbmc.sleep(250)  # found originally that it wasn't written yet
 	with open(logfn, 'r') as f:
-		f.seek(0, 2)           # seek @ EOF
-		fsize = f.tell()        # Get Size
+		f.seek(0, 2)		   # seek @ EOF
+		fsize = f.tell()		# Get Size
 		f.seek(max(fsize - 9024, 0), 0)  # Set pos @ last n chars
-		lines = f.readlines()       # Read to end
-	lines = lines[-15:]    # Get last 10 lines
+		lines = f.readlines()	   # Read to end
+	lines = lines[-15:]	# Get last 10 lines
 	#xbmc.log(str(lines)+'===>OPENINFO', level=xbmc.LOGINFO)
 	ret = None
 	error_flag = False
@@ -1002,3 +1017,115 @@ def auto_clean_cache(days=None):
 	#Utils.db_con.close()
 	#auto_clean_cache_seren_downloader(days=30)
 
+
+
+def select_pvr_client():
+	import xbmc
+	import xbmcgui
+	import json
+	"""
+	Presents a selection dialog of installed PVR clients.
+	Returns the selected addon ID, or None if cancelled.
+	"""
+	# JSON-RPC request to get all PVR client addons
+	request = {
+		"jsonrpc": "2.0",
+		"method": "Addons.GetAddons",
+		"params": {"enabled": True },
+		"id": 1
+	}
+	
+	response_json = xbmc.executeJSONRPC(json.dumps(request))
+	response = json.loads(response_json)
+	# Extract the list of PVR addons
+	#Utils.tools_log(response)
+	pvr_addons = response.get("result", {}).get("addons", [])
+	
+	if not pvr_addons:
+		xbmcgui.Dialog().notification("PVR Clients", "No PVR clients installed", xbmcgui.NOTIFICATION_ERROR)
+		return None
+	
+	# Prepare the list of names and IDs for the dialog
+	#names = [addon["name"] for addon in pvr_addons]
+	addon_ids = [addon["addonid"] for addon in pvr_addons if "pvr." in addon["addonid"]]
+	
+	if len(addon_ids) == 1:
+		return addon_ids[0]
+
+	# Show selection dialog
+	dialog = xbmcgui.Dialog()
+	selected_index = dialog.select("Select PVR Client", addon_ids)
+	
+	if selected_index == -1:
+		# User cancelled
+		return None
+	
+	# Return the addon ID corresponding to the selected name
+	return addon_ids[selected_index]
+
+
+def reset_stuff():
+	import xbmc
+	import xbmcgui
+	xbmcgui.Dialog().notification("Starting","Starting")
+	xbmc.executebuiltin('Dialog.Close(all,true)')
+	xbmc.sleep(500)
+	xbmc.executebuiltin('ActivateWindow(Home)')
+	xbmc.sleep(500)
+	xbmc.executebuiltin('ActivateWindow(pvrsettings)')
+	xbmc.sleep(500)
+	xbmc.executebuiltin('Action(right)')
+	window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+	control = window.getControl(window.getFocusId())
+	label = control.getLabel()
+	x = 0
+	while label != 'Clear data' and x < 25:
+		xbmc.executebuiltin('Action(down)')
+		xbmc.sleep(500)
+		control = window.getControl(window.getFocusId())
+		label = control.getLabel()
+		if label == 'Clear data' or x >= 25:
+			break
+		x = x +1
+	xbmc.executebuiltin('Action(select)')
+	unique_labels = []
+	curr_label = xbmc.getInfoLabel("ListItem.Label")
+	x = 0
+	while not curr_label in unique_labels:
+		xbmc.sleep(500)
+		curr_label = xbmc.getInfoLabel("ListItem.Label")
+		if not curr_label == 'Channels, Groups, Guide, Providers':
+			xbmc.executebuiltin('Action(select)')
+			unique_labels.append(curr_label)
+		if curr_label == 'Channels, Groups, Guide, Providers':
+			unique_labels.append(curr_label)
+		xbmc.sleep(500)
+		xbmc.executebuiltin('Action(down)')
+		xbmc.sleep(500)
+		curr_label = xbmc.getInfoLabel("ListItem.Label")
+	xbmc.sleep(500)
+	xbmc.executebuiltin('SetFocus(5)')
+	xbmc.sleep(500)
+	#xbmc.executebuiltin('SetFocus(7)')#CANCEL
+	xbmc.executebuiltin('Action(select)')
+	xbmc.sleep(500)
+	xbmc.executebuiltin('SetFocus(11)')
+	xbmc.sleep(500)
+	#xbmc.executebuiltin('SetFocus(10)')#NO
+	xbmc.executebuiltin('Action(select)')
+	xbmc.executebuiltin('Dialog.Close(all,true)')
+	xbmc.executebuiltin("ActivateWindow(Home)")
+	Utils.addon_disable_reable(addonid = Utils.pvr_client , enabled=False)
+	
+	guide_out = os.path.join(Utils.ADDON_DATA_PATH, 'guide.xml')
+	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+	if os.path.exists(m3u_out):
+		os.remove(m3u_out)
+	if os.path.exists(guide_out):
+		os.remove(guide_out)
+	from xtream2m3u_run import generate_m3u
+	from xtream2m3u_run import generate_xmltv
+	generate_m3u()
+	generate_xmltv()
+	Utils.addon_disable_reable(addonid = Utils.pvr_client , enabled=True)
+	xbmcgui.Dialog().notification("FIN","FIN")

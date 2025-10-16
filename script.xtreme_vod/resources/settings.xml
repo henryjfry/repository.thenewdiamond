@@ -7,6 +7,7 @@
 		<setting label="Netflix view" type="bool" id="netflix_view" default="false"/>
 		<setting label="Netflix view2 (Only Info Screens?)" type="bool" id="netflix_info_view" default="false"/>
 		<setting label="Automatically play trailers (affects only Netflix view)" type="bool" enable="eq(-1,true)" id="autoplay_trailer"/--->
+		<setting label="M3U playlist TS or M3U8" type="select" id="m3u_ts_m3u8_option" values="TS|M3U8" default="M3U8"/>
 		<setting id="xtreme_codes.password" type="text" label="xtreme_codes_password" default="" />
 		<setting id="xtreme_codes.username" type="text" label="xtreme_codes_username" default="" />
 		<setting id="xtreme_codes.base_url" type="text" label="xtreme_codes_server_path" default="http://name.server.xyz:80/" />
@@ -20,7 +21,8 @@
 		<setting label="save_allowed_groups" type="action" action="RunScript(script.xtreme_vod,info=save_allowed_groups)" visible="true"/>
 		<setting label="Generate XML+M3U" type="lsep"/>
 		<setting label="generate_m3u_xml" type="action" action="RunScript(script.xtreme_vod,info=generate_m3u_xml)" visible="true"/>
-		<setting label="M3U playlist TS or M3U8" type="select" id="m3u_ts_m3u8_option" values="TS|M3U8" default="M3U8"/>
+		<setting label="select_installed_pvr_client" type="action" action="RunScript(script.xtreme_vod,info=select_pvr_client)" visible="true"/>
+		<setting label="pvr_client" id="pvr_client" type="text" default="pvr.iptvsimple"/>
 		<setting label="Setup iptv simple settings" type="lsep"/>
 		<setting label="setup_iptv_simple_settings" type="action" action="RunScript(script.xtreme_vod,info=setup_iptv_simple_settings)" visible="true"/>
 
@@ -69,6 +71,7 @@
 	<setting label="Clear cache..." type="action" action="RunScript(script.xtreme_vod,info=deletecache)"/>
 	<setting label="Auto Clear cache (>14 days)" type="action" action="RunScript(script.xtreme_vod,info=auto_clean_cache)"/>
 	<setting label="TEST ROUTE" type="action" action="RunScript(script.xtreme_vod,info=test_route)"/>
+	<setting label="TEST RESET STUFF!!" type="action" action="RunScript(script.xtreme_vod,info=reset_stuff)"/>
 
 <setting label="token_expires" type="text" id="token_expires" default="" visible="false" />
 <setting label="refresh_token" type="text" id="refresh_token" default="" visible="false" />

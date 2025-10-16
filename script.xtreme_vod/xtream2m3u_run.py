@@ -718,13 +718,16 @@ def xml_startup_process():
 		local_xml_m3u = False
 	startup_local_xml_m3u = xbmcaddon.Addon(addon_ID()).getSetting('startup_local_xml_m3u')
 
-	pvr_clients = Utils.get_pvr_clients()
-	try:
-		for i in pvr_clients:
-			Utils.tools_log('Disable_IPTV_Clients')
-			Utils.addon_disable_reable(addonid = i , enabled=False)
-	except:
-		pvr_clients = ['pvr.iptvsimple']
+	#pvr_clients = Utils.get_pvr_clients()
+	#try:
+	#	for i in pvr_clients:
+	#		Utils.tools_log('Disable_IPTV_Clients')
+	#		Utils.addon_disable_reable(addonid = i , enabled=False)
+	#except:
+	#	pvr_clients = ['pvr.iptvsimple']
+	pvr_client = Utils.pvr_client
+	Utils.tools_log('Disable_IPTV_Client__'+pvr_client)
+	Utils.addon_disable_reable(addonid = pvr_client , enabled=False)
 	Utils.ResetEPG()
 
 	if auto_start_server and Utils.xtreme_codes_password != '':
@@ -735,7 +738,8 @@ def xml_startup_process():
 		generate_xmltv(mode='startup')
 
 	xbmc.sleep(5*1000)
-	for i in pvr_clients:
-		Utils.tools_log('Reable_IPTV_Clients')
-		Utils.addon_disable_reable(addonid = i , enabled=True)
+	#for i in pvr_clients:
+	#	Utils.tools_log('Reable_IPTV_Clients')
+	#	Utils.addon_disable_reable(addonid = i , enabled=True)
+	Utils.addon_disable_reable(addonid = pvr_client , enabled=True)
 

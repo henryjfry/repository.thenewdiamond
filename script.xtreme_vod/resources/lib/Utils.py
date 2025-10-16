@@ -44,6 +44,7 @@ if XBMC_RUNNING:
 	xtreme_codes_password = xbmcaddon.Addon().getSetting('xtreme_codes.password')
 	xtreme_wanted_groups = xbmcaddon.Addon().getSetting('xtreme_wanted_groups')
 	m3u_ts_m3u8_option = xbmcaddon.Addon().getSetting('m3u_ts_m3u8_option')
+	pvr_client = xbmcaddon.Addon().getSetting('pvr_client')
 	if xbmcaddon.Addon(addon_ID()).getSetting('subtitle_lookup') == 'true':
 		subtitle_lookup = True
 	else:
@@ -80,8 +81,9 @@ else:
 		if 'xtreme_codes.password' in str(i):
 			xtreme_codes_password = i.split('xtreme_codes.password"')[1].split('>')[1].split('<')[0]
 		if 'm3u_ts_m3u8_option' in str(i):
-			m3u_ts_m3u8_option = i.split('xm3u_ts_m3u8_option"')[1].split('>')[1].split('<')[0]
-
+			m3u_ts_m3u8_option = i.split('m3u_ts_m3u8_option"')[1].split('>')[1].split('<')[0]
+		if 'pvr_client' in str(i):
+			pvr_client = i.split('pvr_client"')[1].split('>')[1].split('<')[0]
 
 		if 'fanart_api"' in str(i):
 			fanart_api_key = i.split('fanart_api"')[1].split('>')[1].split('<')[0]
