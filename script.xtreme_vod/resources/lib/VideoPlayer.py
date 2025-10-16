@@ -610,6 +610,7 @@ class VideoPlayer(xbmc.Player):
 			infolabels['country'] = response_extended_movie_info[0]['Country']
 
 		li.setProperty('FileNameAndPath', str(full_url))
+
 		infolabels['path'] = full_url
 
 		TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'movie', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}

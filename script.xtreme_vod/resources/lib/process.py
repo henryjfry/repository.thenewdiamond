@@ -1114,6 +1114,7 @@ def reset_stuff():
 	#xbmc.executebuiltin('SetFocus(10)')#NO
 	xbmc.executebuiltin('Action(select)')
 	xbmc.executebuiltin('Dialog.Close(all,true)')
+	Utils.show_busy()
 	xbmc.executebuiltin("ActivateWindow(Home)")
 	Utils.addon_disable_reable(addonid = Utils.pvr_client , enabled=False)
 	
