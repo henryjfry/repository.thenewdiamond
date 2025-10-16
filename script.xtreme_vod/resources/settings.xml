@@ -20,6 +20,7 @@
 		<setting label="save_allowed_groups" type="action" action="RunScript(script.xtreme_vod,info=save_allowed_groups)" visible="true"/>
 		<setting label="Generate XML+M3U" type="lsep"/>
 		<setting label="generate_m3u_xml" type="action" action="RunScript(script.xtreme_vod,info=generate_m3u_xml)" visible="true"/>
+		<setting label="M3U playlist TS or M3U8" type="select" id="m3u_ts_m3u8_option" values="TS|M3U8" default="M3U8"/>
 		<setting label="Setup iptv simple settings" type="lsep"/>
 		<setting label="setup_iptv_simple_settings" type="action" action="RunScript(script.xtreme_vod,info=setup_iptv_simple_settings)" visible="true"/>
 
@@ -60,6 +61,7 @@
 	<category label="TOOLS">
 	<setting label="LOGIN_TRAKT" type="action" action="RunScript(script.xtreme_vod,info=login_trakt)"/>
 	<setting label="setup_favourites" type="action" action="RunScript(script.xtreme_vod,info=setup_favourites)"/>
+	<setting label="Convert m3u to ts/m3u8" type="action" action="RunScript(script.xtreme_vod,info=m3u_ts_m3u8)"/>
 	<setting label="setup TMDBH player" type="action" action="RunScript(script.xtreme_vod,info=setup_players)"/>
 	<setting label="patch_tmdb_helper" type="action" action="RunScript(script.xtreme_vod,info=patch_tmdb_helper)"/>
 	<setting label="setup_iptv_simple_settings" type="action" action="RunScript(script.xtreme_vod,info=setup_iptv_simple_settings)" visible="true"/>

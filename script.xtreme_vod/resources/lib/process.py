@@ -47,6 +47,12 @@ def start_info_actions(infos, params):
 			except: season = None
 			imdb_trailers.play_imdb_trailer(imdb_id=imdb_id, select=select, season=season)
 
+		if info == 'm3u_ts_m3u8':
+			from xtream2m3u_run import m3u_ts_m3u8
+			m3u_ts_m3u8()
+			Utils.hide_busy()
+			return
+
 		if info == 'generate_m3u_xml':
 			from xtream2m3u_run import generate_m3u
 			from xtream2m3u_run import generate_xmltv

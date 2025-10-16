@@ -43,6 +43,7 @@ if XBMC_RUNNING:
 	xtreme_codes_username = xbmcaddon.Addon().getSetting('xtreme_codes.username')
 	xtreme_codes_password = xbmcaddon.Addon().getSetting('xtreme_codes.password')
 	xtreme_wanted_groups = xbmcaddon.Addon().getSetting('xtreme_wanted_groups')
+	m3u_ts_m3u8_option = xbmcaddon.Addon().getSetting('m3u_ts_m3u8_option')
 	if xbmcaddon.Addon(addon_ID()).getSetting('subtitle_lookup') == 'true':
 		subtitle_lookup = True
 	else:
@@ -78,6 +79,8 @@ else:
 			xtreme_codes_username = i.split('xtreme_codes.username"')[1].split('>')[1].split('<')[0]
 		if 'xtreme_codes.password' in str(i):
 			xtreme_codes_password = i.split('xtreme_codes.password"')[1].split('>')[1].split('<')[0]
+		if 'm3u_ts_m3u8_option' in str(i):
+			m3u_ts_m3u8_option = i.split('xm3u_ts_m3u8_option"')[1].split('>')[1].split('<')[0]
 
 
 		if 'fanart_api"' in str(i):

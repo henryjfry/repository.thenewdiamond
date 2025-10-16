@@ -447,6 +447,28 @@ def save_allowed_groups(paste_bin_url):
 	save_pastebin_to_file(url=paste_bin_url, file_name='allowed_groups.txt')
 
 
+def m3u_ts_m3u8():
+	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+	with open(m3u_out, "r", encoding="utf-8") as m3u_playlist:
+		new_m3u_playlist = ''
+		for x in m3u_playlist:
+			if x[:1] == '#':
+				new_m3u_playlist = new_m3u_playlist + x
+				continue
+			if x[:4] == 'http':
+				if x.strip()[-2:] == 'ts':
+					new_m3u_playlist = new_m3u_playlist + x.strip()[:-2] + 'm3u8' + '\n'
+					continue
+				elif x.strip()[-4:] == 'm3u8':
+					new_m3u_playlist = new_m3u_playlist + x.strip()[:-4] + 'ts' + '\n'
+					continue
+		#Utils.tools_log(new_m3u_playlist)
+	Utils.tools_log('M3U_RETURN')
+	Utils.tools_log(m3u_out)
+	f = open(m3u_out, "w")
+	f.write(new_m3u_playlist)
+	f.close()
+	return
 
 #@app.route('/m3u', methods=['GET'])
 def generate_m3u(mode=None):
@@ -550,7 +572,10 @@ def generate_m3u(mode=None):
 				#logo_url = f"{host_url}/image-proxy/{encode_image_url(original_logo)}" if original_logo else ''
 				logo_url = original_logo
 
-				stream_url = f'{fullurl}{channel["stream_id"]}.ts'
+				if Utils.m3u_ts_m3u8_option == 'TS':
+					stream_url = f'{fullurl}{channel["stream_id"]}.ts'
+				elif Utils.m3u_ts_m3u8_option == 'M3U8':
+					stream_url = f'{fullurl}{channel["stream_id"]}.m3u8'
 				#if not no_stream_proxy:
 				#	stream_url = f"{host_url}/stream-proxy/{encode_image_url(stream_url)}"
 
