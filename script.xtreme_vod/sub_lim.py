@@ -52,31 +52,33 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	from urllib.parse import unquote
 
 	dir_source = None
-	if not os.path.isfile(file_path):
-		#use a temp folder where file isnt a file, eg a url
-		#same_folder = False
-		#MBFACTOR = float(1 << 20)
-		response = requests.head(file_path, allow_redirects=True)
-		size = response.headers.get('content-length', 0)
-		#file_path = unquote(file_path)
-		size = int(size)
-		filesize = size
-		##'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
-		#http_file = True
-		##returnedhash, filesize = subs_hash.hashFile_url(file_path)
-		##tools.log(returnedhash, filesize)
-		##hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
-		hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
-	else:
-		dir_source =  os.path.dirname(file_path)
-		size = os.stat(file_path).st_size
-		#http_file = False
-		#returnedhash, filesize = subs_hash.hashFile_url(file_path)
-		#tools.log(returnedhash, filesize)
-		#hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
-		filesize = size
-		hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
+	#if not os.path.isfile(file_path):
+	#	#use a temp folder where file isnt a file, eg a url
+	#	#same_folder = False
+	#	#MBFACTOR = float(1 << 20)
+	#	response = requests.head(file_path, allow_redirects=True)
+	#	size = response.headers.get('content-length', 0)
+	#	#file_path = unquote(file_path)
+	#	size = int(size)
+	#	filesize = size
+	#	##'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
+	#	#http_file = True
+	#	##returnedhash, filesize = subs_hash.hashFile_url(file_path)
+	#	##tools.log(returnedhash, filesize)
+	#	##hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+	#	hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
+	#else:
+	#	dir_source =  os.path.dirname(file_path)
+	#	size = os.stat(file_path).st_size
+	#	#http_file = False
+	#	#returnedhash, filesize = subs_hash.hashFile_url(file_path)
+	#	#tools.log(returnedhash, filesize)
+	#	#hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+	#	filesize = size
+	#	hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
 
+	filesize = 12345
+	hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
 	subs_out = os.path.basename(file_path)
 	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.ENG.FOREIGN.PARTS.srt')
 	subs_out_ENG = os.path.splitext(subs_out)[0] + str('.ENG.srt')
