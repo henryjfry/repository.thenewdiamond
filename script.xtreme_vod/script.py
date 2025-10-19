@@ -33,5 +33,29 @@ class Main:
 				except:
 					pass
 
+		params = self.params
+		search_flag = False
+		search_text = None
+		pop_index = []
+		search_dict_name = None
+		for idx, i in enumerate(params):
+			if 'search_text' == i or 'str' == i:
+				search_flag = True
+				search_dict_name = i
+			if search_flag == True and ('search_text' == i or 'str' == i):
+				search_text = params[i]
+			if search_text != None and params[i] == '' and search_flag == True:
+				search_text = search_text + ', ' + i
+				pop_index.append(i)
+
+		Utils.tools_log(search_text)
+		if search_dict_name:
+			for i in pop_index:
+				params.pop(i)
+			params[search_dict_name] = search_text
+		if search_dict_name:
+			self.params = params
+
+
 if (__name__ == '__main__'):
 	Main()
