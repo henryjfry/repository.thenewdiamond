@@ -77,6 +77,21 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+		if info == 'get_all_vod':
+			from resources.lib.TheMovieDB import get_vod_data
+			movies = get_vod_data(action= 'get_vod_streams' ,cache_days=1) 
+			vod_movies = []
+			for i in movies:
+				vod_movies.append(i['name'])
+			movies = get_vod_data(action= 'get_series' ,cache_days=1) 
+			vod_tv = []
+			for i in movies:
+				vod_tv.append(i['name'])
+			Utils.tools_log(vod_movies)
+			Utils.tools_log(vod_tv)
+			Utils.hide_busy()
+			return
+
 		if info == 'test':
 			Utils.tools_log('ResetEPG')
 			Utils.ResetEPG()
