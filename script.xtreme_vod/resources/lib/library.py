@@ -387,6 +387,7 @@ def get_art_fanart_tv(tvdb_id, fanart_api, show_file_path, art_path,tmdb_id,tmdb
 
 def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 	from resources.lib.TheMovieDB import get_fanart_data
+	from resources.lib.Utils import tools_log
 	hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo = '', '', '', '', '', '', '', '', '', '', '', '';
 	tv_dict = {'hdclearart': None,'seasonposter': None,'seasonthumb': None,'seasonbanner': None,'tvthumb': None,'tvbanner': None,'showbackground': None,'clearlogo': None,'characterart': None,'tvposter': None,'clearart': None,'hdtvlogo': None}
 
@@ -394,10 +395,12 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 		try: 
 			response = get_fanart_data(tmdb_id=tvdb_id,media_type='tv_tvdb')
 		except: 
-			response = None
+			response = get_fanart_data(tmdb_id=tvdb_id,media_type='tv_tvdb')
 	else:
 		response = get_fanart_data(tmdb_id=tvdb_id,media_type='movie')
-	
+		
+	tools_log(tvdb_id)
+	#tools_log(response)
 	if 'tv_tvdb' == media_type:
 		for i in response:
 			if i == 'name' or i == 'thetvdb_id':

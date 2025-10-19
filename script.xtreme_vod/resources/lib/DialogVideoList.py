@@ -1249,6 +1249,7 @@ def get_tmdb_window(window_type):
 			if not response['results']:
 				Utils.notify('No results found')
 			if self.mode == 'search':
+				from tools import clean_title
 				#Utils.tools_log(search_string)
 				#if self.type == 'movie':
 				if 1==1:
@@ -1269,7 +1270,7 @@ def get_tmdb_window(window_type):
 							#full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,i['stream_type'],Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['stream_id']),str(i['container_extension']))
 							#search_str.append({'type': 'movie','title':i['name'],'tmdb':i['tmdb'], 'full_url': full_url, 'stream_type': i['stream_type'],'stream_icon': i['stream_icon'], 'rating': i['rating'],'category_ids': i['category_ids']})
 							search_str.append(i)
-							if search_string.lower() in str(i['title']).lower():
+							if search_string.lower() in str(i['title']).lower()or clean_title(search_string.lower(), broken=2) in clean_title(str(i['title']).lower(), broken=2):
 								if len(i.get('tmdb','0')) > 0:
 									if 'tt' in str(i['tmdb']):
 										i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
@@ -1318,7 +1319,7 @@ def get_tmdb_window(window_type):
 							#full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,i['stream_type'],Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['stream_id']),str(i['container_extension']))
 							#search_str.append({'type': 'movie','title':i['name'],'tmdb':i['tmdb'], 'full_url': full_url, 'stream_type': i['stream_type'],'stream_icon': i['stream_icon'], 'rating': i['rating'],'category_ids': i['category_ids']})
 							search_str.append(i)
-							if search_string.lower() in str(i['title']).lower():
+							if search_string.lower() in str(i['title']).lower()or clean_title(search_string.lower(), broken=2) in clean_title(str(i['title']).lower(), broken=2):
 								if len(i.get('tmdb','0')) > 0:
 									if 'tt' in str(i['tmdb']):
 										i['tmdb'] = TheMovieDB.get_show_tmdb_id(imdb_id=i['tmdb'])
@@ -1346,7 +1347,7 @@ def get_tmdb_window(window_type):
 						response['results'].pop(i)
 
 					response['results'].extend(vod_list)
-					response['results'] = sorted(response['results'], key=lambda k: k['title'], reverse=False)
+					response['results'] = sorted(response['results'], key=lambda k: k.get('title',k.get('name')), reverse=False)
 					#response['results'] = sorted(response['results'], key=lambda k: k['title'].get('sub_key', 0), reverse=False)
 					
 					response['total_results'] = len(response['results'])
