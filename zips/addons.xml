@@ -296,7 +296,7 @@ v1.0.25 (marcelveldt)
 	</extension>
 </addon>
 
-<addon id="skin.estuary_fix" version="4.1.2j" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
+<addon id="skin.estuary_fix" version="4.1.2k" name="Estuary_fix" provider-name="phil65, Ichabod Fletchman">
 	<requires>
 		<import addon="xbmc.gui" version="5.17.0"/>
 	</requires>
@@ -503,6 +503,28 @@ v1.0.25 (marcelveldt)
     <source>https://github.com/kjd/idna</source>
     <assets>
       <icon>resources/icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+
+<addon id="script.module.qrcode"
+       name="qrcode"
+       version="6.1.0+matrix.3"
+       provider-name="Lincoln Loop">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.six" version="1.14.0+matrix.1"/>
+    <import addon="script.module.pil" version="1.1.7"/> <!-- Python Image Library required to create QR images -->
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">QR Code image generator</summary>
+    <description lang="en_GB">This module uses image libraries, Python Imaging Library (PIL) by default, to generate QR Codes.</description>
+    <license>BSD-3-Clause</license>
+    <website>https://pypi.org/project/qrcode/</website>
+    <source>https://github.com/lincolnloop/python-qrcode</source>
+    <assets>
+      <icon>icon.png</icon>
     </assets>
   </extension>
 </addon>
@@ -1022,7 +1044,7 @@ Supports: OpenSubtitles, BSPlayer, Podnadpisi.NET, SubDL, Addic7ed
   </extension>
 </addon>
 
-<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.58" provider-name="fryhenryj">
+<addon id="script.diamondinfo" name="  [B][COLOR white]Diamond Info_MOD[/COLOR][/B]" version="9.59" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -1354,7 +1376,7 @@ v1.0.1 (2023-07-28)
   </extension>
 </addon>
 
-<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.69" provider-name="fryhenryj">
+<addon id="script.xtreme_vod" name="  [B][COLOR white]xtreme_VOD[/COLOR][/B]" version="1.70" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />
@@ -2860,7 +2882,7 @@ provider-name="jurialmunkey">
 
 </addon>
 
-<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.58" provider-name="fryhenryj">
+<addon id="script.extendedinfo" name="  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B]" version="9.59" provider-name="fryhenryj">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<import addon="repository.jurialmunkey" version="2.2" optional="true" />

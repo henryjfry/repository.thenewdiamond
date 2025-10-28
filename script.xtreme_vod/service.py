@@ -359,6 +359,10 @@ class PlayerMonitor(xbmc.Player):
 		#	tools_log(str(response)+'===>trakt_scrobble_title____OPEN_INFO')
 		#	tools_log(str(response.headers)+'===>trakt_scrobble_title____OPEN_INFO')
 		x = 0
+		try:
+			response_status_code = response.status_code
+		except:
+			return 'ERROR'
 		while response.status_code == 429:
 			x = x + 1
 			if x == 20:
@@ -478,6 +482,10 @@ class PlayerMonitor(xbmc.Player):
 		#	tools_log(str(response)+'===>trakt_scrobble_tmdb____OPEN_INFO')
 		#	tools_log(str(response.headers)+'===>trakt_scrobble_tmdb____OPEN_INFO')
 		x = 0
+		try:
+			response_status_code = response.status_code
+		except:
+			return 'ERROR'
 		while response.status_code == 429:
 			x = x + 1
 			if x == 20:
@@ -572,6 +580,10 @@ class PlayerMonitor(xbmc.Player):
 		#	tools_log(str(response)+'===>trakt_scrobble_tv____OPEN_INFO')
 		#	tools_log(str(response.headers)+'===>trakt_scrobble_tv____OPEN_INFO')
 		x = 0
+		try:
+			response_status_code = response.status_code
+		except:
+			return 'ERROR'
 		while response.status_code == 429:
 			x = x + 1
 			if x == 20:

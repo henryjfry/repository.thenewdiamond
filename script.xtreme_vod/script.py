@@ -48,7 +48,6 @@ class Main:
 				search_text = search_text + ', ' + i
 				pop_index.append(i)
 
-		Utils.tools_log(search_text)
 		if search_dict_name:
 			for i in pop_index:
 				params.pop(i)

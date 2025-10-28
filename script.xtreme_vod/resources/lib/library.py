@@ -848,15 +848,71 @@ def trakt_eps_movies_in_progress(cache_days=None):
 	return listitems1
 
 def trakt_watched_tv_shows(cache_days=None):
-	#import requests
-	#import json
-	#headers = trak_auth()
 	url = 'https://api.trakt.tv/sync/watched/shows?extended=noseasons'
-	#response = requests.get(url, headers=headers).json()
 	response = get_trakt_data(url, 0)
 	reverse_order = True
 	response = sorted(response, key=lambda k: k['last_updated_at'], reverse=reverse_order)
 	return response
+
+
+def trakt_trending_movies(cache_days=None):
+	url = 'https://api.trakt.tv/movies/trending?limit=600'
+	if cache_days:
+		response = get_trakt_data(url, cache_days)
+	else:
+		response = get_trakt_data(url, 1)
+	return response
+
+def trakt_trending_shows(cache_days=None):
+	url = 'https://api.trakt.tv/shows/trending?limit=600'
+	if cache_days:
+		response = get_trakt_data(url, cache_days)
+	else:
+		response = get_trakt_data(url, 1)
+	return response
+
+def trakt_popular_movies(cache_days=None):
+	url = 'https://api.trakt.tv/movies/popular?limit=600'
+	if cache_days:
+		response = get_trakt_data(url, cache_days)
+	else:
+		response = get_trakt_data(url, 1)
+	return response
+
+def trakt_popular_shows(cache_days=None):
+	url = 'https://api.trakt.tv/shows/popular?limit=600'
+	if cache_days:
+		response = get_trakt_data(url, cache_days)
+	else:
+		response = get_trakt_data(url, 1)
+
+	return response
+
+
+def trakt_watched_tv_shows_progress(cache_days=None):
+	url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
+	response = get_trakt_data(url, 0.125)
+
+	response2 = []
+	for i in response:
+		x = 0
+		aired_episodes = i['show']['aired_episodes']
+		tmdb_id = i['show']['ids']['tmdb']
+		show_title = i['show']['title']
+		for j in i['seasons']:
+			for k in j['episodes']:
+				if int(k['plays']) >= 1:
+					x = x + 1
+		played_episodes = x
+		if aired_episodes > played_episodes:
+			response2.append(i)
+			print(show_title, tmdb_id, aired_episodes, played_episodes)
+
+	#reverse_order = True
+	#response = sorted(response2, key=lambda k: k['updated_at'], reverse=reverse_order)
+	return response2
+
+
 
 def trak_auth():
 	from resources.lib.trakt_api import get_trakt_auth

@@ -444,11 +444,23 @@ class VideoPlayer(xbmc.Player):
 			tmdb = None
 
 		full_url = None
-		if search_str and type(search_str) != type(''):
+		test = True
+		skip = False
+		try: test = search_str['results']
+		except: test = False
+		if test == False and tmdb:
+			full_url = None
+			skip = True
+		else:
+			skip = False
+		if not skip and (search_str and type(search_str) != type('')):
 			for i in search_str:
-				if str(i.get('stream_id','')) == str(stream_id) and str(stream_id) != '':
-					full_url = i['full_url']
-		elif search_str and type(search_str) == type('') and Utils.xtreme_codes_password in str(search_str):
+				try:
+					if str(i.get('stream_id','')) == str(stream_id) and str(stream_id) != '':
+						full_url = i['full_url']
+				except:
+					full_url = None
+		elif not skip and (search_str and type(search_str) == type('') and Utils.xtreme_codes_password in str(search_str)):
 			full_url = search_str
 
 		if full_url == None:
@@ -484,7 +496,7 @@ class VideoPlayer(xbmc.Player):
 					listitems[idx]['OriginalTitle'] = search_str[i]['title']
 
 				listitem, index = wm.open_selectdialog(listitems=listitems)
-
+				Utils.show_busy()
 				if index > -1:
 					full_url = search_str[results[index]]['full_url']
 				else:

@@ -287,7 +287,7 @@ def generate_xmltv(mode=None):
 						allowed_channels.append(channel_name)
 						#Utils.tools_log(channel_name)
 
-	xml_url = '%s/xmltv.php?username=%s&password=%s' % (url.rstrip('/'), username, password)
+	xml_url = '%s/xmltv.php?username=%s&password=%s&prev_days=1&next_days=2' % (url.rstrip('/'), username, password)
 	response = requests.get(xml_url,headers=headers)
 	xmltv_response = response.text
 

@@ -36,12 +36,23 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+		if info == 'log_clean':
+			import os
+			#find /home/osmc/.kodi/temp/kodi.log -type f -exec /bin/cp /dev/null {} \;
+			log_file = xbmcvfs.translatePath(r'special://logpath\kodi.log')
+
+			if os.path.isfile(log_file):
+				with open(log_file, "w") as f:
+					pass  # Opening in write mode truncates the file
+			Utils.tools_log('success_log_clean')
+			Utils.hide_busy()
+			return
+
 		if info == 'login_trakt':
 			from resources.lib.trakt_api import login_trakt
 			login_trakt()
 			Utils.hide_busy()
 			return
-
 
 		if info == 'trakt_cleanup':
 			Utils.tools_log('trakt_watched_tv_movies_cleanup')
@@ -1327,6 +1338,7 @@ def follow2():
 		lines = f.readlines()       # Read to end
 	line = lines[-6:]
 	return str(line)
+
 
 def get_log_error_flag(mode=None):
 	"""

@@ -590,8 +590,8 @@
 				<orientation>vertical</orientation>
 				<onleft>9010</onleft>
 				<onright>9010</onright>
-				<onup>noop</onup>
-				<ondown>105</ondown>
+				<onup>105</onup>
+				<ondown>300</ondown>
 				<visible>!Control.IsVisible(313)</visible>
 				<itemlayout width="500" height="60">
 					<control type="image">
