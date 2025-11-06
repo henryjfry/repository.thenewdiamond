@@ -112,7 +112,7 @@ def log_viewer():
 		log_content = 'Kodi log file not found.'
 	else:
 		try:
-			with open(log_path, 'r') as f:
+			with open(log_path, 'r', encoding="utf-8") as f:
 				lines = f.readlines()[-500:]
 			log_content = ''.join(lines)
 		except Exception as e:
@@ -232,7 +232,7 @@ def generate_xmltv(mode=None):
 	allowed_groups_file = os.path.join(Utils.ADDON_DATA_PATH, 'allowed_groups.txt')
 	allowed_groups = []
 	if os.path.isfile(allowed_groups_file):
-		allowed_groups_f = open(allowed_groups_file, "r")
+		allowed_groups_f = open(allowed_groups_file, "r", encoding="utf-8")
 		for x in allowed_groups_f:
 			allowed_groups.append(x.strip())
 	wanted_groups = allowed_groups
@@ -242,7 +242,7 @@ def generate_xmltv(mode=None):
 	channel_order = False
 	if os.path.isfile(channel_order_file):
 		Utils.tools_log('EXISTS__'+channel_order_file)
-		channel_order_f = open(channel_order_file, "r")
+		channel_order_f = open(channel_order_file, "r", encoding="utf-8")
 		for x in channel_order_f:
 			channel_order_lists.append(x.strip())
 		channel_order = True
@@ -349,7 +349,7 @@ def generate_xmltv(mode=None):
 	if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
 		
 		Utils.tools_log(guide_out)
-		f = open(guide_out, "w")
+		f = open(guide_out, "w", encoding="utf-8")
 		f.write(xmltv_response)
 		f.close()
 
@@ -435,7 +435,7 @@ def save_pastebin_to_file(url, file_name):
 	print(url)
 	file = requests.get(url).text
 	file_out = os.path.join(Utils.ADDON_DATA_PATH, file_name)
-	f = open(file_out, "w")
+	f = open(file_out, "w", encoding="utf-8")
 	f.write(file)
 	f.close()
 	Utils.notify('SAVED', file_out)
@@ -466,7 +466,7 @@ def m3u_ts_m3u8():
 		#Utils.tools_log(new_m3u_playlist)
 	Utils.tools_log('M3U_RETURN')
 	Utils.tools_log(m3u_out)
-	f = open(m3u_out, "w")
+	f = open(m3u_out, "w", encoding="utf-8")
 	f.write(new_m3u_playlist)
 	f.close()
 	return
@@ -502,7 +502,7 @@ def generate_m3u(mode=None):
 	allowed_groups_file = os.path.join(Utils.ADDON_DATA_PATH, 'allowed_groups.txt')
 	allowed_groups = []
 	if os.path.isfile(allowed_groups_file):
-		allowed_groups_f = open(allowed_groups_file, "r")
+		allowed_groups_f = open(allowed_groups_file, "r", encoding="utf-8")
 		for x in allowed_groups_f:
 			allowed_groups.append(x.strip())
 	#wanted_groups = []
@@ -512,7 +512,7 @@ def generate_m3u(mode=None):
 	channel_order = False
 	if os.path.isfile(channel_order_file):
 		Utils.tools_log('EXISTS__'+channel_order_file)
-		channel_order_f = open(channel_order_file, "r")
+		channel_order_f = open(channel_order_file, "r", encoding="utf-8")
 		for x in channel_order_f:
 			channel_order_lists.append(x.strip())
 		channel_order = True
@@ -593,7 +593,7 @@ def generate_m3u(mode=None):
 	if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):
 		
 		Utils.tools_log(m3u_out)
-		f = open(m3u_out, "w")
+		f = open(m3u_out, "w", encoding="utf-8")
 		f.write(m3u_playlist)
 		f.close()
 		return
@@ -614,7 +614,7 @@ def serve_xml():
 		Utils.tools_log('NOT_EXISTS__'+guide_out)
 		Utils.tools_log('CREATING__'+guide_out)
 		generate_xmltv()
-	f = open(guide_out, "r")
+	f = open(guide_out, "r", encoding="utf-8")
 	xmltv_response = f.read()
 	f.close()
 	return Response(
@@ -636,7 +636,7 @@ def serve_m3u():
 		Utils.tools_log('NOT_EXISTS__'+m3u_out)
 		Utils.tools_log('CREATING__'+m3u_out)
 		generate_m3u()
-	f = open(m3u_out, "r")
+	f = open(m3u_out, "r", encoding="utf-8")
 	m3u_playlist = f.read()
 	f.close()
 

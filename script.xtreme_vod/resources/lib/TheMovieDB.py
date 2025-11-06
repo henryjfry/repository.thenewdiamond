@@ -1997,3 +1997,101 @@ def get_imdb_list_ids(list_str=None, limit=0):
 		Utils.tools_log('get_imdb_list_ids_api2  ' + str(list_str))
 		movies = get_imdb_list_ids_api2(list_str)
 		return movies
+
+def filter_vod(movie_tv_items):
+	TV = get_vod_alltv()
+	movies = get_vod_allmovies()
+	movie_tv_items2 = movie_tv_items
+	for idx, i in enumerate(movie_tv_items2):
+		#Utils.tools_log(i)
+		match = False
+		try: 
+			media_type = i['media_type']
+			try: tmdb_id = i['id']
+			except: tmdb_id = i['tmdb_id']
+		except: 
+			if i.get('show',False) == False:
+				media_type = 'movie'
+				try: tmdb_id = i['movie']['ids']['tmdb']
+				except: tmdb_id = i['ids']['tmdb']
+			else:
+				media_type = 'tv'
+				try: tmdb_id = i['show']['ids']['tmdb']
+				except: tmdb_id = i['ids']['tmdb']
+		if media_type == 'movie':
+			for x in movies:
+				if str(tmdb_id) == str(x['tmdb']):
+					match = True
+					break
+		else:
+			for x in TV:
+				if str(tmdb_id) == str(x['tmdb']):
+					match = True
+					break
+		if match == False:
+			movie_tv_items.pop(idx)
+	return movie_tv_items
+
+def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):
+	import time, hashlib, xbmcvfs, os
+	import re, json, requests, html
+
+	if imdb_url:
+		url = imdb_url +'/get_imdb_watchlist_items'
+	else:
+		url = 'imdb_'
+		for i in movies:
+			url = url + str(i) +'/get_imdb_watchlist_items'
+
+	now = time.time()
+	url = url.encode('utf-8')
+	hashed_url = hashlib.md5(url).hexdigest()
+	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
+	cache_seconds = int(cache_days * 86400.0)
+	path = os.path.join(cache_path, '%s.txt' % hashed_url)
+
+	try: 
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
+	except:
+		db_result, expired_db_result = None, None
+	if db_result and len(db_result) > 0:
+		return db_result
+	else:
+
+		listitems = None
+		x = 0
+		if not movies:
+			return None
+		for y in movies:
+			imdb_id = y
+			response = get_tmdb_data('find/%s?language=%s&external_source=imdb_id&' % (imdb_id, xbmcaddon.Addon().getSetting('LanguageID')), 13)
+			try:
+				response['movie_results'][0]['media_type'] = 'movie'
+				if listitems == None:
+					listitems = handle_tmdb_multi_search(response['movie_results'])
+				else:
+					listitems += handle_tmdb_multi_search(response['movie_results'])
+			except:
+				try:
+					response['tv_results'][0]['media_type'] = 'tv'
+					if listitems == None:
+						listitems = handle_tmdb_multi_search(response['tv_results'])
+					else:
+						listitems += handle_tmdb_multi_search(response['tv_results'])
+				except:
+					continue
+			if x + 1 == int(limit) and limit != 0:
+				break
+			x = x + 1
+		listitems = filter_vod(listitems)
+
+		if not listitems or len(listitems) == 0:
+			if expired_db_result == None:
+				return []
+			if len(expired_db_result) > 0:
+				write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+				return expired_db_result
+			return []
+		else:
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=listitems)
+		return listitems

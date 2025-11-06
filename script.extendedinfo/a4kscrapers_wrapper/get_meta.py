@@ -70,9 +70,10 @@ def get_http(url, headers=False):
 		headers = {'User-agent': 'Kodi/21.0 ( phil65@kodi.tv )'}
 	while (succeed < 2) :
 		try:
-			request = requests.get(url, headers=headers)
+			request = requests.get(url, headers=headers, timeout=5)
 			return request.text
 		except Exception as e:
+			import xbmc
 			log('get_http: could not get data from %s' % url)
 			xbmc.sleep(500)
 			succeed += 1
@@ -933,7 +934,9 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 		movielogo, hdmovielogo, movieposter, hdmovieclearart, movieart, moviedisc, moviebanner, moviethumb, moviebackground = '', '', '', '', '', '', '', '', ''
 		movie_dict = {'movielogo': None,'hdmovielogo': None,'movieposter': None,'hdmovieclearart': None,'movieart': None,'moviedisc': None,'moviebanner': None,'moviethumb': None,'moviebackground': None}
 		for i in response:
-			#print_log(i)
+			#tools.log(i)
+			if '_count' in str(i):
+				continue
 			for j in response[i]:
 				try:
 					lang = j['lang']

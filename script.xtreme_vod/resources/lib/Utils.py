@@ -670,7 +670,7 @@ def get_http(url, headers=False):
 		headers = {'User-agent': 'Kodi/18.0 ( phil65@kodi.tv )'}
 	while (succeed < 2) :
 		try:
-			request = requests.get(url, headers=headers)
+			request = requests.get(url, headers=headers, timeout=5)
 			if 'Trakt is down for scheduled' in str(request.text):
 				return None
 			return request.text
@@ -737,7 +737,7 @@ def get_file(url):
 		log('vid_cache_file Image: %s --> %s' % (url, vid_cache_file))
 		return vid_cache_file
 	try:
-		r = requests.get(clean_url, stream=True)
+		r = requests.get(clean_url, stream=True, timeout=5)
 		if r.status_code != 200:
 			return ''
 		data = r.content

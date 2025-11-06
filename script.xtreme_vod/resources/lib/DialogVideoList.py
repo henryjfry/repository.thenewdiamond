@@ -770,6 +770,38 @@ def get_tmdb_window(window_type):
 			self.fetch_data()
 			self.update()
 
+		def imdb_stuff(self, imdb_list):
+			self.mode = 'imdb'
+			from resources.lib.TheMovieDB import get_imdb_list_ids
+			self.search_str, types_list = get_imdb_list_ids(list_str=imdb_list,limit=0)
+			self.search_str2 = []
+			#show_dict = {'show': {'title': , 'year': , 'ids': {'imdb': , 'tmdb':}}}
+			#movie_dict = {'movie': {'title': , 'year': , 'ids': {'imdb': , 'tmdb': }}
+			
+			responses = {'page': 1, 'results': [],'total_pages': 1, 'total_results': 0}
+			for idx, i in enumerate(self.search_str):
+
+				if types_list[idx] == 'movie':
+					try:tmdb_id = TheMovieDB.get_movie_tmdb_id(imdb_id = i,Notify=False)
+					except IndexError: continue
+					if tmdb_id:
+						movie = TheMovieDB.single_movie_info(movie_id=tmdb_id)
+						movie['tmdb_id'] = tmdb_id
+					else:
+						continue
+				else:
+					try:tmdb_id = TheMovieDB.get_show_tmdb_id(imdb_id = i,Notify=False)
+					except IndexError: continue
+					if tmdb_id:
+						movie = TheMovieDB.single_tvshow_info(tvshow_id=tmdb_id)
+						movie['tmdb_id'] = tmdb_id
+					else:
+						continue
+				responses['results'].append(movie)
+				responses['total_results'] = responses['total_results']+1
+				self.search_str = responses
+				self.type = 'movie'
+			return responses
 
 
 
@@ -860,6 +892,8 @@ def get_tmdb_window(window_type):
 				self.type = 'tv'
 
 			elif 'IMDB' in listitems[selection]:
+				
+				"""
 				def imdb_stuff(imdb_list):
 					self.mode = 'imdb'
 					from resources.lib.TheMovieDB import get_imdb_list_ids
@@ -891,11 +925,12 @@ def get_tmdb_window(window_type):
 						responses['total_results'] = responses['total_results']+1
 					self.search_str = responses
 					self.type = 'movie'
+					"""
 
 				if listitems[selection] == 'IMDB Popular':
 					Utils.notify('**May be slow!**', sound=False)
 					imdb_list = 'ls_popular'
-					imdb_stuff(imdb_list)
+					responses = self.imdb_stuff(imdb_list)
 
 			if not 'trakt' in str(listitems[selection]).lower():
 				self.filter_label = 'Results for: Trakt ' + listitems[selection]
@@ -1069,6 +1104,14 @@ def get_tmdb_window(window_type):
 						#self.sort_label = '&' + self.sort_label + '&'
 
 			#Utils.tools_log(self.mode)
+			if self.mode == 'search' and len(self.search_str) >= 3 and self.search_str[:2] == "ls" and self.search_str[2:].isdigit():
+				self.mode = 'imdb2'
+				list_str = self.search_str
+				from resources.lib.TheMovieDB import get_imdb_list_ids
+				from resources.lib.TheMovieDB import get_imdb_watchlist_items
+				self.search_str = get_imdb_list_ids(list_str=list_str)
+				self.filter_label = 'Results for:  IMDB' + list_str
+
 			if self.mode == 'search':
 				#fetch_data_dict_file = write_fetch_data_dict_file()
 				url = 'search/multi?query=%s&page=%i&include_adult=%s&' % (urllib.parse.quote_plus(self.search_str), self.page, xbmcaddon.Addon().getSetting('include_adults'))
@@ -1086,10 +1129,14 @@ def get_tmdb_window(window_type):
 				fetch_data_dict['self.order'] = self.order
 				
 
-			elif self.mode == 'imdb':
-				self.search_str['results'] = self.filter_vod(self.search_str['results'])
-	
-				listitems1 = listitems = TheMovieDB.handle_tmdb_multi_search(self.search_str['results'])
+			elif self.mode == 'imdb' or 'imdb' in str(self.mode):
+				if type(self.search_str) == type([]):
+					from resources.lib.TheMovieDB import get_imdb_watchlist_items
+					listitems = get_imdb_watchlist_items(movies=self.search_str)
+				else:
+					self.search_str['results'] = self.filter_vod(self.search_str['results'])
+					listitems = TheMovieDB.handle_tmdb_multi_search(self.search_str['results'])
+				listitems1 = listitems
 
 				x = 0
 				page = int(self.page)

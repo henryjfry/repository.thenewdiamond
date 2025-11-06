@@ -63,6 +63,7 @@
 	<category label="TOOLS">
 	<setting label="LOGIN_TRAKT" type="action" action="RunScript(script.xtreme_vod,info=login_trakt)"/>
 	<setting label="setup_favourites" type="action" action="RunScript(script.xtreme_vod,info=setup_favourites)"/>
+	<setting label="custom_favourites" type="action" action="RunScript(script.xtreme_vod,info=custom_favourites)"/>
 	<setting label="Convert m3u to ts/m3u8" type="action" action="RunScript(script.xtreme_vod,info=m3u_ts_m3u8)"/>
 	<setting label="setup TMDBH player" type="action" action="RunScript(script.xtreme_vod,info=setup_players)"/>
 	<setting label="patch_tmdb_helper" type="action" action="RunScript(script.xtreme_vod,info=patch_tmdb_helper)"/>

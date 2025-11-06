@@ -1285,6 +1285,9 @@ def start_info_actions(infos, params):
 
 def do_patch(patch_file_path, patch_lines, log_addon_name, start_line, end_line):
 	file_path = patch_file_path
+	if not xbmcvfs.exists(file_path):
+		Utils.tools_log('NO_FILE!!!',file_path)
+		return
 	Utils.tools_log(file_path,log_addon_name)
 	file1 = open(file_path, 'r')
 	lines = file1.readlines()
@@ -1674,6 +1677,41 @@ def patch_tmdbh():
 	last_line = '        return {} if x == -1 else self.get_player(x)'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
+
+
+	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','player','dialog') , 'standard.py')
+	line_update = '''    def select_player(players_list, header=None, detailed=True, index=False, players=None):
+        """ Select from a list of players """
+        import xbmc
+        #xbmc.log(str([i.listitem for i in players_list])+' ===select_player', level=xbmc.LOGINFO)
+        players = [i.__dict__ for i in players]
+        if 'episode' in str(players[0]['mode']):
+            db_type = 'episode'
+        else:
+            db_type = 'movie'
+        for idx, i in enumerate(players): ## PATCH
+            if 'auto_cloud' in str(i['meta']['name']).lower() and db_type != 'movie': ## PATCH
+                auto_var = idx ## PATCH
+                break ## PATCH
+            if 'Auto_Torr_Scrape' in str(i['meta']['name']) and db_type == 'movie': ## PATCH
+                auto_var = idx ## PATCH
+                break ## PATCH
+        x = Dialog().select(header or get_localized(32042), [i.listitem for i in players_list],useDetails=detailed, autoclose=30000, preselect=auto_var)
+        return x if index or x == -1 else players_list[x].posx
+
+    def get_player(self, x):
+        return self.players_list[x]
+
+    def select(self, header=None, detailed=True):
+        """ Select a player from the list """
+        x = self.select_player(self.players_generated_list, header=header, detailed=detailed, players=self.players)
+        return {} if x == -1 else self.get_player(x)
+'''
+	first_line = '    def select_player(players_list, header=None, detailed=True, index=False):'
+	last_line = '        return {} if x == -1 else self.get_player(x)'
+	log_addon_name = 'TMDB_HELPER'
+	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
+
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','script','method') , 'maintenance.py')
 	line_update = '''    def vacuum(self, force=False):  ##PATCH
