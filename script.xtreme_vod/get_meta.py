@@ -864,7 +864,7 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 	
 	if 'tv_tvdb' == media_type:
 		for i in response:
-			if i == 'name' or i == 'thetvdb_id':
+			if i == 'name' or i == 'thetvdb_id' or '_count' in str(i):
 				continue
 			for j in response[i]:
 				try:

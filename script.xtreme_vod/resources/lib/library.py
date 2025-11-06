@@ -403,7 +403,7 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 	#tools_log(response)
 	if 'tv_tvdb' == media_type:
 		for i in response:
-			if i == 'name' or i == 'thetvdb_id':
+			if i == 'name' or i == 'thetvdb_id' or '_count' in str(i):
 				continue
 			for j in response[i]:
 				try:
@@ -442,6 +442,8 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 		movie_dict = {'movielogo': None,'hdmovielogo': None,'movieposter': None,'hdmovieclearart': None,'movieart': None,'moviedisc': None,'moviebanner': None,'moviethumb': None,'moviebackground': None}
 		for i in response:
 			#print_log(i)
+			if '_count' in str(i):
+				continue
 			for j in response[i]:
 				try:
 					lang = j['lang']
