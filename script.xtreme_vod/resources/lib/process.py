@@ -809,9 +809,11 @@ def patch_tmdbh():
         for idx, i in enumerate(players): ## PATCH
             if 'auto_cloud' in str(i['meta']['name']).lower() and db_type != 'movie': ## PATCH
                 auto_var = idx ## PATCH
+                header = str(i['item']['name']) + ' - ' + str(i['item']['title']) + ' - ' + str(i['item']['firstaired'])
                 break ## PATCH
             if 'Auto_Torr_Scrape' in str(i['meta']['name']) and db_type == 'movie': ## PATCH
                 auto_var = idx ## PATCH
+                header = str(i['item']['name']) + ' - ' + str(i['item']['year'])
                 break ## PATCH
         x = Dialog().select(header or get_localized(32042), [i.listitem for i in players_list],useDetails=detailed, autoclose=30000, preselect=auto_var)
         return x if index or x == -1 else players_list[x].posx

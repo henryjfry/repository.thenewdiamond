@@ -29,6 +29,10 @@ def start_info_actions(infos, params):
     for info in infos:
         if info == 'autocomplete':
             listitems = AutoCompletion.get_autocomplete_items(params["id"], params.get("limit", 10))
+        elif info == 'db_delete_expired':
+            #plugin://plugin.program.autocompletion/?info=db_delete_expired
+            db_con = AutoCompletion.db_con
+            AutoCompletion.db_delete_expired(db_con)
         elif info == 'selectautocomplete':
             if params.get("handle"):
                 xbmcplugin.setResolvedUrl(handle=int(params.get("handle")),

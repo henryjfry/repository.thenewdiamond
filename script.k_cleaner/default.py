@@ -20,7 +20,17 @@ import gzip
 import sys
 import codecs
 import pickle
-from distutils.util import strtobool
+try:
+    from distutils.util import strtobool
+except ImportError:
+    def strtobool(val):
+        val = val.lower()
+        if val in ('y', 'yes', 't', 'true', 'on', '1'):
+            return True
+        elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+            return False
+        else:
+            raise ValueError(f"Invalid truth value: {val}")
 from xml.dom import minidom
 
 transPath = xbmc.translatePath if int(xbmc.getInfoLabel("System.BuildVersion").split(".")[0]) < 19 else xbmcvfs.translatePath

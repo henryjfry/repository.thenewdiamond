@@ -11,7 +11,17 @@ import xbmc
 import xbmcvfs
 import xbmcaddon
 import os
-from distutils.util import strtobool
+try:
+    from distutils.util import strtobool
+except ImportError:
+    def strtobool(val):
+        val = val.lower()
+        if val in ('y', 'yes', 't', 'true', 'on', '1'):
+            return True
+        elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+            return False
+        else:
+            raise ValueError(f"Invalid truth value: {val}")
 from default import DeleteFiles
 from default import CompactDatabases
 from default import CleanTextures
