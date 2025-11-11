@@ -901,7 +901,10 @@ class PlayerMonitor(xbmc.Player):
 
 		self.player_meta['script.xtreme_vod_player'] = None
 		self.player_meta['script.xtreme_vod_started'] = None
+		self.playing_file = None
 		self.trakt_error = None
+		self.library_refresh = None
+
 
 		self.player_meta['script.xtreme_vod_time'] = self.getProperty('script.xtreme_vod_time')
 		self.player_meta['script.xtreme_vod_player_time'] = self.getProperty('script.xtreme_vod_player_time')
@@ -1431,16 +1434,24 @@ class PlayerMonitor(xbmc.Player):
 				self.player_meta['resume_position'] = player.getTime()
 			except: 
 				tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				self.playing_file = None
+				self.trakt_error = None
+				self.library_refresh = None
 				return
 
 			return_var = self.scrobble_trakt_speed_resume_test()
 			if return_var == False:
 				tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				self.playing_file = None
+				self.trakt_error = None
+				self.library_refresh = None
 				return
 
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
+			if self.trakt_error == 'ERROR':
+				self.trakt_error = None
 
-			if (self.player_meta['percentage'] > 85) and player.isPlayingVideo()==1 and self.player_meta['resume_duration'] > 300 and self.trakt_watched != 'true':
+			if (self.player_meta['percentage'] > 85) and player.isPlaying()==1 and self.player_meta['resume_duration'] > 300 and self.trakt_watched != 'true':
 				self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				xbmc.sleep(250)
 				if self.trakt_error:
@@ -1451,7 +1462,7 @@ class PlayerMonitor(xbmc.Player):
 				self.library_refresh = True
 				tools_log(str('FINISHED...library.trakt_watched_movies_full'))
 
-			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlayingVideo()==1:
+			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlaying()==1:
 				try:
 					if int(self.player_meta['dbID']) > 0:
 						self.SetMovieDetails2(self.player_meta['dbID'], self.player_meta['resume_duration'])
@@ -1470,6 +1481,7 @@ class PlayerMonitor(xbmc.Player):
 					tools_log(str('FINISHED...library.trakt_watched_movies_full'))
 				self.playing_file = None
 				self.trakt_error = None
+				self.library_refresh = None
 				return
 
 		if self.type == 'episode':
@@ -1550,6 +1562,8 @@ class PlayerMonitor(xbmc.Player):
 			#	except:
 			#		tools_log('NOT_FOUND_PRESCRAPE2===>OPENINFO')
 
+			if self.trakt_error == 'ERROR':
+				self.trakt_error = None
 
 			if player.isPlaying()==1 and self.player_meta['percentage'] > 85 and self.trakt_watched == False:
 				self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
@@ -1562,7 +1576,7 @@ class PlayerMonitor(xbmc.Player):
 				self.library_refresh = True
 				tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
 
-			if player.isPlayingVideo()==1 and self.player_meta['percentage'] > 85 and self.library_refresh == False:
+			if player.isPlaying()==1 and self.player_meta['percentage'] > 85 and self.library_refresh == False:
 
 				if self.player_meta['dbID'] != None:
 					self.SetEpisodeDetails2(self.player_meta['dbID'], self.player_meta['resume_duration']) ##PLAYCOUNT_LASTPLAYED

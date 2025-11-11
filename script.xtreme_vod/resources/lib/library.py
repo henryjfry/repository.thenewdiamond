@@ -728,7 +728,7 @@ def trakt_watched_movies_full():
 		sql_result = """
 		INSERT INTO trakt (tmdb_id,trakt)
 		VALUES( %s,%s);
-		""" % (i['movie']['ids']['tmdb'],'"'+str(i).replace('"','\'\'')+'"')
+		""" % (i['movie']['ids']['tmdb'],'"'+str(i).replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \'').replace('"','\'\'')+'"')
 		sql_result = cur.execute(sql_result).fetchall()
 		con.commit()
 	cur.close()
@@ -772,7 +772,7 @@ def trakt_watched_tv_shows_full():
 		sql_result = """
 		INSERT INTO trakt (tmdb_id,trakt)
 		VALUES( %s,%s);
-		""" % (i['show']['ids']['tmdb'],'"'+str(i).replace('"','\'\'')+'"')
+		""" % (i['show']['ids']['tmdb'],'"'+str(i).replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \'').replace('"','\'\'')+'"')
 		sql_result = cur.execute(sql_result).fetchall()
 		con.commit()
 	cur.close()
