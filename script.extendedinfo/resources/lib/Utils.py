@@ -22,6 +22,8 @@ CACHE_PATH = xbmcvfs.translatePath('special://profile/addon_data/'+str(addon_ID(
 
 IMAGES_DATA_PATH = xbmcvfs.translatePath('special://profile/addon_data/'+str(addon_ID())+'/images')
 SKIN_DIR = xbmc.getSkinDir()
+if 'skin.estuary' in str(SKIN_DIR):
+	SKIN_DIR = 'skin.estuary'
 AUTOPLAY_TRAILER = xbmcaddon.Addon().getSetting('autoplay_trailer')
 NETFLIX_VIEW = xbmcaddon.Addon().getSetting('netflix_view')
 NETFLIX_VIEW2 = xbmcaddon.Addon().getSetting('netflix_info_view')

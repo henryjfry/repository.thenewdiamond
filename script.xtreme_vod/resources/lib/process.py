@@ -588,10 +588,8 @@ def start_info_actions(infos, params):
 			import os
 			Utils.show_busy()
 			tmdb_players_path = os.path.join(Utils.ADDON_DATA_PATH.replace('script.xtreme_vod','plugin.video.themoviedb.helper'),'players')
-			player_path_in = xbmcvfs.translatePath(Utils.ADDON_PATH + '/direct.xtreme_vod_player.json')
-			#tmdb_path = Utils.ADDON_DATA_PATH.replace('script.xtreme_vod','plugin.video.themoviedb.helper')
-			#player_path_out = xbmcvfs.translatePath(tmdb_path + '/direct.xtreme_vod_player.json')
-			player_path_out = xbmcvfs.translatePath(tmdb_players_path + '/direct.xtreme_vod_player.json')
+			player_path_in = xbmcvfs.translatePath(os.path.join(Utils.ADDON_PATH,'direct.xtreme_vod_player.json'))
+			player_path_out = xbmcvfs.translatePath(os.path.join(tmdb_players_path,'direct.xtreme_vod_player.json'))
 			
 			import shutil
 			if not xbmcvfs.exists(player_path_out):

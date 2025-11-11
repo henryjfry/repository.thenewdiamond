@@ -1425,6 +1425,10 @@ class PlayerMonitor(xbmc.Player):
 				if self.trakt_error:
 					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				self.trakt_scrobble_details()
+				Utils.tools_log(str('STARTING...library.trakt_watched_movies_full'))
+				library.trakt_refresh_all()
+				self.library_refresh = True
+				Utils.tools_log(str('FINISHED...library.trakt_watched_movies_full'))
 
 			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlayingVideo()==1:
 				try:
@@ -1531,6 +1535,10 @@ class PlayerMonitor(xbmc.Player):
 				if self.trakt_error:
 					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 				self.trakt_scrobble_details()
+				Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
+				library.trakt_refresh_all()
+				self.library_refresh = True
+				Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
 
 			if player.isPlayingVideo()==1 and self.player_meta['percentage'] > 85 and self.library_refresh == False:
 

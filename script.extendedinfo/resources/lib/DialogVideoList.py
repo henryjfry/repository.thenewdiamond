@@ -1234,6 +1234,7 @@ def get_tmdb_window(window_type):
 				self.type = 'tv'
 			elif listitems[selection] == 'Trakt Episodes/Movies in progress':
 				self.search_str = 'Trakt Episodes/Movies in progress'
+				self.filter_label = 'Trakt Episodes/Movies in progress'
 				self.type = 'movie'
 			elif listitems[selection] == 'Trakt Calendar Episodes':
 				self.search_str = 'Trakt Calendar Episodes'
@@ -1551,10 +1552,16 @@ def get_tmdb_window(window_type):
 			addonID = addon.getAddonInfo('id')
 			addonUserDataFolder = xbmcvfs.translatePath("special://profile/addon_data/"+addonID)
 			Utils.show_busy()
+			
+			if 'Trakt Episodes/Movies in progress' in str(self.search_str):
+				self.filter_label = 'Trakt Episodes/Movies in progress'
+			if 'Trakt Calendar Episodes' in str(self.search_str):
+				self.filter_label = 'Trakt Calendar Episodes'
 
 			if wm.pop_video_list == True:
 				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.page = int(wm.prev_window['params']['page'])
+				self.filter_label =wm.prev_window['params']['filter_label']
 
 				self.sort = wm.prev_window['params']['sort']
 				self.sort_label  = wm.prev_window['params']['sort_label']
@@ -1564,7 +1571,7 @@ def get_tmdb_window(window_type):
 				self.order = wm.prev_window['params']['order']
 				self.search_str =wm.prev_window['params']['search_str']
 
-				if self.search_str == 'Trakt Episodes/Movies in progress':
+				if 'Trakt Episodes/Movies in progress' in str(self.search_str) or 'Trakt Episodes/Movies in progress' in str(self.filter_label):
 					#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 					response = get_trakt_playback('tv')
 					listitems1 = []
@@ -1573,6 +1580,7 @@ def get_tmdb_window(window_type):
 							ep = extended_episode_info(i['show']['ids']['tmdb'], i['episode']['season'], i['episode']['number'])
 							ep[0]['tmdb_id'] = ep[1]['tvshow_id']
 							ep[0]['PercentPlayed'] = int(i['progress'])
+							ep[0]['StartPercent'] = int(i['progress'])
 							listitems1.append(ep[0])
 					response = None
 					response = get_trakt_playback('movie')
@@ -1580,6 +1588,7 @@ def get_tmdb_window(window_type):
 						for i in response:
 							mov = extended_movie_info(i['movie']['ids']['tmdb'])
 							mov[0]['PercentPlayed'] = int(i['progress'])
+							mov[0]['StartPercent'] = int(i['progress'])
 							listitems1.append(mov[0])
 
 					x = 0
@@ -1625,13 +1634,13 @@ def get_tmdb_window(window_type):
 				return info
 
 			if self.mode == 'reopen_window':
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
+				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				fetch_data_dict_file = read_fetch_data_dict_file()
 				import ast
 				fetch_data_dict_read = ast.literal_eval(fetch_data_dict_file.read())
 				info = self.get_fetch_data_dict_read(fetch_data_dict_read)
 
-				if self.search_str == 'Trakt Episodes/Movies in progress':
+				if 'Trakt Episodes/Movies in progress' in str(self.search_str) or 'Trakt Episodes/Movies in progress' in str(self.filter_label):
 					listitems1 = []
 					response = get_trakt_playback('tv')
 					if response:
@@ -1640,6 +1649,7 @@ def get_tmdb_window(window_type):
 								if x['tmdb_id'] == i['show']['ids']['tmdb']:
 									if x['episode'] == i['episode']['number'] and x['season'] == i['episode']['season']:
 										x['PercentPlayed'] = int(i['progress'])
+										x['StartPercent'] = int(i['progress'])
 										listitems1.append(x)
 					response = get_trakt_playback('movie')
 					if response:
@@ -1647,6 +1657,7 @@ def get_tmdb_window(window_type):
 							for x in info['listitems']:
 								if x['tmdb_id'] == i['movie']['ids']['tmdb']:
 									x['PercentPlayed'] = int(i['progress'])
+									x['StartPercent'] = int(i['progress'])
 									listitems1.append(x)
 					info['listitems'] = listitems1
 				reopen_window = True
@@ -1662,7 +1673,7 @@ def get_tmdb_window(window_type):
 				if self.mode == 'trakt' and 'Trakt Watched Movies' in str(self.filter_label):
 					self.search_str = trakt_watched_movies()
 				if self.mode == 'trakt' and 'Trakt Watched Shows' in str(self.filter_label):
-					xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>PHIL', level=xbmc.LOGINFO)
+					#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>PHIL', level=xbmc.LOGINFO)
 					self.search_str = trakt_watched_tv_shows()
 				if self.mode == 'trakt' and 'Trakt Unwatched Shows' in str(self.filter_label):
 					self.search_str = trakt_unwatched_tv_shows()
@@ -1956,7 +1967,7 @@ def get_tmdb_window(window_type):
 				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				return info
 
-			elif self.search_str == 'Trakt Calendar Episodes':
+			elif 'Trakt Calendar Episodes' in str(self.search_str) or 'Trakt Calendar Episodes' in str(self.filter_label):
 				#url = 'https://api.trakt.tv/sync/playback/type?start_at=2023-09-26T00%3A00%3A00.000Z&end_at=2023-07-01T23%3A59%3A59.000Z'
 				past_date = datetime.now() - timedelta(days=12)
 				tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
@@ -1964,6 +1975,7 @@ def get_tmdb_window(window_type):
 				url = 'https://api.trakt.tv/calendars/my/shows/%s/14' % str(past_date.strftime('%Y-%m-%d'))
 				response = get_trakt_data(url=url, cache_days=0.0001, folder='Trakt')
 				listitems1 = []
+				self.filter_label = 'Trakt Calendar Episodes' 
 				for i in reversed(response):
 					ep = extended_episode_info(i['show']['ids']['tmdb'], i['episode']['season'], i['episode']['number'])
 					#if ep[0]['episode'] == '':

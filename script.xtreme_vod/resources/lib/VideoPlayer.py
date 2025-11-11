@@ -138,7 +138,7 @@ class VideoPlayer(xbmc.Player):
 		if series_id == None or str(series_id) == '':
 			search_str = get_vod_alltv()
 			for i in search_str:
-				if str(i['tmdb']) == str(tmdb):
+				if i['tmdb'] == tmdb or  str(i['tmdb']) == str(tmdb):
 					series_id = i['series_id']
 					break
 
@@ -473,7 +473,7 @@ class VideoPlayer(xbmc.Player):
 			for idx,i in enumerate(search_str):
 				response2 = response1
 
-				if i['tmdb'] == tmdb:
+				if i['tmdb'] == tmdb or  str(i['tmdb']) == str(tmdb):
 					response2['OriginalTitle'] = i['title']
 					response2['original_title'] = i['title']
 					response2['title'] = i['title']
@@ -495,6 +495,7 @@ class VideoPlayer(xbmc.Player):
 					listitems[idx]['Label'] = search_str[i]['title']
 					listitems[idx]['OriginalTitle'] = search_str[i]['title']
 
+				
 				listitem, index = wm.open_selectdialog(listitems=listitems)
 				Utils.show_busy()
 				if index > -1:

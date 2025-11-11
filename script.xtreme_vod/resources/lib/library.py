@@ -399,7 +399,7 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 	else:
 		response = get_fanart_data(tmdb_id=tvdb_id,media_type='movie')
 		
-	tools_log(tvdb_id)
+	#tools_log(tvdb_id)
 	#tools_log(response)
 	if 'tv_tvdb' == media_type:
 		for i in response:

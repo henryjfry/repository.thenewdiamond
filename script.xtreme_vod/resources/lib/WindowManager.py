@@ -58,8 +58,8 @@ class WindowManager(object):
 			self.osAndroid_path = '-android'
 		else:
 			self.osAndroid_path = ''
-	if 'estuary' in str(Utils.SKIN_DIR):
-			 Utils.SKIN_DIR = 'skin.estuary'
+		if 'estuary' in str(Utils.SKIN_DIR):
+			Utils.SKIN_DIR = 'skin.estuary'
 
 
 

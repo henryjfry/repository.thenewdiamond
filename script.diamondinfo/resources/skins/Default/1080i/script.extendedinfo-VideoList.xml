@@ -208,6 +208,32 @@
 						</control>
 
 					<!--- TRAKT WATCHED STUFF--->
+					<!---control type="textbox">
+						<posx>75</posx>
+						<width>228</width>
+						<height>67</height>
+						<posy>30</posy>
+						<textcolor>FF999999</textcolor>
+						<align>center</align>
+						<font>font12</font>
+						<label>$INFO[ListItem.Property(UnWatchedEpisodes)]</label>
+						<visible>Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + !String.IsEmpty(ListItem.TVShowTitle)</visible>
+					</control>
+					<!--- TRAKT WATCHED STUFF--->
+					<!---control type="textbox">
+						<posx>75</posx>
+						<width>228</width>
+						<height>67</height>
+						<posy>30</posy>
+						<textcolor>FF999999</textcolor>
+						<align>center</align>
+						<font>font20</font>
+						<label>*</label>
+						<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)]</visible>
+					</control>
+					<!--- TRAKT WATCHED STUFF--->
+
+					<!--- TRAKT WATCHED STUFF--->
 					<control type="group">
 						<control type="image">
 							<posx>114</posx>
@@ -221,7 +247,8 @@
 							<posx>162</posx>
 							<width>30</width>
 							<height>84</height>
-							<posy>12</posy>
+							<!--- MOVE LABELS UP/DOWN--->
+							<posy>38</posy>
 							<textcolor>black</textcolor>
 							<align>center</align>
 							<font>font10</font>
@@ -235,22 +262,10 @@
 							<height>90</height>
 							<posy>30</posy>
 							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayWatched.png</texture>
-							<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)]</visible>
+							<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)|String.IsEqual(ListItem.DBTYPE,episode)]</visible>
 						</control>
 
 					</control>
-					<!--- TRAKT WATCHED STUFF--->
-					<!---control type="textbox">
-						<posx>75</posx>
-						<width>228</width>
-						<height>67</height>
-						<posy>30</posy>
-						<textcolor>99FFFFFF</textcolor>
-						<align>center</align>
-						<font>font20</font>
-						<label>*</label>
-						<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)]</visible>
-					</control--->
 					<!--- TRAKT WATCHED STUFF--->
 
 						<control type="textbox">
@@ -310,39 +325,6 @@
 					</control>
 
 					<!--- TRAKT WATCHED STUFF--->
-					<control type="group">
-						<control type="image">
-							<posx>223</posx>
-							<width>90</width>
-							<height>90</height>
-							<posy>137</posy>
-							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayUnwatched.png</texture>
-							<visible>Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + !String.IsEmpty(ListItem.TVShowTitle)</visible>
-						</control>
-						<control type="label">
-							<posx>270</posx>
-							<width>30</width>
-							<height>84</height>
-							<posy>119</posy>
-							<textcolor>black</textcolor>
-							<align>center</align>
-							<font>font10</font>
-							<label>$INFO[ListItem.Property(UnWatchedEpisodes)]</label>
-							<visible>Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + !String.IsEmpty(ListItem.TVShowTitle)</visible>
-						</control>
-
-						<control type="image">
-							<posx>223</posx>
-							<width>90</width>
-							<height>90</height>
-							<posy>137</posy>
-							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayWatched.png</texture>
-							<visible>!Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)]</visible>
-						</control>
-
-					</control>
-
-					<!--- TRAKT WATCHED STUFF--->
 					<!---control type="textbox">
 						<posx>175</posx>
 						<width>228</width>
@@ -360,7 +342,7 @@
 							<effect type="slide"  start="0,50" end="0" time="180" tween="cubic" reversible="false"/>
 							<effect type="fade" start="100" end="62" time="250"/>
 						</animation--->
-					<!---/control--->
+					<!---/control>
 					<!--- TRAKT WATCHED STUFF--->
 					<!---control type="textbox">
 						<posx>175</posx>
@@ -379,7 +361,64 @@
 							<effect type="slide"  start="0,50" end="0" time="180" tween="cubic" reversible="false"/>
 							<effect type="fade" start="100" end="62" time="250"/>
 						</animation--->
-					<!---/control--->
+					<!---/control>
+					<!--- TRAKT WATCHED STUFF--->
+
+					<!--- TRAKT WATCHED STUFF--->
+					<control type="group">
+						<control type="image">
+							<posx>223</posx>
+							<width>90</width>
+							<height>90</height>
+							<posy>137</posy>
+							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayUnwatched.png</texture>
+							<visible>Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + !String.IsEmpty(ListItem.TVShowTitle)</visible>
+						</control>
+						<control type="label">
+							<posx>270</posx>
+							<width>30</width>
+							<height>84</height>
+							<!--- MOVE LABELS UP/DOWN--->
+							<posy>146</posy>
+							<textcolor>black</textcolor>
+							<align>center</align>
+							<font>font10</font>
+							<label>$INFO[ListItem.Property(UnWatchedEpisodes)]</label>
+							<visible>Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + !String.IsEmpty(ListItem.TVShowTitle)</visible>
+						</control>
+
+						<control type="image">
+							<posx>223</posx>
+							<width>90</width>
+							<height>90</height>
+							<posy>137</posy>
+							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayUnwatched2.png</texture>
+							<visible>Integer.IsGreater(ListItem.Property(startpercent),0)</visible>
+						</control>
+						<control type="label">
+							<posx>262</posx>
+							<width>50</width>
+							<height>30</height>
+							<!--- MOVE LABELS UP/DOWN--->
+							<posy>151</posy>
+							<textcolor>black</textcolor>
+							<align>center</align>
+							<font>font_flag</font>
+							<label>$INFO[ListItem.Property(startpercent)]%</label>
+							<visible>Integer.IsGreater(ListItem.Property(startpercent),0)</visible>
+						</control>
+
+						<control type="image">
+							<posx>223</posx>
+							<width>90</width>
+							<height>90</height>
+							<posy>137</posy>
+							<texture diffuse="thumbs/movieposter_mask.png" colordiffuse="$INFO[Window(home).Property(ImageColor)]">icons/TopRightOverlayWatched.png</texture>
+							<visible>!Integer.IsGreater(ListItem.Property(startpercent),0) + !Integer.IsGreater(ListItem.Property(UnWatchedEpisodes),0) + Integer.IsGreater(ListItem.Property(PlayCount),0) + [String.IsEqual(ListItem.DBTYPE,movie)|String.IsEqual(ListItem.DBTYPE,tvshow)|String.IsEqual(ListItem.DBTYPE,episode)]</visible>
+						</control>
+
+					</control>
+
 					<!--- TRAKT WATCHED STUFF--->
 
 					<control type="textbox">
