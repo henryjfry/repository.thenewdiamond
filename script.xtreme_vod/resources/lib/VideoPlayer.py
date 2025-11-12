@@ -731,6 +731,8 @@ class VideoPlayer(xbmc.Player):
 
 		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+30))
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_player_time', str(int(time.time())+30))
 		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
 		if window:
 			wm.add_to_stack(window, 'curr_window')

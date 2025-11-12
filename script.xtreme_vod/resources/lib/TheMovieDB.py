@@ -763,33 +763,35 @@ def single_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
 	#response = get_tmdb_data('tv/%s?append_to_response=alternative_titles,content_ratings,credits,external_ids,images,keywords,rating,similar,translations,videos&language=%s&include_image_language=en,null,%s&%s' % (tvshow_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
 	if not response:
 		return False
-	genres = [i['id'] for i in response['genres']]
-	alternative_titles =  [i['title'] for i in response['alternative_titles']['results']]
-	if response['original_name'] == response['name'] and len(alternative_titles) > 0:
+	try: genres = [i['id'] for i in response['genres']]
+	except: genres = []
+	try: alternative_titles =  [i['title'] for i in response['alternative_titles']['results']]
+	except: alternative_titles = []
+	if Utils.fetch(response,'original_name') == Utils.fetch(response,'name') and len(alternative_titles) > 0:
 		response['original_name'] = alternative_titles[0]
 	results = {
 		'media_type': 'tv',
 		'mediatype': 'tv',
-		'backdrop_path': response['backdrop_path'],
-		'first_air_date': response['first_air_date'],
+		'backdrop_path': Utils.fetch(response,'backdrop_path'),
+		'first_air_date': Utils.fetch(response,'first_air_date'),
 		'genre_ids': genres,
-		'id': response['id'],
+		'id': Utils.fetch(response,'id'),
 		'imdb_id': Utils.fetch(Utils.fetch(response, 'external_ids'), 'imdb_id'),
-		'name': response['name'],
-		'title': response['name'],
-		'origin_country': response['origin_country'],
-		'original_language': response['original_language'],
-		'original_name': response['original_name'],
+		'name': Utils.fetch(response,'name'),
+		'title': Utils.fetch(response,'name'),
+		'origin_country': Utils.fetch(response,'origin_country'),
+		'original_language': Utils.fetch(response,'original_language'),
+		'original_name': Utils.fetch(response,'original_name'),
 		'alternative_titles': alternative_titles,
-		'overview': response['overview'],
-		'similar': response['recommendations'],
+		'overview': Utils.fetch(response,'overview'),
+		'similar': Utils.fetch(response,'recommendations'),
 		'Rating': Utils.fetch(response, 'vote_average'),
 		'Votes': Utils.fetch(response, 'vote_count'),
-		'popularity': response['popularity'],
-		'poster_path': response['poster_path'],
-		'status': response['status'],
-		'vote_average': response['vote_average'],
-		'vote_count': response['vote_count']
+		'popularity': Utils.fetch(response,'popularity'),
+		'poster_path': Utils.fetch(response,'poster_path'),
+		'status': Utils.fetch(response,'status'),
+		'vote_average': Utils.fetch(response,'vote_average'),
+		'vote_count': Utils.fetch(response,'vote_count')
 		}
 	return results
 

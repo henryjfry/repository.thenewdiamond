@@ -554,7 +554,7 @@ class RealDebrid:
 	def torrent_select_all(self, torrent_id):
 		torr_info = self.torrent_info(torrent_id)
 		#tools.log(torr_info)
-		if '/vis/' in str(torr_info) and 'RARBG' in str(torr_info) and 'txt' in str(torr_info):
+		if ('/vis/' in str(torr_info) and 'RARBG' in str(torr_info) and 'txt' in str(torr_info)) or torr_info == None:
 			self.delete_torrent(torrent_id)
 			return {'error': 'infringing_file  waiting_files_selection  infringing_file', 'status': 'ERROR'}
 		file_string = ''
