@@ -15,10 +15,18 @@
 		<setting label="Lookup subtitles on playback" type="bool" id="subtitle_lookup" default="false"/>
 		<setting label="Get Lists of Channel Names and Group Names saved to PasteBin" type="lsep"/>
 		<setting label="output_lists_pastebin" type="action" action="RunScript(script.xtreme_vod,info=output_lists_pastebin)" visible="true"/>
+
+		<setting label="Get Current Channels saved to PasteBin" type="lsep"/>
+		<setting label="output_curr_channels_pastebin" type="action" action="RunScript(script.xtreme_vod,info=output_curr_channels_pastebin)" visible="true"/>
+
 		<setting label="Order Channels by providing list of channel names to sort to top" type="lsep"/>
 		<setting label="save_channel_order" type="action" action="RunScript(script.xtreme_vod,info=save_channel_order)" visible="true"/>
 		<setting label="Only include channels in allowed groups" type="lsep"/>
 		<setting label="save_allowed_groups" type="action" action="RunScript(script.xtreme_vod,info=save_allowed_groups)" visible="true"/>
+
+		<setting label="Exclude channels on file" type="lsep"/>
+		<setting label="save_exclude_channels" type="action" action="RunScript(script.xtreme_vod,info=save_exclude_channels)" visible="true"/>
+
 		<setting label="Generate XML+M3U" type="lsep"/>
 		<setting label="generate_m3u_xml" type="action" action="RunScript(script.xtreme_vod,info=generate_m3u_xml)" visible="true"/>
 		<setting label="select_installed_pvr_client" type="action" action="RunScript(script.xtreme_vod,info=select_pvr_client)" visible="true"/>

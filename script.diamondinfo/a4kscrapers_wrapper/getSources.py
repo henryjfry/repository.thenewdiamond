@@ -2170,22 +2170,27 @@ def download_uncached_magnet(rd_api, download_path, curr_download, torr_id, torr
 
 def download_cached_movie(rd_api, download_path, curr_download, torr_id, torr_info):
 	#tools.log('download_cached_movie')
+	import re
 	folder = curr_download['CURR_LABEL']
 	folder = curr_download['filename_without_ext']
 	
 	download_folder = unquote(os.path.join(download_path, folder))
-	
-	
+
 	torr_info = rd_api.torrent_info_files(torr_info)
 	sorted_torr_info = sorted(torr_info['files_links'], key=lambda x: x['pack_path'])
 	simple_info = tools._build_simple_show_info(curr_download)
 	simple_info['imdb_id'] = curr_download['imdb_id']
-	#tools.log(sorted_torr_info)
+	#tools.log(torr_info)
 	for i in sorted_torr_info:
 		#test = source_tools.run_show_filters(simple_info, pack_title = i['pack_path'])
 		test1 = source_tools.filter_movie_title(curr_download['CURR_LABEL'], source_tools.clean_title(curr_download['CURR_LABEL']), curr_download['title'], simple_info)
 		test2 = source_tools.filter_movie_title(curr_download['CURR_LABEL'], source_tools.clean_title( i['pack_path']), curr_download['title'], simple_info)
+		test3 = source_tools.filter_movie_title(curr_download['CURR_LABEL'], source_tools.clean_title(curr_download['CURR_LABEL']), re.sub(r'[^a-zA-Z0-9\s]+', '',curr_download['title']), simple_info)
+
 		if test1 or test2 or curr_download['release_title'] == 'CUSTOM':
+			pack_path = i['pack_path']
+			break
+		if test1 == False and test2 == False and test3 == True:
 			pack_path = i['pack_path']
 			break
 

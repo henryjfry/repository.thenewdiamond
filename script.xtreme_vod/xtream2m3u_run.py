@@ -248,6 +248,18 @@ def generate_xmltv(mode=None):
 		channel_order = True
 	#priority_names = []
 
+	exclude_channels_file = os.path.join(Utils.ADDON_DATA_PATH, 'exclude_channels.txt')
+	exclude_channels_lists = []
+	exclude_channels = False
+	if os.path.isfile(exclude_channels_file):
+		Utils.tools_log('EXISTS__'+exclude_channels_file)
+		exclude_channels_f = open(exclude_channels_file, "r", encoding="utf-8")
+		for x in exclude_channels_f:
+			curr_item = x.strip()
+			if len(curr_item) > 1:
+				exclude_channels_lists.append(curr_item)
+		exclude_channels = True
+
 	no_stream_proxy = True
 	headers = {
 		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
@@ -286,6 +298,20 @@ def generate_xmltv(mode=None):
 					if not channel_name in allowed_channels:
 						allowed_channels.append(channel_name)
 						#Utils.tools_log(channel_name)
+
+	pop_list = []
+	for idx, i in enumerate(allowed_channels):
+		pop_flag = False
+		for xdx, x in enumerate(exclude_channels_lists):
+			if str(x) in str(i) or str(i) in str(x) or str(i) == str(x):
+				pop_list.append(idx)
+				pop_flag = True
+				break
+		if pop_flag:
+			exclude_channels_lists.pop(xdx)
+	for i in reversed(pop_list):
+		allowed_channels.pop(i)
+
 
 	xml_url = '%s/xmltv.php?username=%s&password=%s&prev_days=1&next_days=2' % (url.rstrip('/'), username, password)
 	response = requests.get(xml_url,headers=headers)
@@ -379,21 +405,21 @@ def startBackgroundTask():
 		return str(error)
 
 def paste_bin(paste_text):
-	import urllib.request
-	import urllib.parse
-
-	pastebin_vars = {
-		'api_dev_key': '57fe1369d02477a235057557cbeabaa1',
-		'api_option': 'paste',
-		'api_paste_code': paste_text
+	#https://github.com/lukabudik/dustebin
+	#GET https://dustebin.com/api/pastes/[id]/raw
+	#eg response = requests.get('https://dustebin.com/api/pastes/lo46MCxh.txt/raw')
+	import requests
+	import json
+	url = "https://dustebin.com/api/pastes"
+	data_json = {
+		'content': paste_text, 'expiration': '7d'
 	}
-
-	data = urllib.parse.urlencode(pastebin_vars).encode("utf-8")
-	req = urllib.request.Request("https://pastebin.com/api/api_post.php", data=data)
-
-	with urllib.request.urlopen(req) as response:
-		url = response.read().decode("utf-8")
-	print("Pastebin URL:", url)
+	# Use json= instead of data=
+	response = requests.post(url, json=data_json)
+	Utils.tools_log(response.status_code)
+	Utils.tools_log(response.text)
+	url = 'https://dustebin.com/' + response.json()['id']
+	Utils.tools_log("Pastebin URL:", url)
 	return url
 
 def channel_names_groups():
@@ -411,6 +437,25 @@ def channel_names_groups():
 		if not categoryname[i['category_id']] in groups:
 			groups.append(categoryname[i['category_id']])
 	return channel_names, groups
+
+def output_curr_channels_pastebin():
+	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
+	channel_list = ''
+	channel_list_group = ''
+	with open(m3u_out, "r", encoding="utf-8") as m3u_playlist:
+		for x in m3u_playlist:
+			if '#EXTINF:' in str(x):
+				tvg_name = str(x).split('tvg-name="')[1].split('" group-title')[0]
+				group_title = str(x).split('group-title="')[1].split('" tvg-logo')[0]
+				channel_list = channel_list + tvg_name + '\n'
+				channel_list_group = channel_list_group + tvg_name + '||' + group_title + '\n'
+	pastebin_output = 'CHANNEL_LIST' + '\n\n\n' + channel_list + '\n\n\n#########\n\n\n' + 'CHANNELS_EPG_GROUPS_LIST' + '\n\n\n' + channel_list_group + '\n\n\n#########'
+	url = paste_bin(pastebin_output)
+	Utils.tools_log('PASTEBIN FULL CHANNEL AND EPG GROUPS LIST')
+	Utils.tools_log(url)
+	Utils.tools_log('PASTEBIN FULL CHANNEL AND EPG GROUPS LIST')
+	return url
+
 
 def output_lists_pastebin():
 	channel_names, groups = channel_names_groups()
@@ -447,6 +492,8 @@ def save_channel_order(paste_bin_url):
 def save_allowed_groups(paste_bin_url):
 	save_pastebin_to_file(url=paste_bin_url, file_name='allowed_groups.txt')
 
+def save_exclude_channels(paste_bin_url):
+	save_pastebin_to_file(url=paste_bin_url, file_name='exclude_channels.txt')
 
 def m3u_ts_m3u8():
 	m3u_out = os.path.join(Utils.ADDON_DATA_PATH, 'LiveStream.m3u')
@@ -516,6 +563,20 @@ def generate_m3u(mode=None):
 		for x in channel_order_f:
 			channel_order_lists.append(x.strip())
 		channel_order = True
+
+
+	exclude_channels_file = os.path.join(Utils.ADDON_DATA_PATH, 'exclude_channels.txt')
+	exclude_channels_lists = []
+	exclude_channels = False
+	if os.path.isfile(exclude_channels_file):
+		Utils.tools_log('EXISTS__'+exclude_channels_file)
+		exclude_channels_f = open(exclude_channels_file, "r", encoding="utf-8")
+		for x in exclude_channels_f:
+			curr_item = x.strip()
+			if len(curr_item) > 1:
+				exclude_channels_lists.append(curr_item)
+		exclude_channels = True
+
 	#priority_names = []
 	no_stream_proxy = True
 
@@ -574,6 +635,7 @@ def generate_m3u(mode=None):
 			
 			if not any(unwanted_group.lower() in group_title.lower() for unwanted_group in unwanted_groups):
 				# Proxy the logo URL
+
 				original_logo = channel.get('stream_icon', '')
 				#logo_url = f"{host_url}/image-proxy/{encode_image_url(original_logo)}" if original_logo else ''
 				logo_url = original_logo
@@ -585,9 +647,18 @@ def generate_m3u(mode=None):
 				#if not no_stream_proxy:
 				#	stream_url = f"{host_url}/stream-proxy/{encode_image_url(stream_url)}"
 
-				m3u_playlist += f'#EXTINF:0 tvg-name="{channel["name"]}" group-title="{group_title}" tvg-logo="{logo_url}",{channel["name"]}\n'
-				m3u_playlist += m3u_kodi_prop
-				m3u_playlist += f'{stream_url}\n'
+				exclude_curr = False
+				if exclude_channels:
+					for xdx, ex in enumerate(exclude_channels_lists):
+						if str(channel["name"]) == str(ex) or str(ex) in str(channel["name"]) or str(channel["name"]) in str(ex):
+							exclude_curr = True
+							break
+					if exclude_curr:
+						exclude_channels_lists.pop(xdx)
+				if exclude_curr == False:
+					m3u_playlist += f'#EXTINF:0 tvg-name="{channel["name"]}" group-title="{group_title}" tvg-logo="{logo_url}",{channel["name"]}\n'
+					m3u_playlist += m3u_kodi_prop
+					m3u_playlist += f'{stream_url}\n'
 
 	Utils.tools_log('M3U_RETURN')
 	if Utils.local_xml_m3u or (Utils.startup_local_xml_m3u and mode == 'startup'):

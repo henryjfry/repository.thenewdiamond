@@ -145,11 +145,21 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+		if info == 'output_curr_channels_pastebin':
+			from xtream2m3u_run import output_curr_channels_pastebin
+			url = output_curr_channels_pastebin()
+			dialog = xbmcgui.Dialog()
+			dialog.ok('PasteBin Channel List + EPG Group List', url)
+			Utils.tools_log(url)
+			Utils.hide_busy()
+			return
+
 		if info == 'output_lists_pastebin':
 			from xtream2m3u_run import output_lists_pastebin
 			url = output_lists_pastebin()
 			dialog = xbmcgui.Dialog()
 			dialog.ok('PasteBin Channel List + EPG Group List', url)
+			Utils.tools_log(url)
 			Utils.hide_busy()
 			return
 
@@ -170,6 +180,16 @@ def start_info_actions(infos, params):
 			Utils.show_busy()
 			if url != '' and len(url ) > len('https://pastebin.com/'):
 				save_allowed_groups(url)
+			Utils.hide_busy()
+			return
+
+		if info == 'save_exclude_channels':
+			from xtream2m3u_run import save_exclude_channels
+			dialog = xbmcgui.Dialog()
+			url = dialog.input('Enter Exclude Channels list Pastebin URL', 'https://pastebin.com/',  type=xbmcgui.INPUT_ALPHANUM)
+			Utils.show_busy()
+			if url != '' and len(url ) > len('https://pastebin.com/'):
+				save_exclude_channels(url)
 			Utils.hide_busy()
 			return
 

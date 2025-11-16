@@ -37,7 +37,7 @@ def start_info_actions(infos, params):
 			return
 
 		if info == 'log_clean':
-			import os
+			#import os
 			#find /home/osmc/.kodi/temp/kodi.log -type f -exec /bin/cp /dev/null {} \;
 			log_file = xbmcvfs.translatePath(r'special://logpath\kodi.log')
 
@@ -1401,7 +1401,7 @@ def reopen_window():
 	return wm.open_video_list(search_str='', mode='reopen_window')
 
 def auto_clean_cache_seren_downloader(days=None):
-	import os 
+	#import os 
 	import datetime
 	import glob
 	Utils.tools_log('STARTING===>auto_clean_cache_seren_downloader')
@@ -1874,7 +1874,7 @@ def revoke_trakt(**kwargs): ## PATCH
 
 def estuary_fix():
 	#osmc_home = '/usr/share/kodi/addons/skin.estuary/xml/Home.xml'
-	import os
+	#import os
 	osmc_home = xbmcvfs.translatePath('special://skin/xml/Home.xml')
 	estuary_home_fix2 = xbmcvfs.translatePath(Utils.ADDON_PATH + '/estuary_home_fix2.py')
 	command = "sudo python %s '%s'" % (estuary_home_fix2, osmc_home)

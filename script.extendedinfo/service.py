@@ -1406,6 +1406,7 @@ class PlayerMonitor(xbmc.Player):
 		except: return
 		self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration',1.00)) * 100
 
+		trakt_refresh_all = None
 		while self.play_test and self.type == 'movie':
 			try: 
 				self.update_play_test(self.playing_file)
@@ -1433,10 +1434,12 @@ class PlayerMonitor(xbmc.Player):
 					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 					self.trakt_error = None
 				self.trakt_scrobble_details()
-				Utils.tools_log(str('STARTING...library.trakt_watched_movies_full'))
-				library.trakt_refresh_all()
-				self.library_refresh = True
-				Utils.tools_log(str('FINISHED...library.trakt_watched_movies_full'))
+				if trakt_refresh_all == None:
+					Utils.tools_log(str('STARTING..1.library.trakt_watched_movies_full'))
+					library.trakt_refresh_all()
+					self.library_refresh = True
+					Utils.tools_log(str('FINISHED..1.library.trakt_watched_movies_full'))
+					trakt_refresh_all = True
 
 			if (self.player_meta['percentage'] > 85) and self.library_refresh == False and player.isPlaying()==1:
 				try:
@@ -1451,10 +1454,12 @@ class PlayerMonitor(xbmc.Player):
 					except:
 						Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 						pass
-					Utils.tools_log(str('STARTING...library.trakt_watched_movies_full'))
-					library.trakt_refresh_all()
-					self.library_refresh = True
-					Utils.tools_log(str('FINISHED...library.trakt_watched_movies_full'))
+					if trakt_refresh_all == None:
+						Utils.tools_log(str('STARTING..2.library.trakt_watched_movies_full'))
+						library.trakt_refresh_all()
+						self.library_refresh = True
+						Utils.tools_log(str('FINISHED..2.library.trakt_watched_movies_full'))
+						trakt_refresh_all = True
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
@@ -1547,10 +1552,12 @@ class PlayerMonitor(xbmc.Player):
 					self.trakt_watched  = self.trakt_meta_scrobble(action='stop')
 					self.trakt_error = None
 				self.trakt_scrobble_details()
-				Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
-				library.trakt_refresh_all()
-				self.library_refresh = True
-				Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
+				if trakt_refresh_all == None:
+					Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
+					library.trakt_refresh_all()
+					self.library_refresh = True
+					Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
+					trakt_refresh_all = True
 
 			if player.isPlaying()==1 and self.player_meta['percentage'] > 85 and self.library_refresh == False:
 
@@ -1565,10 +1572,12 @@ class PlayerMonitor(xbmc.Player):
 						Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 						pass
 
-					Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
-					library.trakt_refresh_all()
-					self.library_refresh = True
-					Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
+					if trakt_refresh_all == None:
+						Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
+						library.trakt_refresh_all()
+						self.library_refresh = True
+						Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
+						trakt_refresh_all = True
 
 			if self.player_meta['diamond_player'] == False and self.player_meta['percentage'] > 85:
 				#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
