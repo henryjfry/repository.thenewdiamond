@@ -646,7 +646,11 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 				from subcleaner import clean_file
 				from pathlib import Path
 				for i in subs_list:
-					sub = Path(i)
+					try: 
+						sub = Path(i)
+					except: 
+						clean_file.files_handled = []
+						continue
 					clean_file.clean_file(sub)
 				tools.sub_cleaner_log_clean()
 				clean_file.files_handled = []
@@ -1064,6 +1068,7 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 
 		xbmcplugin.setContent(handle, 'episodes')
 		xbmcgui.Window(10000).setProperty('diamond_player_time', str(int(time.time())+30))
+		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+30))
 		if 'test=True' in str(sys.argv):
 			#print_log(sys.argv)
 			#print_log(next_ep_play_details,'next_ep_play_details')

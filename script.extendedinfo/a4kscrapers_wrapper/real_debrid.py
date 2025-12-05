@@ -98,6 +98,7 @@ class RealDebrid:
 		#tools.log(self.client_id)
 		#tools.log(url)
 		response = self.session.get(url).json()
+		#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		#tools.log(response)
 		#tools.copy2clip(response["user_code"])
 		success = False
@@ -240,6 +241,7 @@ class RealDebrid:
 	@staticmethod
 	def _handle_error(response):
 		tools.log("Real Debrid API return a {} response".format(response.status_code))
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response.text)
 		tools.log(response.request.url)
 
@@ -353,6 +355,7 @@ class RealDebrid:
 
 		try: response_test = response.text
 		except AttributeError:
+			tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			tools.log(response)
 			return None
 		if 'infringing_file' in str(response.text) or '{files} is missing' in str(response.text) or 'too_manny_requests' in str(response.text) or 'unknown_ressource' in str(response.text):
@@ -442,6 +445,7 @@ class RealDebrid:
 				continue
 			magnet = 'magnet:?xt=urn:btih:' + i
 			response = self.add_magnet(magnet)
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			#tools.log(response)
 			try: torr_id = response['id']
 			except: continue

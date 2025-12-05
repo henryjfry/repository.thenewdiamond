@@ -205,6 +205,7 @@ def run_downloader(magnet_list, download_path):
 			response = rd_api.add_magnet(magnet)
 			log(magnet)
 			if 'too_many_active_downloads' in str(response):
+				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				tools.log(response)
 				tools.log('sleep_20')
 				time.sleep(20)
@@ -345,6 +346,7 @@ def write_to_downloader_list(torrent, sources_list, rd_api, meta, source_type, p
 			response = None
 			continue
 		if response.get('error',False):
+			tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			tools.log(response)
 			torrent = choose_torrent(sources_list)
 			#result = tools.selectFromDict(torrent_choices, 'Torrent')
@@ -352,6 +354,7 @@ def write_to_downloader_list(torrent, sources_list, rd_api, meta, source_type, p
 			#	tools.log('EXIT')
 			#	return
 			response = None
+	tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 	tools.log(response)
 	torr_id = response['id']
 	response = rd_api.torrent_select_all(torr_id)
@@ -677,6 +680,7 @@ def run_tv_search():
 				response = None
 				continue
 			if response.get('error',False):
+				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				tools.log(response)
 				torrent = choose_torrent(sources_list)
 				#result = tools.selectFromDict(torrent_choices, 'Torrent')
@@ -684,6 +688,7 @@ def run_tv_search():
 				#	tools.log('EXIT')
 				#	return
 				response = None
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
@@ -700,6 +705,7 @@ def run_tv_search():
 					break
 			sources_list.pop(idx)
 			if response.get('error',False):
+				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				tools.log(response)
 				torrent = choose_torrent(sources_list)
 				#result = tools.selectFromDict(torrent_choices, 'Torrent')
@@ -707,6 +713,7 @@ def run_tv_search():
 				#	tools.log('EXIT')
 				#	return
 				response = None
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
@@ -720,6 +727,7 @@ def run_tv_search():
 	elif result == 3:#'Unrestrict specific files': 3,
 		tools.log(torrent)
 		response = rd_api.add_magnet(torrent['magnet'])
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
@@ -748,6 +756,7 @@ def run_tv_search():
 	elif result == 9:#'(Uncached) Add to RD (individual files) ': 9
 		tools.log(torrent)
 		response = rd_api.add_magnet(torrent['magnet'])
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		torr_id = response['id']
 		torr_info = rd_api.torrent_info(torr_id)
@@ -766,10 +775,12 @@ def run_tv_search():
 				try: 
 					torr_id = response['id']
 				except: 
+					tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 					tools.log(response)
 					continue
 				torr_info = rd_api.torrent_info(torr_id)
 		#response = rd_api.add_magnet(torrent['magnet'])
+		#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		#tools.log(response)
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
@@ -897,6 +908,7 @@ def run_movie_search(info=None):
 	if result == 1 or result == 8:#'Add to RD Cache (whole pack)': 1,#'(Uncached) Add to RD (whole pack) ': 8,
 		tools.log(torrent)
 		response = rd_api.add_magnet(torrent['magnet'])
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
@@ -905,6 +917,7 @@ def run_movie_search(info=None):
 	elif result == 2:#'Add to RD Cache + Unrestrict (whole pack)': 2,
 		tools.log(torrent)
 		response = rd_api.add_magnet(torrent['magnet'])
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
@@ -1441,16 +1454,19 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False, downloader=False
 		if meta.get('download_type',False) != 'movie':
 			from resources.lib.TheMovieDB import extended_season_info
 			response = extended_season_info(tvshow_id=meta['tmdb'], season_number=info['season'] )
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			#tools.log(response)
 			poster = response[1]['images'][1]['poster']
 		else:
 			from resources.lib.TheMovieDB import extended_movie_info
 			response = extended_movie_info(movie_id=meta['tmdb_id'])
+			#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			#tools.log(response)
 			poster = response[1]['images'][1]['poster']
 		
 		#for i in response:
 		#	tools.log(i)
+		#	#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		#	#tools.log(response[i])
 		#artwork = get_image_urls(poster=season.get('poster_path'))
 
@@ -1511,6 +1527,7 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False, downloader=False
 				curr_idx = idx
 				idx = idx + 1
 				response = rd_api.add_magnet(torrent['magnet'])
+				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				tools.log(response)
 				try: torr_id = response['id']
 				except KeyError: continue
@@ -1520,6 +1537,7 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False, downloader=False
 				
 				response = rd_api.torrent_select_all(torr_id)
 				time.sleep(2)
+				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				tools.log(response)
 				response = rd_api.torrent_select_all(torr_id)
 				torr_info = rd_api.torrent_info(torr_id)
@@ -1546,6 +1564,7 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False, downloader=False
 						download_link, new_meta = cloud_get_ep_season(rd_api, meta, torr_id, torr_info)
 					if download_link:
 						return download_link, meta
+				#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				#tools.log(response)
 				tools.log(idx)
 				tools.log('UNCACHED_ADDED_1ST_LINK_TO_RD')
@@ -1573,6 +1592,7 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False, downloader=False
 		response = rd_api.add_magnet(torrent['magnet'])
 		torr_id = response['id']
 		response = rd_api.torrent_select_all(torr_id)
+		tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		tools.log(response)
 		if 'ERROR' in str(response):
 			continue

@@ -70,7 +70,8 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 		same_folder = False
 		MBFACTOR = float(1 << 20)
 		response = requests.head(file_path, allow_redirects=True)
-		size = response.headers.get('content-length', 0)
+		try: size = response.headers.get('content-length', 0)
+		except AttributeError: size = response.headers.get('content-length', 0)
 		file_path = unquote(file_path)
 		size = int(size)
 		#'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
@@ -239,7 +240,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 						curr_subs_HEARING_dict['filename'] = curr_subs_HEARING_dict['file_name']
 				except:
 					#tools.log(i.__dict__)
-					curr_subs_dict['filename'] = subs_out_HEARING
+					curr_subs_HEARING_dict['filename'] = subs_out_HEARING
 					#tools.log('except')
 					#tools.log(curr_subs_dict)
 	if curr_subs_forced:

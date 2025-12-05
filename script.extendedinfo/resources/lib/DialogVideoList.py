@@ -1291,7 +1291,8 @@ def get_tmdb_window(window_type):
 						#xbmc.log(str(curr_item)+'===>OPENINFO', level=xbmc.LOGINFO)
 						response3.append(curr_item)
 					for x in response2:
-						curr_item = {'name': x['name'], 'year': int(x['year']), 'media_type': x['media_type'], 'item_id': int(x['item_id'])}
+						try: curr_item = {'name': x['name'], 'year': int(x['year']), 'media_type': x['media_type'], 'item_id': int(x['item_id'])}
+						except: curr_item = {'name': x['name'], 'year': (x['year']), 'media_type': x['media_type'], 'item_id': (x['item_id'])}
 						if not curr_item in response3:
 							#xbmc.log(str(x)+'===>OPENINFO', level=xbmc.LOGINFO)
 							response3.append(curr_item)

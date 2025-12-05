@@ -59,6 +59,27 @@ def start_info_actions(infos, params):
 			from resources.lib.library import trakt_watched_tv_movies_cleanup
 			trakt_watched_tv_movies_cleanup()
 
+		if info == 'trakt_uncollected1':
+			Utils.tools_log('trakt_uncollected1')
+			from resources.lib.library import trakt_uncollected_watched_movies
+			trakt_list = trakt_uncollected_watched_movies()
+			for sit in trakt_list:
+				imdb = sit['movie']['ids']['imdb']
+				year = sit['movie']['year']
+				title = sit['movie']['title']
+				Utils.tools_log([title, year, imdb])
+			Utils.hide_busy()
+			return
+
+		if info == 'trakt_uncollected':
+			Utils.tools_log('trakt_uncollected')
+			from resources.lib.library import trakt_watched_movies
+			from resources.lib.library import trakt_collection_movies
+			Utils.tools_log(trakt_watched_movies())
+			Utils.tools_log(trakt_collection_movies())
+			Utils.hide_busy()
+			return
+
 		if info == 'rss_test':
 			from a4kscrapers_wrapper import get_meta
 			get_meta.get_rss_cache()
