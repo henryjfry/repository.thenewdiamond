@@ -833,7 +833,7 @@ def get_tmdb_window(window_type):
 			if selection == -1:
 				Utils.hide_busy()
 				return
-			try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+			try: trakt_token = xbmcaddon.Addon(addon_ID()).getSetting('trakt_token')
 			except: trakt_token = None
 			if not trakt_token:
 				Utils.hide_busy()

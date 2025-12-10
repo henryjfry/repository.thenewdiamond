@@ -304,7 +304,7 @@ def start_info_actions(infos, params):
 			#kodi-send --action='RunPlugin(plugin://script.extendedinfo/?info=trakt_watched&trakt_type=tv&script=True)'
 			trakt_type = str(params['trakt_type'])
 			Utils.show_busy()
-			try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+			try: trakt_token = xbmcaddon.Addon(addon_ID()).getSetting('trakt_token')
 			except: trakt_token = None
 			if not trakt_token:
 				Utils.hide_busy()

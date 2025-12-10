@@ -1677,7 +1677,7 @@ class CronJobMonitor(Thread):
 					Utils.tools_log(str('get_meta.get_rss_cache()'))
 					get_meta.get_rss_cache()
 			elif int(time.time()) > self.next_time and trakt_kodi_mode == 'Trakt Only': 
-				try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+				try: trakt_token = xbmcaddon.Addon(addon_ID()).getSetting('trakt_token')
 				except: trakt_token = None
 				if trakt_token:
 					trakt_calendar_auto_sync = True
