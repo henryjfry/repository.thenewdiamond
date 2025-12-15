@@ -794,6 +794,10 @@ class PlayerMonitor(xbmc.Player):
 	def onPlayBackEnded(self):
 		tools_log(str('onPlayBackEnded'))
 
+		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+		if TMDbHelper_PlayerInfoString != '':
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
+
 		if self.player_meta['script.xtreme_vod_player'] == False:
 			tools_log('EXIT__script.xtreme_vod_player')
 			return
@@ -824,6 +828,10 @@ class PlayerMonitor(xbmc.Player):
 
 	def onPlayBackStopped(self):
 		tools_log(str('onPlayBackStopped'))
+
+		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+		if TMDbHelper_PlayerInfoString != '':
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 
 		if self.player_meta['script.xtreme_vod_player'] == False:
 			tools_log('EXIT__script.xtreme_vod_player')
@@ -1462,6 +1470,9 @@ class PlayerMonitor(xbmc.Player):
 					tools_log(str('STARTING...library.trakt_watched_movies_full'))
 					library.trakt_refresh_all()
 					self.library_refresh = True
+					#TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+					#if TMDbHelper_PlayerInfoString != '':
+					#	xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 					tools_log(str('FINISHED...library.trakt_watched_movies_full'))
 					trakt_refresh_all = True
 
@@ -1482,6 +1493,9 @@ class PlayerMonitor(xbmc.Player):
 						tools_log(str('STARTING...library.trakt_watched_movies_full'))
 						library.trakt_refresh_all()
 						self.library_refresh = True
+						#TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+						#if TMDbHelper_PlayerInfoString != '':
+						#	xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 						tools_log(str('FINISHED...library.trakt_watched_movies_full'))
 						trakt_refresh_all = True
 				self.playing_file = None
@@ -1545,6 +1559,7 @@ class PlayerMonitor(xbmc.Player):
 				tools_log('next_ep_play!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				kodi_send_command = 'RunScript(%s,info=play_vod_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,prescrape=True)' % (addon_ID(), next_ep_details['next_ep_show'], next_ep_details['next_ep_season'], next_ep_details['next_ep_episode'], next_ep_details['tmdb_id'])
 				TMDbHelper_NEW_PlayerInfoString['episode'] = next_ep_details['next_ep_episode']
+				TMDbHelper_NEW_PlayerInfoString['season'] = next_ep_details['next_ep_season']
 				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 				#xbmc.executebuiltin(kodi_send_command)
 				PLAYER.prepare_play_VOD_episode(tmdb = next_ep_details['tmdb_id'], series_id=None, search_str = None,episode=next_ep_details['next_ep_episode'], season=next_ep_details['next_ep_season'], window=None)

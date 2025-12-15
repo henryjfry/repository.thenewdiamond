@@ -750,6 +750,9 @@ class PlayerMonitor(xbmc.Player):
 
 	def onPlayBackEnded(self):
 		Utils.tools_log(str('onPlayBackEnded'))
+		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+		if TMDbHelper_PlayerInfoString != '':
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 		if self.player_meta['diamond_info_started'] == False:
 			Utils.tools_log('EXIT__diamond_info_started')
 			return
@@ -784,6 +787,9 @@ class PlayerMonitor(xbmc.Player):
 
 	def onPlayBackStopped(self):
 		Utils.tools_log(str('onPlayBackStopped'))
+		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+		if TMDbHelper_PlayerInfoString != '':
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 		if self.player_meta['diamond_info_started'] == False:
 			Utils.tools_log('EXIT__diamond_info_started')
 			return
@@ -1521,6 +1527,7 @@ class PlayerMonitor(xbmc.Player):
 				kodi_send_command = 'RunScript(%s,info=a4kwrapper_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,prescrape=True)' % (addon_ID(), next_ep_details['next_ep_show'], next_ep_details['next_ep_season'], next_ep_details['next_ep_episode'], next_ep_details['tmdb_id'])
 				xbmc.executebuiltin(kodi_send_command)
 				TMDbHelper_NEW_PlayerInfoString['episode'] = next_ep_details['next_ep_episode']
+				TMDbHelper_NEW_PlayerInfoString['season'] = next_ep_details['next_ep_season']
 				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 				prescrape = True
 
@@ -1556,6 +1563,9 @@ class PlayerMonitor(xbmc.Player):
 					Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
 					library.trakt_refresh_all()
 					self.library_refresh = True
+					#TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+					#if TMDbHelper_PlayerInfoString != '':
+					#	xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 					Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
 					trakt_refresh_all = True
 
@@ -1576,6 +1586,9 @@ class PlayerMonitor(xbmc.Player):
 						Utils.tools_log(str('STARTING...library.trakt_watched_tv_shows_full'))
 						library.trakt_refresh_all()
 						self.library_refresh = True
+						#TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
+						#if TMDbHelper_PlayerInfoString != '':
+						#	xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 						Utils.tools_log(str('FINISHED...library.trakt_watched_tv_shows_full'))
 						trakt_refresh_all = True
 
