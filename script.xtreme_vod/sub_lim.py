@@ -121,7 +121,9 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	#else:
 	#	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 	all_subtitles = None
-	for provider in ['addic7ed','opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']:
+	for provider in ['opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']:
+		#'addic7ed',
+		tools.log(provider)
 		try: mediatype = meta['episode_meta']['mediatype']
 		except: mediatype = 'movie'
 		#if provider == 'opensubtitlescom' and mediatype == 'movie' and len(all_subtitles[video]) >= 80:

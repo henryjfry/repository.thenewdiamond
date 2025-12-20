@@ -65,28 +65,30 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	from urllib.parse import unquote
 
 	dir_source = None
-	if not os.path.isfile(file_path):
-		#use a temp folder where file isnt a file, eg a url
-		same_folder = False
-		MBFACTOR = float(1 << 20)
-		response = requests.head(file_path, allow_redirects=True)
-		try: size = response.headers.get('content-length', 0)
-		except AttributeError: size = response.headers.get('content-length', 0)
-		file_path = unquote(file_path)
-		size = int(size)
-		#'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
-		http_file = True
-		returnedhash, filesize = subs_hash.hashFile_url(file_path)
-		#tools.log(returnedhash, filesize)
-		hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
-	else:
-		dir_source =  os.path.dirname(file_path)
-		size = os.stat(file_path).st_size
-		http_file = False
-		returnedhash, filesize = subs_hash.hashFile_url(file_path)
-		#tools.log(returnedhash, filesize)
-		hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+	#if not os.path.isfile(file_path):
+	#	#use a temp folder where file isnt a file, eg a url
+	#	same_folder = False
+	#	MBFACTOR = float(1 << 20)
+	#	response = requests.head(file_path, allow_redirects=True)
+	#	try: size = response.headers.get('content-length', 0)
+	#	except AttributeError: size = response.headers.get('content-length', 0)
+	#	file_path = unquote(file_path)
+	#	size = int(size)
+	#	#'hashes': {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
+	#	http_file = True
+	#	returnedhash, filesize = subs_hash.hashFile_url(file_path)
+	#	#tools.log(returnedhash, filesize)
+	#	hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
+	#else:
+	#	dir_source =  os.path.dirname(file_path)
+	#	size = os.stat(file_path).st_size
+	#	http_file = False
+	#	returnedhash, filesize = subs_hash.hashFile_url(file_path)
+	#	#tools.log(returnedhash, filesize)
+	#	hashes = {'opensubtitles': returnedhash, 'opensubtitlescom': returnedhash}
 
+	filesize = 12345
+	hashes = {'opensubtitles': 'e45d225d49846408', 'opensubtitlescom': 'e45d225d49846408'}
 	subs_out = os.path.basename(file_path)
 	subs_out_FORCED = os.path.splitext(subs_out)[0] + str('.ENG.FOREIGN.PARTS.srt')
 	subs_out_ENG = os.path.splitext(subs_out)[0] + str('.ENG.srt')
@@ -134,7 +136,9 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	#else:
 	#	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 	all_subtitles = None
-	for provider in ['addic7ed','opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']:
+	for provider in ['opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']:
+		#'addic7ed',
+		tools.log(provider)
 		try: mediatype = meta['episode_meta']['mediatype']
 		except: mediatype = 'movie'
 		#if provider == 'opensubtitlescom' and mediatype == 'movie' and len(all_subtitles[video]) >= 80:

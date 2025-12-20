@@ -1448,7 +1448,8 @@ class PlayerMonitor(xbmc.Player):
 				self.library_refresh = None
 				return
 
-			return_var = self.scrobble_trakt_speed_resume_test()
+			try: return_var = self.scrobble_trakt_speed_resume_test()
+			except: return_var = False
 			if return_var == False:
 				tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 				self.playing_file = None
@@ -1547,7 +1548,8 @@ class PlayerMonitor(xbmc.Player):
 			except: 
 				return
 
-			return_var = self.scrobble_trakt_speed_resume_test()
+			try: return_var = self.scrobble_trakt_speed_resume_test()
+			except: return_var = False
 			if return_var == False:
 				return
 
