@@ -1415,13 +1415,15 @@ def get_tmdb_window(window_type):
 						#Utils.tools_log(i)
 						#try:
 						if 1==1:
-							if len(str(i.get('tmdb','0'))) > 0:
-								if 'tt' in str(i['tmdb']):
-									i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
-								tmdb_list.append(int(i['tmdb']))
+							#if len(str(i.get('tmdb','0'))) > 0:
+							#	Utils.tools_log(search_string)
+							#	Utils.tools_log(i)
+							#	if 'tt' in str(i['tmdb']):
+							#		i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
+							#	tmdb_list.append(int(i['tmdb']))
 							#full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,i['stream_type'],Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(i['stream_id']),str(i['container_extension']))
 							#search_str.append({'type': 'movie','title':i['name'],'tmdb':i['tmdb'], 'full_url': full_url, 'stream_type': i['stream_type'],'stream_icon': i['stream_icon'], 'rating': i['rating'],'category_ids': i['category_ids']})
-							search_str.append(i)
+							#search_str.append(i)
 							if search_string.lower() in str(i['title']).lower()or clean_title(search_string.lower(), broken=2) in clean_title(str(i['title']).lower(), broken=2):
 								if len(i.get('tmdb','0')) > 0:
 									if 'tt' in str(i['tmdb']):
@@ -1432,6 +1434,8 @@ def get_tmdb_window(window_type):
 									response1['full_url'] = i['full_url']
 									response1['stream_id'] = i['stream_id']
 									response1['path'] = i['full_url']
+									tmdb_list.append(int(i['tmdb']))
+									search_str.append(i)
 								else:
 									response1 = None
 								if response1:
