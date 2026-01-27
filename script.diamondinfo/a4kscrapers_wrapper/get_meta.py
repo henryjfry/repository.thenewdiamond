@@ -906,9 +906,12 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 					if j['lang'] == 'en' or (i in ['showbackground','tvposter','tvthumb'] and j['lang'] == ''):
 						if i in ('seasonposter', 'seasonthumb', 'seasonbanner'):
 							for k in response[i]:
-								if int(k['season']) == int(show_season) and k['lang'] == 'en':
-									tv_dict[i] = k['url']
-									break
+								try:
+									if int(k['season']) == int(show_season) and k['lang'] == 'en':
+										tv_dict[i] = k['url']
+										break
+								except KeyError:
+									continue
 					if i in ('hdclearart', 'tvthumb', 'tvbanner', 'showbackground', 'clearlogo', 'characterart', 'tvposter', 'clearart', 'hdtvlogo'):
 						if i == 'clearlogo' or i == 'hdtvlogo':
 							tv_dict['clearlogo'] = j['url']
@@ -924,12 +927,15 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 		for i in tv_dict:
 			if tv_dict[i] == None and i in ('seasonposter', 'seasonthumb', 'seasonbanner'):
 				for k in response.get(i,[]):
-					if str(k['season']) == 'all':
-						tv_dict[i] = k['url']
-						break
-					if int(k['season']) == int(show_season):
-						tv_dict[i] = k['url']
-						break
+					try:
+						if str(k['season']) == 'all':
+							tv_dict[i] = k['url']
+							break
+						if int(k['season']) == int(show_season):
+							tv_dict[i] = k['url']
+							break
+					except KeyError:
+						continue
 		#tools.log(tv_dict)
 		return tv_dict['hdclearart'], tv_dict['seasonposter'], tv_dict['seasonthumb'], tv_dict['seasonbanner'], tv_dict['tvthumb'], tv_dict['tvbanner'], tv_dict['showbackground'], tv_dict['clearlogo'], tv_dict['characterart'], tv_dict['tvposter'], tv_dict['clearart'], tv_dict['hdtvlogo']
 	else:
