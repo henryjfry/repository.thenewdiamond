@@ -1219,7 +1219,7 @@ def get_tmdb_window(window_type):
 							self.type = 'movie'
 						else: 
 							self.type = 'tv'
-						if len(i.get('tmdb','0')) > 0:
+						if len(str(i.get('tmdb','0'))) > 0:
 							if self.type == 'movie':
 								if 'tt' in str(i['tmdb']):
 									i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
@@ -1425,7 +1425,7 @@ def get_tmdb_window(window_type):
 							#search_str.append({'type': 'movie','title':i['name'],'tmdb':i['tmdb'], 'full_url': full_url, 'stream_type': i['stream_type'],'stream_icon': i['stream_icon'], 'rating': i['rating'],'category_ids': i['category_ids']})
 							#search_str.append(i)
 							if search_string.lower() in str(i['title']).lower()or clean_title(search_string.lower(), broken=2) in clean_title(str(i['title']).lower(), broken=2):
-								if len(i.get('tmdb','0')) > 0:
+								if len(str(i.get('tmdb','0'))) > 0:
 									if 'tt' in str(i['tmdb']):
 										i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
 									response1 = TheMovieDB.single_movie_info(i['tmdb'])
@@ -1468,7 +1468,7 @@ def get_tmdb_window(window_type):
 						#Utils.tools_log(i)
 						#try:
 						if 1==1:
-							if len(i.get('tmdb','0')) > 0:
+							if len(str(i.get('tmdb','0'))) > 0:
 								if 'tt' in str(i['tmdb']):
 									i['tmdb'] = TheMovieDB.get_show_tmdb_id(imdb_id=i['tmdb'])
 								tmdb_list.append(int(i['tmdb']))
@@ -1476,7 +1476,7 @@ def get_tmdb_window(window_type):
 							#search_str.append({'type': 'movie','title':i['name'],'tmdb':i['tmdb'], 'full_url': full_url, 'stream_type': i['stream_type'],'stream_icon': i['stream_icon'], 'rating': i['rating'],'category_ids': i['category_ids']})
 							search_str.append(i)
 							if search_string.lower() in str(i['title']).lower()or clean_title(search_string.lower(), broken=2) in clean_title(str(i['title']).lower(), broken=2):
-								if len(i.get('tmdb','0')) > 0:
+								if len(str(i.get('tmdb','0'))) > 0:
 									if 'tt' in str(i['tmdb']):
 										i['tmdb'] = TheMovieDB.get_show_tmdb_id(imdb_id=i['tmdb'])
 									response1 = TheMovieDB.single_tvshow_info(i['tmdb'])
