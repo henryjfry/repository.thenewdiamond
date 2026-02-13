@@ -696,7 +696,8 @@ def get_tastedive_movies(item_id, cache_days=14, folder='TasteDive'):
 	if db_result:
 		return db_result
 	else:
-		response = get_tastedive_movies_items(movie_name = movie_info['title'], imdb_id = movie_info['imdb_id'])
+		try: response = get_tastedive_movies_items(movie_name = movie_info['title'], imdb_id = movie_info['imdb_id'])
+		except ValueError: return []
 		results = []
 		for i in response:
 			movie_response = get_movie_info(movie_label=i[1], year=i[0],use_dialog=False, notify = False)
