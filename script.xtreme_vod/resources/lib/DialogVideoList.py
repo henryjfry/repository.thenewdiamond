@@ -33,6 +33,7 @@ from resources.lib.TheMovieDB import extended_movie_info
 from resources.lib.library import get_trakt_data
 from datetime import datetime, timedelta
 import math
+import re
 
 from inspect import currentframe, getframeinfo
 #xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
@@ -780,7 +781,7 @@ def get_tmdb_window(window_type):
 			
 			responses = {'page': 1, 'results': [],'total_pages': 1, 'total_results': 0}
 			for idx, i in enumerate(self.search_str):
-
+				#Utils.tools_log(i,'imdb_stuff')
 				if types_list[idx] == 'movie':
 					try:tmdb_id = TheMovieDB.get_movie_tmdb_id(imdb_id = i,Notify=False)
 					except IndexError: continue
@@ -948,6 +949,9 @@ def get_tmdb_window(window_type):
 			wm.window_stack_empty()
 
 		def filter_vod(self, movie_tv_items):
+			movie_tv_items = TheMovieDB.filter_vod(movie_tv_items)
+			return movie_tv_items
+			"""
 			TV = TheMovieDB.get_vod_alltv()
 			movies = TheMovieDB.get_vod_allmovies()
 			movie_tv_items2 = movie_tv_items
@@ -979,6 +983,7 @@ def get_tmdb_window(window_type):
 				if match == False:
 					movie_tv_items.pop(idx)
 			return movie_tv_items
+			"""
 
 		def fetch_data(self, force=False):
 			addon = xbmcaddon.Addon()
@@ -988,7 +993,19 @@ def get_tmdb_window(window_type):
 			Utils.show_busy()
 
 			if wm.pop_video_list == True:
-				self.page = int(wm.prev_window['params']['page'])
+				try: 
+					self.page = int(wm.prev_window['params']['page'])
+				except:
+					diamond_prev_window = xbmcgui.Window(10000).getProperty('diamond_prev_window')
+					diamond_curr_window = xbmcgui.Window(10000).getProperty('diamond_curr_window')
+
+					Utils.tools_log(json.loads(diamond_curr_window)['params']['type'])
+					Utils.tools_log(json.loads(diamond_prev_window)['params']['type'])
+					wm.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
+					wm.prev_window = wm.curr_window
+					try: self.page = int(wm.prev_window['params']['page'])
+					except: self.page = 1
+				self.filter_label =wm.prev_window['params']['filter_label']
 
 				self.sort = wm.prev_window['params']['sort']
 				self.sort_label  = wm.prev_window['params']['sort_label']
@@ -1132,7 +1149,7 @@ def get_tmdb_window(window_type):
 			elif self.mode == 'imdb' or 'imdb' in str(self.mode):
 				if type(self.search_str) == type([]):
 					from resources.lib.TheMovieDB import get_imdb_watchlist_items
-					listitems = get_imdb_watchlist_items(movies=self.search_str)
+					listitems = get_imdb_watchlist_items(movies=self.search_str,cache_days=1)
 				else:
 					self.search_str['results'] = self.filter_vod(self.search_str['results'])
 					listitems = TheMovieDB.handle_tmdb_multi_search(self.search_str['results'])
@@ -1427,8 +1444,22 @@ def get_tmdb_window(window_type):
 							if search_string.lower() in str(i['title']).lower()or clean_title(search_string.lower(), broken=2) in clean_title(str(i['title']).lower(), broken=2):
 								if len(str(i.get('tmdb','0'))) > 0:
 									if 'tt' in str(i['tmdb']):
-										i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'])
+										i['tmdb'] = TheMovieDB.get_movie_tmdb_id(imdb_id=i['tmdb'], Notify=False)
 									response1 = TheMovieDB.single_movie_info(i['tmdb'])
+									if response1 == None:
+										match = re.search(r"^(.*)\((\d{4})\)\s*$", i['title'])
+										if match:
+											name = match.group(1).strip()
+											year = match.group(2)
+											response1 = TheMovieDB.get_movie_info(movie_label=name, year=year, use_dialog=False, notify = False)
+											try:
+												i['tmdb'] = response1['id']
+											except: 
+												continue
+											if response1 == None:
+												continue
+											response1 = TheMovieDB.single_movie_info(i['tmdb'])
+									#Utils.tools_log(response1)
 									response1['original_title'] = i['title']
 									response1['title'] = i['title']
 									response1['full_url'] = i['full_url']

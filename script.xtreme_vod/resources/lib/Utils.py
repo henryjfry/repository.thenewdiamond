@@ -23,6 +23,8 @@ if XBMC_RUNNING:
 	ADDON_PATH = xbmcvfs.translatePath('special://home/addons/'+str(addon_ID()))
 	ADDON_DATA_PATH = xbmcvfs.translatePath('special://profile/addon_data/'+str(addon_ID()))
 	CACHE_PATH = xbmcvfs.translatePath('special://profile/addon_data/'+str(addon_ID())+'/cache.db')
+	VOD_CACHE_PATH = xbmcvfs.translatePath('special://profile/addon_data/'+str(addon_ID())+'/vod_cache.db')
+
 
 	IMAGES_DATA_PATH = xbmcvfs.translatePath('special://profile/addon_data/'+str(addon_ID())+'/images')
 	SKIN_DIR = xbmc.getSkinDir()
@@ -64,6 +66,7 @@ else:
 	ADDON_PATH = os.path.dirname(os.path.dirname(folder))
 	ADDON_DATA_PATH = os.path.join(os.path.join(os.path.join(os.path.dirname(os.path.dirname(current_directory)),'userdata'),'addon_data'),'script.xtreme_vod')
 	CACHE_PATH = os.path.join(ADDON_DATA_PATH, 'cache.db')
+	VOD_CACHE_PATH = os.path.join(ADDON_DATA_PATH, 'vod_cache.db')
 	IMAGES_DATA_PATH = os.path.join(ADDON_DATA_PATH, 'images')
 	ADDON_SETTINGS_PATH = os.path.join(ADDON_DATA_PATH, 'settings.xml')
 	channel_order = ''
@@ -695,6 +698,7 @@ def get_JSON_response(url='', cache_days=7.0, folder=False, headers=False):
 	except: 
 		db_result_flag = False
 	if db_result_flag:
+		#tools_log(db_result,'get_JSON_response')
 		return db_result
 	else:
 		response = get_http(url, headers)

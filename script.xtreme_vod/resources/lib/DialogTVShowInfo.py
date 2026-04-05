@@ -87,16 +87,17 @@ def get_tvshow_window(window_type):
 				self.data['similar'] = sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True)
 
 			TV = TheMovieDB.get_vod_alltv()
-			for i in reversed(self.data['similar']):
-				match = False
-				idx = self.data['similar'].index(i)
-				for x in TV:
-					if str(i['id']) == x['tmdb']:
-						self.data['similar'][idx]['series_id'] = x['series_id']
-						match = True
-						break
-				if match == False:
-					self.data['similar'].pop(idx)
+			self.data['similar'] = TheMovieDB.filter_vod(self.data['similar'])
+			#for i in reversed(self.data['similar']):
+			#	match = False
+			#	idx = self.data['similar'].index(i)
+			#	for x in TV:
+			#		if str(i['id']) == x['tmdb']:
+			#			self.data['similar'][idx]['series_id'] = x['series_id']
+			#			match = True
+			#			break
+			#	if match == False:
+			#		self.data['similar'].pop(idx)
 
 			for x in TV:
 				if x['tmdb'] == self.tmdb_id:

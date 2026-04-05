@@ -947,6 +947,13 @@ class PlayerMonitor(xbmc.Player):
 		self.trakt_error = None
 		self.library_refresh = None
 
+		#Utils.tools_log(xbmc.getCondVisibility('Window.IsActive(12005)'),'Window.IsActive(12005)')
+		#Utils.tools_log(player.isPlaying())
+		#Utils.tools_log(player.isPlaying()==1 and xbmc.getCondVisibility('Window.IsActive(12005)') == False)
+		if player.isPlaying()==1 and xbmc.getCondVisibility('Window.IsActive(12005)') == False and self.player_meta['diamond_info_started'] == True:
+			Utils.tools_log('video_play_unpop')
+			wm.video_play_unpop()
+
 		count = 0
 		while player.isPlaying()==1 and count < 7501:
 			try:

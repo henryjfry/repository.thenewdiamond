@@ -94,22 +94,23 @@ def get_movie_window(window_type):
 				self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
 				self.data['similar'] = sorted(self.data['similar'], key=lambda k: (k['Popularity'],k['Votes']), reverse=True)
 
-			movies = TheMovieDB.get_vod_allmovies()
-			for i in reversed(self.data['similar']):
-				match = False
-				idx = self.data['similar'].index(i)
-				for x in movies:
-					if str(i['id']) == x['tmdb']:
-						self.data['similar'][idx]['original_title'] = x['title']
-						self.data['similar'][idx]['title'] = x['title']
-						self.data['similar'][idx]['label'] = x['title']
-						self.data['similar'][idx]['full_url'] = x['full_url']
-						#self.data['similar'][idx]['stream_id'] = x['stream_id']
-						self.data['similar'][idx]['path'] = x['full_url']
-						match = True
-						break
-				if match == False:
-					self.data['similar'].pop(idx)
+			#movies = TheMovieDB.get_vod_allmovies()
+			#for i in reversed(self.data['similar']):
+			#	match = False
+			#	idx = self.data['similar'].index(i)
+			#	for x in movies:
+			#		if str(i['id']) == x['tmdb']:
+			#			self.data['similar'][idx]['original_title'] = x['title']
+			#			self.data['similar'][idx]['title'] = x['title']
+			#			self.data['similar'][idx]['label'] = x['title']
+			#			self.data['similar'][idx]['full_url'] = x['full_url']
+			#			#self.data['similar'][idx]['stream_id'] = x['stream_id']
+			#			self.data['similar'][idx]['path'] = x['full_url']
+			#			match = True
+			#			break
+			#	if match == False:
+			#		self.data['similar'].pop(idx)
+			self.data['similar'] = TheMovieDB.filter_vod(self.data['similar'])
 			self.listitems = [
 				(250, sets_thread.listitems),
 				(150, self.data['similar']),

@@ -22,7 +22,6 @@ class WindowManager(object):
 		Utils.show_busy()
 	window_stack = []
 
-
 	def __init__(self):
 		global dialog
 		self.reopen_window = False
@@ -60,7 +59,7 @@ class WindowManager(object):
 		if 'estuary' in str(Utils.SKIN_DIR):
 			Utils.SKIN_DIR = 'skin.estuary'
 
-
+	
 
 	def window_stack_connection(self):
 		window_stack = str(xbmcvfs.translatePath("special://profile/addon_data/"+addon_ID()+ '/window_stack.db'))
@@ -257,8 +256,32 @@ class WindowManager(object):
 			self.pop_video_list = True
 			return self.open_youtube_list(search_str=window['params']['search_str'],filters=window['params']['filters'],filter_label=window['params']['filter_label'],media_type=window['params']['media_type'])
 
+	def video_play_unpop(self):
+		diamond_prev_window = xbmcgui.Window(10000).getProperty('diamond_prev_window')
+		diamond_curr_window = xbmcgui.Window(10000).getProperty('diamond_curr_window')
+		self.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
+		self.prev_window = json.loads(diamond_prev_window) if diamond_prev_window else None
+		self.add_to_stack(self.curr_window, 'curr_window')
+		xbmc.executebuiltin('Dialog.Close(all,true)')
+
+	def wm_curr_windows_props(self):
+		import xbmcgui
+		diamond_prev_window = self.prev_window
+		diamond_curr_window = self.curr_window
+		try: 
+			xbmcgui.Window(10000).setProperty('diamond_prev_window', json.dumps(diamond_prev_window))
+		except: 
+			diamond_prev_window['params']['filter'] = None
+			xbmcgui.Window(10000).setProperty('diamond_prev_window', json.dumps(diamond_prev_window))
+		try:
+			xbmcgui.Window(10000).setProperty('diamond_curr_window', json.dumps(diamond_curr_window))
+		except:
+			diamond_curr_window['params']['filter'] = None
+			xbmcgui.Window(10000).setProperty('diamond_curr_window', json.dumps(diamond_curr_window))
+
 	def add_to_stack(self, window, mode=None):
 		import xbmc
+
 		if Utils.window_stack_enable == 'true':
 			xbmc.executebuiltin('Dialog.Close(all,true)')
 			self.append_window_stack_table(mode)
@@ -330,6 +353,7 @@ class WindowManager(object):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_movie_info', 'params': {'movie_id': movie_id, 'dbid': dbid, 'name': name, 'imdb_id': imdb_id}}
 
@@ -533,8 +557,10 @@ class WindowManager(object):
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 		Utils.show_busy()
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
+
 		self.prev_window = self.curr_window 
 		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': listitems, 'filters': filters, 'mode': mode, 'list_id': list_id, 'filter_label': filter_label, 'media_type': media_type, 'search_str': search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items,'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': filter, 'sort': self.sort, 'sort_label': self.sort_label}}
+
 		if mode == 'reopen_window':
 			self.window_stack_empty()
 			prev_window = None
@@ -543,6 +569,7 @@ class WindowManager(object):
 		browser_class = get_tmdb_window(DialogXML)
 		try: prev_window.close()
 		except: pass
+		self.wm_curr_windows_props()
 		if prev_window:
 			self.add_to_stack(prev_window, 'prev_window')
 			prev_window = None
@@ -590,6 +617,7 @@ class WindowManager(object):
 
 		from resources.lib.library import addon_ID
 		from resources.lib.DialogYoutubeList import get_youtube_window
+		self.wm_curr_windows_props()
 		if prev_window:
 			prev_window.close()
 			self.add_to_stack(prev_window, 'prev_window')
@@ -650,7 +678,6 @@ class WindowManager(object):
 		return dialog.listitem, dialog.index
 
 	def open_dialog(self, dialog, prev_window):
-
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
 		if dialog.data:
 			if Utils.window_stack_enable == 'true':
@@ -663,6 +690,7 @@ class WindowManager(object):
 					self.last_control = xbmc.getInfoLabel('System.CurrentControlId')
 				xbmc.executebuiltin('Dialog.Close(movieinformation)')
 			xbmc.executebuiltin('Dialog.Close(all,true)')
+			self.wm_curr_windows_props()
 			if prev_window:
 				prev_window.close()
 				if xbmc.Player().isPlayingVideo() and not xbmc.getCondVisibility('VideoPlayer.IsFullscreen'):

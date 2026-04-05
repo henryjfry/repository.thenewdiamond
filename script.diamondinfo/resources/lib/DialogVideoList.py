@@ -1561,7 +1561,18 @@ def get_tmdb_window(window_type):
 
 			if wm.pop_video_list == True:
 				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-				self.page = int(wm.prev_window['params']['page'])
+				try: 
+					self.page = int(wm.prev_window['params']['page'])
+				except:
+					diamond_prev_window = xbmcgui.Window(10000).getProperty('diamond_prev_window')
+					diamond_curr_window = xbmcgui.Window(10000).getProperty('diamond_curr_window')
+
+					Utils.tools_log(json.loads(diamond_curr_window)['params']['type'])
+					Utils.tools_log(json.loads(diamond_prev_window)['params']['type'])
+					wm.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
+					wm.prev_window = wm.curr_window
+					try: self.page = int(wm.prev_window['params']['page'])
+					except: self.page = 1
 				self.filter_label =wm.prev_window['params']['filter_label']
 
 				self.sort = wm.prev_window['params']['sort']

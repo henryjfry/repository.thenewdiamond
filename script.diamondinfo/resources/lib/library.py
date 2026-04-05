@@ -1076,7 +1076,30 @@ def trakt_lists(list_name=None,user_id=None,list_slug=None,sort_by=None,sort_ord
 		url = 'https://api.trakt.tv/users/'+str(user_id)+'/lists/'+str(list_slug)+'/items'
 	#response = requests.get(url, headers=headers).json()
 
-	response = get_trakt_data(url, 1)
+	from resources.lib.Utils import tools_log
+	x = 1
+	url1 = url + '?limit=250&page=' + str(x)
+	tools_log(url1)
+	response = get_trakt_data(url1, 1)
+	item_count = len(response)
+	tools_log(item_count)
+	new_response = []
+	if limit == 0:
+		limit = 1000
+	while item_count < limit:
+		x = x + 1
+		url1 = url + '?limit=250&page=' + str(x)
+		tools_log(url1)
+		old_response = response
+		new_response = get_trakt_data(url1, 1)
+		response = response + new_response
+		if len(new_response) == 0 or new_response == old_response:
+			break
+		if x * 250 > limit:
+			break
+		item_count = len(response)
+		tools_log(item_count)
+
 	if sort_order == 'asc':
 		reverse_order = False
 	if sort_order == 'desc':
@@ -1111,7 +1134,10 @@ def trakt_lists(list_name=None,user_id=None,list_slug=None,sort_by=None,sort_ord
 
 def get_trakt_data(url='', cache_days=14, folder='Trakt'):
 	from resources.lib.Utils import get_JSON_response
+	from resources.lib.Utils import tools_log
 	headers = trak_auth()
+	#tools_log(url,'url')
+	#tools_log(headers,'headers')
 	return get_JSON_response(url, cache_days, folder,headers=headers)
 
 def trakt_refresh_all():
@@ -1550,11 +1576,14 @@ def trakt_trending_movies(cache_days=None):
 
 	headers = trak_auth()
 	url = 'https://api.trakt.tv/movies/trending?limit=600'
-	#response = requests.get(url, headers=headers).json()
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/movies/trending?limit=250&page=1', 'https://api.trakt.tv/movies/trending?limit=250&page=2', 'https://api.trakt.tv/movies/trending?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 	#reverse_order = True
 	#response = sorted(response, key=lambda k: k['collected_at'], reverse=reverse_order)
 
@@ -1570,11 +1599,14 @@ def trakt_trending_shows(cache_days=None):
 
 	headers = trak_auth()
 	url = 'https://api.trakt.tv/shows/trending?limit=600'
-	#response = requests.get(url, headers=headers).json()
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/shows/trending?limit=250&page=1', 'https://api.trakt.tv/shows/trending?limit=250&page=2', 'https://api.trakt.tv/shows/trending?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 	#reverse_order = True
 	#response = sorted(response, key=lambda k: k['collected_at'], reverse=reverse_order)
 
@@ -1589,11 +1621,14 @@ def trakt_popular_movies(cache_days=None):
 	#import json
 	#headers = trak_auth()
 	url = 'https://api.trakt.tv/movies/popular?limit=600'
-	#response = requests.get(url, headers=headers).json()
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/movies/popular?limit=250&page=1', 'https://api.trakt.tv/movies/popular?limit=250&page=2', 'https://api.trakt.tv/movies/popular?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 	#reverse_order = True
 	#response = sorted(response, key=lambda k: k['collected_at'], reverse=reverse_order)
 
@@ -1608,11 +1643,14 @@ def trakt_popular_shows(cache_days=None):
 	#import json
 	#headers = trak_auth()
 	url = 'https://api.trakt.tv/shows/popular?limit=600'
-	#response = requests.get(url, headers=headers).json()
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/shows/popular?limit=250&page=1', 'https://api.trakt.tv/shows/popular?limit=250&page=2', 'https://api.trakt.tv/shows/popular?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 	#reverse_order = True
 	#response = sorted(response, key=lambda k: k['collected_at'], reverse=reverse_order)
 

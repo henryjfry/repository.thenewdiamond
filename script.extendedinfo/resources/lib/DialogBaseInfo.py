@@ -68,12 +68,14 @@ class DialogBaseInfo(object):
 		#xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
 		#xbmcgui.Window(10000).setProperty('position', str(self.position))
 		self.save_position()
+		wm.wm_curr_windows_props()
 		ch.serve_action(action, self.getFocusId(), self)
 
 	def onClick(self, control_id):
 		#xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
 		#xbmcgui.Window(10000).setProperty('position', str(self.position))
 		self.save_position()
+		wm.wm_curr_windows_props()
 		ch.serve(control_id, self)
 
 	def onFocus(self, control_id):

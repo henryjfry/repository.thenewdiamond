@@ -329,6 +329,7 @@ class DialogBaseList(object):
 		#else:
 		#	wm.pop_video_list = False
 		wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
+		wm.wm_curr_windows_props()
 		#xbmc.log(str(self.curr_window['params']['mode'])+'BASE_LIST_update_ui===>OPENINFO', level=xbmc.LOGINFO)
 		#xbmc.log(str(self.curr_window['params']['type'])+'BASE_LIST_update_ui===>OPENINFO', level=xbmc.LOGINFO)
 
@@ -520,6 +521,7 @@ class DialogBaseList(object):
 		self.update_content(force_update=force_update)
 		self.update_ui()
 		self.curr_window = {'function': 'open_video_list', 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'sort_label': self.sort_label,'total_items': self.total_items, 'total_pages': self.total_pages, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
+		wm.wm_curr_windows_props()
 
 
 	def get_column(self):

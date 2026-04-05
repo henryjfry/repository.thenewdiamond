@@ -471,12 +471,24 @@ def start_info_actions(infos, params):
 			Utils.tools_log('return......','play_test_pop_stack')
 			return
 
+		elif info == 'video_play_unpop':
+			wm.video_play_unpop()
+			return
+
+		elif info == 'pop_stack':
+			wm.pop_stack()
+			return
 
 		elif info == 'test_route':
 			#from resources.lib.con_man_fix import list_and_select_wifi
 			#list_and_select_wifi()
+			#kodi-send --action="RunScript(script.extendedinfo,info=test_route)"
 			from resources.lib import library
-			library.trakt_watched_movies()
+			Utils.tools_log(str(library.addon_ID_short())+'_running')
+			return
+			from resources.lib import library
+			test_item = library.trakt_trending_movies()
+			Utils.tools_log(len(test_item))
 			return
 
 

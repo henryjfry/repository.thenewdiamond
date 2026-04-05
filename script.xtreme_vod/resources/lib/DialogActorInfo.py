@@ -40,61 +40,68 @@ def get_actor_window(window_type):
 			"""
 			movie_crew_roles = Utils.merge_dict_lists(self.data['movie_crew_roles'])
 			tvshow_crew_roles = Utils.merge_dict_lists(self.data['tvshow_crew_roles'])
-			movies = TheMovieDB.get_vod_allmovies()
-			for i in reversed(self.data['movie_roles']):
-				match = False
-				idx = self.data['movie_roles'].index(i)
-				for x in movies:
-					if str(i['id']) == x['tmdb']:
-						self.data['movie_roles'][idx]['original_title'] = x['title']
-						self.data['movie_roles'][idx]['OriginalTitle'] = x['title']
-						self.data['movie_roles'][idx]['title'] = x['title']
-						self.data['movie_roles'][idx]['Label'] = x['title']
-						self.data['movie_roles'][idx]['full_url'] = x['full_url']
-						self.data['movie_roles'][idx]['path'] = x['full_url']
-						match = True
-						break
-				if match == False:
-					self.data['movie_roles'].pop(idx)
+			#movies = TheMovieDB.get_vod_allmovies()
+			#Utils.tools_log(self.data['movie_roles'])
+			#Utils.tools_log(len(TheMovieDB.filter_vod(self.data['movie_roles'])))
 			
-			for i in reversed(movie_crew_roles):
-				match = False
-				idx = movie_crew_roles.index(i)
-				for x in movies:
-					if str(i['id']) == x['tmdb']:
-						movie_crew_roles[idx]['original_title'] = x['title']
-						movie_crew_roles[idx]['OriginalTitle'] = x['title']
-						movie_crew_roles[idx]['title'] = x['title']
-						movie_crew_roles[idx]['Label'] = x['title']
-						movie_crew_roles[idx]['full_url'] = x['full_url']
-						movie_crew_roles[idx]['path'] = x['full_url']
-						match = True
-						break
-				if match == False:
-					movie_crew_roles.pop(idx)
+			self.data['movie_roles'] = TheMovieDB.filter_vod(self.data['movie_roles'])
+			#for i in reversed(self.data['movie_roles']):
+			#	match = False
+			#	idx = self.data['movie_roles'].index(i)
+			#	for x in movies:
+			#		if str(i['id']) == x['tmdb']:
+			#			self.data['movie_roles'][idx]['original_title'] = x['title']
+			#			self.data['movie_roles'][idx]['OriginalTitle'] = x['title']
+			#			self.data['movie_roles'][idx]['title'] = x['title']
+			#			self.data['movie_roles'][idx]['Label'] = x['title']
+			#			self.data['movie_roles'][idx]['full_url'] = x['full_url']
+			#			self.data['movie_roles'][idx]['path'] = x['full_url']
+			#			match = True
+			#			break
+			#	if match == False:
+			#		self.data['movie_roles'].pop(idx)
+			
+			movie_crew_roles = TheMovieDB.filter_vod(movie_crew_roles)
+			#for i in reversed(movie_crew_roles):
+			#	match = False
+			#	idx = movie_crew_roles.index(i)
+			#	for x in movies:
+			#		if str(i['id']) == x['tmdb']:
+			#			movie_crew_roles[idx]['original_title'] = x['title']
+			#			movie_crew_roles[idx]['OriginalTitle'] = x['title']
+			#			movie_crew_roles[idx]['title'] = x['title']
+			#			movie_crew_roles[idx]['Label'] = x['title']
+			#			movie_crew_roles[idx]['full_url'] = x['full_url']
+			#			movie_crew_roles[idx]['path'] = x['full_url']
+			#			match = True
+			#			break
+			#	if match == False:
+			#		movie_crew_roles.pop(idx)
 
 
-			movies = TheMovieDB.get_vod_alltv()
-			for i in reversed(self.data['tvshow_roles']):
-				match = False
-				idx = self.data['tvshow_roles'].index(i)
-				for x in movies:
-					if str(i['id']) == x['tmdb']:
-						self.data['tvshow_roles'][idx]['series_id'] = x['series_id']
-						match = True
-						break
-				if match == False:
-					self.data['tvshow_roles'].pop(idx)
-			for i in reversed(tvshow_crew_roles):
-				match = False
-				idx = tvshow_crew_roles.index(i)
-				for x in movies:
-					if str(i['id']) == x['tmdb']:
-						tvshow_crew_roles[idx]['series_id'] = x['series_id']
-						match = True
-						break
-				if match == False:
-					tvshow_crew_roles.pop(idx)
+			self.data['tvshow_roles'] = TheMovieDB.filter_vod(self.data['tvshow_roles'])
+			#movies = TheMovieDB.get_vod_alltv()
+			#for i in reversed(self.data['tvshow_roles']):
+			#	match = False
+			#	idx = self.data['tvshow_roles'].index(i)
+			#	for x in movies:
+			#		if str(i['id']) == x['tmdb']:
+			#			self.data['tvshow_roles'][idx]['series_id'] = x['series_id']
+			#			match = True
+			#			break
+			#	if match == False:
+			#		self.data['tvshow_roles'].pop(idx)
+			tvshow_crew_roles = TheMovieDB.filter_vod(tvshow_crew_roles)
+			#for i in reversed(tvshow_crew_roles):
+			#	match = False
+			#	idx = tvshow_crew_roles.index(i)
+			#	for x in movies:
+			#		if str(i['id']) == x['tmdb']:
+			#			tvshow_crew_roles[idx]['series_id'] = x['series_id']
+			#			match = True
+			#			break
+			#	if match == False:
+			#		tvshow_crew_roles.pop(idx)
 
 			self.listitems = [
 				(150, self.data['movie_roles']),

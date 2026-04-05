@@ -2000,44 +2000,277 @@ def get_imdb_list_ids(list_str=None, limit=0):
 		movies = get_imdb_list_ids_api2(list_str)
 		return movies
 
-def filter_vod(movie_tv_items):
-	TV = get_vod_alltv()
+
+
+
+
+def movies_pre_process(cache_days=7.0, folder='VOD', headers=False):
+	import time
+	import re
+	from tools import clean_title
+	movies_pre_processed = []
+	now = time.time()
+	url = 'movies_pre_processed'
+	#hashed_url = hashlib.md5(url).hexdigest()
+	#cache_seconds = int(cache_days * 86400.0)
+	db_con = Utils.test_db()
+	try:
+		Utils.tools_log(db_con)
+		db_result, expired_db_result = Utils.query_db(connection=db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
+		#Utils.tools_log(db_result)
+	except:
+		db_result, expired_db_result = None, None
+
+	try: 
+		db_result_flag = True if len(db_result)> 0 else False
+	except: 
+		db_result_flag = False
+	if db_result_flag:
+		#Utils.tools_log(db_result_flag,'movies_pre_process')
+		return db_result
+	else:
+		movies = get_vod_allmovies()
+		for x in movies:
+			re_match = re.search(r"^(.*)\((\d{4})\)\s*$", x['title'])
+			year = None
+			if re_match:
+				name = re_match.group(1).strip()
+				try: year = re_match.group(2)
+				except: year = None
+				x['pre_processed_title'] = name
+			else:
+				x['pre_processed_title'] = x['title']
+			if year == None:
+				x['pre_processed_year'] = ''
+			else:
+				x['pre_processed_year'] = year
+		
+			x['pre_processed_title_lower'] = str(x['title']).lower()
+			x['pre_processed_clean_title_lower'] = clean_title(str(x['title']).lower(), broken=2)
+			movies_pre_processed.append(x)
+		Utils.write_db(connection=db_con,url=url, cache_days=cache_days, folder=folder,cache_val=movies_pre_processed)
+		return movies_pre_processed
+
+
+def load_vod_to_sql():
+	import sqlite3
+	from tools import clean_title
 	movies = get_vod_allmovies()
-	movie_tv_items2 = movie_tv_items
-	for idx, i in enumerate(movie_tv_items2):
-		#Utils.tools_log(i)
-		match = False
+	TV = get_vod_alltv()
+
+	db_path = Utils.VOD_CACHE_PATH
+	conn = sqlite3.connect(db_path)
+	cur = conn.cursor()
+	
+	cur.execute("""
+		CREATE TABLE IF NOT EXISTS vod (
+			title_tmdb TEXT UNIQUE,
+			title TEXT,
+			type TEXT,
+			tmdb TEXT,
+			clean_title TEXT,
+			year TEXT,
+			name TEXT
+		)
+	""")
+	conn.commit()
+	vod_items = []
+	for i in movies:
+		re_match = re.search(r"^(.*)\((\d{4})\)\s*$", i['title'])
+		if re_match:
+			name = clean_title(str(re_match.group(1).strip()).lower(), broken=2)
+			try: year = re_match.group(2)
+			except: year = ''
+		else:
+			name = clean_title(str(i['title']).lower(), broken=2)
+			year = ''
+		curr_item = {'title_tmdb': str(i['title']) + '_' + str(i['tmdb']), 'title': i['title'],'type': i['type'],'tmdb': str(i['tmdb']),'clean_title': clean_title(str(i['title']).lower(), broken=2), 'year': year, 'name': name}
+		vod_items.append(curr_item)
+	for i in TV:
+		re_match = re.search(r"^(.*)\((\d{4})\)\s*$", i['title'])
+		if re_match:
+			name = clean_title(str(re_match.group(1).strip()).lower(), broken=2)
+			try: year = re_match.group(2)
+			except: year = ''
+		else:
+			name = clean_title(str(i['title']).lower(), broken=2)
+			year = ''
+		curr_item = {'title_tmdb': str(i['title']) + '_' + str(i['tmdb']), 'title': i['title'],'type': i['type'],'tmdb': str(i['tmdb']),'clean_title': clean_title(str(i['title']).lower(), broken=2), 'year': year, 'name': name}
+		vod_items.append(curr_item)
+
+	records = [(x['title_tmdb'], x['title'], x['type'], x['tmdb'], x['clean_title'], x['year'], x['name']) for x in vod_items]
+
+	cur.executemany("INSERT or IGNORE INTO vod (title_tmdb, title, type, tmdb,clean_title, year, name) VALUES (?, ?, ?, ?, ?, ?, ?)", records)
+
+	conn.commit()
+	#Utils.tools_log(len(records))
+	return conn
+
+def filter_vod(movie_tv_items):
+	#from resources.lib.TheMovieDB import load_vod_to_sql
+	load_vod_to_sql()
+	import sqlite3
+	
+	from tools import clean_title
+	results = []
+	db_path = Utils.VOD_CACHE_PATH
+	conn = sqlite3.connect(db_path)
+	cur = conn.cursor()
+
+	for i in movie_tv_items:
 		try: 
 			media_type = i['media_type']
 			try: tmdb_id = i['id']
 			except: tmdb_id = i['tmdb_id']
+			#imdb_id = get_imdb_id_from_movie_id(movie_id=tmdb_id)
+			#Utils.tools_log(imdb_id)
+			title = i['title']
+			try: year = i['year']
+			except: 
+				try: year = i['release_date'][:4]
+				except: year = i['first_air_date'][:4]
 		except: 
 			if i.get('show',False) == False:
 				media_type = 'movie'
 				try: tmdb_id = i['movie']['ids']['tmdb']
 				except: tmdb_id = i['ids']['tmdb']
+				year = i['movie']['year']
+				title = i['movie']['title']
 			else:
 				media_type = 'tv'
 				try: tmdb_id = i['show']['ids']['tmdb']
 				except: tmdb_id = i['ids']['tmdb']
+				year = i['show']['year']
+				title = i['show']['title']
+		cleaned_title = clean_title(str(title).lower(), broken=2)
 		if media_type == 'movie':
-			for x in movies:
-				if str(tmdb_id) == str(x['tmdb']):
-					match = True
-					break
+			cur.execute("SELECT * FROM vod WHERE type = 'movie' and (tmdb = ? or (name = ? and year = ?))", (tmdb_id,cleaned_title,year,))
 		else:
-			for x in TV:
+			cur.execute("SELECT * FROM vod WHERE type <> 'movie' and (tmdb = ? or clean_title = ?)", (tmdb_id,cleaned_title,))
+		result1 = cur.fetchall()
+		if len(result1) >= 1:
+			#Utils.tools_log(i)
+			#Utils.tools_log(result1)
+			#results.extend(i)
+			results.append(i)
+	#Utils.tools_log(results)
+	#Utils.tools_log(len(results))
+	return results
+
+
+
+
+	placeholders = ','.join('?' for _ in tmdb_ids)
+	query = f"SELECT * FROM vod WHERE tmdb IN ({placeholders})"
+
+	cur.execute(query, tmdb_ids)
+	results = cur.fetchall()
+	#conn.close()
+
+	Utils.tools_log(results)
+
+	#results = []
+	#for t in titles:
+	#	cur.execute("SELECT * FROM vod WHERE title LIKE ?", ('%' + t + '%',))
+	#	result1 = cur.fetchall()
+	#	if len(result1) >= 1:
+	#		Utils.tools_log(result1)
+	#	results.extend(result1)
+
+	placeholders = ','.join('?' for _ in titles)
+	query = f"SELECT * FROM vod WHERE title IN ({placeholders}) or clean_title IN ({placeholders}) or name IN ({placeholders})"
+
+	conn.close()
+
+	Utils.tools_log(results)
+
+	return 
+
+	TV = get_vod_alltv()
+	#movies = get_vod_allmovies()
+	movies_pre_processed = movies_pre_process(cache_days=1)
+	movie_tv_items = []
+	for x in movies_pre_processed:
+		tmdb_id = x['tmdb']
+		pre_processed_title_lower = x['pre_processed_title_lower']
+		pre_processed_clean_title_lower = x['pre_processed_clean_title_lower']
+		pre_processed_year = x['pre_processed_year']
+		for idx, i in enumerate(movie_tv_items2):
+			match = False
+			try: 
+				media_type = i['media_type']
+				try: tmdb_id = i['id']
+				except: tmdb_id = i['tmdb_id']
+				#imdb_id = get_imdb_id_from_movie_id(movie_id=tmdb_id)
+				#Utils.tools_log(imdb_id)
+			except: 
+				if i.get('show',False) == False:
+					media_type = 'movie'
+					try: tmdb_id = i['movie']['ids']['tmdb']
+					except: tmdb_id = i['ids']['tmdb']
+				else:
+					media_type = 'tv'
+					try: tmdb_id = i['show']['ids']['tmdb']
+					except: tmdb_id = i['ids']['tmdb']
+			if media_type == 'movie':
+				if str(tmdb_id) == str(x['tmdb']):# or str(imdb_id) == str(x['tmdb']):
+					match = True
+					break
+				if x['tmdb'] == '':
+					year = x['pre_processed_year']
+					if year == '':
+						test_imdb_year = ''
+					else:
+						test_imdb_year = i['year']
+					test_imdb_title = i['title']
+					if test_imdb_title.lower() in x['pre_processed_title_lower'] or clean_title(test_imdb_title.lower(), broken=2) in x['pre_processed_clean_title_lower'] and year == test_imdb_year:
+						match = True
+						break
+					test_imdb_title = i['OriginalTitle']
+					if test_imdb_title.lower() in x['pre_processed_title_lower'] or clean_title(test_imdb_title.lower(), broken=2) in x['pre_processed_title_lower'] and year == test_imdb_year:
+						match = True
+						break
+					test_imdb_title = i['Label']
+					if test_imdb_title.lower() in x['pre_processed_title_lower'] or clean_title(test_imdb_title.lower(), broken=2) in x['pre_processed_title_lower'] and year == test_imdb_year:
+						match = True
+						break
+		if match == True:
+			movie_tv_items.append(i)
+			movie_tv_items2.pop(idx)
+	for x in TV:
+		for idx, i in enumerate(movie_tv_items2):
+			match = False
+			try: 
+				media_type = i['media_type']
+				try: tmdb_id = i['id']
+				except: tmdb_id = i['tmdb_id']
+				#imdb_id = get_imdb_id_from_movie_id(movie_id=tmdb_id)
+				#Utils.tools_log(imdb_id)
+			except: 
+				if i.get('show',False) == False:
+					media_type = 'movie'
+					try: tmdb_id = i['movie']['ids']['tmdb']
+					except: tmdb_id = i['ids']['tmdb']
+				else:
+					media_type = 'tv'
+					try: tmdb_id = i['show']['ids']['tmdb']
+					except: tmdb_id = i['ids']['tmdb']
+			if media_type != 'movie':
 				if str(tmdb_id) == str(x['tmdb']):
 					match = True
 					break
-		if match == False:
-			movie_tv_items.pop(idx)
+		if match == True:
+			movie_tv_items.append(i)
+			movie_tv_items2.pop(idx)
+
 	return movie_tv_items
 
 def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):
 	import time, hashlib, xbmcvfs, os
 	import re, json, requests, html
 
+	#cache_days = 0.0001
+	#Utils.tools_log(i)
 	if imdb_url:
 		url = imdb_url +'/get_imdb_watchlist_items'
 	else:

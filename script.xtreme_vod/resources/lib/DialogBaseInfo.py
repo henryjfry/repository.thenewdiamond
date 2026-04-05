@@ -65,10 +65,12 @@ class DialogBaseInfo(object):
 
 	def onAction(self, action):
 		self.save_position()
+		wm.wm_curr_windows_props()
 		ch.serve_action(action, self.getFocusId(), self)
 
 	def onClick(self, control_id):
 		self.save_position()
+		wm.wm_curr_windows_props()
 		ch.serve(control_id, self)
 
 	def onFocus(self, control_id):

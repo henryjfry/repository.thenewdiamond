@@ -1001,6 +1001,10 @@ class PlayerMonitor(xbmc.Player):
 		self.player_meta['curr_playback'] = 'PLAY'
 		self.player_meta['curr_playback_count'] = 0
 
+		if player.isPlaying()==1 and xbmc.getCondVisibility('Window.IsActive(12005)') == False and self.player_meta['diamond_info_started'] == True:
+			Utils.tools_log('video_play_unpop')
+			wm.video_play_unpop()
+
 		count = 0
 		while player.isPlaying()==1 and count < 7501:
 			try:

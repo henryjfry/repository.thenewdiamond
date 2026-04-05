@@ -858,35 +858,49 @@ def trakt_watched_tv_shows(cache_days=None):
 
 
 def trakt_trending_movies(cache_days=None):
-	url = 'https://api.trakt.tv/movies/trending?limit=600'
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/movies/trending?limit=250&page=1', 'https://api.trakt.tv/movies/trending?limit=250&page=2', 'https://api.trakt.tv/movies/trending?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
+	#reverse_order = True
+	#response = sorted(response, key=lambda k: k['collected_at'], reverse=reverse_order)
 	return response
 
 def trakt_trending_shows(cache_days=None):
-	url = 'https://api.trakt.tv/shows/trending?limit=600'
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/shows/trending?limit=250&page=1', 'https://api.trakt.tv/shows/trending?limit=250&page=2', 'https://api.trakt.tv/shows/trending?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 	return response
 
 def trakt_popular_movies(cache_days=None):
-	url = 'https://api.trakt.tv/movies/popular?limit=600'
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/movies/popular?limit=250&page=1', 'https://api.trakt.tv/movies/popular?limit=250&page=2', 'https://api.trakt.tv/movies/popular?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 	return response
 
 def trakt_popular_shows(cache_days=None):
-	url = 'https://api.trakt.tv/shows/popular?limit=600'
-	if cache_days:
-		response = get_trakt_data(url, cache_days)
-	else:
-		response = get_trakt_data(url, 1)
+	urls = ['https://api.trakt.tv/shows/popular?limit=250&page=1', 'https://api.trakt.tv/shows/popular?limit=250&page=2', 'https://api.trakt.tv/shows/popular?limit=100&page=3']
+	response = []
+	for i in urls:
+		url = i
+		if cache_days:
+			response = response + get_trakt_data(url, cache_days)
+		else:
+			response = response + get_trakt_data(url, 1)
 
 	return response
 

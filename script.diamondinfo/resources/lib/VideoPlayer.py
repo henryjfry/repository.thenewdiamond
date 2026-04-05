@@ -47,6 +47,7 @@ class VideoPlayer(xbmc.Player):
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
 		xbmcgui.Window(10000).clearProperty('diamond_window_number')
+		wm.wm_curr_windows_props()
 		wm.add_to_stack(window, 'curr_window')
 		window.close()
 		xbmc.executebuiltin('Dialog.Close(all,true)')
@@ -63,6 +64,7 @@ class VideoPlayer(xbmc.Player):
 		for i in range(600):
 			if xbmc.getCondVisibility('VideoPlayer.IsFullscreen'):
 				if window and window.window_type == 'dialog':
+					wm.wm_curr_windows_props()
 					wm.add_to_stack(window, 'curr_window')
 					#window.close()
 					if Utils.window_stack_enable == 'true':
@@ -103,6 +105,7 @@ class VideoPlayer(xbmc.Player):
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
 		xbmcgui.Window(10000).clearProperty('diamond_window_number')
+		wm.wm_curr_windows_props()
 		if window:
 			wm.add_to_stack(window, 'curr_window')
 			window.close()
@@ -122,6 +125,7 @@ class VideoPlayer(xbmc.Player):
 			#xbmc.log(str('self.wait_for_video_end()')+str(i)+'before===>OPENINFO', level=xbmc.LOGINFO)
 			#if xbmc.getCondVisibility('VideoPlayer.IsFullscreen'):
 			if xbmc.Player().isPlaying()==1:
+				wm.wm_curr_windows_props()
 				if window and window.window_type == 'dialog':
 					wm.add_to_stack(window, 'curr_window')
 					window = None

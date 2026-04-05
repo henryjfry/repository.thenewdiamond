@@ -1805,6 +1805,8 @@ getSources.check_rd_cloud(meta)
 	for i in range(1,99):
 		#tools.log('download', i)
 		result = rd_api.list_downloads_page(int(i))
+		if result == None:
+			result = rd_api.list_downloads_page(int(i))
 		if '[204]' in str(result):
 			break
 		for x in result:
@@ -1868,6 +1870,8 @@ getSources.check_rd_cloud(meta)
 		result = rd_api.list_torrents_page(int(i))
 
 		items_changed = False
+		if result == None:
+			result = rd_api.list_torrents_page(int(i))
 		for x in result:
 			if x['status'] != 'downloaded':
 				#tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
@@ -1890,6 +1894,8 @@ getSources.check_rd_cloud(meta)
 						#tools.log('torrent_delete_torrent', i, x,response)
 
 		if items_changed:
+			result = rd_api.list_torrents_page(int(i))
+		if result == None:
 			result = rd_api.list_torrents_page(int(i))
 		if '[204]' in str(result):
 			break
@@ -2617,6 +2623,8 @@ def rd_delete_dupes():
 		i = i + 1
 		tools.log('PAGE_NUMBER', i)
 		result = rd_api.list_downloads_page(int(i))
+		if result == None:
+			result = rd_api.list_downloads_page(int(i))
 		for x in result:
 			#PTN_link = x['download']
 			#PTN_link_pos = PTN_link.find('/d/')+3
