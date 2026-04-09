@@ -16,20 +16,21 @@ def get_episode_window(window_type):
 	class DialogEpisodeInfo(DialogBaseInfo, window_type):
 
 		def __init__(self, *args, **kwargs):
-			if Utils.NETFLIX_VIEW == 'true':
-				super(DialogEpisodeInfo, self).__init__(*args, **kwargs)
-				self.type = 'Episode'
-				self.tvshow_id = kwargs.get('tvshow_id')
-				data = TheMovieDB.extended_episode_info(tvshow_id=self.tvshow_id, season=kwargs.get('season'), episode=kwargs.get('episode'))
-				if not data:
-					return None
-				self.info, self.data = data
-				self.listitems = [
-					(1000, self.data['actors'] + self.data['guest_stars']),
-					(750, self.data['crew']),
-					(1350, self.data['images'])
-					]
-			else:
+			#if Utils.NETFLIX_VIEW == 'true':
+			#	super(DialogEpisodeInfo, self).__init__(*args, **kwargs)
+			#	self.type = 'Episode'
+			#	self.tvshow_id = kwargs.get('tvshow_id')
+			#	data = TheMovieDB.extended_episode_info(tvshow_id=self.tvshow_id, season=kwargs.get('season'), episode=kwargs.get('episode'))
+			#	if not data:
+			#		return None
+			#	self.info, self.data = data
+			#	self.listitems = [
+			#		(1000, self.data['actors'] + self.data['guest_stars']),
+			#		(750, self.data['crew']),
+			#		(1350, self.data['images'])
+			#		]
+			if 1==1:
+			#else:
 				super(DialogEpisodeInfo, self).__init__(*args, **kwargs)
 				self.type = 'Episode'
 				self.tvshow_id = kwargs.get('tvshow_id')

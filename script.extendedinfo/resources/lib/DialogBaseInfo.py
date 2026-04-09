@@ -63,6 +63,8 @@ class DialogBaseInfo(object):
 			xbmcgui.Window(10000).setProperty('position', str('No Position'))
 		wm.position = self.position
 		wm.focus_id = self.focus_id
+		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
+		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
 	def onAction(self, action):
 		#xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))

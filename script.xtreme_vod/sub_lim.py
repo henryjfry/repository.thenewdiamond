@@ -121,7 +121,9 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 	#else:
 	#	subtitles = list_subtitles([video], languages={Language('eng')}, providers=['opensubtitles','addic7ed','napiprojekt','opensubtitlescom','podnapisi','tvsubtitles'],	provider_configs={'opensubtitlescom': opensubtitlescom_credentials, 'opensubtitles': opensubtitles_credentials})
 	all_subtitles = None
-	for provider in ['opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']:
+	provider_list = ['opensubtitles','podnapisi','tvsubtitles','gestdown','subtitulamos','napiprojekt']
+	provider_list = ['opensubtitles','tvsubtitles','gestdown','subtitulamos','napiprojekt']
+	for provider in provider_list:
 		#'addic7ed',
 		tools.log(provider)
 		try: mediatype = meta['episode_meta']['mediatype']

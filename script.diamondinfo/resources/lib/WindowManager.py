@@ -262,7 +262,12 @@ class WindowManager(object):
 		self.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
 		self.prev_window = json.loads(diamond_prev_window) if diamond_prev_window else None
 		self.add_to_stack(self.curr_window, 'curr_window')
+		xbmcgui.Window(10000).setProperty('diamond_window_number','0')
 		xbmc.executebuiltin('Dialog.Close(all,true)')
+		focus_id = xbmcgui.Window(10000).getProperty('focus_id')
+		position =  xbmcgui.Window(10000).getProperty('position')
+		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', focus_id)
+		xbmcgui.Window(10000).setProperty('pop_stack_position', position)
 
 	def wm_curr_windows_props(self):
 		import xbmcgui

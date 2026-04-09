@@ -55,9 +55,9 @@ def get_season_window(window_type):
 				for ic in vod_series['episodes']:
 					if type(ic) == type(''):
 						if int(season_number) == int(ic):
-							Utils.tools_log(ic)
+							#Utils.tools_log(ic)
 							for jc in vod_series['episodes'][ic]:
-								Utils.tools_log(jc)
+								#Utils.tools_log(jc)
 								try: episodes.append(jc['episode'])
 								except: episodes.append(jc['episode_num'])
 					elif type(ic) == type([]):

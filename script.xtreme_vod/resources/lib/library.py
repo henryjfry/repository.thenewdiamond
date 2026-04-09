@@ -425,14 +425,15 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 				except:
 					continue
 		#return hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo
-
+		if response == []:
+			return tv_dict['hdclearart'], tv_dict['seasonposter'], tv_dict['seasonthumb'], tv_dict['seasonbanner'], tv_dict['tvthumb'], tv_dict['tvbanner'], tv_dict['showbackground'], tv_dict['clearlogo'], tv_dict['characterart'], tv_dict['tvposter'], tv_dict['clearart'], tv_dict['hdtvlogo']
 		for i in tv_dict:
 			if tv_dict[i] == None and i in ('seasonposter', 'seasonthumb', 'seasonbanner'):
 				for k in response.get(i,[]):
-					if str(k['season']) == 'all':
+					if str(k.get('season','')) == 'all':
 						tv_dict[i] = k['url']
 						break
-					if int(k['season']) == int(show_season):
+					if int(k.get('season',-1)) == int(show_season):
 						tv_dict[i] = k['url']
 						break
 		#tools.log(tv_dict)
@@ -440,6 +441,10 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 	else:
 		movielogo, hdmovielogo, movieposter, hdmovieclearart, movieart, moviedisc, moviebanner, moviethumb, moviebackground = '', '', '', '', '', '', '', '', ''
 		movie_dict = {'movielogo': None,'hdmovielogo': None,'movieposter': None,'hdmovieclearart': None,'movieart': None,'moviedisc': None,'moviebanner': None,'moviethumb': None,'moviebackground': None}
+		
+		if response == []:
+			return movie_dict['movielogo'], movie_dict['hdmovielogo'], movie_dict['movieposter'], movie_dict['hdmovieclearart'], movie_dict['movieart'], movie_dict['moviedisc'], movie_dict['moviebanner'], movie_dict['moviethumb'], movie_dict['moviebackground']
+
 		for i in response:
 			#print_log(i)
 			if '_count' in str(i):

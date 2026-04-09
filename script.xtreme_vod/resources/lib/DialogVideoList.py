@@ -364,7 +364,17 @@ def get_tmdb_window(window_type):
 			if self.page == self.total_pages:
 				return
 			self.get_column()
+
 			wm.page_position = self.position -16
+			self.position = wm.page_position
+
+			xbmcgui.Window(10000).clearProperty('focus_id')
+			xbmcgui.Window(10000).clearProperty('position')
+			xbmcgui.Window(10000).clearProperty('pop_stack_focus_id')
+			xbmcgui.Window(10000).clearProperty('pop_stack_position')
+			#xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
+			#xbmcgui.Window(10000).clearProperty('unpop_stack_position')
+
 			if self.page < self.total_pages:
 				self.page += 1
 				self.prev_page_token = self.page_token
@@ -375,9 +385,19 @@ def get_tmdb_window(window_type):
 			if self.page == 1:
 				return
 			self.get_column()
+
 			wm.prev_page_flag = True
 			wm.prev_page_num = self.page -1 
-			wm.page_position = self.position +16
+			wm.page_position = self.position + 16
+			self.position = wm.page_position
+
+			xbmcgui.Window(10000).clearProperty('focus_id')
+			xbmcgui.Window(10000).clearProperty('position')
+			xbmcgui.Window(10000).clearProperty('pop_stack_focus_id')
+			xbmcgui.Window(10000).clearProperty('pop_stack_position')
+			#xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
+			#xbmcgui.Window(10000).clearProperty('unpop_stack_position')
+
 			if self.page > 1:
 				self.page -= 1
 				self.next_page_token = self.page_token
@@ -999,10 +1019,18 @@ def get_tmdb_window(window_type):
 					diamond_prev_window = xbmcgui.Window(10000).getProperty('diamond_prev_window')
 					diamond_curr_window = xbmcgui.Window(10000).getProperty('diamond_curr_window')
 
-					Utils.tools_log(json.loads(diamond_curr_window)['params']['type'])
-					Utils.tools_log(json.loads(diamond_prev_window)['params']['type'])
+					#Utils.tools_log(json.loads(diamond_curr_window)['params']['type'])
+					#Utils.tools_log(json.loads(diamond_prev_window)['params']['type'])
 					wm.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
 					wm.prev_window = wm.curr_window
+
+					wm.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
+					if wm.curr_window == None:
+						wm.prev_window = json.loads(diamond_prev_window)
+					else:
+						wm.prev_window = wm.curr_window
+
+
 					try: self.page = int(wm.prev_window['params']['page'])
 					except: self.page = 1
 				self.filter_label =wm.prev_window['params']['filter_label']
@@ -1054,6 +1082,7 @@ def get_tmdb_window(window_type):
 					'results_per_page': wm.prev_window['params']['total_pages'],
 					'total_results': wm.prev_window['params']['total_items']
 					}
+
 				self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
 				self.position = xbmcgui.Window(10000).getProperty('position')
 				if str(self.position) != 'No position':

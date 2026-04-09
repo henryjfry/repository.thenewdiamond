@@ -23,8 +23,24 @@ class DialogBaseInfo(object):
 		self.data = None
 		self.yt_listitems = []
 		self.total_items = 0
-		self.position = 0
+		self.position = None
 		self.info = {}
+
+	#def unpop_focus_position(self):
+	#	try: unpop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('unpop_stack_focus_id'))
+	#	except: unpop_stack_focus_id = None
+	#	try: unpop_stack_position = int(xbmcgui.Window(10000).getProperty('unpop_stack_position'))
+	#	except: unpop_stack_position = None
+	#	try: pop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('pop_stack_focus_id'))
+	#	except: pop_stack_focus_id = None
+	#	try: pop_stack_position = int(xbmcgui.Window(10000).getProperty('pop_stack_position'))
+	#	except: pop_stack_position = None
+	#	xbmcgui.Window(10000).clearProperty('unpop_stack_position')
+	#	xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
+	#	if unpop_stack_position != None:
+	#		return unpop_stack_focus_id, unpop_stack_position
+	#	else:
+	#		return pop_stack_focus_id, pop_stack_position
 
 	def onInit(self, *args, **kwargs):
 		super(DialogBaseInfo, self).onInit()
@@ -50,18 +66,37 @@ class DialogBaseInfo(object):
 	@ch.action('up', '*')
 	@ch.action('down', '*')
 	def save_position(self):
-		self.focus_id = self.getFocusId()
-		try: self.position = self.getControl(self.focus_id).getSelectedPosition()
-		except: self.position = xbmc.getInfoLabel("Container.Position")
-		xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		try:
-			int_test = int(self.position)
+		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
+		#if currently_popping == 'True':
+		#	unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
+		#	if unpop_stack_focus_id:
+		#		self.focus_id = unpop_stack_focus_id
+		#		wm.focus_id = unpop_stack_focus_id
+		#		pop_stack_focus_id = unpop_stack_focus_id
+		#		xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
+		#	if unpop_stack_position:
+		#		self.position = unpop_stack_position
+		#		wm.position = unpop_stack_position
+		#		pop_stack_position = unpop_stack_position
+		#		xbmcgui.Window(10000).setProperty('position', str(self.position))
+		#else:
+		if currently_popping != 'True':
+			self.focus_id = self.getFocusId()
+			try: self.position = self.getControl(self.focus_id).getSelectedPosition()
+			except: self.position = xbmc.getInfoLabel("Container.Position")
+			xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
+			try:
+				int_test = int(self.position)
+				xbmcgui.Window(10000).setProperty('position', str(self.position))
+			except:
+				self.position = 'No Position'
+				xbmcgui.Window(10000).setProperty('position', str('No Position'))
+			wm.position = self.position
+			wm.focus_id = self.focus_id
+			xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
 			xbmcgui.Window(10000).setProperty('position', str(self.position))
-		except:
-			self.position = 'No Position'
-			xbmcgui.Window(10000).setProperty('position', str('No Position'))
-		wm.position = self.position
-		wm.focus_id = self.focus_id
+			xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
+			xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
 	def onAction(self, action):
 		self.save_position()
@@ -102,10 +137,48 @@ class DialogBaseInfo(object):
 			self.getControl(container_id).reset()
 			self.getControl(container_id).addItems(Utils.create_listitems(listitems,preload_images=0, enable_clearlogo=False, info=self.info))
 		xbmc.sleep(100)
-		self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
-		self.position = xbmcgui.Window(10000).getProperty('position')
-		pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
-		pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
+		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
+		#self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
+		#self.position = xbmcgui.Window(10000).getProperty('position')
+		#pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
+		#pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
+
+		#unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
+		#if unpop_stack_focus_id:
+		#	self.focus_id = unpop_stack_focus_id
+		#	wm.focus_id = unpop_stack_focus_id
+		#	pop_stack_focus_id = unpop_stack_focus_id
+		#	xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
+		#if unpop_stack_position:
+		#	self.position = unpop_stack_position
+		#	wm.position = unpop_stack_position
+		#	pop_stack_position = unpop_stack_position
+		#	xbmcgui.Window(10000).setProperty('position', str(self.position))
+		if currently_popping == 'True':
+			try: wm_curr_window_focus_id = int(wm.curr_window['params']['focus_id'])
+			except: wm_curr_window_focus_id = 0
+			try: wm_curr_window_position = int(wm.curr_window['params']['position'])
+			except: wm_curr_window_position = 0
+
+			if wm_curr_window_focus_id > 0:
+				self.focus_id = wm_curr_window_focus_id
+			else:
+				try: self.focus_id = int(self.focus_id)
+				except: self.focus_id = None
+
+			if wm_curr_window_position > 0:
+				self.position = wm_curr_window_position
+			else:
+				try: self.position = int(self.position)
+				except: self.position = 0
+			pop_stack_position = self.position
+			pop_stack_focus_id = self.focus_id
+
+		else:
+			self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
+			self.position = xbmcgui.Window(10000).getProperty('position')
+			pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
+			pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
 
 		if pop_stack_focus_id != 500:
 			self.focus_id = pop_stack_focus_id
@@ -120,7 +193,47 @@ class DialogBaseInfo(object):
 			if self.focus_id != 500:
 				self.setFocusId(int(self.focus_id))
 				if str(self.position) != 'No position':
+					xbmc.sleep(100)
+					#unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
+					#if unpop_stack_focus_id:
+					#	self.focus_id = unpop_stack_focus_id
+					#if unpop_stack_position:
+					#	self.position = unpop_stack_position
+					
+					#xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (self.focus_id,self.position))
+					try:
+						self.getControl(self.focus_id).selectItem(self.position)
+						xbmc.sleep(100)
+						self.setFocusId(self.focus_id)
+					except:
+						control = self.getControl(self.focus_id)
+						xbmc.sleep(100)
+						self.setFocus(control)
+				new_focus_id = self.getFocusId()
+				try: new_position = self.getControl(self.focus_id).getSelectedPosition()
+				except: new_position = xbmc.getInfoLabel("Container.Position")
+				try: test_position = int(self.position)
+				except: test_position = None
+
+				#Utils.tools_log(xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id),'List VISIBLE__DEBUG')
+				#Utils.tools_log(xbmc.getCondVisibility('Container(%s).NumItems > 0' % self.focus_id),'List has items__DEBUG')
+				
+				window_id = xbmcgui.getCurrentWindowId()
+				#Utils.tools_log(window_id, 'Current window ID')
+				focused_control = window = xbmcgui.Window(window_id).getFocusId()
+				#Utils.tools_log(focused_control, 'Focused control ID')
+				xtreme_vod_window_number = xbmcgui.Window(10000).getProperty('xtreme_vod_window_number')
+				#Utils.tools_log(xtreme_vod_window_number, 'xtreme_vod_window_number')
+
+				if xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id) == False:
 					xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (self.focus_id,self.position))
+				if xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id) == True:
+					if self.focus_id == new_focus_id:
+						if test_position:
+							if new_position == test_position:
+								xbmcgui.Window(10000).clearProperty('currently_popping')
+						else:
+							xbmcgui.Window(10000).clearProperty('currently_popping')
 
 	@ch.click(1250)
 	@ch.click(1350)
@@ -181,6 +294,7 @@ class DialogBaseInfo(object):
 
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
+		xbmcgui.Window(10000).clearProperty('currently_popping')
 		Utils.db_con.close()
 		self.close()
 		try: del self

@@ -142,11 +142,23 @@ class VideoPlayer(xbmc.Player):
 					series_id = i['series_id']
 					break
 
+		def parse_duration(s):
+			if not s:
+				return None
+			try:
+				parts = s.split(':')
+				h, m = int(parts[0]), int(parts[1])
+				sec = float(parts[2])  # handles milliseconds too
+				return int(h * 3600 + m * 60 + sec)
+			except:
+				return None
+
 		vod_series = get_vod_data(action= 'get_series_info&series_id=%s' % (str(series_id)) ,cache_days=1)
 		full_url = None
 		if vod_series.get('episodes',False) != False:
 			episodes = []
 			for ic in vod_series['episodes']:
+				#Utils.tools_log(ic)
 				if type(ic) == type(''):
 					if int(season) == int(ic):
 						for jc in vod_series['episodes'][ic]:
@@ -154,23 +166,34 @@ class VideoPlayer(xbmc.Player):
 							except: episode_num = int(jc['episode_num'])
 							if int(episode_num) == int(episode):
 								full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jc['id']),str(jc['container_extension']))
+								ep_dict = jc
 								break
 				elif type(ic) == type([]):
 					for jk in ic:
+						#Utils.tools_log(jk)
 						if int(jk['season']) == int(season):
 							try: 
 								if int(jk['episode']) == int(episode):
 									full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jk['id']),str(jk['container_extension']))
+									ep_dict = jk
 									break
 							except:
 								if int(jk['episode_num']) == int(episode):
 									full_url = '%s%s/%s/%s/%s.%s' % (Utils.xtreme_codes_server_path,'series',Utils.xtreme_codes_username,Utils.xtreme_codes_password,str(jk['id']),str(jk['container_extension']))
+									ep_dict = jk
 									break
 		Utils.tools_log(full_url)
+
 		if full_url == None:
 			Utils.notify('EPISODE URL not found - s%sE%s!' % (str(season).zfill(2),str(episode).zfill(2)), sound=False)
 			Utils.hide_busy()
 			return
+
+		audio_duration_secs = parse_duration(ep_dict.get('info', {}).get('audio', {}).get('tags', {}).get('DURATION',0))
+		video_duration_secs = parse_duration(ep_dict.get('info', {}).get('video', {}).get('tags', {}).get('DURATION',0))
+		duration_str_secs = parse_duration(ep_dict.get('info', {}).get('duration',0))
+		duration_secs = parse_duration(ep_dict.get('info', {}).get('duration_secs',0))#
+		movie_image = parse_duration(ep_dict.get('info', {}).get('movie_image',None))
 
 		from resources.lib.library import get_fanart_results_full
 		from resources.lib.TheMovieDB import get_trakt_playback
@@ -185,9 +208,14 @@ class VideoPlayer(xbmc.Player):
 		response_extended_episode_info = extended_episode_info(tmdb,season, episode)
 		response_extended_tvshow_info = extended_tvshow_info(tmdb)
 
-
+		#Utils.tools_log(response_extended_season_info)
+		#Utils.tools_log(response_extended_episode_info)
+		#Utils.tools_log(response_extended_tvshow_info)
 		trakt_progress = get_trakt_playback('tv')
-		runtime_seconds = response_extended_episode_info[1]['runtime'] * 60
+		try: runtime_seconds = response_extended_episode_info[1]['runtime'] * 60
+		except: runtime_seconds = next((v for v in [duration_secs,audio_duration_secs,video_duration_secs,duration_str_secs] if v and v > 0),0)
+		if runtime_seconds == 0: ##missing runtime assume 30 minutes
+			runtime_seconds =  35 * 60
 		resume_progress_seconds = 0
 		resumetime, resumeTimeInSeconds = 0, 0
 		if trakt_progress:
@@ -219,7 +247,13 @@ class VideoPlayer(xbmc.Player):
 			try: landscape = response_extended_season_info[0]['fanart_original']
 			except: landscape = tvthumb
 		banner = tvbanner
-		thumb = response_extended_episode_info[0]['still']
+		try:
+			thumb = response_extended_episode_info[0]['still']
+		except: 
+			if movie_image:
+				thumb = movie_image
+			else:
+				thumb = tvthumb
 		dbtype = 'episode'
 		handle = -1
 		infolabels = {'episode': None, 'sortepisode': None, 'season': None, 'sortseason': None, 'year': None, 'premiered': None, 'aired': None, 'imdbnumber': None, 'duration': None, 'dateadded': None, 'rating': None, 'votes': None, 'mediatype': None, 'title': None, 'originaltitle': None, 'sorttitle': None, 'plot': None, 'plotoutline': None, 'tvshowtitle': None, 'playcount': None, 'director': None, 'writer': None, 'mpaa': None, 'genre': None, 'studio': None}
@@ -390,6 +424,26 @@ class VideoPlayer(xbmc.Player):
 			player_playing = True
 		else:
 			player_playing = False
+
+		xbmcgui.Window(10000).setProperty('xtreme_vod_window_number','0')
+		#pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
+		#pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
+		#wm_focus_id = wm.focus_id
+		#wm_position = wm.position
+		#if wm_focus_id == None or wm_focus_id == '':
+		#	unpop_stack_focus_id = pop_stack_focus_id
+		#else:
+		#	unpop_stack_focus_id = wm_focus_id
+		#if wm_position == None or wm_position == '':
+		#	unpop_stack_position = pop_stack_position
+		#else:
+		#	unpop_stack_position = wm_position
+		#xbmcgui.Window(10000).setProperty('unpop_stack_focus_id',str(unpop_stack_focus_id))
+		#xbmcgui.Window(10000).setProperty('unpop_stack_position',str(unpop_stack_position))
+
+		#xbmcgui.Window(10000).setProperty('currently_popping', 'True')
+
+
 		if xbmc.Player().isPlaying():
 			playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
 
@@ -664,6 +718,11 @@ class VideoPlayer(xbmc.Player):
 			if len(subs_list) > 0:
 				li.setSubtitles(subs_list)
 
+		xbmcgui.Window(10000).setProperty('xtreme_vod_window_number','0')
+		#xbmcgui.Window(10000).setProperty('unpop_stack_focus_id',str(wm.focus_id))
+		#xbmcgui.Window(10000).setProperty('unpop_stack_position',str(wm.position))
+		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
+		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
 
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
@@ -685,7 +744,7 @@ class VideoPlayer(xbmc.Player):
 			return
 		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
-		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
+		#xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
 		if window:
 			wm.wm_curr_windows_props()
 			wm.add_to_stack(window, 'curr_window')

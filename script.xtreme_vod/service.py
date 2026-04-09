@@ -1001,7 +1001,7 @@ class PlayerMonitor(xbmc.Player):
 		self.player_meta['curr_playback'] = 'PLAY'
 		self.player_meta['curr_playback_count'] = 0
 
-		if player.isPlaying()==1 and xbmc.getCondVisibility('Window.IsActive(12005)') == False and self.player_meta['diamond_info_started'] == True:
+		if player.isPlaying()==1 and xbmc.getCondVisibility('Window.IsActive(12005)') == False and self.player_meta['script.xtreme_vod_started'] == True:
 			Utils.tools_log('video_play_unpop')
 			wm.video_play_unpop()
 
@@ -1863,7 +1863,14 @@ class ServiceMonitor(object):
 		get_trakt_auth(startup=True)
 
 		if xbmcvfs.exists(window_stack):
+			Utils.tools_log('window_stack','REMOVE')
 			os.remove(window_stack)
+
+		vod_db_path = Utils.VOD_CACHE_PATH
+		if os.path.exists(vod_db_path):
+			Utils.tools_log('vod_db_path','REMOVE')
+			os.remove(vod_db_path)
+
 
 		auto_plugin_route = xbmcaddon.Addon().getSetting('auto_plugin_route')
 		auto_plugin_route_enable = xbmcaddon.Addon().getSetting('auto_plugin_route_enable')

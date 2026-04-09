@@ -2015,7 +2015,7 @@ def movies_pre_process(cache_days=7.0, folder='VOD', headers=False):
 	#cache_seconds = int(cache_days * 86400.0)
 	db_con = Utils.test_db()
 	try:
-		Utils.tools_log(db_con)
+		#Utils.tools_log(db_con)
 		db_result, expired_db_result = Utils.query_db(connection=db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
 		#Utils.tools_log(db_result)
 	except:
@@ -2054,6 +2054,7 @@ def movies_pre_process(cache_days=7.0, folder='VOD', headers=False):
 
 def load_vod_to_sql():
 	import sqlite3
+	import time
 	from tools import clean_title
 	movies = get_vod_allmovies()
 	TV = get_vod_alltv()
@@ -2061,7 +2062,27 @@ def load_vod_to_sql():
 	db_path = Utils.VOD_CACHE_PATH
 	conn = sqlite3.connect(db_path)
 	cur = conn.cursor()
-	
+
+	cur.execute("""
+		CREATE TABLE IF NOT EXISTS meta (
+			key TEXT PRIMARY KEY,
+			value TEXT
+		)
+	""")
+	conn.commit()
+
+	cur.execute("SELECT value FROM meta WHERE key='last_updated'")
+	row = cur.fetchone()
+
+	if row:
+		last_updated = float(row[0])
+		age_seconds = time.time() - last_updated
+
+		# if less than 1 hour old skip rebuild
+		if age_seconds < 3600:
+			Utils.tools_log(f"VOD DB fresh ({age_seconds:.0f}s old), skipping rebuild")
+			return conn
+
 	cur.execute("""
 		CREATE TABLE IF NOT EXISTS vod (
 			title_tmdb TEXT UNIQUE,
@@ -2074,6 +2095,15 @@ def load_vod_to_sql():
 		)
 	""")
 	conn.commit()
+
+
+	cur.execute("""
+	INSERT INTO meta (key, value)
+	VALUES ('last_updated', ?)
+	ON CONFLICT(key) DO UPDATE SET value=excluded.value
+	""", (str(time.time()),))
+	conn.commit()
+
 	vod_items = []
 	for i in movies:
 		re_match = re.search(r"^(.*)\((\d{4})\)\s*$", i['title'])
@@ -2108,6 +2138,12 @@ def load_vod_to_sql():
 
 def filter_vod(movie_tv_items):
 	#from resources.lib.TheMovieDB import load_vod_to_sql
+	FILTERED = movie_tv_items[0].get('FILTERED',False)
+	if FILTERED == True:
+		Utils.tools_log('filter_vod__FILTERED==TRUE')
+		return movie_tv_items
+	Utils.tools_log('filter_vod')
+
 	load_vod_to_sql()
 	import sqlite3
 	
@@ -2118,6 +2154,8 @@ def filter_vod(movie_tv_items):
 	cur = conn.cursor()
 
 	for i in movie_tv_items:
+		#Utils.tools_log(i)
+		i['FILTERED'] = True
 		try: 
 			media_type = i['media_type']
 			try: tmdb_id = i['id']
@@ -2142,6 +2180,9 @@ def filter_vod(movie_tv_items):
 				except: tmdb_id = i['ids']['tmdb']
 				year = i['show']['year']
 				title = i['show']['title']
+		if media_type == 'episode':
+			tmdb_id = i['tmdb_id']
+			title = i['TVShowTitle']
 		cleaned_title = clean_title(str(title).lower(), broken=2)
 		if media_type == 'movie':
 			cur.execute("SELECT * FROM vod WHERE type = 'movie' and (tmdb = ? or (name = ? and year = ?))", (tmdb_id,cleaned_title,year,))
@@ -2149,17 +2190,13 @@ def filter_vod(movie_tv_items):
 			cur.execute("SELECT * FROM vod WHERE type <> 'movie' and (tmdb = ? or clean_title = ?)", (tmdb_id,cleaned_title,))
 		result1 = cur.fetchall()
 		if len(result1) >= 1:
-			#Utils.tools_log(i)
 			#Utils.tools_log(result1)
-			#results.extend(i)
 			results.append(i)
-	#Utils.tools_log(results)
-	#Utils.tools_log(len(results))
 	return results
 
 
 
-
+	"""
 	placeholders = ','.join('?' for _ in tmdb_ids)
 	query = f"SELECT * FROM vod WHERE tmdb IN ({placeholders})"
 
@@ -2264,6 +2301,7 @@ def filter_vod(movie_tv_items):
 			movie_tv_items2.pop(idx)
 
 	return movie_tv_items
+	"""
 
 def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):
 	import time, hashlib, xbmcvfs, os
