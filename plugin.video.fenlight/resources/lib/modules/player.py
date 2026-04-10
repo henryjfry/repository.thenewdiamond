@@ -6,6 +6,10 @@ from caches.settings_cache import get_setting
 from modules import kodi_utils as ku, settings as st, watched_status as ws
 # logger = ku.logger
 
+from inspect import currentframe, getframeinfo
+import xbmc,xbmcgui
+#xbmc.log(  str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))  , level=xbmc.LOGINFO)
+
 set_property, clear_property, get_visibility, hide_busy_dialog, xbmc_actor = ku.set_property, ku.clear_property, ku.get_visibility, ku.hide_busy_dialog, ku.xbmc_actor
 xbmc_player, execute_builtin, sleep = ku.xbmc_player, ku.execute_builtin, ku.sleep
 make_listitem, volume_checker, get_infolabel, xbmc_monitor = ku.make_listitem, ku.volume_checker, ku.get_infolabel, ku.xbmc_monitor
@@ -16,9 +20,48 @@ total_time_errors = ('0.0', '', 0.0, None)
 set_resume, set_watched = 5, 90
 video_fullscreen_check = 'Window.IsActive(fullscreenvideo)'
 
+
 class FenLightPlayer(xbmc_player):
 	def __init__ (self):
 		xbmc_player.__init__(self)
+		self.player = xbmc_player()
+		self.currently_popping = False
+		self.sources_object = None
+		self.nextep_info_gathered = False
+		self.media_marked = False
+		self.playback_successful = None
+		self.cancel_all_playback = False
+		self.stop_file = False
+
+
+	def onPlayBackStarted( self ):
+		self.currently_popping = False
+		xbmc.log(  str("FenLightPlayer___Playlist started")  , level=xbmc.LOGINFO)
+
+	def onPlayBackEnded( self ):
+		if self.nextep_info_gathered: 
+			try: self.clear_playback_properties()
+			except: pass
+			try: self.clear_playing_item()
+			except: pass
+			self.currently_popping = False
+		else:
+			self.currently_popping = True
+		self.stop_file = True
+		xbmc.log(  str("FenLightPlayer___End of Playlist" )  , level=xbmc.LOGINFO)
+
+	def onPlayBackStopped( self ):
+		hide_busy_dialog()
+		try: self.clear_playback_properties()
+		except: pass
+		try: self.clear_playing_item()
+		except: pass
+		self.playback_successful = False
+		self.cancel_all_playback = True
+		self.currently_popping = True
+		xbmc.log(  str("FenLightPlayer___playlist Stopped")  , level=xbmc.LOGINFO)
+		self.stop_file = True
+		return self.kill_dialog()
 
 	def run(self, url=None, obj=None):
 		hide_busy_dialog()
@@ -67,7 +110,10 @@ class FenLightPlayer(xbmc_player):
 		sleep(200)
 		close_all_dialog()
 
+
+
 	def monitor(self):
+		self.player_monitor = FenLightPlayer()
 		try:
 			ensure_dialog_dead, total_check_time = False, 0
 			if self.media_type == 'episode':
@@ -97,12 +143,41 @@ class FenLightPlayer(xbmc_player):
 						if not self.media_marked: self.media_watched_marker()
 					if self.autoplay_nextep or self.autoscrape_nextep:
 						if not self.nextep_info_gathered: self.info_next_ep()
-						if round(self.total_time - self.curr_time) <= self.start_prep: self.run_next_ep(); break
+						#xbmc.log(  str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))  , level=xbmc.LOGINFO)
+						if round(self.total_time - self.curr_time) <= self.start_prep: 
+							return self.run_next_ep()
+							#; break
 				except: pass
+			#xbmc.log(  str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))  , level=xbmc.LOGINFO)
 			hide_busy_dialog()
 			if not self.media_marked: self.media_watched_marker()
+			sleep(500)
+			#currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
+
+			#window_id = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"GUI.GetProperties","params":{"properties":["currentwindow", "currentcontrol"]},"id":1}')
+			#window_id = json.loads(window_id)
+
+			#xbmc.log(  str(self.currently_popping)  , level=xbmc.LOGINFO)
+			#xbmc.log(  str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))  , level=xbmc.LOGINFO)
+			#hide_busy_dialog()
+			#if not self.media_marked: self.media_watched_marker()
+			#if self.stop_file == True:
+			#	xbmc.log(  str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))  , level=xbmc.LOGINFO)
 			self.clear_playback_properties()
 			self.clear_playing_item()
+			if self.currently_popping == False:
+				if self.autoplay_nextep or self.autoscrape_nextep:
+					if not self.nextep_info_gathered: 
+						self.info_next_ep()
+					self.playback_successful, self.cancel_all_playback = None, False
+					self.sources_object.playback_successful, self.sources_object.cancel_all_playback = None, False
+					return  self.run_next_ep()
+				#self.clear_playing_item()
+			else:
+				hide_busy_dialog()
+				self.sources_object.playback_successful = False
+				self.sources_object.cancel_all_playback = True
+				return self.kill_dialog()
 		except:
 			hide_busy_dialog()
 			self.sources_object.playback_successful = False
@@ -232,10 +307,14 @@ class FenLightPlayer(xbmc_player):
 			set_property('script.trakt.ids', json.dumps(trakt_ids))
 			if self.playing_filename: set_property('subs.player_filename', self.playing_filename)
 		except: pass
+		if self.media_type == 'episode': 
+			TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': self.media_type, 'tmdb_id': str(self.tmdb_id), 'imdb_id': str(self.imdb_id), 'tvdb_id': str(trakt_ids['tvdb']), 'season': self.meta['season'], 'episode': self.meta['episode']}
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 	def clear_playback_properties(self):
 		clear_property('fenlight.window_stack')
 		clear_property('script.trakt.ids')
+		clear_property('TMDbHelper.PlayerInfoString')
 		clear_property('subs.player_filename')
 
 	def clear_playing_item(self):

@@ -1081,6 +1081,9 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 			print_log(str(infolabels)[:750].replace('\'','"'),'===>OPENINFO')
 			#exit()
 			return
+
+		xbmcgui.Window(10000).setProperty('diamond_window_number','0')
+
 		if xbmc.Player().isPlaying():
 			playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
 
@@ -1628,6 +1631,7 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 			#exit()
 			return
 
+		xbmcgui.Window(10000).setProperty('diamond_window_number','0')
 		playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
 		current_action = xbmcgui.Window(10000).getProperty('Next_EP.TMDB_action')
 		#if 'seren' not in current_action and current_action != '': 

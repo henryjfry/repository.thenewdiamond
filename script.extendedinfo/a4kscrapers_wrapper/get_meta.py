@@ -890,9 +890,9 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 		try: 
 			response = get_fanart_data(tmdb_id=tvdb_id,media_type='tv_tvdb')
 		except: 
-			response = None
+			response = get_fanart_data(tmdb_id=tvdb_id,media_type='tv_tvdb')
 	else:
-		response = get_fanart_data(tmdb_id=tvdb_id,media_type='movie')	
+		response = get_fanart_data(tmdb_id=tvdb_id,media_type='movie')
 
 	if 'tv_tvdb' == media_type:
 		if response == None:
@@ -923,6 +923,9 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 				except:
 					continue
 		#return hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo
+
+		if response == []:
+			return tv_dict['hdclearart'], tv_dict['seasonposter'], tv_dict['seasonthumb'], tv_dict['seasonbanner'], tv_dict['tvthumb'], tv_dict['tvbanner'], tv_dict['showbackground'], tv_dict['clearlogo'], tv_dict['characterart'], tv_dict['tvposter'], tv_dict['clearart'], tv_dict['hdtvlogo']
 
 		for i in tv_dict:
 			if tv_dict[i] == None and i in ('seasonposter', 'seasonthumb', 'seasonbanner'):
@@ -965,3 +968,4 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 		#return movielogo, hdmovielogo, movieposter, hdmovieclearart, movieart, moviedisc, moviebanner, moviethumb, moviebackground
 		#tools.log(movie_dict)
 		return movie_dict['movielogo'], movie_dict['hdmovielogo'], movie_dict['movieposter'], movie_dict['hdmovieclearart'], movie_dict['movieart'], movie_dict['moviedisc'], movie_dict['moviebanner'], movie_dict['moviethumb'], movie_dict['moviebackground']
+		

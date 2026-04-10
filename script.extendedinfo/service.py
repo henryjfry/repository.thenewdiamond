@@ -716,11 +716,11 @@ class PlayerMonitor(xbmc.Player):
 
 
 	def reopen_window(self):
+		Utils.tools_log('reopen_window(self)', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		window_open = self.getProperty(str(addon_ID_short())+'_running')
 		self.player_meta['diamond_info_started'] = self.getProperty('diamond_info_started')
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('Next_EP.ResolvedUrl')
 		if self.window_stack_enable == 'true' and (window_open == 'False' or self.player_meta['diamond_info_started'] == 'True'):
-			Utils.tools_log('reopen_window(self)', str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			xbmc.sleep(100)
 			if xbmc.Player().isPlaying()==0:
 				if self.getProperty('diamond_info_started') == 'True':
@@ -1002,25 +1002,21 @@ class PlayerMonitor(xbmc.Player):
 			self.player_meta['tv_episode'] = int(json_object['result']['VideoPlayer.Episode'])
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
-			#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			self.type = 'episode'
 		elif json_object['result']['VideoPlayer.MovieTitle'] != '':
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_title'] = json_object['result']['VideoPlayer.MovieTitle']
 			self.player_meta['title'] = json_object['result']['VideoPlayer.MovieTitle']
-			#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			self.type = 'movie'
 		elif 'tt' in str(self.player_meta['imdb_id']):
 			response = TheMovieDB.get_tmdb_data('find/%s?external_source=imdb_id&language=%s&' % (self.player_meta['imdb_id'], xbmcaddon.Addon().getSetting('LanguageID')), 30)
 			if response.get('movie_results','') != '':
 				self.type = 'movie'
-				#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				PTN_info['type'] = 'movie'
 				self.player_meta['global_movie_flag'] = True
 			elif response.get('tv_results','') != '':
 				self.type = 'episode'
-				#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 				PTN_info['type'] = 'episode'
 
 		elif PTN_info['type'] == 'episode':
@@ -1030,30 +1026,26 @@ class PlayerMonitor(xbmc.Player):
 			except: self.player_meta['tv_episode'] = PTN_info.get('episode','')
 			self.player_meta['title'] = PTN_info.get('episode_title','')
 			self.type = 'episode'
-			#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		elif json_object['result']['VideoPlayer.Title'] != '' and json_object['result']['VideoPlayer.Season'] == '':
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['movie_title'] = json_object['result']['VideoPlayer.Title']
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
-			#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+
 			if not 'pvr://' in str(json_object['result']['Player.Filenameandpath']):
 				self.type = 'movie'
-				#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		elif json_object['result']['VideoPlayer.Title'] != '' and json_object['result']['VideoPlayer.Season'] != '':
 			self.player_meta['tv_title'] = json_object['result']['VideoPlayer.Title']
 			self.player_meta['tv_season'] = int(json_object['result']['VideoPlayer.Season'])
 			self.player_meta['tv_episode'] = int(json_object['result']['VideoPlayer.Episode'])
 			self.player_meta['VideoPlayer.Year'] = str(json_object['result']['VideoPlayer.Year'])
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
-			#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			self.type = 'episode'
 		if self.player_meta['title'] == None or self.player_meta['title'] == '':
 			self.player_meta['title'] = json_object['result']['VideoPlayer.Title']
 
 
 		if self.type == None:
-			#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 			if not 'pvr://' in str(json_object['result']['Player.Filenameandpath']):
 				self.type = PTN_info['type']
 			else:
@@ -1365,6 +1357,10 @@ class PlayerMonitor(xbmc.Player):
 			Utils.tools_log('EXIT__diamond_info_started')
 			return
 
+		def upd_diamond_info_time():
+			if self.player_meta['diamond_info_started'] == True:
+				self.setProperty('diamond_info_time', str(int(time.time())+15))
+
 		count = 0
 
 		try: 
@@ -1384,7 +1380,7 @@ class PlayerMonitor(xbmc.Player):
 			self.playerid = self.get_playerid()
 
 			if self.update_resume_position_duration() == False:
-				Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				upd_diamond_info_time()
 				return
 
 			self.speed = 1
@@ -1395,7 +1391,7 @@ class PlayerMonitor(xbmc.Player):
 
 		self.update_play_test(self.playing_file)
 		if self.play_test == False:
-			Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+			upd_diamond_info_time()
 			return
 
 		Utils.tools_log(str(self.player_meta['diamond_player'])+'diamond_player===>OPENINFO')
@@ -1404,8 +1400,11 @@ class PlayerMonitor(xbmc.Player):
 		#Utils.tools_log(response)
 		if not str(self.player_meta['tmdb_id']) in str(response):
 			trakt_meta = self.get_trakt_scrobble_details()
-			try: self.player_meta['resume_position'] = player.getTime()
-			except: return
+			try: 
+				self.player_meta['resume_position'] = player.getTime()
+			except: 
+				upd_diamond_info_time()
+				return
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration')) * 100
 			if self.type == 'movie':
 				response = self.trakt_scrobble_title(movie_title=trakt_meta.get('movie_title'), movie_year=trakt_meta.get('movie_year'), percent=self.player_meta['percentage'], action='start')
@@ -1415,8 +1414,11 @@ class PlayerMonitor(xbmc.Player):
 				#Utils.tools_log(response)
 		self.speed_time = time.time()
 		trakt_meta = self.get_trakt_scrobble_details()
-		try: self.player_meta['resume_position'] = player.getTime()
-		except: return
+		try: 
+			self.player_meta['resume_position'] = player.getTime()
+		except: 
+			upd_diamond_info_time()
+			return
 		self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration',1.00)) * 100
 
 		trakt_refresh_all = None
@@ -1427,13 +1429,13 @@ class PlayerMonitor(xbmc.Player):
 				xbmc.sleep(250)
 				self.player_meta['resume_position'] = player.getTime()
 			except: 
-				Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				upd_diamond_info_time()
 				return
 
 			try: return_var = self.scrobble_trakt_speed_resume_test()
 			except: return_var = False
 			if return_var == False:
-				Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				upd_diamond_info_time()
 				return
 
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
@@ -1460,6 +1462,7 @@ class PlayerMonitor(xbmc.Player):
 					if int(self.player_meta['dbID']) > 0:
 						self.SetMovieDetails2(self.player_meta['dbID'], self.player_meta['resume_duration'])
 				except TypeError: 
+					upd_diamond_info_time()
 					return
 				if not self.trakt_error:
 					try: 
@@ -1477,6 +1480,7 @@ class PlayerMonitor(xbmc.Player):
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
+				upd_diamond_info_time()
 				return
 
 		if self.type == 'episode':
@@ -1500,6 +1504,7 @@ class PlayerMonitor(xbmc.Player):
 				prescrape = None
 
 			if self.update_resume_position_duration() == False:
+				upd_diamond_info_time()
 				return
 
 			self.speed = 1
@@ -1509,7 +1514,9 @@ class PlayerMonitor(xbmc.Player):
 
 		self.update_play_test(self.playing_file)
 		if self.play_test == False:
+			upd_diamond_info_time()
 			return
+
 
 		self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
 		while self.play_test and self.type == 'episode':
@@ -1520,11 +1527,13 @@ class PlayerMonitor(xbmc.Player):
 				xbmc.sleep(250)
 				self.player_meta['resume_position'] = player.getTime()
 			except: 
+				upd_diamond_info_time()
 				return
 
 			try: return_var = self.scrobble_trakt_speed_resume_test()
 			except: return_var = False
 			if return_var == False:
+				upd_diamond_info_time()
 				return
 
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
@@ -1602,11 +1611,21 @@ class PlayerMonitor(xbmc.Player):
 						trakt_refresh_all = True
 
 			if self.player_meta['diamond_player'] == False and self.player_meta['percentage'] > 85:
-				#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 				self.playing_file = None
-				if self.player_meta['diamond_info_started'] == True:
-					#Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
-					self.setProperty('diamond_info_time', str(int(time.time())+15))
+
+				#if self.player_meta['diamond_info_started'] == True:
+				#	self.setProperty('diamond_info_time', str(int(time.time())+15))
+				next_diamond_info_time = str(int(time.time())+9)
+				while self.player.isPlaying()==1:
+					if int(time.time()) < int(next_diamond_info_time):
+						continue
+					next_diamond_info_time = str(int(time.time())+9)
+					upd_diamond_info_time()
+					xbmc.sleep(250)
+					try: self.player.isPlaying()==1
+					except: break
+				
+
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
@@ -1616,6 +1635,7 @@ class PlayerMonitor(xbmc.Player):
 				try: 
 					next_ep_url = next_ep_play_details.get('PTN_download')
 				except:
+					upd_diamond_info_time()
 					return
 				title = str(next_ep_play_details.get('episode_name'))
 				thumb = next_ep_details.get('next_ep_thumb2','')
@@ -1641,12 +1661,14 @@ class PlayerMonitor(xbmc.Player):
 					xbmc.sleep(250)
 					self.update_play_test(self.playing_file)
 					if self.play_test == False:
+						upd_diamond_info_time()
 						return
 				Utils.tools_log(str(kodi_url)+'kodi_url===>OPENINFO')
 				xbmc.executebuiltin(kodi_url)
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
+				upd_diamond_info_time()
 				return
  
 class CronJobMonitor(Thread):

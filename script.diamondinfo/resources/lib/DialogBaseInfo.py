@@ -23,7 +23,7 @@ class DialogBaseInfo(object):
 		self.data = None
 		self.yt_listitems = []
 		self.total_items = 0
-		self.position = 0
+		self.position = None
 		self.info = {}
 
 	def onInit(self, *args, **kwargs):
@@ -51,20 +51,24 @@ class DialogBaseInfo(object):
 	@ch.action('up', '*')
 	@ch.action('down', '*')
 	def save_position(self):
-		self.focus_id = self.getFocusId()
-		try: self.position = self.getControl(self.focus_id).getSelectedPosition()
-		except: self.position = xbmc.getInfoLabel("Container.Position")
-		xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		try:
-			int_test = int(self.position)
+		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
+		if currently_popping != 'True':
+			self.focus_id = self.getFocusId()
+			try: self.position = self.getControl(self.focus_id).getSelectedPosition()
+			except: self.position = xbmc.getInfoLabel("Container.Position")
+			xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
+			try:
+				int_test = int(self.position)
+				xbmcgui.Window(10000).setProperty('position', str(self.position))
+			except:
+				self.position = 'No Position'
+				xbmcgui.Window(10000).setProperty('position', str('No Position'))
+			wm.position = self.position
+			wm.focus_id = self.focus_id
+			xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
 			xbmcgui.Window(10000).setProperty('position', str(self.position))
-		except:
-			self.position = 'No Position'
-			xbmcgui.Window(10000).setProperty('position', str('No Position'))
-		wm.position = self.position
-		wm.focus_id = self.focus_id
-		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
-		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
+			xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
+			xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
 	def onAction(self, action):
 		#xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
@@ -106,22 +110,36 @@ class DialogBaseInfo(object):
 
 	def fill_lists(self):
 		for container_id, listitems in self.listitems:
-			#try:
-			if 1==1:
-				self.getControl(container_id).reset()
-				#xbmc.log(str('fill_lists')+'===>OPENINFO', level=xbmc.LOGINFO)
-				self.getControl(container_id).addItems(Utils.create_listitems(listitems,preload_images=0, enable_clearlogo=False, info=self.info))
-			#except:
-			#	Utils.log('Notice: No container with id %i available' % container_id)
+			self.getControl(container_id).reset()
+			self.getControl(container_id).addItems(Utils.create_listitems(listitems,preload_images=0, enable_clearlogo=False, info=self.info))
 		xbmc.sleep(100)
-		self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
-		self.position = xbmcgui.Window(10000).getProperty('position')
-		pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
-		pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
-		##xbmc.log(str(self.focus_id)+'focus_id_fill_lists===>OPENINFO', level=xbmc.LOGINFO)
-		##xbmc.log(str(self.position)+'position_fill_lists===>OPENINFO', level=xbmc.LOGINFO)
-		##xbmc.log(str(pop_stack_focus_id)+'pop_stack_focus_id_fill_lists===>OPENINFO', level=xbmc.LOGINFO)
-		##xbmc.log(str(pop_stack_position)+'pop_stack_position_fill_lists===>OPENINFO', level=xbmc.LOGINFO)
+		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
+		if currently_popping == 'True':
+			try: wm_curr_window_focus_id = int(wm.curr_window['params']['focus_id'])
+			except: wm_curr_window_focus_id = 0
+			try: wm_curr_window_position = int(wm.curr_window['params']['position'])
+			except: wm_curr_window_position = 0
+
+			if wm_curr_window_focus_id > 0:
+				self.focus_id = wm_curr_window_focus_id
+			else:
+				try: self.focus_id = int(self.focus_id)
+				except: self.focus_id = None
+
+			if wm_curr_window_position > 0:
+				self.position = wm_curr_window_position
+			else:
+				try: self.position = int(self.position)
+				except: self.position = 0
+			pop_stack_position = self.position
+			pop_stack_focus_id = self.focus_id
+
+		else:
+			self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
+			self.position = xbmcgui.Window(10000).getProperty('position')
+			pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
+			pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
+
 		if pop_stack_focus_id != 500:
 			self.focus_id = pop_stack_focus_id
 			self.position = pop_stack_position
@@ -129,14 +147,42 @@ class DialogBaseInfo(object):
 		except: focus_id_int = 0
 		if str(self.focus_id) != '':
 			xbmc.sleep(100)
-			#xbmc.log(str(self.focus_id)+'focus_id_fill_lists===>OPENINFO', level=xbmc.LOGINFO)
-			#xbmc.log(str(self.position)+'position_fill_lists===>OPENINFO', level=xbmc.LOGINFO)
+
 			try: self.focus_id = int(self.focus_id)
 			except: self.focus_id = 500
 			if self.focus_id != 500:
 				self.setFocusId(int(self.focus_id))
 				if str(self.position) != 'No position':
+					xbmc.sleep(100)
+					try:
+						self.getControl(self.focus_id).selectItem(self.position)
+						xbmc.sleep(100)
+						self.setFocusId(self.focus_id)
+					except:
+						control = self.getControl(self.focus_id)
+						xbmc.sleep(100)
+						self.setFocus(control)
+				new_focus_id = self.getFocusId()
+				try: new_position = self.getControl(self.focus_id).getSelectedPosition()
+				except: new_position = xbmc.getInfoLabel("Container.Position")
+				try: test_position = int(self.position)
+				except: test_position = None
+
+				window_id = xbmcgui.getCurrentWindowId()
+				focused_control = window = xbmcgui.Window(window_id).getFocusId()
+				diamond_window_number = xbmcgui.Window(10000).getProperty('diamond_window_number')
+
+
+				if xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id) == False:
 					xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (self.focus_id,self.position))
+				if xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id) == True:
+					if self.focus_id == new_focus_id:
+						if test_position:
+							if new_position == test_position:
+								xbmcgui.Window(10000).clearProperty('currently_popping')
+						else:
+							xbmcgui.Window(10000).clearProperty('currently_popping')
+
 
 	@ch.click(1250)
 	@ch.click(1350)
@@ -181,10 +227,6 @@ class DialogBaseInfo(object):
 			window_stack_enable2 = True
 
 		if Utils.window_stack_enable == 'false' and window_stack_enable2:
-			#window_id = xbmcgui.getCurrentWindowDialogId()
-			#window = xbmcgui.Window(self.window_id)
-			#xbmc.log(str(window_id)+'window_id===>OPEN_INFO', level=xbmc.LOGINFO)
-			#xbmc.log(str(window)+'window===>OPEN_INFO', level=xbmc.LOGINFO)
 			self.close()
 			try: del self
 			except: pass
@@ -202,6 +244,7 @@ class DialogBaseInfo(object):
 
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
+		xbmcgui.Window(10000).clearProperty('currently_popping')
 		Utils.db_con.close()
 		self.close()
 		try: del self

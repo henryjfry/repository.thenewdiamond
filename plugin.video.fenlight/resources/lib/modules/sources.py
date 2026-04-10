@@ -70,15 +70,15 @@ def get_file(url):
 	cache_file_png = cache_file_jpg[:-4] + '.png'
 	if xbmcvfs.exists(cache_file_jpg):
 		log = ('cache_file_jpg Image: %s --> %s' % (url, cache_file_jpg))
-		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		#xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
 		return translate_path(cache_file_jpg)
 	elif xbmcvfs.exists(cache_file_png):
 		log('cache_file_png Image: %s --> %s' % (url, cache_file_png))
-		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		#xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
 		return cache_file_png
 	elif xbmcvfs.exists(vid_cache_file):
 		log = ('vid_cache_file Image: %s --> %s' % (url, vid_cache_file))
-		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		#xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
 		return vid_cache_file
 	try:
 		r = requests.get(clean_url, stream=True)
@@ -86,10 +86,10 @@ def get_file(url):
 			return ''
 		data = r.content
 		log = ('image downloaded: %s' % clean_url)
-		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		#xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
 	except Exception as e:
 		log = ('image download failed: %s' % clean_url)
-		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		#xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
 		return ''
 	if not data:
 		return ''
@@ -100,7 +100,7 @@ def get_file(url):
 		return translate_path(image)
 	except Exception as e:
 		log = ('failed to save image %s' % url)
-		xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
+		#xbmc.log(str(log)+'===>get_file', level=xbmc.LOGINFO)
 		return ''
 
 

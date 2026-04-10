@@ -38,6 +38,8 @@ from resources.lib.TheMovieDB import extended_movie_info
 from resources.lib.library import get_trakt_data
 from datetime import datetime, timedelta
 
+import math
+import re
 
 from inspect import currentframe, getframeinfo
 #xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
@@ -231,7 +233,6 @@ def get_tmdb_window(window_type):
 			xbmcgui.Window(10000).clearProperty('ImageFilter')
 			xbmcgui.Window(10000).clearProperty('ImageColor')
 
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			if wm.custom_filter:
 				self.setup_filter(wm.custom_filter)
 				wm.custom_filter = None
@@ -327,8 +328,6 @@ def get_tmdb_window(window_type):
 			return info
 
 		def onClick(self, control_id):
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-			#xbmc.log('%s,%s,%s,%s,' % (control_id,self.focus_id,self.position,self.listitems[self.position].getProperty('tmdb_id'))+'===>OPENINFO', level=xbmc.LOGINFO)
 			if (self.search_str == 'Trakt Episodes/Movies in progress' or self.search_str == 'Trakt Calendar Episodes') and xbmc.getInfoLabel('listitem.DBTYPE') == 'episode':
 				try: wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitem.getProperty('tmdb_id'), dbid=self.listitem.getProperty('dbid'))
 				except: wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitems[self.position].getProperty('tmdb_id'), dbid=self.listitems[self.position].getProperty('dbid'))
@@ -349,7 +348,6 @@ def get_tmdb_window(window_type):
 				'person': 'Persons'
 				}
 			self.setProperty('Type', types[self.type])
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			self.getControl(5006).setVisible(self.total_pages > 1)
 			self.getControl(5008).setVisible(self.type != 'tv')
 			self.getControl(5009).setVisible(self.type != 'tv')
@@ -384,7 +382,15 @@ def get_tmdb_window(window_type):
 			if self.page == self.total_pages:
 				return
 			self.get_column()
+
 			wm.page_position = self.position -16
+			self.position = wm.page_position
+
+			xbmcgui.Window(10000).clearProperty('focus_id')
+			xbmcgui.Window(10000).clearProperty('position')
+			xbmcgui.Window(10000).clearProperty('pop_stack_focus_id')
+			xbmcgui.Window(10000).clearProperty('pop_stack_position')
+
 			if self.page < self.total_pages:
 				self.page += 1
 				self.prev_page_token = self.page_token
@@ -395,15 +401,22 @@ def get_tmdb_window(window_type):
 			if self.page == 1:
 				return
 			self.get_column()
+
 			wm.prev_page_flag = True
 			wm.prev_page_num = self.page -1 
-			wm.page_position = self.position +16
+			wm.page_position = self.position + 16
+			self.position = wm.page_position
+
+			xbmcgui.Window(10000).clearProperty('focus_id')
+			xbmcgui.Window(10000).clearProperty('position')
+			xbmcgui.Window(10000).clearProperty('pop_stack_focus_id')
+			xbmcgui.Window(10000).clearProperty('pop_stack_position')
+
 			if self.page > 1:
 				self.page -= 1
 				self.next_page_token = self.page_token
 				self.page_token = self.prev_page_token
 				self.update()
-
 
 		@ch.action('pagedown', 5019)
 		def pgdn_5019(self):
@@ -762,12 +775,12 @@ def get_tmdb_window(window_type):
 				#return wm.open_video_list(mode='tastedive&' + str(media_type), listitems=[], search_str=response, filter_label='TasteDive Similar ('+str(search_str)+'):')
 				#self.fetch_data()
 				#self.update()
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.fetch_data()
 				wm.page = -1
 				self.update()
 				#self.update_content(force_update=False)
 				Utils.hide_busy()
+
 			if selection_text == 'In Trakt Lists':
 				from resources.lib.library import trakt_in_lists
 				search_str = self.listitem.getProperty('title')
@@ -790,7 +803,6 @@ def get_tmdb_window(window_type):
 				self.page = 1
 				self.mode = 'trakt'
 				self.filter_label='Trakt In Lists ('+str(search_str)+'):'
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.fetch_data()
 				wm.page = -1
 				self.update()
@@ -835,7 +847,6 @@ def get_tmdb_window(window_type):
 			wm.page = -1
 			if (self.search_str == 'Trakt Episodes/Movies in progress' or self.search_str == 'Trakt Calendar Episodes'):
 				self.search_str = ''
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			self.update()
 
 		@ch.click(5007)
@@ -1114,11 +1125,13 @@ def get_tmdb_window(window_type):
 
 		def reload_trakt(self):
 			if 'Trakt Watched Movies' in str(self.filter_label):
+				self.type = 'movie'
 				self.search_str = trakt_watched_movies()
 			if 'Trakt Watched Shows' in str(self.filter_label):
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>PHIL', level=xbmc.LOGINFO)
+				self.type = 'tv'
 				self.search_str = trakt_watched_tv_shows()
 			if 'Trakt Unwatched Shows' in str(self.filter_label):
+				self.type = 'tv'
 				self.search_str = trakt_unwatched_tv_shows()
 			else:
 				return
@@ -1318,7 +1331,6 @@ def get_tmdb_window(window_type):
 				self.search_str = response2
 				self.filter_label='TasteDive Based on Recently Watched Movies:'
 				self.fetch_data()
-				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.update()
 				Utils.hide_busy()
 				return
@@ -1347,7 +1359,6 @@ def get_tmdb_window(window_type):
 				self.search_str = response2
 				self.filter_label='TasteDive Based on Recently Watched TV:'
 				self.fetch_data()
-				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.update()
 				Utils.hide_busy()
 				return
@@ -1379,13 +1390,11 @@ def get_tmdb_window(window_type):
 			self.page = 1
 			listitems = []
 			trakt_data = TheMovieDB.get_trakt_userlists()
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			if trakt_data:
 				for i in trakt_data['trakt_list']:
 					if str(i['name']) != '':
 						listitems += [i['name']]
 
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			data = TheMovieDB.get_imdb_userlists()
 			imdb_list = []
 			imdb_list_name = []
@@ -1547,7 +1556,6 @@ def get_tmdb_window(window_type):
 			wm.window_stack_empty()
 
 		def fetch_data(self, force=False):
-			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 			addon = xbmcaddon.Addon()
 			addon_path = addon.getAddonInfo('path')
 			addonID = addon.getAddonInfo('id')
@@ -1560,17 +1568,23 @@ def get_tmdb_window(window_type):
 				self.filter_label = 'Trakt Calendar Episodes'
 
 			if wm.pop_video_list == True:
-				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
+
 				try: 
 					self.page = int(wm.prev_window['params']['page'])
 				except:
 					diamond_prev_window = xbmcgui.Window(10000).getProperty('diamond_prev_window')
 					diamond_curr_window = xbmcgui.Window(10000).getProperty('diamond_curr_window')
 
-					Utils.tools_log(json.loads(diamond_curr_window)['params']['type'])
-					Utils.tools_log(json.loads(diamond_prev_window)['params']['type'])
 					wm.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
 					wm.prev_window = wm.curr_window
+
+					wm.curr_window = json.loads(diamond_curr_window) if diamond_curr_window else None
+					if wm.curr_window == None:
+						wm.prev_window = json.loads(diamond_prev_window)
+					else:
+						wm.prev_window = wm.curr_window
+
+
 					try: self.page = int(wm.prev_window['params']['page'])
 					except: self.page = 1
 				self.filter_label =wm.prev_window['params']['filter_label']
@@ -1584,7 +1598,6 @@ def get_tmdb_window(window_type):
 				self.search_str =wm.prev_window['params']['search_str']
 
 				if 'Trakt Episodes/Movies in progress' in str(self.search_str) or 'Trakt Episodes/Movies in progress' in str(self.filter_label):
-					#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 					response = get_trakt_playback('tv')
 					listitems1 = []
 					if response:
@@ -1646,7 +1659,6 @@ def get_tmdb_window(window_type):
 				return info
 
 			if self.mode == 'reopen_window':
-				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				fetch_data_dict_file = read_fetch_data_dict_file()
 				import ast
 				fetch_data_dict_read = ast.literal_eval(fetch_data_dict_file.read())
@@ -1976,7 +1988,6 @@ def get_tmdb_window(window_type):
 				fetch_data_dict = self.update_fetch_data_dict(info, fetch_data_dict)
 				fetch_data_dict_file.write(str(fetch_data_dict))
 				fetch_data_dict_file.close()
-				#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				return info
 
 			elif 'Trakt Calendar Episodes' in str(self.search_str) or 'Trakt Calendar Episodes' in str(self.filter_label):
