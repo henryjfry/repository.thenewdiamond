@@ -1385,6 +1385,10 @@ class PlayerMonitor(xbmc.Player):
 
 		count = 0
 
+		def upd_xtreme_vod_time():
+			if self.player_meta['script.xtreme_vod_player'] == True:
+				self.setProperty('script.xtreme_vod_time', str(int(time.time())+15))
+
 		try: 
 			self.player_meta['dbID'] = int(self.player_meta['dbID'])
 			if self.player_meta['dbID'] == 0:
@@ -1403,6 +1407,7 @@ class PlayerMonitor(xbmc.Player):
 
 			if self.update_resume_position_duration() == False:
 				tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+				upd_xtreme_vod_time()
 				return
 
 			self.speed = 1
@@ -1414,6 +1419,7 @@ class PlayerMonitor(xbmc.Player):
 		self.update_play_test(self.playing_file)
 		if self.play_test == False:
 			tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
+			upd_xtreme_vod_time()
 			return
 
 		tools_log(str(self.player_meta['script.xtreme_vod_player'])+'script.xtreme_vod_player===>OPENINFO')
@@ -1423,8 +1429,11 @@ class PlayerMonitor(xbmc.Player):
 		#tools_log(response)
 		if not str(self.player_meta['tmdb_id']) in str(response):
 			trakt_meta = self.get_trakt_scrobble_details()
-			try: self.player_meta['resume_position'] = player.getTime()
-			except: return
+			try: 
+				self.player_meta['resume_position'] = player.getTime()
+			except: 
+				upd_xtreme_vod_time()
+				return
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration')) * 100
 			if self.type == 'movie':
 				response = self.trakt_scrobble_title(movie_title=trakt_meta.get('movie_title'), movie_year=trakt_meta.get('movie_year'), percent=self.player_meta['percentage'], action='start')
@@ -1434,8 +1443,11 @@ class PlayerMonitor(xbmc.Player):
 				#tools_log(response)
 		self.speed_time = time.time()
 		trakt_meta = self.get_trakt_scrobble_details()
-		try: self.player_meta['resume_position'] = player.getTime()
-		except: return
+		try: 
+			self.player_meta['resume_position'] = player.getTime()
+		except: 
+			upd_xtreme_vod_time()
+			return
 		self.player_meta['percentage'] = (self.player_meta['resume_position'] / trakt_meta.get('resume_duration',1.00)) * 100
 
 		trakt_refresh_all = None
@@ -1450,6 +1462,7 @@ class PlayerMonitor(xbmc.Player):
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
+				upd_xtreme_vod_time()
 				return
 
 			try: return_var = self.scrobble_trakt_speed_resume_test()
@@ -1459,6 +1472,7 @@ class PlayerMonitor(xbmc.Player):
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
+				upd_xtreme_vod_time()
 				return
 
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
@@ -1486,6 +1500,7 @@ class PlayerMonitor(xbmc.Player):
 					if int(self.player_meta['dbID']) > 0:
 						self.SetMovieDetails2(self.player_meta['dbID'], self.player_meta['resume_duration'])
 				except TypeError: 
+					upd_xtreme_vod_time()
 					return
 				if not self.trakt_error:
 					try: 
@@ -1506,6 +1521,7 @@ class PlayerMonitor(xbmc.Player):
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
+				upd_xtreme_vod_time()
 				return
 
 		if self.type == 'episode':
@@ -1529,6 +1545,7 @@ class PlayerMonitor(xbmc.Player):
 				prescrape = None
 
 			if self.update_resume_position_duration() == False:
+				upd_xtreme_vod_time()
 				return
 
 			self.speed = 1
@@ -1538,6 +1555,7 @@ class PlayerMonitor(xbmc.Player):
 
 		self.update_play_test(self.playing_file)
 		if self.play_test == False:
+			upd_xtreme_vod_time()
 			return
 
 		trakt_refresh_all = None
@@ -1550,11 +1568,13 @@ class PlayerMonitor(xbmc.Player):
 				xbmc.sleep(250)
 				self.player_meta['resume_position'] = player.getTime()
 			except: 
+				upd_xtreme_vod_time()
 				return
 
 			try: return_var = self.scrobble_trakt_speed_resume_test()
 			except: return_var = False
 			if return_var == False:
+				upd_xtreme_vod_time()
 				return
 
 			self.player_meta['percentage'] = (self.player_meta['resume_position'] / self.player_meta['resume_duration']) * 100
@@ -1628,9 +1648,24 @@ class PlayerMonitor(xbmc.Player):
 			if self.player_meta['script.xtreme_vod_player'] == False and self.player_meta['percentage'] > 85:
 				#tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
 				self.playing_file = None
-				if self.player_meta['script.xtreme_vod_started'] == True:
-					#tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO')
-					self.setProperty('script.xtreme_vod_time', str(int(time.time())+15))
+				#if self.player_meta['script.xtreme_vod_started'] == True:
+				#	upd_xtreme_vod_time()
+				#	return
+				next_diamond_info_time = str(int(time.time())+9)
+				while self.player.isPlaying()==1:
+					if int(time.time()) < int(next_diamond_info_time):
+						continue
+					next_diamond_info_time = str(int(time.time())+9)
+					if self.player_meta['script.xtreme_vod_started'] == True:
+						upd_xtreme_vod_time()
+					xbmc.sleep(250)
+					try: self.player.isPlaying()==1
+					except: break
+
+				self.playing_file = None
+				self.trakt_error = None
+				self.library_refresh = None
+				upd_xtreme_vod_time()
 				return
 
 			if player.isPlaying()==1 and self.player_meta['percentage'] > 90 and 'http' in str(self.prescrape_test) and self.player_meta['script.xtreme_vod_player'] == True:

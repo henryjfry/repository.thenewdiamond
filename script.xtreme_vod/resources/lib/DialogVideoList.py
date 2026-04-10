@@ -372,8 +372,6 @@ def get_tmdb_window(window_type):
 			xbmcgui.Window(10000).clearProperty('position')
 			xbmcgui.Window(10000).clearProperty('pop_stack_focus_id')
 			xbmcgui.Window(10000).clearProperty('pop_stack_position')
-			#xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
-			#xbmcgui.Window(10000).clearProperty('unpop_stack_position')
 
 			if self.page < self.total_pages:
 				self.page += 1
@@ -395,8 +393,6 @@ def get_tmdb_window(window_type):
 			xbmcgui.Window(10000).clearProperty('position')
 			xbmcgui.Window(10000).clearProperty('pop_stack_focus_id')
 			xbmcgui.Window(10000).clearProperty('pop_stack_position')
-			#xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
-			#xbmcgui.Window(10000).clearProperty('unpop_stack_position')
 
 			if self.page > 1:
 				self.page -= 1

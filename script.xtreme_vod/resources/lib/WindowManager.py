@@ -63,22 +63,6 @@ class WindowManager(object):
 		if 'estuary' in str(Utils.SKIN_DIR):
 			Utils.SKIN_DIR = 'skin.estuary'
 
-	#def unpop_focus_position(self):
-	#	try: unpop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('unpop_stack_focus_id'))
-	#	except: unpop_stack_focus_id = None
-	#	try: unpop_stack_position = int(xbmcgui.Window(10000).getProperty('unpop_stack_position'))
-	#	except: unpop_stack_position = None
-	#	try: pop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('pop_stack_focus_id'))
-	#	except: pop_stack_focus_id = None
-	#	try: pop_stack_position = int(xbmcgui.Window(10000).getProperty('pop_stack_position'))
-	#	except: pop_stack_position = None
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_position')
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
-	#	if unpop_stack_position != None:
-	#		return unpop_stack_focus_id, unpop_stack_position
-	#	else:
-	#		return pop_stack_focus_id, pop_stack_position
-
 	def window_stack_connection(self):
 		window_stack = str(xbmcvfs.translatePath("special://profile/addon_data/"+addon_ID()+ '/window_stack.db'))
 		if not os.path.exists(window_stack):
@@ -221,8 +205,6 @@ class WindowManager(object):
 		self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
 		self.position = xbmcgui.Window(10000).getProperty('position')
 
-		#self.focus_id = wm.focus_id
-		#self.position = wm.position
 		self.curr_window['params']['focus_id'] = self.focus_id
 		self.curr_window['params']['position'] = self.position
 		self.curr_window['params']['page'] = self.page
@@ -231,15 +213,9 @@ class WindowManager(object):
 		self.prev_window['params']['position'] = self.position
 		self.prev_window['params']['page'] = self.page
 
-		#xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		#xbmcgui.Window(10000).setProperty('position', str(self.position))
-		#xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
-		#xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
+		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
+		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
-		#self.focus_id = None
-		#self.position = None
-		#wm.focus_id = None
-		#wm.position = None
 		xbmcgui.Window(10000).clearProperty('currently_popping')
 
 		try:
@@ -343,9 +319,6 @@ class WindowManager(object):
 
 
 
-		#for i in ['script.xtreme_vod_started','reopen_window_var','script.xtreme_vod_time','script.xtreme_vod_player_time','xtreme_vod_player_time','xtreme_vod_time','script.xtreme_vod_started','xtreme_vod_running','xtreme_vod_started','script.xtreme_vod.ResolvedUrl','trakt_scrobble_details','script.xtreme_vod.ResolvedUrl_playlist','xtreme_vod.ResolvedUrl_playlist','xtreme_vod.ResolvedUrl']:
-		#	xbmcgui.Window(10000).clearProperty(i)
-
 		if window['function'] == 'open_movie_info':
 			return self.open_movie_info(movie_id=window['params']['movie_id'],dbid=window['params']['dbid'],name=window['params']['name'],imdb_id=window['params']['imdb_id'])
 		elif window['function'] == 'open_tvshow_info':
@@ -363,15 +336,6 @@ class WindowManager(object):
 			self.pop_video_list = True
 			return self.open_youtube_list(search_str=window['params']['search_str'],filters=window['params']['filters'],filter_label=window['params']['filter_label'],media_type=window['params']['media_type'])
 
-	#def unpop_focus_position(self):
-	#	
-	#	try: unpop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('unpop_stack_focus_id'))
-	#	except: unpop_stack_focus_id = None
-	#	try: unpop_stack_position = int(xbmcgui.Window(10000).getProperty('unpop_stack_position'))
-	#	except: unpop_stack_position = None
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_position')
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
-	#	return unpop_stack_focus_id, unpop_stack_position
 
 	def video_play_unpop(self):
 		diamond_prev_window = xbmcgui.Window(10000).getProperty('diamond_prev_window')
@@ -384,13 +348,7 @@ class WindowManager(object):
 
 		self.add_to_stack(self.curr_window, 'curr_window_unpop')
 		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
-		#try:
-		#	position = int(self.position)
-		#except (TypeError, ValueError):
-		#	position = 0
-		#if position > 0:
-		#	xbmcgui.Window(10000).setProperty('unpop_stack_focus_id',str(self.focus_id))
-		#	xbmcgui.Window(10000).setProperty('unpop_stack_position',str(self.position))
+
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 
 	def wm_curr_windows_props(self):

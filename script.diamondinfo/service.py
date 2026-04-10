@@ -1620,7 +1620,8 @@ class PlayerMonitor(xbmc.Player):
 					if int(time.time()) < int(next_diamond_info_time):
 						continue
 					next_diamond_info_time = str(int(time.time())+9)
-					upd_diamond_info_time()
+					if self.player_meta['diamond_info_started'] == True:
+						upd_diamond_info_time()
 					xbmc.sleep(250)
 					try: self.player.isPlaying()==1
 					except: break

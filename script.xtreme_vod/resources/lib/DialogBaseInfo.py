@@ -26,22 +26,6 @@ class DialogBaseInfo(object):
 		self.position = None
 		self.info = {}
 
-	#def unpop_focus_position(self):
-	#	try: unpop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('unpop_stack_focus_id'))
-	#	except: unpop_stack_focus_id = None
-	#	try: unpop_stack_position = int(xbmcgui.Window(10000).getProperty('unpop_stack_position'))
-	#	except: unpop_stack_position = None
-	#	try: pop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('pop_stack_focus_id'))
-	#	except: pop_stack_focus_id = None
-	#	try: pop_stack_position = int(xbmcgui.Window(10000).getProperty('pop_stack_position'))
-	#	except: pop_stack_position = None
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_position')
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
-	#	if unpop_stack_position != None:
-	#		return unpop_stack_focus_id, unpop_stack_position
-	#	else:
-	#		return pop_stack_focus_id, pop_stack_position
-
 	def onInit(self, *args, **kwargs):
 		super(DialogBaseInfo, self).onInit()
 		xbmcgui.Window(10000).setProperty('ImageColor', self.info.get('ImageColor', ''))
@@ -67,19 +51,7 @@ class DialogBaseInfo(object):
 	@ch.action('down', '*')
 	def save_position(self):
 		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
-		#if currently_popping == 'True':
-		#	unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
-		#	if unpop_stack_focus_id:
-		#		self.focus_id = unpop_stack_focus_id
-		#		wm.focus_id = unpop_stack_focus_id
-		#		pop_stack_focus_id = unpop_stack_focus_id
-		#		xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		#	if unpop_stack_position:
-		#		self.position = unpop_stack_position
-		#		wm.position = unpop_stack_position
-		#		pop_stack_position = unpop_stack_position
-		#		xbmcgui.Window(10000).setProperty('position', str(self.position))
-		#else:
+
 		if currently_popping != 'True':
 			self.focus_id = self.getFocusId()
 			try: self.position = self.getControl(self.focus_id).getSelectedPosition()
@@ -138,22 +110,8 @@ class DialogBaseInfo(object):
 			self.getControl(container_id).addItems(Utils.create_listitems(listitems,preload_images=0, enable_clearlogo=False, info=self.info))
 		xbmc.sleep(100)
 		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
-		#self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
-		#self.position = xbmcgui.Window(10000).getProperty('position')
-		#pop_stack_focus_id = xbmcgui.Window(10000).getProperty('pop_stack_focus_id')
-		#pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position')
 
-		#unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
-		#if unpop_stack_focus_id:
-		#	self.focus_id = unpop_stack_focus_id
-		#	wm.focus_id = unpop_stack_focus_id
-		#	pop_stack_focus_id = unpop_stack_focus_id
-		#	xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		#if unpop_stack_position:
-		#	self.position = unpop_stack_position
-		#	wm.position = unpop_stack_position
-		#	pop_stack_position = unpop_stack_position
-		#	xbmcgui.Window(10000).setProperty('position', str(self.position))
+
 		if currently_popping == 'True':
 			try: wm_curr_window_focus_id = int(wm.curr_window['params']['focus_id'])
 			except: wm_curr_window_focus_id = 0
@@ -194,12 +152,7 @@ class DialogBaseInfo(object):
 				self.setFocusId(int(self.focus_id))
 				if str(self.position) != 'No position':
 					xbmc.sleep(100)
-					#unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
-					#if unpop_stack_focus_id:
-					#	self.focus_id = unpop_stack_focus_id
-					#if unpop_stack_position:
-					#	self.position = unpop_stack_position
-					
+
 					#xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (self.focus_id,self.position))
 					try:
 						self.getControl(self.focus_id).selectItem(self.position)
@@ -215,15 +168,9 @@ class DialogBaseInfo(object):
 				try: test_position = int(self.position)
 				except: test_position = None
 
-				#Utils.tools_log(xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id),'List VISIBLE__DEBUG')
-				#Utils.tools_log(xbmc.getCondVisibility('Container(%s).NumItems > 0' % self.focus_id),'List has items__DEBUG')
-				
 				window_id = xbmcgui.getCurrentWindowId()
-				#Utils.tools_log(window_id, 'Current window ID')
 				focused_control = window = xbmcgui.Window(window_id).getFocusId()
-				#Utils.tools_log(focused_control, 'Focused control ID')
 				xtreme_vod_window_number = xbmcgui.Window(10000).getProperty('xtreme_vod_window_number')
-				#Utils.tools_log(xtreme_vod_window_number, 'xtreme_vod_window_number')
 
 				if xbmc.getCondVisibility('Control.IsVisible(%s)' % self.focus_id) == False:
 					xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (self.focus_id,self.position))

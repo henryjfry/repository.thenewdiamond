@@ -38,21 +38,6 @@ class DialogBaseList(object):
 		self.next_page_token = ''
 		self.prev_page_token = ''
 
-	#def unpop_focus_position(self):
-	#	try: unpop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('unpop_stack_focus_id'))
-	#	except: unpop_stack_focus_id = None
-	#	try: unpop_stack_position = int(xbmcgui.Window(10000).getProperty('unpop_stack_position'))
-	#	except: unpop_stack_position = None
-	#	try: pop_stack_focus_id = int(xbmcgui.Window(10000).getProperty('pop_stack_focus_id'))
-	#	except: pop_stack_focus_id = None
-	#	try: pop_stack_position = int(xbmcgui.Window(10000).getProperty('pop_stack_position'))
-	#	except: pop_stack_position = None
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_position')
-	#	xbmcgui.Window(10000).clearProperty('unpop_stack_focus_id')
-	#	if unpop_stack_position != None:
-	#		return unpop_stack_focus_id, unpop_stack_position
-	#	else:
-	#		return pop_stack_focus_id, pop_stack_position
 
 	def onInit(self):
 		super(DialogBaseList, self).onInit()
@@ -65,45 +50,14 @@ class DialogBaseList(object):
 		if xbmcaddon.Addon().getSetting('alt_browser_layout') == 'true':
 			self.setProperty('alt_layout', 'true')
 
-		#if currently_popping == 'True':
-		#	unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
-		#	if unpop_stack_focus_id:
-		#		self.focus_id = unpop_stack_focus_id
-		#		wm.focus_id = unpop_stack_focus_id
-		#		pop_stack_focus_id = unpop_stack_focus_id
-		#		xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		#	if unpop_stack_position:
-		#		self.position = unpop_stack_position
-		#		wm.position = unpop_stack_position
-		#		pop_stack_position = unpop_stack_position
-		#		xbmcgui.Window(10000).setProperty('position', str(self.position))
-		#log(Utils.db_con)
-
 
 		self.update_ui()
 		xbmc.sleep(100)
 
-		#try: self_position = int(self.position)
-		#except: self_position = 0
-		#try: wm_position = int(wm.position)
-		#except: wm_position = 0
-		#Utils.tools_log(self_position,'self_position')
-		#Utils.tools_log(wm_position,'wm_position')
-		#wm_curr_window_focus_id = wm.curr_window['params']['focus_id']
-		#wm_curr_window_position = wm.curr_window['params']['position']
-		#Utils.tools_log(wm_curr_window_focus_id,'wm_curr_window_focus_id')
-		#Utils.tools_log(wm_curr_window_position,'wm_curr_window_position')
-		#if self_position == 0:
-		#	if wm.position != 0:
-		#		self.position = wm.position
-		#		self.focus_id = wm.focus_id
 
 		if self.total_items > 0 and self.position == 0 and xbmcgui.Window(10000).getProperty(str(addon_ID_short())+'_running') == 'True':
 			self.setFocusId(500)
-			#try: self.focus_id = int(xbmcgui.Window(10000).getProperty('focus_id'))
-			#except: self.focus_id = None
-			#try: self.position = int(xbmcgui.Window(10000).getProperty('position'))
-			#except: self.position = None
+
 			try: self.focus_id = int(self.focus_id)
 			except: self.focus_id = None
 			try: self.position = int(self.position )
@@ -122,10 +76,10 @@ class DialogBaseList(object):
 					self.setFocusId(self.focus_id)
 				#xbmcgui.Window(10000).clearProperty('currently_popping')
 			#xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (self.focus_id,self.position))
-
+			self.position == self.last_position
 		elif self.total_items == 0:
 			self.setFocusId(6000)
-
+		xbmcgui.Window(10000).clearProperty('currently_popping')
 
 
 	@ch.action('parentdir', '*')
@@ -181,19 +135,6 @@ class DialogBaseList(object):
 	def save_position(self):
 		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
 
-		#if currently_popping == 'True':
-		#	unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
-		#	if unpop_stack_focus_id:
-		#		self.focus_id = unpop_stack_focus_id
-		#		wm.focus_id = unpop_stack_focus_id
-		#		pop_stack_focus_id = unpop_stack_focus_id
-		#		xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		#	if unpop_stack_position:
-		#		self.position = unpop_stack_position
-		#		wm.position = unpop_stack_position
-		#		pop_stack_position = unpop_stack_position
-		#		xbmcgui.Window(10000).setProperty('position', str(self.position))
-		#else:
 		if wm.page_position:
 			return
 		if currently_popping != 'True':
@@ -338,15 +279,6 @@ class DialogBaseList(object):
 
 	def update_ui(self):
 
-		#unpop_stack_focus_id, unpop_stack_position = self.unpop_focus_position()
-		#if unpop_stack_focus_id:
-		#	self.focus_id = unpop_stack_focus_id
-		#	wm.focus_id = unpop_stack_focus_id
-		#	xbmcgui.Window(10000).setProperty('focus_id', str(self.focus_id))
-		#if unpop_stack_position:
-		#	self.position = unpop_stack_position
-		#	wm.position = unpop_stack_position
-		#	xbmcgui.Window(10000).setProperty('position', str(self.position))
 		currently_popping = xbmcgui.Window(10000).getProperty('currently_popping')
 		#Utils.tools_log(currently_popping,'currently_popping')
 
@@ -388,26 +320,15 @@ class DialogBaseList(object):
 				try: self.page = int(self.page)
 				except: self.page = None
 
-			#if wm.page < 0:
-			#	wm.page = None
-
-			#Utils.tools_log(wm_curr_window_page,'wm_curr_window_page')
-
 		if self.position == None:
 			self.position = 0
 		if self.position > 1 or wm.page_position == -1:
-			xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-			Utils.tools_log('weirdness??')
+			#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
+			#Utils.tools_log('weirdness??')
 			if wm.page == -1:
-				xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 				self.position = 0
 				wm.page_position = None
-			#if self.position > 1 or wm.page_position == -1:
-			#	#if self.position > 1:
-			#	#	self.getControl(500).selectItem(self.position)
-			#	#	xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (500,self.position))
-			#	#	wm.page_position = self.position
-			#	#	wm.page = -1
+
 			if not self.listitems:
 				return
 
@@ -436,16 +357,10 @@ class DialogBaseList(object):
 					self.getControl(500).selectItem(0)
 					self.setFocusId(500)
 				#xbmc.executebuiltin('Control.SetFocus(%s,%s)' % (500,0))
-		#if currently_popping == 'True':
-		#	test_focus_id = self.getFocusId()
-		#	try: test_position = self.getControl(test_focus_id).getSelectedPosition()
-		#	except: test_position = 0
-		#	if test_position == wm_curr_window_position and test_focus_id == wm_curr_window_focus_id:
-		#		xbmcgui.Window(10000).clearProperty('currently_popping')
 
 		wm.page_position = None
 
-		xbmcgui.Window(10000).clearProperty('currently_popping')
+		#xbmcgui.Window(10000).clearProperty('currently_popping')
 		self.setProperty('TotalPages', str(self.total_pages))
 		self.setProperty('TotalItems', str(self.total_items))
 		self.setProperty('CurrentPage', str(self.page))
@@ -470,10 +385,7 @@ class DialogBaseList(object):
 		else:
 			function = 'open_video_list'
 		self.curr_window = {'function': function, 'params': {'listitems': self.listitems2, 'filters': self.filters, 'mode': self.mode, 'list_id': self.list_id, 'filter_label': self.filter_label, 'media_type': self.media_type, 'search_str': self.search_str, 'page': self.page, 'total_pages': self.total_pages, 'total_items': self.total_items, 'type': self.type, 'filter_url': self.filter_url, 'order': self.order, 'filter': self.filter, 'sort': self.sort, 'category_id': self.category_id ,'sort_label': self.sort_label, 'total_items': self.total_items, 'total_pages': self.total_pages, 'prev_page_token': self.prev_page_token, 'next_page_token': self.next_page_token, 'page_token': self.page_token}}
-		#if wm.pop_video_list == False:
-		#	wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
-		#else:
-		#	wm.pop_video_list = False
+
 		wm.update_windows(curr_window=self.curr_window, prev_window=self.prev_window)
 		wm.wm_curr_windows_props()
 		wm.curr_window['params']['type'] = self.type
@@ -501,15 +413,14 @@ class DialogBaseList(object):
 		window = '{' + unquote_plus(window).replace('function=',"'function': '").replace('&params=',"', 'params': ") + '}'
 		window = eval(window)
 		self.curr_window = window
+		wm.curr_window = window
 
-		#self.focus_id = self.curr_window['params']['focus_id']
-		#self.position = self.curr_window['params']['position']
 
-		try: wm_focus_id = int(self.curr_window['params']['focus_id'])
+		try: wm_focus_id = int(wm.curr_window['params']['focus_id'])
 		except: wm_focus_id = 0
-		try: wm_position = int(self.curr_window['params']['position'])
+		try: wm_position = int(wm.curr_window['params']['position'])
 		except: wm_position = 0
-		try: wm_page = int(self.curr_window['params']['page'])
+		try: wm_page = int(wm.curr_window['params']['page'])
 		except: wm_page = -1
 		wm.focus_id = wm_focus_id
 		self.focus_id = wm_focus_id
@@ -543,22 +454,15 @@ class DialogBaseList(object):
 		"""
 		sql_result = cur.execute(sql_result).fetchall()
 		con.commit()
-		
-		#sql_result = """
-		#select * from window_stack 
-		#"""
-		#sql_result = cur.execute(sql_result).fetchall()
-		#self.window_stack_len2 = self.window_stack_len2 - 1
+
 		wm.window_stack_length()
 
 		cur.close()
 		con.close()
-		#print(window_number, window['function'], window['params'])
-		#self.focus_id = self.curr_window['params']['focus_id']
-		#self.position = self.curr_window['params']['position']
-		self.total_items = self.curr_window['params']['total_items']
-		self.total_pages = self.curr_window['params']['total_pages']
-		self.page = self.curr_window['params']['page'] 
+
+		self.total_items = wm.curr_window['params']['total_items']
+		self.total_pages = wm.curr_window['params']['total_pages']
+		self.page = wm.curr_window['params']['page'] 
 		#wm.page = self.page
 		##self.next_page_token = self.curr_window['params']['next_page_token']
 		##self.prev_page_token = self.curr_window['params']['prev_page_token']
@@ -580,8 +484,10 @@ class DialogBaseList(object):
 			wm.open_actor_info(actor_id=window['params']['actor_id'],name=window['params']['name'])
 		elif window['function'] == 'open_video_list':
 
-			self.focus_id = self.curr_window['params']['focus_id']
-			self.position = self.curr_window['params']['position']
+			self.focus_id = wm_focus_id
+			wm.curr_window['params']['focus_id'] = wm_focus_id
+			self.position = wm_position
+			wm.curr_window['params']['position'] = wm_position
 			if str(self.focus_id) != '500':
 				self.focus_id = '500'
 				#self.position = '0'
@@ -590,12 +496,14 @@ class DialogBaseList(object):
 			xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
 			xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 			#wm.page = self.curr_window['params']['page']
-			self.page = self.curr_window['params']['page']
+			self.page = wm_page
 			wm.open_video_list(listitems=window['params']['listitems'],filters=window['params']['filters'],mode=window['params']['mode'],list_id=window['params']['list_id'],filter_label=window['params']['filter_label'],media_type=window['params']['media_type'],search_str=window['params']['search_str'])
 		elif window['function'] == 'open_youtube_list':
 
-			self.focus_id = self.curr_window['params']['focus_id']
-			self.position = self.curr_window['params']['position']
+			self.focus_id = wm_focus_id
+			wm.curr_window['params']['focus_id'] = wm_focus_id
+			self.position = wm_position
+			wm.curr_window['params']['position'] = wm_position
 			if str(self.focus_id) != '500':
 				self.focus_id = '500'
 				#self.position = '0'
@@ -604,7 +512,7 @@ class DialogBaseList(object):
 			xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
 			xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 			#wm.page = self.curr_window['params']['page']
-			self.page = self.curr_window['params']['page']
+			self.page = wm_page
 			wm.open_youtube_list(search_str=window['params']['search_str'],filters=window['params']['filters'],filter_label=window['params']['filter_label'],media_type=window['params']['media_type'])
 		return
 
@@ -641,8 +549,6 @@ class DialogBaseList(object):
 		self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
 		self.position = xbmcgui.Window(10000).getProperty('position')
 
-		#self.focus_id = xbmcgui.Window(10000).getProperty('focus_id')
-		#self.position = xbmcgui.Window(10000).getProperty('position')
 		self.prev_window['params']['focus_id'] = self.focus_id
 		self.prev_window['params']['position'] = self.position
 		self.prev_window['params']['page'] = self.page
@@ -659,18 +565,9 @@ class DialogBaseList(object):
 		con.commit()
 		cur.close()
 		con.close()
-		#self.window_stack_len2 = self.window_stack_len2 + 1
-		wm.window_stack_length()
-		#try:
-		#	self.last_control = xbmc.getInfoLabel('System.CurrentControlId').decode('utf-8')
-		#except:
-		#	self.last_control = xbmc.getInfoLabel('System.CurrentControlId')
-		#if mode == 'curr_window':
-		#	#xbmc.executebuiltin('Dialog.Close(all)')
-		#	xbmc.executebuiltin('Dialog.Close(all,true)')
 
-		#xbmc.log(str('BASE_LIST')+'append_window_stack_table_BASE_LIST===>OPENINFO', level=xbmc.LOGINFO)
-		#xbmc.log(str(mode)+'BASE_mode_append_window_stack_table_BASE_LIST===>OPENINFO', level=xbmc.LOGINFO)
+		wm.window_stack_length()
+
 		Utils.tools_log(str('BASE_LIST')+'___append_window_stack_table__' + str(wm.window_stack_length()))
 		return
 
