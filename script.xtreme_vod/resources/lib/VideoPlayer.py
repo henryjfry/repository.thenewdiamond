@@ -46,6 +46,9 @@ class VideoPlayer(xbmc.Player):
 		info = extended_episode_info(tmdb,season, episode)
 
 		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('trakt_scrobble_details')
 		
 		response_extended_season_info = extended_season_info(tmdb,season)
 		response_extended_tvshow_info = extended_tvshow_info(tmdb)
@@ -492,6 +495,10 @@ class VideoPlayer(xbmc.Player):
 		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
 		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
 			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('trakt_scrobble_details')
 		Utils.show_busy()
 		#hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo = get_fanart_results_full(tvdb_id, media_type='tv_tvdb',show_season=show_season )
 
@@ -830,7 +837,7 @@ class VideoPlayer(xbmc.Player):
 			return
 		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_started', 'True')
-		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
+		#xbmcgui.Window(10000).setProperty('xtreme_vod_window_number','0')
 		if window:
 			wm.wm_curr_windows_props()
 			wm.add_to_stack(window, 'curr_window')

@@ -879,11 +879,13 @@ class PlayerMonitor(xbmc.Player):
 		json_object  = json.loads(json_result)
 		try: self.player_meta['playlist_position'] = int(json_object['result']['position'])
 		except: self.player_meta['playlist_position'] = 0
+		try: self.player_meta['diamond_info_time'] = int(self.player_meta['diamond_info_time'])
+		except: self.player_meta['diamond_info_time'] = 0
 
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('Next_EP.ResolvedUrl')
 		self.clearProperty('Next_EP.ResolvedUrl_playlist')
 		self.clearProperty('trakt_scrobble_details')
-		if int(time.time()) < self.player_meta['diamond_player_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
+		if int(time.time()) < self.player_meta['diamond_info_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
 			self.player_meta['diamond_player'] = True
 			self.clearProperty('Next_EP.ResolvedUrl')
 		else:

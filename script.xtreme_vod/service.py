@@ -928,6 +928,8 @@ class PlayerMonitor(xbmc.Player):
 		json_object  = json.loads(json_result)
 		try: self.player_meta['playlist_position'] = int(json_object['result']['position'])
 		except: self.player_meta['playlist_position'] = 0
+		try: self.player_meta['script.xtreme_vod_time'] = int(self.player_meta['script.xtreme_vod_time'])
+		except: self.player_meta['script.xtreme_vod_time'] = 0
 
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('script.xtreme_vod.ResolvedUrl')
 		if self.player_meta['Next_EP_ResolvedUrl'] == 'suppress_reopen_window':
@@ -936,7 +938,7 @@ class PlayerMonitor(xbmc.Player):
 			
 		self.clearProperty('script.xtreme_vod.ResolvedUrl_playlist')
 		self.clearProperty('trakt_scrobble_details')
-		if int(time.time()) < self.player_meta['script.xtreme_vod_player_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
+		if int(time.time()) < self.player_meta['script.xtreme_vod_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
 			self.player_meta['script.xtreme_vod_player'] = True
 			self.clearProperty('script.xtreme_vod.ResolvedUrl')
 		else:
@@ -963,6 +965,8 @@ class PlayerMonitor(xbmc.Player):
 
 		self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
 		#tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started_onPlayBackStarted===>script.xtreme_vod_started')
+
+		Utils.tools_log(self.player_meta)
 
 		if self.player_meta['script.xtreme_vod_player'] == False:
 			tools_log('EXIT__script.xtreme_vod_player')
