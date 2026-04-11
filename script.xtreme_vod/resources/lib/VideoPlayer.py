@@ -134,6 +134,8 @@ class VideoPlayer(xbmc.Player):
 	def prepare_play_VOD_episode(self, tmdb = None, series_id=None, search_str = None, episode=None, season=None, window=False):
 		from resources.lib.TheMovieDB import get_vod_data
 		from resources.lib.TheMovieDB import get_vod_alltv
+		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+			xbmcgui.Window(10000).clearProperty(i)
 		script_xtreme_vod_ResolvedUrl = xbmcgui.Window(10000).getProperty('script.xtreme_vod.ResolvedUrl')
 		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
 			xbmcgui.Window(10000).clearProperty('script.xtreme_vod.ResolvedUrl')
@@ -775,6 +777,8 @@ class VideoPlayer(xbmc.Player):
 	def play(self, url, listitem, window=False):
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
 		container = xbmc.getInfoLabel('System.CurrentControlId')
 		position = int(xbmc.getInfoLabel('Container('+str(container)+').CurrentItem'))-1
@@ -796,6 +800,8 @@ class VideoPlayer(xbmc.Player):
 	def play_url(self, url=None, window=False):
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
 
 		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
@@ -819,6 +825,8 @@ class VideoPlayer(xbmc.Player):
 		#from resources.lib.WindowManager import wm
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
 		if dbid != 0 and 1==2:
 			item = '{"%s": %s}' % (type, dbid)

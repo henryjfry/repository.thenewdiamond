@@ -851,8 +851,14 @@ class DialogXML(xbmcgui.WindowXMLDialog):
 		self.window_type = 'dialog'
 
 	def onInit(self):
-		self.window_id = xbmcgui.getCurrentWindowDialogId()
-		self.window = xbmcgui.Window(self.window_id)
+		try:
+			self.window_id = xbmcgui.getCurrentWindowDialogId()
+			if self.window_id:
+				self.window = xbmcgui.Window(self.window_id)
+			else:
+				self.window = None
+		except RuntimeError:
+			self.window = None
 
 
 class TextViewerDialog(xbmcgui.WindowXMLDialog):

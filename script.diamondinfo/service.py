@@ -733,8 +733,10 @@ class PlayerMonitor(xbmc.Player):
 					if reopen_window_var == 'Started':
 						reopen_window_var = ''
 						self.clearProperty('reopen_window_var')
+						self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
 						return wm.pop_stack()
 				else:
+					self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
 					return
 		elif self.reopen_window_bool == 'true' and self.getProperty('diamond_info_started') == 'True' and not xbmc.getCondVisibility('Window.IsActive(10138)'):
 			xbmc.sleep(100)
@@ -744,8 +746,10 @@ class PlayerMonitor(xbmc.Player):
 					self.setProperty('diamond_info_started',self.player_meta['diamond_info_started'])
 					Utils.tools_log(str('RunScript(%s,info=reopen_window)' % (addon_ID())))
 					xbmc.executebuiltin('RunScript(%s,info=reopen_window)' % (addon_ID()))
+					self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
 					return
 				else:
+					self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
 					return
 
 	def onPlayBackEnded(self):
@@ -753,104 +757,120 @@ class PlayerMonitor(xbmc.Player):
 		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
 		if TMDbHelper_PlayerInfoString != '':
 			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
-		if self.player_meta['diamond_info_started'] == False:
-			Utils.tools_log('EXIT__diamond_info_started')
-			return
+		try:
+			if self.player_meta['diamond_info_started'] == False:
+				Utils.tools_log('EXIT__diamond_info_started')
+				self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+				return
 
-		if self.iplayerwww == False:
-			try:
-				self.trakt_meta_scrobble(action='pause')
-			except:
-				pass
-		else:
-			gc.collect()
-			return self.reopen_window()
-		if self.player_meta['percentage'] > 85:
-			if self.player_meta['global_movie_flag'] == False:
+			if self.iplayerwww == False:
 				try:
-					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
+					self.trakt_meta_scrobble(action='pause')
 				except:
-					Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
 					pass
 			else:
-				try: 
-					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-				except:
-					Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+				gc.collect()
+				self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+				return self.reopen_window()
+			if self.player_meta['percentage'] > 85:
+				if self.player_meta['global_movie_flag'] == False:
+					try:
+						response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
+					except:
+						Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
+				else:
+					try: 
+						response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
+					except:
+						Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
 
-		self.clearProperty('trakt_scrobble_details')
+			self.clearProperty('trakt_scrobble_details')
 
-		xbmc.sleep(100)
-		gc.collect()
-		return self.reopen_window()
+			xbmc.sleep(100)
+			gc.collect()
+			self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+			return self.reopen_window()
+		except Exception as e:
+			Utils.tools_log(f"onPlayBackEnded ERROR: {e}")
+			return self.reopen_window()
 
 	def onPlayBackStopped(self):
 		Utils.tools_log(str('onPlayBackStopped'))
 		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
 		if TMDbHelper_PlayerInfoString != '':
 			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
-		if self.player_meta['diamond_info_started'] == False:
-			Utils.tools_log('EXIT__diamond_info_started')
-			return
-			
-		if self.iplayerwww == False:
-			self.trakt_meta_scrobble(action='pause')
-		else:
-			return self.reopen_window()
-		trakt_meta = self.get_trakt_scrobble_details()
-		for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
-			self.clearProperty(i)
-
-		if self.player_meta['percentage'] > 85:
-			if self.player_meta['global_movie_flag'] == False:
-				try:
-					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
-				except:
-					Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+		try:
+			if self.player_meta['diamond_info_started'] == False:
+				Utils.tools_log('EXIT__diamond_info_started')
+				self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+				return
+				
+			if self.iplayerwww == False:
+				self.trakt_meta_scrobble(action='pause')
 			else:
-				try: 
-					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-				except:
-					Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+				self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+				return self.reopen_window()
+			trakt_meta = self.get_trakt_scrobble_details()
+			for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+				self.clearProperty(i)
 
-		xbmc.sleep(100)
-		gc.collect()
+			if self.player_meta['percentage'] > 85:
+				if self.player_meta['global_movie_flag'] == False:
+					try:
+						response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
+					except:
+						Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
+				else:
+					try: 
+						response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
+					except:
+						Utils.tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
 
-		try: self.player_meta['resume_position'] = trakt_meta.get('resume_position')
-		except: self.player_meta['resume_position'] = 0
-		try: self.player_meta['resume_duration'] = trakt_meta.get('resume_duration')
-		except: self.player_meta['resume_duration'] = 0
-		try: self.player_meta['percentage'] = (trakt_meta.get('resume_position') / trakt_meta.get('resume_duration')) * 100
-		except: self.player_meta['percentage'] = 0
+			xbmc.sleep(100)
+			gc.collect()
 
-		self.player_meta['global_movie_flag'] = None
-		self.player_meta['dbID'] = None
+			try: self.player_meta['resume_position'] = trakt_meta.get('resume_position')
+			except: self.player_meta['resume_position'] = 0
+			try: self.player_meta['resume_duration'] = trakt_meta.get('resume_duration')
+			except: self.player_meta['resume_duration'] = 0
+			try: self.player_meta['percentage'] = (trakt_meta.get('resume_position') / trakt_meta.get('resume_duration')) * 100
+			except: self.player_meta['percentage'] = 0
 
-		try: 
-			self.player_meta['dbID'] = int(self.player_meta['dbID'])
-			if self.player_meta['dbID'] == 0:
-				self.player_meta['dbID'] = None
-		except: 
+			self.player_meta['global_movie_flag'] = None
 			self.player_meta['dbID'] = None
 
-		try:
-			if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
-				self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
-			if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
-				self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
-			if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300:
-				self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
-			if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300 and self.player_meta['resume_duration'] != 60:
-				self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
+			try: 
+				self.player_meta['dbID'] = int(self.player_meta['dbID'])
+				if self.player_meta['dbID'] == 0:
+					self.player_meta['dbID'] = None
+			except: 
+				self.player_meta['dbID'] = None
 
-		except:
-			Utils.tools_log(str('EXCEPTION_onPlayBackStopped')+'===>OPENINFO')
+			try:
+				if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
+					self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
+				if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
+					self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
+				if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300:
+					self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
+				if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300 and self.player_meta['resume_duration'] != 60:
+					self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
+
+			except:
+				Utils.tools_log(str('EXCEPTION_onPlayBackStopped')+'===>OPENINFO')
+				self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+				return self.reopen_window()
+
+			self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
+			return self.reopen_window()
+		except Exception as e:
+			Utils.tools_log(f"onPlayBackEnded ERROR: {e}")
 			return self.reopen_window()
 
-		return self.reopen_window()
 
 
 	def onPlayBackStarted(self):
@@ -885,7 +905,7 @@ class PlayerMonitor(xbmc.Player):
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('Next_EP.ResolvedUrl')
 		self.clearProperty('Next_EP.ResolvedUrl_playlist')
 		self.clearProperty('trakt_scrobble_details')
-		if int(time.time()) < self.player_meta['diamond_info_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
+		if int(time.time()) < self.player_meta['diamond_player_time'] or self.player_meta['Next_EP_ResolvedUrl'] == 'true':
 			self.player_meta['diamond_player'] = True
 			self.clearProperty('Next_EP.ResolvedUrl')
 		else:
@@ -912,7 +932,7 @@ class PlayerMonitor(xbmc.Player):
 
 		self.setProperty('diamond_info_started',self.player_meta['diamond_info_started'])
 		#Utils.tools_log(str(self.player_meta['diamond_info_started'])+'diamond_info_started_onPlayBackStarted===>diamond_info_started')
-		
+		Utils.tools_log(self.player_meta)
 
 		if self.player_meta['diamond_info_started'] == False:
 			Utils.tools_log('EXIT__diamond_info_started')

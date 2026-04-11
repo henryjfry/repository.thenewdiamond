@@ -39,6 +39,8 @@ class VideoPlayer(xbmc.Player):
 	def play(self, url, listitem, window=False):
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
 		container = xbmc.getInfoLabel('System.CurrentControlId')
 		position = int(xbmc.getInfoLabel('Container('+str(container)+').CurrentItem'))-1
@@ -86,6 +88,8 @@ class VideoPlayer(xbmc.Player):
 		#from resources.lib.WindowManager import wm
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
+			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
 		if dbid != 0 and 1==2:
 			item = '{"%s": %s}' % (type, dbid)

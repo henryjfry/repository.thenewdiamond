@@ -115,6 +115,7 @@ class PlayerMonitor(xbmc.Player):
 		self.scrobble_time = 0
 		self.trakt_error = None
 
+
 	def getProperty(self, var_name):
 		var_value = xbmcgui.Window(10000).getProperty(var_name)
 		return str(var_value)
@@ -759,7 +760,7 @@ class PlayerMonitor(xbmc.Player):
 
 
 	def reopen_window(self):
-
+		tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
 		window_open = self.getProperty('xtreme_vod_running')
 		self.player_meta['script.xtreme_vod_started'] = self.getProperty('script.xtreme_vod_started')
 		self.player_meta['Next_EP_ResolvedUrl'] = self.getProperty('script.xtreme_vod.ResolvedUrl')
@@ -775,8 +776,10 @@ class PlayerMonitor(xbmc.Player):
 					if reopen_window_var == 'Started':
 						self.clearProperty('reopen_window_var')
 						reopen_window_var = ''
+					self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
 					return wm.pop_stack()
 				else:
+					self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
 					return
 		elif self.reopen_window_bool == 'true' and self.getProperty('script.xtreme_vod_started') == 'True' and not xbmc.getCondVisibility('Window.IsActive(10138)'):
 			xbmc.sleep(100)
@@ -787,8 +790,10 @@ class PlayerMonitor(xbmc.Player):
 					self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
 					tools_log(str('RunScript(%s,info=reopen_window)' % (addon_ID())))
 					xbmc.executebuiltin('RunScript(%s,info=reopen_window)' % (addon_ID()))
+					self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
 					return
 				else:
+					self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
 					return
 
 	def onPlayBackEnded(self):
@@ -797,34 +802,39 @@ class PlayerMonitor(xbmc.Player):
 		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString_NEW')
 		if TMDbHelper_PlayerInfoString != '':
 			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
-
-		if self.player_meta['script.xtreme_vod_player'] == False:
-			tools_log('EXIT__script.xtreme_vod_player')
-			return
-
 		try:
-			self.trakt_meta_scrobble(action='pause')
-		except:
-			pass
-		if self.player_meta['percentage'] > 85:
-			if self.player_meta['global_movie_flag'] == False:
-				try:
-					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
-				except:
-					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
-			else:
-				try: 
-					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-				except:
-					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+			if self.player_meta['script.xtreme_vod_player'] == False:
+				tools_log('EXIT__script.xtreme_vod_player')
+				self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
+				return
 
-		self.clearProperty('trakt_scrobble_details')
+			try:
+				self.trakt_meta_scrobble(action='pause')
+			except:
+				pass
+			if self.player_meta['percentage'] > 85:
+				if self.player_meta['global_movie_flag'] == False:
+					try:
+						response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
+					except:
+						tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
+				else:
+					try: 
+						response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
+					except:
+						tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
 
-		xbmc.sleep(100)
-		gc.collect()
-		return self.reopen_window()
+			self.clearProperty('trakt_scrobble_details')
+			self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
+
+			xbmc.sleep(100)
+			gc.collect()
+			return self.reopen_window()
+		except Exception as e:
+			Utils.tools_log(f"onPlayBackEnded ERROR: {e}")
+			return self.reopen_window()
 
 	def onPlayBackStopped(self):
 		tools_log(str('onPlayBackStopped'))
@@ -833,68 +843,75 @@ class PlayerMonitor(xbmc.Player):
 		if TMDbHelper_PlayerInfoString != '':
 			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 
-		if self.player_meta['script.xtreme_vod_player'] == False:
-			tools_log('EXIT__script.xtreme_vod_player')
-			return
+		try:
+			if self.player_meta['script.xtreme_vod_player'] == False:
+				tools_log('EXIT__script.xtreme_vod_player')
+				self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
+				return
 
-		if self.iplayerwww == False:
-			self.trakt_meta_scrobble(action='pause')
-		else:
-			return
-		trakt_meta = self.get_trakt_scrobble_details()
-		for i in ['script.xtreme_vod_time', 'xtreme_vod.ResolvedUrl_playlist', 'xtreme_vod.ResolvedUrl','trakt_scrobble_details']:
-			self.clearProperty(i)
-
-		if self.player_meta['percentage'] > 85:
-			if self.player_meta['global_movie_flag'] == False:
-				try:
-					response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
-				except:
-					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+			if self.iplayerwww == False:
+				self.trakt_meta_scrobble(action='pause')
 			else:
-				try: 
-					response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
-				except:
-					tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
-					pass
+				self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
+				return
+			trakt_meta = self.get_trakt_scrobble_details()
+			for i in ['script.xtreme_vod_time', 'xtreme_vod.ResolvedUrl_playlist', 'xtreme_vod.ResolvedUrl','trakt_scrobble_details']:
+				self.clearProperty(i)
 
-		xbmc.sleep(100)
-		gc.collect()
+			if self.player_meta['percentage'] > 85:
+				if self.player_meta['global_movie_flag'] == False:
+					try:
+						response = TheMovieDB.update_trakt_playback(trakt_type='tv',tmdb_id=self.player_meta['tmdb_id'],episode=self.player_meta['tv_episode'],season=self.player_meta['tv_season'])
+					except:
+						tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
+				else:
+					try: 
+						response = TheMovieDB.update_trakt_playback(trakt_type='movie',tmdb_id=self.player_meta['tmdb_id'])
+					except:
+						tools_log('EXCEPTION!!', 'TheMovieDB.update_trakt_playback')
+						pass
 
-		try: self.player_meta['resume_position'] = trakt_meta.get('resume_position')
-		except: self.player_meta['resume_position'] = 0
-		try: self.player_meta['resume_duration'] = trakt_meta.get('resume_duration')
-		except: self.player_meta['resume_duration'] = 0
-		try: self.player_meta['percentage'] = (trakt_meta.get('resume_position') / trakt_meta.get('resume_duration')) * 100
-		except: self.player_meta['percentage'] = 0
+			xbmc.sleep(100)
+			gc.collect()
 
-		self.player_meta['global_movie_flag'] = None
-		self.player_meta['dbID'] = None
+			try: self.player_meta['resume_position'] = trakt_meta.get('resume_position')
+			except: self.player_meta['resume_position'] = 0
+			try: self.player_meta['resume_duration'] = trakt_meta.get('resume_duration')
+			except: self.player_meta['resume_duration'] = 0
+			try: self.player_meta['percentage'] = (trakt_meta.get('resume_position') / trakt_meta.get('resume_duration')) * 100
+			except: self.player_meta['percentage'] = 0
 
-		try: 
-			self.player_meta['dbID'] = int(self.player_meta['dbID'])
-			if self.player_meta['dbID'] == 0:
-				self.player_meta['dbID'] = None
-		except: 
+			self.player_meta['global_movie_flag'] = None
 			self.player_meta['dbID'] = None
 
-		try:
-			if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
-				self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
-			if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
-				self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
-			if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300:
-				self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
-			if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300 and self.player_meta['resume_duration'] != 60:
-				self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
+			try: 
+				self.player_meta['dbID'] = int(self.player_meta['dbID'])
+				if self.player_meta['dbID'] == 0:
+					self.player_meta['dbID'] = None
+			except: 
+				self.player_meta['dbID'] = None
 
-		except:
-			tools_log(str('EXCEPTION_onPlayBackStopped')+'===>OPENINFO')
+			try:
+				if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
+					self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
+				if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['percentage'] < 85 and self.player_meta['percentage'] > 3 and self.player_meta['resume_duration'] > 300:
+					self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=self.player_meta['resume_position'], resume_duration= self.player_meta['resume_duration'])
+				if self.player_meta['global_movie_flag'] == True and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300:
+					self.SetMovieDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
+				if self.player_meta['global_movie_flag'] == False and self.player_meta['dbID'] != None and self.player_meta['resume_duration'] < 300 and self.player_meta['resume_duration'] != 60:
+					self.SetEpisodeDetails(dbID=self.player_meta['dbID'], resume_position=str(0), resume_duration= self.player_meta['resume_duration'])
+
+			except:
+				tools_log(str('EXCEPTION_onPlayBackStopped')+'===>OPENINFO')
+				self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
+				return self.reopen_window()
+
+			self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
 			return self.reopen_window()
-
-		return self.reopen_window()
-
+		except Exception as e:
+			Utils.tools_log(f"onPlayBackEnded ERROR: {e}")
+			return self.reopen_window()
 
 	def onPlayBackStarted(self):
 		Utils.hide_busy()
