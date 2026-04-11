@@ -19,7 +19,7 @@ from resources.lib.TheMovieDB import extended_tvshow_info
 from resources.lib.TheMovieDB import get_trakt_playback
 from resources.lib.TheMovieDB import get_imdb_season_episodes
 from resources.lib.TheMovieDB import imdb_base_title_card
-
+import base64, json
 
 from a4kscrapers_wrapper import getSources, real_debrid, tools, source_tools, get_meta, distance
 from a4kscrapers_wrapper.getSources import Sources
@@ -1041,6 +1041,16 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 			infolabels['title'] = episode_name
 			infolabels['originaltitle'] = episode_name
 			infolabels['sorttitle'] = episode_name
+
+			encode_dict = {'TMDbHelper.PlayerInfoString': {'tmdb_type': 'episode', 'tmdb_id': str(tmdb_id), 'imdb_id': str(infolabels['imdbnumber']), 'tvdb_id': str(tvdb_id), 'season': infolabels['season'], 'episode': infolabels['episode']}, 'diamond_player': True, 'diamond_info_started': True}
+			json_str = json.dumps(encode_dict)
+			b64_encode_dict = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+			# Store in infolabel
+			infolabels['Label2'] = b64_encode_dict
+			infolabels['sorttitle'] = b64_encode_dict
+			Label2 = b64_encode_dict
+			li.setProperty('Label2', str(Label2))
+
 			infolabels['plot'] = plot
 			infolabels['plotoutline'] = plot
 			infolabels['tvshowtitle'] = show_title
@@ -1051,10 +1061,10 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 			#infolabels['FileNameAndPath'] = PTN_download
 			#infolabels['EpisodeName'] = episode_name
 
-			li.setProperty('FileNameAndPath', str(PTN_download))
+			li.setProperty('FileNameAndPath', str(PTN_download + '?' +  b64_encode_dict))
 			li.setProperty('EpisodeName', str(episode_name))
 
-			infolabels['path'] = PTN_download
+			infolabels['path'] = PTN_download + '?' +  b64_encode_dict
 
 			#li.setInfo(type='Video', infoLabels = infolabels)
 			try:
@@ -1593,6 +1603,16 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 		infolabels['title'] = movie_title
 		infolabels['originaltitle'] = movie_title
 		infolabels['sorttitle'] = movie_title
+
+		encode_dict = {'TMDbHelper.PlayerInfoString': {'tmdb_type': 'movie', 'tmdb_id': str(tmdb_id), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}, 'diamond_info_started': True, 'diamond_player': True}
+		json_str = json.dumps(encode_dict)
+		b64_encode_dict = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+		# Store in infolabel
+		infolabels['Label2'] = b64_encode_dict
+		infolabels['sorttitle'] = b64_encode_dict
+		Label2 = b64_encode_dict
+		li.setProperty('Label2', str(Label2))
+
 		infolabels['plot'] = plot
 		infolabels['plotoutline'] = plot
 		infolabels['playcount'] = 0
@@ -1604,8 +1624,9 @@ def next_ep_play_movie(movie_year, movie_title, tmdb):
 		infolabels['studio'] = studio
 		infolabels['country'] = None
 		#infolabels['FileNameAndPath'] = PTN_download
-		li.setProperty('FileNameAndPath', str(PTN_download))
-		infolabels['path'] = PTN_download
+		li.setProperty('FileNameAndPath', str(PTN_download + '?' +  b64_encode_dict))
+
+		infolabels['path'] = PTN_download + '?' +  b64_encode_dict
 
 		#li.setInfo(type='Video', infoLabels = infolabels)
 		try:

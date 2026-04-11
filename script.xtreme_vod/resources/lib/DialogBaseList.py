@@ -472,6 +472,13 @@ class DialogBaseList(object):
 		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
 		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod_time')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('xtreme_vod.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('trakt_scrobble_details')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('xtreme_vod.ResolvedUrl')
+
 		if window['function'] == 'open_movie_info':
 			wm.open_movie_info(movie_id=window['params']['movie_id'],dbid=window['params']['dbid'],name=window['params']['name'],imdb_id=window['params']['imdb_id'])
 		elif window['function'] == 'open_tvshow_info':

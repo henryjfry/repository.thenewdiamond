@@ -8,6 +8,7 @@ from resources.lib.WindowManager import wm
 
 from inspect import currentframe, getframeinfo
 #Utils.tools_log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+import base64
 
 try:
 	from infotagger.listitem import ListItemInfoTag
@@ -356,6 +357,16 @@ class VideoPlayer(xbmc.Player):
 		infolabels['title'] = label
 		infolabels['originaltitle'] = label
 		infolabels['sorttitle'] = label
+
+		encode_dict = {'TMDbHelper.PlayerInfoString': {'tmdb_type': 'episode', 'tmdb_id': str(tmdb), 'imdb_id': str(imdb_id), 'tvdb_id': str(tvdb_id), 'season': season, 'episode': episode}, 'script.xtreme_vod_started': True, 'script.xtreme_vod_player': True}
+		json_str = json.dumps(encode_dict)
+		b64_encode_dict = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+		# Store in infolabel
+		infolabels['Label2'] = b64_encode_dict
+		infolabels['sorttitle'] = b64_encode_dict
+		Label2 = b64_encode_dict
+		li.setProperty('Label2', str(Label2))
+
 		infolabels['plot'] = response_extended_episode_info[0]['Plot']
 		infolabels['plotoutline'] = response_extended_episode_info[0]['Plot']
 		infolabels['tvshowtitle'] = response_extended_episode_info[0]['TVShowTitle']
@@ -366,10 +377,10 @@ class VideoPlayer(xbmc.Player):
 		#infolabels['FileNameAndPath'] = full_url
 		#infolabels['EpisodeName'] = episode_name
 
-		li.setProperty('FileNameAndPath', str(full_url))
+		li.setProperty('FileNameAndPath', str(full_url + '?' +  b64_encode_dict))
 		li.setProperty('EpisodeName', str(label))
 
-		infolabels['path'] = full_url
+		infolabels['path'] = full_url + '?' +  b64_encode_dict
 
 		try:
 			if info_tag_flag == False:
@@ -410,8 +421,8 @@ class VideoPlayer(xbmc.Player):
 		if not  script_xtreme_vod_ResolvedUrl == 'suppress_reopen_window':
 			xbmcgui.Window(10000).setProperty('script.xtreme_vod.ResolvedUrl', 'true')
 		tvdb_id = Utils.fetch(get_tvshow_ids(tmdb), 'tvdb_id')
-		TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'episode', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'tvdb_id': str(tvdb_id), 'season': str(infolabels['season']), 'episode': str(infolabels['episode'])}
-		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
+		#TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'movie', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}
+		#xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 
 		if 'test=True' in str(sys.argv):
@@ -675,6 +686,18 @@ class VideoPlayer(xbmc.Player):
 			infolabels['title'] = response_extended_movie_info[0]['title']
 			infolabels['originaltitle'] = response_extended_movie_info[0]['title']
 			infolabels['sorttitle'] = response_extended_movie_info[0]['title']
+
+			
+			encode_dict = {'TMDbHelper.PlayerInfoString': {'tmdb_type': 'movie', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}, 'script.xtreme_vod_started': True, 'script.xtreme_vod_player': True}
+			json_str = json.dumps(encode_dict)
+			b64_encode_dict = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+			# Store in infolabel
+			infolabels['sorttitle'] = b64_encode_dict
+			infolabels['Label2'] = b64_encode_dict
+			Label2 = b64_encode_dict
+			li.setProperty('Label2', str(Label2))
+
+			
 			infolabels['plot'] = response_extended_movie_info[0]['Plot']
 			infolabels['plotoutline'] = response_extended_movie_info[0]['Plot']
 			infolabels['playcount'] = 0
@@ -686,12 +709,12 @@ class VideoPlayer(xbmc.Player):
 			infolabels['studio'] = studio
 			infolabels['country'] = response_extended_movie_info[0]['Country']
 
-		li.setProperty('FileNameAndPath', str(full_url))
+		li.setProperty('FileNameAndPath', str(full_url + '?' +  b64_encode_dict))
 
-		infolabels['path'] = full_url
+		infolabels['path'] = full_url + '?' +  b64_encode_dict
 
-		TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'movie', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}
-		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
+		#TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': 'movie', 'tmdb_id': str(tmdb), 'imdb_id': str(infolabels['imdbnumber']), 'year': str(infolabels['year'])}
+		#xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 		try:
 			info_tag = ListItemInfoTag(li, 'video')

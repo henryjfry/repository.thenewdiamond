@@ -2,7 +2,7 @@ import xbmc, xbmcaddon, xbmcgui, xbmcvfs
 from threading import Thread
 import datetime
 import time
-import json
+import json, base64
 import re
 import requests
 import os
@@ -913,6 +913,31 @@ class PlayerMonitor(xbmc.Player):
 			Utils.tools_log(f"onPlayBackEnded ERROR: {e}")
 			return self.reopen_window()
 
+
+
+	def get_current_sorttitle(self, playerid=1):
+		def _json_rpc(method, params=None):
+			"""Simple JSON-RPC helper using Kodi executeJSONRPC."""
+			if params is None:
+				params = {}
+			payload = {"jsonrpc": "2.0","method": method,"params": params,"id": 1}
+			response = xbmc.executeJSONRPC(json.dumps(payload))
+			return json.loads(response)
+		# Step 1: get current position
+		res = _json_rpc("Player.GetProperties",{"playerid": playerid,"properties": ["position"]})
+		position = res.get("result", {}).get("position", -1)
+		# Step 2: get playlist items
+		pl = _json_rpc("Playlist.GetItems",{"playlistid": 1,"properties": ["sorttitle"]})
+		items = pl.get("result", {}).get("items", [])
+		# Step 3: try playlist lookup
+		if 0 <= position < len(items):
+			return items[position].get("sorttitle")
+		# Fallback: direct item lookup
+		item = _json_rpc(
+			"Player.GetItem",{"playerid": playerid,"properties": ["sorttitle"]})
+		return item.get("result", {}).get("item", {}).get("sorttitle")
+
+
 	def onPlayBackStarted(self):
 		Utils.hide_busy()
 		tools_log(str('onPlayBackStarted'))
@@ -920,6 +945,26 @@ class PlayerMonitor(xbmc.Player):
 		if TMDbHelper_PlayerInfoString != '':
 			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_PlayerInfoString}'.replace('\'','"'))
 		xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW','')
+		
+		Utils.tools_log(self.get_current_sorttitle(),'get_current_sorttitle')
+
+		sorttitle_b64 = self.get_current_sorttitle()
+
+		if sorttitle_b64:
+			try:
+				decoded_sorttitle_b64 = json.loads(
+					base64.b64decode(sorttitle_b64).decode('utf-8')
+				)
+			except Exception as e:
+				xbmc.log(f"[extendedinfo] Decode failed: {e}", xbmc.LOGERROR)
+				decoded_sorttitle_b64 = {}
+		else:
+			decoded_sorttitle_b64 = {}
+
+		if not isinstance(decoded_sorttitle_b64, dict):
+			decoded_sorttitle_b64 = {}
+		if decoded_sorttitle_b64 != {}:
+			Utils.tools_log(decoded_sorttitle_b64,'decoded_sorttitle_b64')
 		
 		#wm.reopen_window_var = 'Started'
 		self.setProperty('reopen_window_var','Started')
@@ -980,10 +1025,31 @@ class PlayerMonitor(xbmc.Player):
 			self.player_meta['script.xtreme_vod_started'] = False
 			self.clearProperty('script.xtreme_vod_time')
 
+		if decoded_sorttitle_b64 != {}:
+			# script.xtreme_vod_started
+			started = decoded_sorttitle_b64.get('script.xtreme_vod_started')
+			if started is not None:
+				self.player_meta['script.xtreme_vod_started'] = started
+				if not started:
+					self.clearProperty('script.xtreme_vod_time')
+			# script.xtreme_vod_player
+			player_flag = decoded_sorttitle_b64.get('script.xtreme_vod_player')
+			if player_flag is not None:
+				self.player_meta['script.xtreme_vod_player'] = player_flag
+				if player_flag:
+					self.clearProperty('script.xtreme_vod.ResolvedUrl')
+			# TMDbHelper.PlayerInfoString
+			tmdb_info = decoded_sorttitle_b64.get('TMDbHelper.PlayerInfoString')
+			if isinstance(tmdb_info, dict) and tmdb_info.get('tmdb_type'):
+				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString',json.dumps(tmdb_info))
+				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString_NEW','')
+
+		TMDbHelper_PlayerInfoString_TEST = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString')
 		self.setProperty('script.xtreme_vod_started',self.player_meta['script.xtreme_vod_started'])
 		#tools_log(str(self.player_meta['script.xtreme_vod_started'])+'script.xtreme_vod_started_onPlayBackStarted===>script.xtreme_vod_started')
 
 		Utils.tools_log(self.player_meta)
+		Utils.tools_log(TMDbHelper_PlayerInfoString_TEST)
 
 		if self.player_meta['script.xtreme_vod_player'] == False:
 			tools_log('EXIT__script.xtreme_vod_player')
@@ -1331,6 +1397,19 @@ class PlayerMonitor(xbmc.Player):
 			if TMDbHelper_PlayerInfoString != TMDbHelper_NEW_PlayerInfoString:
 				tools_log('TMDbHelper_NEW_PlayerInfoString',TMDbHelper_NEW_PlayerInfoString)
 				xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
+				if decoded_sorttitle_b64 != {}:
+					tmdb_info = decoded_sorttitle_b64.get('TMDbHelper.PlayerInfoString')
+					if isinstance(tmdb_info, dict) and tmdb_info.get('tmdb_type'):
+						xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString',json.dumps(tmdb_info))
+						if tmdb_info.get('tmdb_type') == 'episode':
+							self.player_meta['tv_season'] = tmdb_info.get('season')
+							self.player_meta['tv_episode'] = tmdb_info.get('episode')
+							self.player_meta['tmdb_id'] = tmdb_info.get('tmdb_id')
+							self.player_meta['imdb_id'] = tmdb_info.get('imdb_id')
+							self.player_meta['tvdb_id'] = tmdb_info.get('tvdb_id')
+							TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': self.type, 'tmdb_id': str(self.player_meta['tmdb_id']), 'imdb_id': str(self.player_meta['imdb_id']), 'tvdb_id': str(self.player_meta['tvdb_id']), 'season': self.player_meta['tv_season'], 'episode': self.player_meta['tv_episode']}
+							Utils.tools_log('TMDbHelper_NEW_PlayerInfoString22',TMDbHelper_NEW_PlayerInfoString)
+							xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
 
 		if self.type == 'movie':
 			self.player_meta['global_movie_flag'] = True

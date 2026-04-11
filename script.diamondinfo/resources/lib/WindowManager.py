@@ -161,7 +161,15 @@ class WindowManager(object):
 			order by inc_id desc limit 1
 			"""
 			sql_result = cur.execute(sql_result).fetchall()
-			window = sql_result[0][1]
+			try: 
+				window = sql_result[0][1]
+			except IndexError: 
+				con.commit()
+				cur.close()
+				con.close()
+				try: self.window_stack_length()
+				except: pass
+				return con
 			window = '{' + unquote_plus(window).replace('function=',"'function': '").replace('&params=',"', 'params': ") + '}'
 			window = eval(window)
 			old_window = window
@@ -189,7 +197,7 @@ class WindowManager(object):
 				con.commit()
 				cur.close()
 				con.close()
-			xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
+			xbmcgui.Window(10000).clearProperty('diamond_window_number')
 
 			self.prev_window = self.curr_window
 			self.focus_id = self.curr_window['params']['focus_id']
@@ -257,7 +265,7 @@ class WindowManager(object):
 		sql_result = cur.execute(sql_result).fetchall()
 		xbmcgui.Window(10000).setProperty('currently_popping', 'True')
 
-		try: curr_window_number = int(xbmcgui.Window(10000).getProperty('xtreme_vod_window_number'))
+		try: curr_window_number = int(xbmcgui.Window(10000).getProperty('diamond_window_number'))
 		except: curr_window_number = None
 
 		if len(sql_result) == 0:
@@ -267,7 +275,7 @@ class WindowManager(object):
 		if curr_window_number:
 			if int(window_number) < int(curr_window_number):
 				Utils.tools_log('window_number < curr_window_number','WM_pop_window_stack_table')
-				xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
+				xbmcgui.Window(10000).clearProperty('diamond_window_number')
 				return
 		window = '{' + unquote_plus(window).replace('function=',"'function': '").replace('&params=',"', 'params': ") + '}'
 		window = eval(window)
@@ -314,6 +322,12 @@ class WindowManager(object):
 		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
 		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
+		xbmcgui.Window(10000).clearProperty('diamond_info_time')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('trakt_scrobble_details')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl')
+
+
 		if window['function'] == 'open_movie_info':
 			return self.open_movie_info(movie_id=window['params']['movie_id'],dbid=window['params']['dbid'],name=window['params']['name'],imdb_id=window['params']['imdb_id'])
 		elif window['function'] == 'open_tvshow_info':
@@ -341,7 +355,7 @@ class WindowManager(object):
 		pop_stack_position = xbmcgui.Window(10000).getProperty('pop_stack_position' )
 
 		self.add_to_stack(self.curr_window, 'curr_window_unpop')
-		xbmcgui.Window(10000).clearProperty('xtreme_vod_window_number')
+		xbmcgui.Window(10000).clearProperty('diamond_window_number')
 		xbmc.executebuiltin('Dialog.Close(all,true)')
 
 

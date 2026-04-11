@@ -163,7 +163,15 @@ class WindowManager(object):
 			order by inc_id desc limit 1
 			"""
 			sql_result = cur.execute(sql_result).fetchall()
-			window = sql_result[0][1]
+			try: 
+				window = sql_result[0][1]
+			except IndexError: 
+				con.commit()
+				cur.close()
+				con.close()
+				try: self.window_stack_length()
+				except: pass
+				return con
 			window = '{' + unquote_plus(window).replace('function=',"'function': '").replace('&params=',"', 'params': ") + '}'
 			window = eval(window)
 			old_window = window
@@ -317,7 +325,12 @@ class WindowManager(object):
 		xbmcgui.Window(10000).setProperty('pop_stack_focus_id', str(self.focus_id))
 		xbmcgui.Window(10000).setProperty('pop_stack_position', str(self.position))
 
-
+		xbmcgui.Window(10000).clearProperty('script.xtreme_vod_time')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('xtreme_vod.ResolvedUrl_playlist')
+		xbmcgui.Window(10000).clearProperty('trakt_scrobble_details')
+		xbmcgui.Window(10000).clearProperty('Next_EP.ResolvedUrl')
+		xbmcgui.Window(10000).clearProperty('xtreme_vod.ResolvedUrl')
 
 		if window['function'] == 'open_movie_info':
 			return self.open_movie_info(movie_id=window['params']['movie_id'],dbid=window['params']['dbid'],name=window['params']['name'],imdb_id=window['params']['imdb_id'])
