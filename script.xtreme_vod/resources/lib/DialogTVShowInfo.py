@@ -211,21 +211,25 @@ def get_tvshow_window(window_type):
 			if selection_text == 'Play first episode' or selection_text == 'Play':
 				if self.listitem.getProperty('TVShowTitle'):
 					#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=1&amp;episode=1' % item_id
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
+					#xbmc.executebuiltin('Dialog.Close(busydialog)')
 					#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_episode(tmdb = item_id, series_id=None, search_str = None,episode=1, season=1, window=self)
 				else:
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
+					#xbmc.executebuiltin('Dialog.Close(busydialog)')
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_movie(tmdb = item_id, title = None, stream_id=None, search_str = None, window=self)
 
 			if selection_text == 'Play Trakt Next Episode':
 				tmdb_id, season, episode = trakt_next_episode_normal(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=self)
 
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=self)
 
 
@@ -275,8 +279,9 @@ def get_tvshow_window(window_type):
 				self.close()
 				#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=1' % (self.info['id'], str(self.listitem.getProperty('season')))
 				#xbmc.executebuiltin('RunPlugin(%s)' % url)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				#PLAYER.play_from_button(url, listitem=None, window=self)
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = self.info['id'], series_id=None, search_str = None,episode=1, season=self.listitem.getProperty('season'), window=self)
 
 		@ch.click(550)
@@ -399,12 +404,14 @@ def get_tvshow_window(window_type):
 			if selection_text == 'Play first episode' or selection_text == 'Play':
 				if self.info['TVShowTitle']:
 					#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=1&amp;episode=1' % item_id
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
+					#xbmc.executebuiltin('Dialog.Close(busydialog)')
 					#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_episode(tmdb = item_id, series_id=None, search_str = None,episode=1, season=1, window=self)
 				else:
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
+					#xbmc.executebuiltin('Dialog.Close(busydialog)')
 					#PLAYER.play_from_button(url, listitem=None, window=self, type='movieid', dbid=dbid)
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_movie(tmdb = item_id, title = None, stream_id=None, search_str = None, window=self)
 
 
@@ -430,12 +437,14 @@ def get_tvshow_window(window_type):
 		def play_tvshow(self):
 			#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=1&amp;episode=1' % self.info['id']
 			#xbmc.executebuiltin('RunPlugin(%s)' % url)
+			Utils.show_busy()
 			PLAYER.prepare_play_VOD_episode(tmdb = self.info['id'], series_id=None, search_str = None,episode=1, season=1, window=self)
 
 		#@ch.action('contextmenu', 9)
 		def play_tvshow_choose_player(self):
 			#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=1&amp;episode=1' % self.info['id']
 			#xbmc.executebuiltin('RunPlugin(%s)' % url)
+			Utils.show_busy()
 			PLAYER.prepare_play_VOD_episode(tmdb = self.info['id'], series_id=None, search_str = None,episode=1, season=1, window=self)
 
 		@ch.click(132)

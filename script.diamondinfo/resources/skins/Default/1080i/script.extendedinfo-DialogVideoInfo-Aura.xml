@@ -2897,6 +2897,7 @@
 					<posx>825</posx>
 					<posy>22</posy>
 					<visible>!Control.HasFocus(132) + !ControlGroup(5000).HasFocus</visible>
+					<visible>!Window.IsActive(extendedprogressdialog)</visible>
 					<animation effect="fade" time="250">VisibleChange</animation>
 					<control type="image">
 						<posx>1020</posx>

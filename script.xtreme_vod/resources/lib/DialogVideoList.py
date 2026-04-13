@@ -444,8 +444,10 @@ def get_tmdb_window(window_type):
 				tmdb_id, season, episode = trakt_next_episode_normal(tmdb_id_num=self.listitem.getProperty('id'))
 				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=self)
 			else:
+				Utils.show_busy()
 				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'))
 
 		@ch.action('info', 500)
@@ -516,24 +518,29 @@ def get_tmdb_window(window_type):
 			if selection_text == 'Last Played URL':
 				#xbmc.executebuiltin('Dialog.Close(busydialog)')
 				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(last_played_tmdb_helper, listitem=None, window=self, dbid=0)
 			if selection_text == 'Play first episode':
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=self.listitem.getProperty('series_id'), search_str = self.search_str,episode=1, season=1, window=self)
 			elif selection_text == 'Play':
 				search_str = self.search_str
 				stream_id = self.listitem.getProperty('stream_id')
 				title = self.listitem.getProperty('Label')
 				tmdb = self.listitem.getProperty('id')
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_movie(tmdb = self.listitem.getProperty('id'), title = title, stream_id=stream_id, search_str = search_str, window=self)
 
 			if selection_text == 'Play Trakt Next Episode':
 				tmdb_id, season, episode = trakt_next_episode_normal(tmdb_id_num=item_id)
 				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=self.listitem.getProperty('series_id'), search_str = self.search_str,episode=episode, season=season, window=self)
 
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=item_id)
 				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = self.listitem.getProperty('id'), series_id=None, search_str = self.search_str,episode=episode, season=season, window=self)
 
 			if selection_text == 'Trakt remove playback entry':
@@ -581,6 +588,7 @@ def get_tmdb_window(window_type):
 					url = 'RunScript(%s,info=imdb_trailers_choice,imdb_id=%s)' % (str(addon_ID()), str(imdb_id))
 				#xbmc.executebuiltin(url)
 				#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+				Utils.show_busy()
 				PLAYER.play_url(url=url, window=self)
 
 			if selection_text == 'Trailer':

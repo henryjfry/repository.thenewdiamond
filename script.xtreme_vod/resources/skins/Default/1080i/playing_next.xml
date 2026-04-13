@@ -209,6 +209,24 @@
 							<alttexturenofocus border="10" colordiffuse="AA212121">white.png</alttexturenofocus>
 							<pulseonselect>no</pulseonselect>
 						</control>
+						<control type="button" id="3003">
+							<label>Stop</label>
+							<height>56</height>
+							<width min="50">auto</width>
+							<font>font20_title</font>
+							<textoffsetx>15</textoffsetx>
+							<textcolor>ddffffff</textcolor>
+							<focusedcolor>eeffffff</focusedcolor>
+							<selectedcolor>ddffffff</selectedcolor>
+							<shadowcolor>22000000</shadowcolor>
+							<aligny>center</aligny>
+							<align>center</align>
+							<texturefocus border="10" colordiffuse="$INFO[Window.Property(settings.color)]">white.png</texturefocus>
+							<texturenofocus border="10" colordiffuse="AA212121">white.png</texturenofocus>
+							<alttexturefocus border="10" colordiffuse="$INFO[Window.Property(settings.color)]">white.png</alttexturefocus>
+							<alttexturenofocus border="10" colordiffuse="AA212121">white.png</alttexturenofocus>
+							<pulseonselect>no</pulseonselect>
+						</control>
 					</control>
 					<!--<control type="image">-->
 						<!--<bottom>20</bottom>-->

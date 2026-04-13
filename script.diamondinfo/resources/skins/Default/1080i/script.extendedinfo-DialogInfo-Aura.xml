@@ -64,6 +64,7 @@
 					<width>845</width>
 					<height>114</height>
 					<aspectratio align="right">keep</aspectratio>
+					<visible>!Window.IsActive(extendedprogressdialog)</visible>
 					<texture>tmdb/moviedb.png</texture>
 				</control>
 			</control>

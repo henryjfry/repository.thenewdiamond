@@ -200,13 +200,13 @@
 				<height>240</height>
 				<width>620</width>
 				<control type="image" id="32001">
-					<visible>String.IsEqual(Window.Property(Type),movie)</visible>
+					<visible>String.IsEqual(Window.Property(Type),movie) + !Window.IsActive(extendedprogressdialog)</visible>
 					<!---texture background="true">http://localhost:52307/getpvrthumb&amp;title=$ESCINFO[Window.Property(movie.Title)]&amp;type=clearlogo&amp;mediatype=movies</texture--->
 					<texture background="true" >$INFO[Window.Property(movie.Logo)]</texture>
 					<aspectratio>keep</aspectratio>
 				</control>
 				<control type="image" id="32002">
-					<visible>String.IsEqual(Window.Property(Type),tvshow)</visible>
+					<visible>String.IsEqual(Window.Property(Type),tvshow) + !Window.IsActive(extendedprogressdialog)</visible>
 					<!---texture background="true">http://localhost:52307/getpvrthumb&amp;title=$ESCINFO[Window.Property(movie.Title)]&amp;type=clearlogo&amp;mediatype=tvshow</texture--->
 					<texture background="true" >$INFO[Window.Property(movie.Logo)]</texture>
 					<aspectratio>keep</aspectratio>

@@ -144,6 +144,20 @@ def get_actor_window(window_type):
 			if selection == 1:
 				self.open_credit_dialog(credit_id=self.listitem.getProperty('credit_id'))
 
+		@ch.action('play', 250)
+		@ch.action('play', 150)
+		def context_play(self):
+			try: 
+				tmdb_id = self.listitem.getProperty('id')
+			except: 
+				tmdb_id = self.info['id']
+				self.info['media_type'] = 'movie'
+			if self.listitem.getProperty('TVShowTitle'):
+				self.info['media_type'] = 'tvshow'
+			else:
+				self.info['media_type'] = 'movie'
+			Utils.context_play(window=self, tmdb_id = tmdb_id)
+
 		@ch.action('contextmenu', 150)
 		@ch.action('contextmenu', 250)
 		def context_menu(self):
@@ -172,14 +186,16 @@ def get_actor_window(window_type):
 				selection = xbmcgui.Dialog().select(heading='Choose option', list=listitems)
 			Utils.hide_busy()
 			if selection == 0:
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				if self.type == 'tv':
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (item_id, self.listitem.getProperty('season'), self.listitem.getProperty('episode'))
 					from resources.lib.library import trakt_next_episode_rewatch
 					tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=item_id)
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_episode(tmdb = item_id, series_id=None, search_str = None,episode=episode, season=season, window=self)
 				else:
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=movie' % (item_id)
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_movie(tmdb = item_id, title = None, stream_id=None, search_str = None, window=self)
 				#PLAYER.play_from_button(url, listitem=None, window=self)
 

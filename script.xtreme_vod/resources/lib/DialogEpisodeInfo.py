@@ -111,18 +111,21 @@ def get_episode_window(window_type):
 		@ch.click(350)
 		@ch.click(1150)
 		def play_youtube_video(self):
+			Utils.show_busy()
 			PLAYER.playtube(self.listitem.getProperty('youtube_id'), listitem=self.listitem, window=self)
 
 		@ch.click(8)
 		def play_episode(self):
-			xbmc.executebuiltin('Dialog.Close(all,true)')
+			#xbmc.executebuiltin('Dialog.Close(all,true)')
+			Utils.show_busy()
 			#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (self.tvshow_id, self.info['season'], self.info['episode'])
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=self.info['episode'], season=self.info['season'], window=self)
 
 
 		@ch.action('contextmenu', 8)
 		def play_episode_choose_player(self):
-			xbmc.executebuiltin('Dialog.Close(all,true)')
+			#xbmc.executebuiltin('Dialog.Close(all,true)')
+			Utils.show_busy()
 			#url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (self.tvshow_id, self.info['season'], self.info['episode'])
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=self.info['episode'], season=self.info['season'], window=self)
 

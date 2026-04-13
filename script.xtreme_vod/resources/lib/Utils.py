@@ -466,6 +466,16 @@ def context_play(window=None,tmdb_id=None):
 	Season = json_object['result']['ListItem.Season']
 	try: Season = window.info['season']
 	except: pass
+	try:
+		if window.info.get('media_type',False):
+			if window.info.get('media_type') != 'movie' and window.info.get('media_type') != 'tvshow':
+				try: episode = int(episode)
+				except: episode = 1
+				try: Season = int(Season)
+				except: Season = 1
+	except:
+		pass
+
 	TVShowTitle = json_object['result']['ListItem.TVShowTitle']
 	MovieTitle = json_object['result']['ListItem.MovieTitle']
 	Title = json_object['result']['ListItem.Title']
@@ -503,18 +513,23 @@ def context_play(window=None,tmdb_id=None):
 	if type   == 'movie':
 		if (MovieTitle == '' or MovieTitle == None):
 			MovieTitle = Title
+		show_busy()
 		PLAYER.prepare_play_VOD_movie(tmdb = remote_id, title = None, stream_id=None, search_str = None, window=window)
 		return
 	elif type == 'tvshow':
 		from resources.lib.library import trakt_next_episode_rewatch
-		tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=remote_id)
+		try: tmdb_id, season, episode = trakt_next_episode_rewatch(tmdb_id_num=remote_id)
+		except TypeError: season, episode = 1, 1
+		show_busy()
 		PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=window)
 		return
 	elif type == 'season':
 		episode = 1
+		show_busy()
 		PLAYER.prepare_play_VOD_episode(tmdb = remote_id, series_id=None, search_str = None,episode=episode, season=Season, window=window)
 		return
 	elif type == 'episode':
+		show_busy()
 		PLAYER.prepare_play_VOD_episode(tmdb = remote_id, series_id=None, search_str = None,episode=episode, season=Season, window=window)
 		return
 

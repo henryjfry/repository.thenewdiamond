@@ -310,16 +310,19 @@ def get_tvshow_window(window_type):
 					if self.listitem.getProperty('dbid'):
 						dbid = self.listitem.getProperty('dbid')
 						url = ''
-						xbmc.executebuiltin('Dialog.Close(all,true)')
+						#xbmc.executebuiltin('Dialog.Close(all,true)')
+						Utils.show_busy()
 						PLAYER.play_from_button(url, listitem=None, window=self, type='movieid', dbid=dbid)
 					else:
 						dbid = 0
 						url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % item_id
-						xbmc.executebuiltin('Dialog.Close(all,true)')
+						#xbmc.executebuiltin('Dialog.Close(all,true)')
+						Utils.show_busy()
 						PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			if selection_text == 'Play Kodi Next Episode':
 				url = next_episode_show(tmdb_id_num=item_id,dbid_num=dbid)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'In Trakt Lists':
@@ -327,12 +330,14 @@ def get_tvshow_window(window_type):
 
 			if selection_text == 'Play Trakt Next Episode':
 				url = trakt_next_episode_normal(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				url = trakt_next_episode_rewatch(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			
 			if selection_text == 'Unhide on Trakt Calendar':
@@ -386,7 +391,8 @@ def get_tvshow_window(window_type):
 				self.close()
 				url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=1' % (self.info['id'], str(self.listitem.getProperty('season')))
 				#xbmc.executebuiltin('RunPlugin(%s)' % url)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self)
 
 		@ch.click(550)

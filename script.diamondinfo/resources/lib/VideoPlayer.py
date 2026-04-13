@@ -39,6 +39,7 @@ class VideoPlayer(xbmc.Player):
 	def play(self, url, listitem, window=False):
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
 			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
@@ -49,15 +50,17 @@ class VideoPlayer(xbmc.Player):
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
 		xbmcgui.Window(10000).clearProperty('diamond_window_number')
+		#wm.wm_curr_windows_props()
+		#wm.add_to_stack(window, 'curr_window')
+		#window.close()
+		#xbmc.executebuiltin('Dialog.Close(all,true)')
 		wm.wm_curr_windows_props()
-		wm.add_to_stack(window, 'curr_window')
-		window.close()
-		xbmc.executebuiltin('Dialog.Close(all,true)')
+		Utils.show_busy()
 		##Utils.get_kodi_json(method='Player.Open', params='{"item": %s}' % item)
 		#xbmc.executebuiltin('RunPlugin(%s)' % url)
 		xbmcgui.Window(10000).clearProperty('reopen_window_var')
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
-		xbmc.executebuiltin('RunScript(%s,info=play_test_pop_stack)' % addon_ID())
+		#xbmc.executebuiltin('RunScript(%s,info=play_test_pop_stack)' % addon_ID())
 		super(VideoPlayer, self).play(item=url, listitem=listitem, windowed=False, startpos=-1)
 		#xbmc.log(str('play')+'_________________________play===>OPENINFO', level=xbmc.LOGINFO)
 		log(str(str('play')+'_________________________play'))
@@ -88,6 +91,7 @@ class VideoPlayer(xbmc.Player):
 		#from resources.lib.WindowManager import wm
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		for i in ['diamond_player_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
 			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
@@ -110,14 +114,15 @@ class VideoPlayer(xbmc.Player):
 		xbmcgui.Window(10000).setProperty('diamond_info_started', 'True')
 		xbmcgui.Window(10000).clearProperty('diamond_window_number')
 		wm.wm_curr_windows_props()
-		if window:
-			wm.add_to_stack(window, 'curr_window')
-			window.close()
-		xbmc.executebuiltin('Dialog.Close(all,true)')
+		#if window:
+		#	wm.add_to_stack(window, 'curr_window')
+		#	window.close()
+		#xbmc.executebuiltin('Dialog.Close(all,true)')
 		#Utils.get_kodi_json(method='Player.Open', params='{"item": %s}' % item)
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
-		xbmc.executebuiltin('RunScript(%s,info=play_test_pop_stack)' % addon_ID())
-		xbmc.sleep(2000)
+		#xbmc.executebuiltin('RunScript(%s,info=play_test_pop_stack)' % addon_ID())
+		#xbmc.sleep(2000)
+		Utils.show_busy()
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
 		xbmc.executebuiltin('RunPlugin(%s)' % url)
 		#xbmc.log(str('play_from_button')+'_________________________play_from_button===>OPENINFO', level=xbmc.LOGINFO)
@@ -148,6 +153,7 @@ class VideoPlayer(xbmc.Player):
 
 	def playtube(self, youtube_id=False, listitem=None, window=False):
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 		url = 'plugin://plugin.video.youtube/play/?video_id=%s' % str(youtube_id)
 		self.play(url=url, listitem=listitem, window=window)

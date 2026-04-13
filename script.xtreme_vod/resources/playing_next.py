@@ -134,6 +134,10 @@ class PlayingNext(BaseWindow):
 			#self.close()
 			super(PlayingNext, self).close()
 			return
+		if control_id == 3003:
+			self.closed = True
+			super(PlayingNext, self).close()
+			return xbmc.executebuiltin('PlayerControl(Stop)')
 
 	def onAction(self, action):
 

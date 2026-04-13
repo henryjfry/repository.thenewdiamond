@@ -776,6 +776,8 @@ class PlayerMonitor(xbmc.Player):
 					if reopen_window_var == 'Started':
 						self.clearProperty('reopen_window_var')
 						reopen_window_var = ''
+					if self.player_meta['script.xtreme_vod_player'] != True:
+						xbmc.sleep(2500)
 					self.player_meta = {'script.xtreme_vod_player': None, 'script.xtreme_vod_started': None, 'script.xtreme_vod_time': 0, 'script.xtreme_vod_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': ''}
 					return wm.pop_stack()
 				else:
@@ -1772,6 +1774,7 @@ class PlayerMonitor(xbmc.Player):
 				try: 
 					next_ep_url = self.prescrape_test
 				except:
+					upd_xtreme_vod_time()
 					return
 				title = str(next_ep_details.get('next_ep_title'))
 				thumb = next_ep_details.get('next_ep_thumb2','')
@@ -1794,8 +1797,10 @@ class PlayerMonitor(xbmc.Player):
 				while not self.player_meta['resume_position'] > (self.player_meta['resume_duration'] - 35) and self.player_meta['resume_position'] < self.player_meta['resume_duration']:
 					xbmc.sleep(250)
 					self.update_play_test(self.playing_file)
+					upd_xtreme_vod_time()
 					if self.play_test == False:
 						return
+				upd_xtreme_vod_time()
 				tools_log(str(kodi_url)+'kodi_url===>OPENINFO')
 				xbmc.executebuiltin(kodi_url)
 				self.playing_file = None

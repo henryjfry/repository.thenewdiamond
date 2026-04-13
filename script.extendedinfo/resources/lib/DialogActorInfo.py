@@ -79,6 +79,20 @@ def get_actor_window(window_type):
 			if selection == 1:
 				self.open_credit_dialog(credit_id=self.listitem.getProperty('credit_id'))
 
+		@ch.action('play', 250)
+		@ch.action('play', 150)
+		def context_play(self):
+			try: 
+				tmdb_id = self.listitem.getProperty('id')
+			except: 
+				tmdb_id = self.info['id']
+				self.info['media_type'] = 'movie'
+			if self.listitem.getProperty('TVShowTitle'):
+				self.info['media_type'] = 'tvshow'
+			else:
+				self.info['media_type'] = 'movie'
+			Utils.context_play(window=self, tmdb_id = tmdb_id)
+
 		@ch.action('contextmenu', 150)
 		@ch.action('contextmenu', 250)
 		def context_menu(self):
@@ -111,7 +125,8 @@ def get_actor_window(window_type):
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (item_id, self.listitem.getProperty('season'), self.listitem.getProperty('episode'))
 				else:
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=movie' % (item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self)
 
 			if selection == 1:

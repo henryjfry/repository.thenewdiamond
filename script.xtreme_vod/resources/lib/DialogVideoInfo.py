@@ -197,12 +197,14 @@ def get_movie_window(window_type):
 			if selection == -1:
 				selection_text = ''
 			if selection == 0:
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
 				if self.type == 'tv':
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (item_id, self.listitem.getProperty('season'), self.listitem.getProperty('episode'))
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_episode(tmdb = item_id, series_id=None, search_str = None,episode=self.listitem.getProperty('episode'), season=self.listitem.getProperty('season'), window=self)
 				else:
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=movie' % (item_id)
+					Utils.show_busy()
 					PLAYER.prepare_play_VOD_movie(tmdb = item_id, title = None, stream_id=None, search_str = None, window=self)
 				
 				#PLAYER.play_from_button(url, listitem=None, window=self)

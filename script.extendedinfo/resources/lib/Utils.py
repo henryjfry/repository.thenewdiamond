@@ -287,9 +287,19 @@ def context_play(window=None,tmdb_id=None):
 	episode = json_object['result']['ListItem.Episode']
 	try: episode = window.info['episode']
 	except: pass
+
 	Season = json_object['result']['ListItem.Season']
 	try: Season = window.info['season']
 	except: pass
+	try:
+		if window.info.get('media_type',False):
+			if window.info.get('media_type') != 'movie' and window.info.get('media_type') != 'tvshow':
+				try: episode = int(episode)
+				except: episode = 1
+				try: Season = int(Season)
+				except: Season = 1
+	except:
+		pass
 	TVShowTitle = json_object['result']['ListItem.TVShowTitle']
 	MovieTitle = json_object['result']['ListItem.MovieTitle']
 	Title = json_object['result']['ListItem.Title']
@@ -340,6 +350,7 @@ def context_play(window=None,tmdb_id=None):
 	elif type == 'episode':
 		url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=%s' % (remote_id, Season, episode)
 	tools.log(str(url)+'===>context_play', level=xbmc.LOGINFO)
+	show_busy()
 	PLAYER.play_from_button(url, listitem=None, window=window, dbid=dbid)
 
 

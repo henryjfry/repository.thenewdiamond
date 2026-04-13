@@ -163,11 +163,13 @@ def get_season_window(window_type):
 			if season == '':
 				season = 0
 			if selection == 0:
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=self.listitem.getProperty('episode'), season=season, window=self)
 			if selection == 1:
 				wm.open_tvshow_info(prev_window=self, tmdb_id=self.tvshow_id, dbid=0)
 			if selection == 2:
+				Utils.show_busy()
 				PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=self.listitem.getProperty('episode'), season=season, window=self)
 
 
@@ -177,18 +179,21 @@ def get_season_window(window_type):
 		@ch.action('pause', 2000)
 		def play_episode(self):
 			episode_id = self.listitem.getProperty('episode')
-			xbmc.executebuiltin('Dialog.Close(all,true)')
+			#xbmc.executebuiltin('Dialog.Close(all,true)')
+			Utils.show_busy()
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=episode_id, season=self.listitem.getProperty('season'), window=self)
 
 		@ch.click(10)
 		def play_season(self):
-			xbmc.executebuiltin('Dialog.Close(all,true)')
+			#xbmc.executebuiltin('Dialog.Close(all,true)')
+			Utils.show_busy()
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=1, season=self.info['season'], window=self)
 
 		@ch.action('contextmenu', 10)
 		def play_season_choose_player(self):
 			url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=1' % (self.tvshow_id, self.info['season'])
-			xbmc.executebuiltin('Dialog.Close(all,true)')
+			#xbmc.executebuiltin('Dialog.Close(all,true)')
+			Utils.show_busy()
 			PLAYER.prepare_play_VOD_episode(tmdb = self.tvshow_id, series_id=None, search_str = None,episode=1, season=self.info['season'], window=self)
 
 		@ch.click(445)

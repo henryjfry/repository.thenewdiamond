@@ -169,6 +169,7 @@ class WindowManager(object):
 				con.commit()
 				cur.close()
 				con.close()
+				self.append_window_stack_table(mode='curr_window')
 				try: self.window_stack_length()
 				except: pass
 				return con
@@ -622,9 +623,11 @@ class WindowManager(object):
 		if Utils.SKIN_DIR == 'skin.estuary':
 			dialog = actor_class(str(addon_ID())+'-DialogInfo-Estuary.xml', Utils.ADDON_PATH, id=actor_id)
 		elif Utils.SKIN_DIR == 'skin.aura' or Utils.SKIN_DIR == 'skin.auramod' or Utils.SKIN_DIR == 'skin.xonfluence' or Utils.SKIN_DIR == 'skin.xenon18':
-			dialog = actor_class(str(addon_ID())+'-DialogInfo-Aura.xml', Utils.ADDON_PATH, id=actor_id)
+			#dialog = actor_class(str(addon_ID())+'-DialogInfo-Aura.xml', Utils.ADDON_PATH, id=actor_id)
+			dialog = actor_class(str(addon_ID())+'-DialogInfo-Estuary.xml', Utils.ADDON_PATH, id=actor_id)
 		else:
-			dialog = actor_class(str(addon_ID())+'-DialogInfo.xml', Utils.ADDON_PATH, id=actor_id)
+			#dialog = actor_class(str(addon_ID())+'-DialogInfo.xml', Utils.ADDON_PATH, id=actor_id)
+			dialog = actor_class(str(addon_ID())+'-DialogInfo-Estuary.xml', Utils.ADDON_PATH, id=actor_id)
 		self.open_dialog(dialog, prev_window)
 
 		gc.collect()
@@ -750,9 +753,9 @@ class WindowManager(object):
 		if Utils.SKIN_DIR == 'skin.estuary':
 			slideshow = SlideShow(str(addon_ID())+'-SlideShow-Estuary.xml', Utils.ADDON_PATH, listitems=listitems, index=index)
 		elif Utils.SKIN_DIR == 'skin.aura' or Utils.SKIN_DIR == 'skin.auramod' or Utils.SKIN_DIR == 'skin.xonfluence' or Utils.SKIN_DIR == 'skin.xenon18':
-			slideshow = SlideShow(str(addon_ID())+'-SlideShow-Aura.xml', Utils.ADDON_PATH, listitems=listitems, index=index)
+			slideshow = SlideShow(str(addon_ID())+'-SlideShow-Estuary.xml', Utils.ADDON_PATH, listitems=listitems, index=index)
 		else:
-			slideshow = SlideShow(str(addon_ID())+'-SlideShow.xml', Utils.ADDON_PATH, listitems=listitems, index=index)
+			slideshow = SlideShow(str(addon_ID())+'-SlideShow-Estuary.xml', Utils.ADDON_PATH, listitems=listitems, index=index)
 		Utils.hide_busy()
 		slideshow.doModal()
 		return slideshow.position

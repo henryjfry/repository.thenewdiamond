@@ -733,6 +733,8 @@ class PlayerMonitor(xbmc.Player):
 					if reopen_window_var == 'Started':
 						reopen_window_var = ''
 						self.clearProperty('reopen_window_var')
+						if self.player_meta['diamond_player'] == False:
+							xbmc.sleep(2500)
 						self.player_meta = {'diamond_info_started': None, 'diamond_info_time': 0, 'diamond_player_time': 0, 'playlist_position': -1, 'Next_EP_ResolvedUrl': '', 'diamond_player': None}
 						return wm.pop_stack()
 				else:
@@ -1764,11 +1766,11 @@ class PlayerMonitor(xbmc.Player):
 						upd_diamond_info_time()
 						return
 				Utils.tools_log(str(kodi_url)+'kodi_url===>OPENINFO')
+				upd_diamond_info_time()
 				xbmc.executebuiltin(kodi_url)
 				self.playing_file = None
 				self.trakt_error = None
 				self.library_refresh = None
-				upd_diamond_info_time()
 				return
  
 class CronJobMonitor(Thread):

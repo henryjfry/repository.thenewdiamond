@@ -236,6 +236,37 @@ def get_next_ep_details(show_title, season_num, ep_num, tmdb):
 	print_log(next_ep_details, 'next_ep_details')
 	return next_ep_details
 
+def check_playlist(b64_encode_dict, playlistid=1):
+	def _json_rpc(method, params=None):
+		if params is None:
+			params = {}
+		payload = {"jsonrpc": "2.0","method": method,"params": params,"id": 1}
+		response = xbmc.executeJSONRPC(json.dumps(payload))
+		return json.loads(response)
+
+	try:
+		# Get playlist items with sorttitle
+		res = _json_rpc("Playlist.GetItems", {"playlistid": playlistid,"properties": ["sorttitle"]})
+		items = res.get("result", {}).get("items", [])
+		for item in items:
+			existing = item.get("sorttitle")
+			if not existing:
+				continue
+			# Fast path: direct string compare
+			if existing == b64_encode_dict:
+				return True
+			# Optional fallback: decoded compare (future-proof)
+			try:
+				decoded_existing = json.loads(base64.b64decode(existing).decode('utf-8'))
+				decoded_target = json.loads(base64.b64decode(b64_encode_dict).decode('utf-8'))
+				if decoded_existing == decoded_target:
+					return True
+			except Exception:
+				continue
+		return False
+	except Exception as e:
+		xbmc.log(f"[extendedinfo] playlist_contains_b64 error: {e}", xbmc.LOGERROR)
+		return False
 
 
 def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, prescrape_test=None):
@@ -1101,7 +1132,13 @@ def next_ep_play(show_title, show_season, show_episode, tmdb, auto_rd=True, pres
 			xbmcgui.Window(10000).setProperty('Next_EP.ResolvedUrl', 'true')
 			xbmcgui.Window(10000).setProperty('Next_EP.Url', PTN_download)
 			xbmcgui.Window(10000).clearProperty('Next_EP.TMDB_action')
-			playlist.add(PTN_download, li)
+			
+			check_playlist_flag = check_playlist(b64_encode_dict=infolabels['sorttitle'], playlistid=1)
+			if check_playlist_flag == False:
+				playlist.add(PTN_download, li)
+			else:
+				print_log(str('ALREADY_IN_PLAYLIST'))
+				return next_ep_play_details
 			#xbmcplugin.addDirectoryItem(handle=handle, url=PTN_download , listitem=li, isFolder=False)
 			xbmcplugin.setResolvedUrl(handle, True, li)
 			xbmcplugin.endOfDirectory(handle)

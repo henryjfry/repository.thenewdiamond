@@ -252,6 +252,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 		with open(subs_out_FORCED, 'w') as f:
 			f.write(curr_subs_forced.text)
 		if file_type == '.ass':
+			import subs_hash
 			subs_hash.ass_to_srt(subs_out_FORCED, subs_out_FORCED.replace(file_type,'.srt'))
 			subs_out_FORCED = subs_out_FORCED.replace(file_type,'.srt')
 	else:
@@ -276,6 +277,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 			f.write(curr_subs.text)
 
 		if file_type == '.ass':
+			import subs_hash
 			subs_hash.ass_to_srt(subs_out_ENG, subs_out_ENG.replace(file_type,'.srt'))
 			subs_out_ENG = subs_out_ENG.replace(file_type,'.srt')
 	else:
@@ -299,6 +301,7 @@ def get_subs_file(cache_directory=None, video_path = None, same_folder=True, met
 		with open(subs_out_HEARING, 'w') as f:
 			f.write(curr_subs_HEARING.text)
 		if file_type == '.ass':
+			import subs_hash
 			subs_hash.ass_to_srt(subs_out_HEARING, subs_out_HEARING.replace(file_type,'.srt'))
 			subs_out_HEARING = subs_out_HEARING.replace(file_type,'.srt')
 		subs_out_ENG = subs_out_HEARING

@@ -117,12 +117,14 @@ def get_episode_window(window_type):
 			if self.dbid and int(self.dbid) > 0:
 				dbid = self.dbid
 				url = ''
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, type='episodeid', dbid=dbid)
 			else:
 				url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (self.tvshow_id, self.info['season'], self.info['episode'])
 				#xbmc.executebuiltin('RunPlugin(%s)' % url)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 		@ch.action('contextmenu', 8)
@@ -130,12 +132,14 @@ def get_episode_window(window_type):
 			if self.dbid and int(self.dbid) > 0:
 				dbid = self.dbid
 				url = ''
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, type='episodeid', dbid=dbid)
 			else:
 				url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;tmdb_id=%s&amp;type=episode&amp;season=%s&amp;episode=%s' % (self.tvshow_id, self.info['season'], self.info['episode'])
 				#xbmc.executebuiltin('RunPlugin(%s)' % url)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 		@ch.click(445)

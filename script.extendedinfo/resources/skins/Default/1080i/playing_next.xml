@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<window>
+<window id="3007" type="dialog">
 	<defaultcontrol always="true">3001</defaultcontrol>
 	<onload>Dialog.Close(fullscreeninfo,true)</onload>
 	<onload>Dialog.Close(videoosd,true)</onload>
@@ -193,6 +193,24 @@
 						</control>
 						<control type="button" id="3002">
 							<label>Close</label>
+							<height>56</height>
+							<width min="50">auto</width>
+							<font>font20_title</font>
+							<textoffsetx>15</textoffsetx>
+							<textcolor>ddffffff</textcolor>
+							<focusedcolor>eeffffff</focusedcolor>
+							<selectedcolor>ddffffff</selectedcolor>
+							<shadowcolor>22000000</shadowcolor>
+							<aligny>center</aligny>
+							<align>center</align>
+							<texturefocus border="10" colordiffuse="$INFO[Window.Property(settings.color)]">white.png</texturefocus>
+							<texturenofocus border="10" colordiffuse="AA212121">white.png</texturenofocus>
+							<alttexturefocus border="10" colordiffuse="$INFO[Window.Property(settings.color)]">white.png</alttexturefocus>
+							<alttexturenofocus border="10" colordiffuse="AA212121">white.png</alttexturenofocus>
+							<pulseonselect>no</pulseonselect>
+						</control>
+						<control type="button" id="3003">
+							<label>Stop</label>
 							<height>56</height>
 							<width min="50">auto</width>
 							<font>font20_title</font>

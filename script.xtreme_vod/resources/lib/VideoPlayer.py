@@ -132,6 +132,38 @@ class VideoPlayer(xbmc.Player):
 		Utils.tools_log(next_ep_details, 'next_ep_details')
 		return next_ep_details
 
+	def check_playlist(self, b64_encode_dict, playlistid=1):
+		def _json_rpc(method, params=None):
+			if params is None:
+				params = {}
+			payload = {"jsonrpc": "2.0","method": method,"params": params,"id": 1}
+			response = xbmc.executeJSONRPC(json.dumps(payload))
+			return json.loads(response)
+
+		try:
+			# Get playlist items with sorttitle
+			res = _json_rpc("Playlist.GetItems", {"playlistid": playlistid,"properties": ["sorttitle"]})
+			items = res.get("result", {}).get("items", [])
+			for item in items:
+				existing = item.get("sorttitle")
+				if not existing:
+					continue
+				# Fast path: direct string compare
+				if existing == b64_encode_dict:
+					return True
+				# Optional fallback: decoded compare (future-proof)
+				try:
+					decoded_existing = json.loads(base64.b64decode(existing).decode('utf-8'))
+					decoded_target = json.loads(base64.b64decode(b64_encode_dict).decode('utf-8'))
+					if decoded_existing == decoded_target:
+						return True
+				except Exception:
+					continue
+			return False
+		except Exception as e:
+			xbmc.log(f"[extendedinfo] playlist_contains_b64 error: {e}", xbmc.LOGERROR)
+			return False
+
 	def prepare_play_VOD_episode(self, tmdb = None, series_id=None, search_str = None, episode=None, season=None, window=False):
 		from resources.lib.TheMovieDB import get_vod_data
 		from resources.lib.TheMovieDB import get_vod_alltv
@@ -464,8 +496,12 @@ class VideoPlayer(xbmc.Player):
 			playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
 
 			Utils.tools_log('['+str(label)+']'+'[E'+str(episode)+']'+'[S'+str(season)+']'+'['+str(infolabels['tvshowtitle'])+']'+'['+str(full_url)+']','_PRESCRAPE_ADDED===>OPENINFO')
-
-			playlist.add(full_url, li)
+			check_playlist_flag = self.check_playlist(b64_encode_dict=infolabels['sorttitle'], playlistid=1)
+			if check_playlist_flag == False:
+				playlist.add(full_url, li)
+			else:
+				Utils.tools_log(str('ALREADY_IN_PLAYLIST'))
+				return infolabels
 
 			xbmcplugin.setResolvedUrl(handle, True, li)
 			xbmcplugin.endOfDirectory(handle)
@@ -800,6 +836,7 @@ class VideoPlayer(xbmc.Player):
 	def play(self, url, listitem, window=False):
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
 			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
@@ -823,6 +860,7 @@ class VideoPlayer(xbmc.Player):
 	def play_url(self, url=None, window=False):
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
 			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
@@ -848,6 +886,7 @@ class VideoPlayer(xbmc.Player):
 		#from resources.lib.WindowManager import wm
 		import time
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		for i in ['script.xtreme_vod_time', 'Next_EP.ResolvedUrl_playlist', 'Next_EP.ResolvedUrl','trakt_scrobble_details']:
 			xbmcgui.Window(10000).clearProperty(i)
 		xbmcgui.Window(10000).setProperty('script.xtreme_vod_time', str(int(time.time())+120))
@@ -888,6 +927,7 @@ class VideoPlayer(xbmc.Player):
 
 	def playtube(self, youtube_id=False, listitem=None, window=False):
 		xbmc.executebuiltin('Dialog.Close(okdialog)')
+		Utils.show_busy()
 		xbmcgui.Window(10000).setProperty('xtreme_vod_running', 'False')
 		url = 'plugin://plugin.video.youtube/play/?video_id=%s' % str(youtube_id)
 		self.play(url=url, listitem=listitem, window=window)

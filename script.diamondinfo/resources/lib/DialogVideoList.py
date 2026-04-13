@@ -444,7 +444,8 @@ def get_tmdb_window(window_type):
 			except: UnWatchedEpisodes = 0
 			if UnWatchedEpisodes > 2:
 				url = trakt_next_episode_normal(tmdb_id_num=self.listitem.getProperty('id'))
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			else:
 				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'))
@@ -547,8 +548,9 @@ def get_tmdb_window(window_type):
 
 			xbmcgui.Window(10000).setProperty('tmdbhelper_tvshow.poster', str(self.listitem.getProperty('poster')))
 			if selection_text == 'Last Played URL':
-				xbmc.executebuiltin('Dialog.Close(busydialog)')
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(busydialog)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(last_played_tmdb_helper, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'IMDB Trailers - Choose' or selection_text == 'IMDB Trailers - Best':
@@ -565,8 +567,9 @@ def get_tmdb_window(window_type):
 						url = url + '&season=1'
 				else:
 					url = 'plugin://%s?info=imdb_trailers_choice&&imdb_id=%s&&select=True' % (str(addon_ID()), str(imdb_id))
-				xbmc.executebuiltin('Dialog.Close(busydialog)')
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(busydialog)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'Play first episode' or selection_text == 'Play':
@@ -577,26 +580,30 @@ def get_tmdb_window(window_type):
 					if season.lower() == 'none' or season == None or season == '':
 						season = 0
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=%s&amp;episode=%s' % (item_id, season, episode)
-					xbmc.log(str(url)+'===>PHIL', level=xbmc.LOGINFO)
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
-					xbmc.executebuiltin('Dialog.Close(all,true)')
+					Utils.tools_log(url)
+					#xbmc.executebuiltin('Dialog.Close(busydialog)')
+					#xbmc.executebuiltin('Dialog.Close(all,true)')
+					Utils.show_busy()
 					PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 				elif self.listitem.getProperty('TVShowTitle'):
 					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=1&amp;episode=1' % item_id
-					xbmc.executebuiltin('Dialog.Close(busydialog)')
-					xbmc.executebuiltin('Dialog.Close(all,true)')
+					#xbmc.executebuiltin('Dialog.Close(busydialog)')
+					#xbmc.executebuiltin('Dialog.Close(all,true)')
+					Utils.show_busy()
 					PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 				else:
 					xbmc.executebuiltin('Dialog.Close(busydialog)')
 					if self.listitem.getProperty('dbid'):
 						dbid = self.listitem.getProperty('dbid')
 						url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % item_id
-						xbmc.executebuiltin('Dialog.Close(all,true)')
+						#xbmc.executebuiltin('Dialog.Close(all,true)')
+						Utils.show_busy()
 						PLAYER.play_from_button(url, listitem=None, window=self, type='movieid', dbid=dbid)
 					else:
 						dbid = 0
 						url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % item_id
-						xbmc.executebuiltin('Dialog.Close(all,true)')
+						#xbmc.executebuiltin('Dialog.Close(all,true)')
+						Utils.show_busy()
 						PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			if selection_text == 'Trakt remove playback entry':
 				DBTYPE = xbmc.getInfoLabel('listitem.DBTYPE')
@@ -666,17 +673,20 @@ def get_tmdb_window(window_type):
 							Utils.notify(header='[B]%s[/B] added to library' % self.listitem.getProperty('title'), message='Exit & re-enter to refresh', icon=self.listitem.getProperty('poster'), time=1000, sound=False)
 			if selection_text == 'Play Kodi Next Episode':
 				url = next_episode_show(tmdb_id_num=item_id,dbid_num=dbid)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'Play Trakt Next Episode':
 				url = trakt_next_episode_normal(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				url = trakt_next_episode_rewatch(tmdb_id_num=item_id)
-				xbmc.executebuiltin('Dialog.Close(all,true)')
+				#xbmc.executebuiltin('Dialog.Close(all,true)')
+				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'Search item':
@@ -715,7 +725,8 @@ def get_tmdb_window(window_type):
 				if bluray_cmd:
 					#xbmc.executebuiltin('RunPlugin(%s)' % (bluray_cmd))
 					url = bluray_cmd
-					xbmc.executebuiltin('Dialog.Close(all,true)')
+					#xbmc.executebuiltin('Dialog.Close(all,true)')
+					Utils.show_busy()
 					PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 			if selection_text == 'Eject/Load DVD':

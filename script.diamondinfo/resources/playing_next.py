@@ -6,6 +6,7 @@ import json
 #import re
 from resources.base_window import BaseWindow
 from inspect import currentframe, getframeinfo
+import time
 
 class PlayingNext(BaseWindow):
 
@@ -103,7 +104,7 @@ class PlayingNext(BaseWindow):
 					break
 				if self.playing_file != self.player.getPlayingFile() or remaining_time < 3:
 					break
-			xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>OPENINFO', level=xbmc.LOGFATAL)
+			#xbmc.log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)+'===>OPENINFO', level=xbmc.LOGFATAL)
 			if self.actioned == True :
 				if_playback_paused()
 				xbmc.executebuiltin('PlayerControl(BigSkipForward)')
@@ -134,6 +135,10 @@ class PlayingNext(BaseWindow):
 			#self.close()
 			super(PlayingNext, self).close()
 			return
+		if control_id == 3003:
+			self.closed = True
+			super(PlayingNext, self).close()
+			return xbmc.executebuiltin('PlayerControl(Stop)')
 
 	def onAction(self, action):
 
@@ -154,7 +159,7 @@ def if_playback_paused():
 		json_result = xbmc.executeJSONRPC('{"jsonrpc": "2.0","id": "1","method": "Player.GetProperties","params": {"playerid": 1,"properties": ["speed"]}}')
 		json_object  = json.loads(json_result)
 		speed = json_object['result']['speed']
-		xbmc.log(str(speed)+'playback_speed===>OPENINFO', level=xbmc.LOGINFO)
+		#xbmc.log(str(speed)+'playback_speed===>OPENINFO', level=xbmc.LOGINFO)
 		#xbmc.sleep(10)
 		#if xbmc.Player().getTime() == start_time:
 		if int(speed) == 0:

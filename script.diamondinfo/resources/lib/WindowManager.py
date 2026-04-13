@@ -167,6 +167,7 @@ class WindowManager(object):
 				con.commit()
 				cur.close()
 				con.close()
+				self.append_window_stack_table(mode='curr_window')
 				try: self.window_stack_length()
 				except: pass
 				return con
