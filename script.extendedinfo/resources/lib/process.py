@@ -1222,12 +1222,15 @@ def start_info_actions(infos, params):
 			fav1_list.append('    <favourite name="manage_download_list" thumb="special://home/addons/script.extendedinfo/resources/skins/Default/media/icons/database.png">RunScript('+str(addonID)+',info=manage_download_list)</favourite>')
 			fav1_list.append('    <favourite name="run_downloader" thumb="special://home/addons/script.extendedinfo/resources/skins/Default/media/netflix/play.png">RunScript('+str(addonID)+',info=run_downloader)</favourite>')
 			fav1_list.append('    <favourite name="stop_downloader" thumb="special://home/addons/script.extendedinfo/resources/skins/Default/media/netflix/stop.png">RunScript('+str(addonID)+',info=stop_downloader)</favourite>')
+			file_path = os.path.normpath(file_path)
+			file_path = Utils.normalize_path(file_path)
 			file1 = open(file_path, 'r')
 			lines = file1.readlines()
 			new_file = ''
 			update_list = []
 			for j in fav1_list:
 				curr_test = j.split('RunScript(')[1].split(')</favourite>')[0]
+				Utils.tools_log('RunScript('+curr_test+')','setup_favourites')
 				if curr_test in str(lines):
 					continue
 				else:

@@ -723,12 +723,15 @@ def custom_favourites():
 	fav1_list.append('	<favourite name="%s" thumb="special://home/addons/script.xtreme_vod/icon.png">%s</favourite>' % (str(fave_name),str(file_path)))
 
 	file_path = xbmcvfs.translatePath('special://userdata/favourites.xml')
+	file_path = os.path.normpath(file_path)
+	file_path = Utils.normalize_path(file_path)
 	file1 = open(file_path, 'r')
 	lines = file1.readlines()
 	new_file = ''
 	update_list = []
 	for j in fav1_list:
 		curr_test = j.split('RunScript(')[1].split(')</favourite>')[0]
+		Utils.tools_log('RunScript('+curr_test+')','setup_favourites')
 		if curr_test in str(lines):
 			continue
 		else:
@@ -760,12 +763,14 @@ def setup_favourites():
 	fav1_list.append('	<favourite name="Reopen Last" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=reopen_window)</favourite>')
 
 	file_path = os.path.normpath(file_path)
+	file_path = Utils.normalize_path(file_path)
 	file1 = open(file_path, 'r')
 	lines = file1.readlines()
 	new_file = ''
 	update_list = []
 	for j in fav1_list:
 		curr_test = j.split('RunScript(')[1].split(')</favourite>')[0]
+		Utils.tools_log('RunScript('+curr_test+')','setup_favourites')
 		if curr_test in str(lines):
 			continue
 		else:

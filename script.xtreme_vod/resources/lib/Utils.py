@@ -331,6 +331,22 @@ def db_delete_expired(connection=None):
 	tools_log('DELETED')
 	return None
 
+def normalize_path(path):
+	import re
+	if not isinstance(path, str):
+		return path
+
+	# Preserve URL schemes like http://, https://, smb:// etc.
+	match = re.match(r'^([a-zA-Z]+://)', path)
+	prefix = match.group(1) if match else ''
+
+	# Remove prefix temporarily
+	rest = path[len(prefix):]
+
+	# Replace multiple slashes/backslashes with single forward slash
+	rest = re.sub(r'[\\/]+', '/', rest)
+
+	return prefix + rest
 
 db_start = test_db()
 db_con = db_start

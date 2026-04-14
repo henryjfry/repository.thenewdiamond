@@ -121,7 +121,7 @@ class RealDebrid:
 				and not token_ttl <= 0
 				and not progress_dialog.iscanceled()
 			):
-				xbmc.sleep(1000)
+				time.sleep(1)
 				if token_ttl % self.oauth_time_step == 0:
 					success = self._auth_loop()
 				progress_percent = int(float((token_ttl * 100) / self.oauth_timeout))
@@ -321,7 +321,7 @@ class RealDebrid:
 		count = 0
 		while response == None and count <= 10:
 			count = count + 1
-			xbmc.sleep(500)
+			time.sleep(0.5)
 			response = self.session.post(url, data=post_data, headers=self._get_headers(), timeout=5)
 		try:
 			if 'infringing_file' in str(response.text) or '{files} is missing' in str(response.text) or 'too_manny_requests' in str(response.text) or 'unknown_ressource' in str(response.text):
@@ -561,6 +561,10 @@ class RealDebrid:
 		if ('/vis/' in str(torr_info) and 'RARBG' in str(torr_info) and 'txt' in str(torr_info)) or torr_info == None:
 			self.delete_torrent(torrent_id)
 			return {'error': 'infringing_file  waiting_files_selection  infringing_file', 'status': 'ERROR'}
+		#if ('www.UIndex.org' in str(torr_info) and 'Kitsune' in str(torr_info) and 'txt' in str(torr_info)) or torr_info == None:
+		#	self.delete_torrent(torrent_id)
+		#	return {'error': 'infringing_file  waiting_files_selection  infringing_file', 'status': 'ERROR'}
+
 		file_string = ''
 		for i in torr_info['files']:
 			res = [ele for ele in self.common_video_extensions() if(ele in os.path.splitext(i['path'])[1])]

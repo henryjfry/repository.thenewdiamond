@@ -1534,7 +1534,6 @@ def auto_scrape_rd(meta, select_dialog=False, unrestrict=False, downloader=False
 				if 'infringing_file' in str(response):
 					rd_api.delete_torrent(torr_id)
 					continue
-				
 				response = rd_api.torrent_select_all(torr_id)
 				time.sleep(2)
 				tools.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
