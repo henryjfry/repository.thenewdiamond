@@ -448,7 +448,7 @@ def get_tmdb_window(window_type):
 				PLAYER.prepare_play_VOD_episode(tmdb = tmdb_id, series_id=None, search_str = None,episode=episode, season=season, window=self)
 			else:
 				Utils.show_busy()
-				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'))
+				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'), listitem = self.listitem)
 
 		@ch.action('info', 500)
 		@ch.action('contextmenu', 500)

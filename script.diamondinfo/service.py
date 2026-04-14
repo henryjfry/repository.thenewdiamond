@@ -291,34 +291,25 @@ class PlayerMonitor(xbmc.Player):
 		except:
 			title = str(u''.join(response[0]['movie']['title']).encode('utf-8').strip())
 
-		values = """
-		  {
-			"movie": {
-			  "title": """+'"'+title+'"'+ """,
-			  "year": """+str(year)+""",
-			  "ids": {
-				"trakt": """+str(trakt)+""",
-				"slug": """+'"'+slug+'"'+ """,
-				"imdb": """+'"'+imdb+'"'+ """,
-				"tmdb": """+str(tmdb)+"""
-			  }
-			},
-			"progress": """+str(percent)+""",
-			"app_version": "1.0",
-			"app_date": "2014-09-22"
-		  }
-		"""
+
+		try: percent = float(percent)
+		except: percent = 0.01
+		#percent = max(1, min(percent, 100))
 		if not action:
 			action = 'start'
 			if percent > 80:
 				action = 'stop'
+		values = {"movie": {"title": title, "year": year, "ids": {"trakt": trakt, "slug": slug, "imdb": imdb, "tmdb": tmdb}}, "progress": format(float(percent), '.2f'), "app_version": "2.0", "app_date": "2026-01-01"}
+		#Utils.tools_log('https://api.trakt.tv/scrobble/' + str(action), 'TRAKT___URL')
+		#Utils.tools_log(json.dumps(values)+'TRAKT_JSON_VALUES')
+		#Utils.tools_log(str(self.player_meta['headers'])+'TRAKT_HEADERS')
 
 		response = None
 		count = 0
 		while response == None and count < 20:
 			count = count + 1
 			try:
-				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
 				test_var = response.json()
 			except: 
 				response = None
@@ -334,11 +325,11 @@ class PlayerMonitor(xbmc.Player):
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
-				try: retry_after = int(response.headers['Retry-After'])
+				try: retry_after = int(response.headers.get('Retry-After',0))
 				except: retry_after = 0
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
-				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
 			elif retry_after > 0:
 				Utils.tools_log(response.headers,'retry_after===>TRAKT_SCROBBLE_TMDB')
 		if percent <= 1 or percent >= 84: 
@@ -375,76 +366,27 @@ class PlayerMonitor(xbmc.Player):
 		except:
 			response = None
 			return response
-		
-		values = """
-		  {
-			"movie": {
-			  "year": """+str(year)+""",
-			  "ids": {
-				"trakt": """+str(trakt)+""",
-				"slug": """+'"'+slug+'"'+ """,
-				"imdb": """+'"'+imdb+'"'+ """,
-				"tmdb": """+str(tmdb)+"""
-			  }
-			},
-			"progress": """+str(percent)+""",
-			"app_version": "1.0",
-			"app_date": "2014-09-22"
-		  }
-		"""
 
-		'''
-		try:
-			values = """
-			  {
-				"movie": {
-				  "title": """+'"'+title+'"'+ """,
-				  "year": """+str(year)+""",
-				  "ids": {
-					"trakt": """+str(trakt)+""",
-					"slug": """+'"'+slug+'"'+ """,
-					"imdb": """+'"'+imdb+'"'+ """,
-					"tmdb": """+str(tmdb)+"""
-				  }
-				},
-				"progress": """+str(percent)+""",
-				"app_version": "1.0",
-				"app_date": "2014-09-22"
-			  }
-			"""
-		except:
-			values = """
-			  {
-				"movie": {
-				  "year": """+str(year)+""",
-				  "ids": {
-					"trakt": """+str(trakt)+""",
-					"slug": """+'"'+slug+'"'+ """,
-					"imdb": """+'"'+imdb+'"'+ """,
-					"tmdb": """+str(tmdb)+"""
-				  }
-				},
-				"progress": """+str(percent)+""",
-				"app_version": "1.0",
-				"app_date": "2014-09-22"
-			  }
-			"""
-		'''
-
+		try: percent = float(percent)
+		except: percent = 0.01
+		#percent = max(1, min(percent, 100))
 		if not action:
 			action = 'start'
 			if percent > 80:
 				action = 'stop'
+		values = {"movie": {"year": year, "ids": {"trakt": trakt, "slug": slug, "imdb": imdb, "tmdb": tmdb}}, "progress": format(float(percent), '.2f'), "app_version": "2.0", "app_date": "2026-01-01"}
+		#Utils.tools_log('https://api.trakt.tv/scrobble/' + str(action), 'TRAKT___URL')
+		#Utils.tools_log(json.dumps(values)+'TRAKT_JSON_VALUES')
+		#Utils.tools_log(str(self.player_meta['headers'])+'TRAKT_HEADERS')
+
 		response = None
-		response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+		response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
 		count = 0
 		while response == None and count < 20:
 			count = count + 1
-			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
 			test_var = response.json()
-		#if response.status_code == 429:
-		#	Utils.tools_log(str(response)+'===>trakt_scrobble_tmdb____OPEN_INFO')
-		#	Utils.tools_log(str(response.headers)+'===>trakt_scrobble_tmdb____OPEN_INFO')
+
 		x = 0
 		try:
 			response_status_code = response.status_code
@@ -457,11 +399,11 @@ class PlayerMonitor(xbmc.Player):
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
-				try: retry_after = int(response.headers['Retry-After'])
+				try: retry_after = int(response.headers.get('Retry-After',0))
 				except: retry_after = 0
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
-				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
 			elif retry_after > 0:
 				Utils.tools_log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 
@@ -478,6 +420,12 @@ class PlayerMonitor(xbmc.Player):
 
 	def trakt_scrobble_tv(self, title, season, episode, percent, action=None):
 		self.trakt_method['function'] = 'trakt_scrobble_tv'
+		try: 
+			self.trakt_method['title'] = self.player_meta['title']
+		except:
+			tools_log(str('ERROR')+'===>TRAKT_SCROBBLE_TV____OPEN_INFO')
+			response = 'ERROR'
+			return response
 		self.trakt_method['title'] = self.player_meta['title']
 		self.trakt_method['season'] = season
 		self.trakt_method['episode'] = episode
@@ -494,6 +442,12 @@ class PlayerMonitor(xbmc.Player):
 			year = response[0]['show']['year']
 		else:
 			response = get_trakt_data(url='https://api.trakt.tv/search/show?query='+str(title), cache_days=7)
+			try: 
+				trakt = response[0]['show']['ids']['trakt']
+			except TypeError: 
+				tools_log(str('ERROR')+'===>TRAKT_SCROBBLE_TV____OPEN_INFO')
+				response = 'ERROR'
+				return response
 			trakt = response[0]['show']['ids']['trakt']
 			tvdb = response[0]['show']['ids']['tvdb']
 			year = response[0]['show']['year']
@@ -502,37 +456,24 @@ class PlayerMonitor(xbmc.Player):
 			except:
 				title = str(u''.join(response[0]['show']['title']).encode('utf-8').strip())
 
-		values = """
-		  {
-			"show": {
-			  "title": """+'"'+title+'"'+ """,
-			  "year": """+str(year)+""",
-			  "ids": {
-				"trakt": """+str(trakt)+""",
-				"tvdb": """+str(tvdb)+"""
-			  }
-			},
-			"episode": {
-			  "season": """+str(season)+""",
-			  "number": """+str(episode)+"""
-			},
-			"progress": """+str(percent)+""",
-			"app_version": "1.0",
-			"app_date": "2014-09-22"
-		  }
-		"""
+		try: percent = float(percent)
+		except: percent = 0.01
+		#percent = max(1, min(percent, 100))
 		if not action:
 			action = 'start'
 			if percent > 80:
 				action = 'stop'
+		values = {"show": {"title": str(title), "year": year, "ids": {"trakt": trakt, "tvdb": tvdb}}, "episode": {"season": season, "number": episode}, "progress": format(float(percent), '.2f'), "app_version": "2.0", "app_date": "2026-01-01"}
+		#Utils.tools_log('https://api.trakt.tv/scrobble/' + str(action), 'TRAKT___URL')
+		#Utils.tools_log(json.dumps(values)+'TRAKT_JSON_VALUES')
+		#Utils.tools_log(str(self.player_meta['headers'])+'TRAKT_HEADERS')
+
 		response = None
 		count = 0
 		while response == None and count < 20:
 			count = count + 1
-			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
-		#if response.status_code == 429:
-		#	Utils.tools_log(str(response)+'===>trakt_scrobble_tv____OPEN_INFO')
-		#	Utils.tools_log(str(response.headers)+'===>trakt_scrobble_tv____OPEN_INFO')
+			response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
+
 		x = 0
 		try:
 			response_status_code = response.status_code
@@ -545,11 +486,11 @@ class PlayerMonitor(xbmc.Player):
 			try: 
 				retry_after = response.headers.json()['Retry-After']
 			except: 
-				try: retry_after = int(response.headers['Retry-After'])
+				try: retry_after = int(response.headers.get('Retry-After',0))
 				except: retry_after = 0
 			if retry_after > 0 and retry_after <= 10:
 				xbmc.sleep(retry_after * 1000)
-				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=self.player_meta['headers'])
+				response = requests.post('https://api.trakt.tv/scrobble/' + str(action), json=values, headers=self.player_meta['headers'])
 			elif retry_after > 0:
 				Utils.tools_log(str(response.headers)+'retry_after===>TRAKT_SCROBBLE_TMDB____OPEN_INFO')
 		if percent <= 1 or percent >= 84: 

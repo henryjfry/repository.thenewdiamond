@@ -448,7 +448,7 @@ def get_tmdb_window(window_type):
 				Utils.show_busy()
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 			else:
-				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'))
+				Utils.context_play(window=self,tmdb_id=self.listitem.getProperty('id'), listitem = self.listitem)
 
 		@ch.action('info', 500)
 		@ch.action('contextmenu', 500)

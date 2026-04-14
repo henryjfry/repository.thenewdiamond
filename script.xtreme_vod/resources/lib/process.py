@@ -759,6 +759,7 @@ def setup_favourites():
 	fav1_list.append('	<favourite name="Eps_Movies Watching" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=ep_movie_progress)</favourite>')
 	fav1_list.append('	<favourite name="Reopen Last" thumb="special://home/addons/script.xtreme_vod/icon.png">RunScript(script.xtreme_vod,info=reopen_window)</favourite>')
 
+	file_path = os.path.normpath(file_path)
 	file1 = open(file_path, 'r')
 	lines = file1.readlines()
 	new_file = ''

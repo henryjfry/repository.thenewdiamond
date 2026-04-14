@@ -273,10 +273,10 @@ def hide_busy():
 		xbmc.executebuiltin('Dialog.Close(busydialog)')
 
 
-def context_play(window=None,tmdb_id=None):
+def context_play(window=None,tmdb_id=None, listitem = None):
 	from resources.lib.VideoPlayer import PLAYER
 	import json
-	hide_busy()
+	#hide_busy()
 	json_result = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"XBMC.GetInfoLabels","params": {"labels":["ListItem.Title", "ListItem.Label",  "ListItem.MovieTitle",    "ListItem.DBTYPE",  "ListItem.Season", "ListItem.Episode", "ListItem.Year",  "ListItem.IMDBNumber", "ListItem.Property(tmdb_id)","ListItem.DBID",   "ListItem.TVShowTitle", "ListItem.FileNameAndPath", "ListItem.UniqueID(tmdb)", "ListItem.UniqueID(imdb)", "Container.ListItem.UniqueID(imdb)"]}, "id":1}')
 	json_object  = json.loads(json_result)
 
@@ -287,7 +287,6 @@ def context_play(window=None,tmdb_id=None):
 	episode = json_object['result']['ListItem.Episode']
 	try: episode = window.info['episode']
 	except: pass
-
 	Season = json_object['result']['ListItem.Season']
 	try: Season = window.info['season']
 	except: pass
@@ -300,33 +299,52 @@ def context_play(window=None,tmdb_id=None):
 				except: Season = 1
 	except:
 		pass
-	TVShowTitle = json_object['result']['ListItem.TVShowTitle']
-	MovieTitle = json_object['result']['ListItem.MovieTitle']
-	Title = json_object['result']['ListItem.Title']
-	Label = json_object['result']['ListItem.Label']
-	remote_id = json_object['result']['ListItem.UniqueID(tmdb)']
+
+	if listitem:
+		type = listitem.getProperty('media_type')
+		remote_id = listitem.getProperty('id')
+		if type == 'tv':
+			type = 'tvshow'
+			TVShowTitle = listitem.getProperty('TVShowTitle')
+			MovieTitle = ''
+		else:
+			MovieTitle = listitem.getProperty('MovieTitle')
+			TVShowTitle = ''
+			type = 'movie'
+		Title = listitem.getProperty('Title')
+		Label = listitem.getProperty('Label')
+		remote_id = listitem.getProperty('UniqueID(tmdb)')
+		imdb = listitem.getProperty('UniqueID(imdb)')
+		IMDBNumber = listitem.getProperty('IMDBNumber')
+		tmdb_id2 = listitem.getProperty('tmdb_id')
+
+	else:
+		TVShowTitle = json_object['result']['ListItem.TVShowTitle']
+		MovieTitle = json_object['result']['ListItem.MovieTitle']
+		Title = json_object['result']['ListItem.Title']
+		Label = json_object['result']['ListItem.Label']
+		remote_id = json_object['result']['ListItem.UniqueID(tmdb)']
+		tmdb_id2 = json_object['result']['ListItem.Property(tmdb_id)']
+		imdb = json_object['result']['ListItem.UniqueID(imdb)']
+		IMDBNumber = json_object['result']['ListItem.IMDBNumber']
+
 	if remote_id != tmdb_id:
 		remote_id = tmdb_id
-	tmdb_id2 = json_object['result']['ListItem.Property(tmdb_id)']
+
 	if not tmdb_id or tmdb_id2 != tmdb_id:
 		tmdb_id = tmdb_id2
 	if tmdb_id and remote_id != tmdb_id:
 		remote_id = tmdb_id
-	imdb = json_object['result']['ListItem.UniqueID(imdb)']
+	
 
-	tmdb_id2 = json_object['result']['ListItem.Property(tmdb_id)']
-	if not tmdb_id or tmdb_id2 != tmdb_id:
-		tmdb_id = tmdb_id2
-	if tmdb_id and remote_id != tmdb_id:
-		remote_id = tmdb_id
-	imdb = json_object['result']['ListItem.UniqueID(imdb)']
-
+	#json_object['result']['ListItemTMDBNumber'] = property_value
 	if dbid == None or dbid == '':
 		dbid = 0
 
-	IMDBNumber = json_object['result']['ListItem.IMDBNumber']
+	
 	if (IMDBNumber == '' or IMDBNumber == None):
 		IMDBNumber = imdb
+
 
 	if not type in ['movie','tvshow','season','episode','actor','director']:
 		if (episode == '' or episode == None) and (TVShowTitle == '' or TVShowTitle == None):
@@ -334,6 +352,7 @@ def context_play(window=None,tmdb_id=None):
 		else:
 			type = 'tvshow'
 
+	#tools_log(json_object)
 	params = {}
 	infos = []
 	if (TVShowTitle == '' or TVShowTitle == None):
