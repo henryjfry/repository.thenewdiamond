@@ -18,6 +18,13 @@ from ... import util
 __all__ = ["DBMBackend", "FileLock", "AbstractFileLock"]
 
 
+import fcntl
+
+def dummy_flock(fd, op):
+    return
+
+fcntl.flock = dummy_flock
+
 class DBMBackend(BytesBackend):
     """A file-backend using a dbm file to store keys.
 
