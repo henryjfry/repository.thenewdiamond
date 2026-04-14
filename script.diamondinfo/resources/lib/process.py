@@ -1224,8 +1224,12 @@ def start_info_actions(infos, params):
 			fav1_list.append('    <favourite name="stop_downloader" thumb="special://home/addons/script.extendedinfo/resources/skins/Default/media/netflix/stop.png">RunScript('+str(addonID)+',info=stop_downloader)</favourite>')
 			file_path = os.path.normpath(file_path)
 			file_path = Utils.normalize_path(file_path)
-			file1 = open(file_path, 'r')
-			lines = file1.readlines()
+			if xbmcvfs.exists(file_path):
+				file1 = open(file_path, 'r')
+				lines = file1.readlines()
+			else:
+				file1 = open(file_path, 'w')
+				lines = ['<favourites>\n','</favourites>\n']
 			new_file = ''
 			update_list = []
 			for j in fav1_list:

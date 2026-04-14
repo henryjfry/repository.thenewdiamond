@@ -725,8 +725,14 @@ def custom_favourites():
 	file_path = xbmcvfs.translatePath('special://userdata/favourites.xml')
 	file_path = os.path.normpath(file_path)
 	file_path = Utils.normalize_path(file_path)
-	file1 = open(file_path, 'r')
-	lines = file1.readlines()
+	#file1 = open(file_path, 'r')
+	#lines = file1.readlines()
+	if xbmcvfs.exists(file_path):
+		file1 = open(file_path, 'r')
+		lines = file1.readlines()
+	else:
+		file1 = open(file_path, 'w')
+		lines = ['<favourites>\n','</favourites>\n']
 	new_file = ''
 	update_list = []
 	for j in fav1_list:
@@ -764,8 +770,14 @@ def setup_favourites():
 
 	file_path = os.path.normpath(file_path)
 	file_path = Utils.normalize_path(file_path)
-	file1 = open(file_path, 'r')
-	lines = file1.readlines()
+	#file1 = open(file_path, 'r')
+	#lines = file1.readlines()
+	if xbmcvfs.exists(file_path):
+		file1 = open(file_path, 'r')
+		lines = file1.readlines()
+	else:
+		file1 = open(file_path, 'w')
+		lines = ['<favourites>\n','</favourites>\n']
 	new_file = ''
 	update_list = []
 	for j in fav1_list:
