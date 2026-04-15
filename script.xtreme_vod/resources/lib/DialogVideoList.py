@@ -585,7 +585,7 @@ def get_tmdb_window(window_type):
 					if media_type == 'tv':
 						url = url + '&season=1'
 				else:
-					url = 'RunScript(%s,info=imdb_trailers_choice,imdb_id=%s)' % (str(addon_ID()), str(imdb_id))
+					url = 'RunScript(%s,info=imdb_trailers_choice,imdb_id=%s,select=true)' % (str(addon_ID()), str(imdb_id))
 				#xbmc.executebuiltin(url)
 				#PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 				Utils.show_busy()
