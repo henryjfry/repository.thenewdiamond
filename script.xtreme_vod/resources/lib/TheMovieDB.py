@@ -1218,77 +1218,52 @@ def get_set_movies(set_id):
 	else:
 		return [], {}
 
-def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
 
-	import time, hashlib, xbmcvfs, os
-	import re, json, requests, html
-	
-	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
-	url = imdb_url + '/get_imdb_language'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	
-	now = time.time()
-	url = url.encode('utf-8')
-	hashed_url = hashlib.md5(url).hexdigest()
-	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
-	cache_seconds = int(cache_days * 86400.0)
-	#if not cache_days:
-	#	xbmcgui.Window(10000).clearProperty(hashed_url)
-	#	xbmcgui.Window(10000).clearProperty('%s_timestamp' % hashed_url)
-	#prop_time = xbmcgui.Window(10000).getProperty('%s_timestamp' % hashed_url)
-	#if prop_time and now - float(prop_time) < cache_seconds:
-	#	try:
-	#		prop = json.loads(xbmcgui.Window(10000).getProperty(hashed_url))
-	#		if prop:
-	#			return prop
-	#	except Exception as e:
-	#		pass
-	path = os.path.join(cache_path, '%s.txt' % hashed_url)
-	try: 
-		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=imdb_header)
-	except:
-		db_result, expired_db_result = None, None
-	if db_result:
-		return db_result
+def get_person_movies(person_id):
+	response = get_tmdb_data('person/%s/credits?language=%s&' % (person_id, xbmcaddon.Addon().getSetting('LanguageID')), 14)
+	if 'crew' in response:
+		return handle_tmdb_movies(response['crew'])
 	else:
-	#if xbmcvfs.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	results = Utils.read_from_file(path)
-	#	if not results:
-	#		return []
-	#	#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	#	#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-	#	return results
-	#else:
-		imdb_response = requests.get(imdb_url, headers=imdb_header)
-		details_section = imdb_response.text.split('<span>Details</span>')[1].split('</section>')[0]
-		language_list = []
-		for i in details_section.split('primary_language='):
-			try: language_list.append(i.split('ref_=tt_dt_ln">')[1].split('</a>')[0])
-			except: continue
-		
-		
-		country = details_section.split('?country_of_origin=')[1].split('&amp;')[0]
-		
-		results = language_list
-		if country == 'US' or country == 'UK' and results[1] == 'English':
-			results[0] = 'English'
-
-	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-	#if not results:
-	#	return []
-	#else:
-	#	return results
-
-	if not results or len(results) == 0:
-		if expired_db_result == None:
-			return []
-		if len(expired_db_result) > 0:
-			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
-			return expired_db_result
 		return []
-	else:
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-	return results
+
+def get_person(person_id):
+	response = get_tmdb_data('person/%s?language=%s&append_to_response=combined_credits&' % (person_id, xbmcaddon.Addon().getSetting('LanguageID')), 14)
+	listitems = handle_tmdb_multi_search(response['combined_credits']['cast'])
+	listitems += handle_tmdb_multi_search(response['combined_credits']['crew'])
+	return listitems
+
+def search_media(media_name=None, year='', media_type='movie'):
+	search_query = Utils.url_quote('%s %s' % (media_name, year))
+	if not search_query:
+		return None
+	response = get_tmdb_data('search/%s?query=%s&language=%s&include_adult=%s&' % (media_type, search_query, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('include_adults')), 1)
+	if not response == 'Empty':
+		for item in response['results']:
+			if item['id']:
+				return item['id']
+	return None
+
+def get_imdb_id_from_movie_id(movie_id=None, cache_time=14):
+	if not movie_id:
+		return None
+	session_str = ''
+	response = get_tmdb_data('movie/%s?&language=%s,null,%s&%s' % (movie_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
+	if not response:
+		return False
+	imdb_id = Utils.fetch(response, 'imdb_id')
+	return imdb_id
+
+def get_tvshow_ids(tvshow_id=None, cache_time=14):
+	if not tvshow_id:
+		return None
+	session_str = ''
+	response = get_tmdb_data('tv/%s?append_to_response=external_ids&language=%s&include_image_language=en,null,%s&%s' % (tvshow_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
+	if not response:
+		return False
+	external_ids = Utils.fetch(response, 'external_ids')
+	return external_ids
+
+
 
 def get_trakt_playback(trakt_type=None):
 	import urllib.parse
@@ -1344,537 +1319,212 @@ def get_watching_user():
 	return response
 
 
-def get_person_movies(person_id):
-	response = get_tmdb_data('person/%s/credits?language=%s&' % (person_id, xbmcaddon.Addon().getSetting('LanguageID')), 14)
-	if 'crew' in response:
-		return handle_tmdb_movies(response['crew'])
-	else:
-		return []
 
-def get_person(person_id):
-	response = get_tmdb_data('person/%s?language=%s&append_to_response=combined_credits&' % (person_id, xbmcaddon.Addon().getSetting('LanguageID')), 14)
-	listitems = handle_tmdb_multi_search(response['combined_credits']['cast'])
-	listitems += handle_tmdb_multi_search(response['combined_credits']['crew'])
-	return listitems
-
-def search_media(media_name=None, year='', media_type='movie'):
-	search_query = Utils.url_quote('%s %s' % (media_name, year))
-	if not search_query:
-		return None
-	response = get_tmdb_data('search/%s?query=%s&language=%s&include_adult=%s&' % (media_type, search_query, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('include_adults')), 1)
-	if not response == 'Empty':
-		for item in response['results']:
-			if item['id']:
-				return item['id']
-	return None
-
-def get_imdb_id_from_movie_id(movie_id=None, cache_time=14):
-	if not movie_id:
-		return None
-	session_str = ''
-	response = get_tmdb_data('movie/%s?&language=%s,null,%s&%s' % (movie_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
-	if not response:
-		return False
-	imdb_id = Utils.fetch(response, 'imdb_id')
-	return imdb_id
-
-def get_tvshow_ids(tvshow_id=None, cache_time=14):
-	if not tvshow_id:
-		return None
-	session_str = ''
-	response = get_tmdb_data('tv/%s?append_to_response=external_ids&language=%s&include_image_language=en,null,%s&%s' % (tvshow_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
-	if not response:
-		return False
-	external_ids = Utils.fetch(response, 'external_ids')
-	return external_ids
-
-
-def imdb_top_1000():
-	import requests
-	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-	HEADERS = {
-		'Referer': 'https://www.imdb.com/',
-		'Origin': 'https://www.imdb.com',
-		'User-Agent': 'Mozilla/5.0',
-		'Content-Type': 'application/json'
-	}
-
-	query = '''
-	query AdvancedTitleSearch(
-		$first: Int!,
-		$after: String,
-		$originCountryConstraint: OriginCountrySearchConstraint,
-		$rankedTitleListConstraint: RankedTitleListSearchConstraint,
-		$sortBy: AdvancedTitleSearchSortBy!,
-		$sortOrder: SortOrder!
-	) {
-		advancedTitleSearch(
-			first: $first,
-			after: $after,
-			constraints: {
-				originCountryConstraint: $originCountryConstraint,
-				rankedTitleListConstraint: $rankedTitleListConstraint
-			},
-			sort: {
-				sortBy: $sortBy,
-				sortOrder: $sortOrder
-			}
-		) {
-			...AdvancedTitleSearchConnection
-		}
-	}
-
-	fragment AdvancedTitleSearchConnection on AdvancedTitleSearchConnection {
-		total
-		pageInfo {
-			endCursor
-			hasNextPage
-		}
-		edges {
-			node {
-				title {
-					id
-					titleText { text }
-					originalTitleText { text }
-					ratingsSummary { aggregateRating voteCount }
-					releaseYear { year }
-					primaryImage { url }
-				}
-			}
-		}
-	}
-	'''
-
-	variables = {
-		"first": 1000,
-		"after": None,
-		"locale": "en-US",
-		"originCountryConstraint": {
-			"excludeCountries": ["IN"]
-		},
-		"rankedTitleListConstraint": {
-			"allRankedTitleLists": [{
-				"rankRange": {"max": 1000},
-				"rankedTitleListType": "TOP_RATED_MOVIES"
-			}],
-			"excludeRankedTitleLists": []
-		},
-		"sortBy": "USER_RATING",
-		"sortOrder": "DESC"
-	}
-
-	all_titles = []
-	
-	while True:
-		response = requests.post(API_URL, headers=HEADERS, json={
-			"operationName": "AdvancedTitleSearch",
-			"query": query,
-			"variables": variables
-		})
-		#print(response.text)
-		data = response.json()["data"]["advancedTitleSearch"]
-
-		titles = [edge["node"]["title"]["id"] for edge in data["edges"]]
-		all_titles.extend(titles)
-
-		if not data["pageInfo"]["hasNextPage"]:
-			break
-
-		variables["after"] = data["pageInfo"]["endCursor"]
-	all_types = []
-	all_types = ['movie'] * len(all_titles)
-	return all_titles,all_types
-
-
-
-def imdb_coming_soon(country: str, coming_soon_type: str):
-	#titles = imdb_coming_soon(country="GB", coming_soon_type="MOVIE")
-	import requests, datetime
-	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-	HEADERS = {
-		'Referer': 'https://www.imdb.com/',
-		'Origin': 'https://www.imdb.com',
-		'User-Agent': 'Mozilla/5.0',
-		'Content-Type': 'application/json'
-	}
-
-	fragment = """
-	fragment CalendarCard on Title {
-		id
-		titleText { text }
-		originalTitleText { text }
-		titleType { id text canHaveEpisodes }
-		isAdult
-		releaseDate {
-			year
-			month
-			day
-			country { id }
-			displayableProperty {
-				qualifiersInMarkdownList { plaidHtml }
-			}
-		}
-		releaseDates(
-			first: 10,
-			filter: {
-				countries: [$countryOverride],
-				wideRelease: WIDE_RELEASE_ONLY
-			}
-		) {
-			edges {
-				node {
-					year
-					month
-					day
-					country { id }
-					displayableProperty {
-						qualifiersInMarkdownList { plaidHtml }
-					}
-				}
-			}
-		}
-		primaryImage {
-			url
-			height
-			width
-			caption { plainText }
-		}
-		titleGenres {
-			genres(limit: 3) {
-				genre {
-					displayableProperty {
-						value { plainText }
-					}
-				}
-			}
-		}
-		principalCredits(filter: { categories: ["cast"] }) {
-			credits {
-				name {
-					id
-					nameText { text }
-				}
-			}
-		}
-		releaseYear { endYear year }
-		series {
-			displayableEpisodeNumber {
-				episodeNumber { text }
-				displayableSeason { season }
-			}
-			series {
-				titleText { text }
-				originalTitleText { text }
-			}
-		}
-	}
-	"""
-
-	query = f"""
-	query CalendarPage(
-		$comingSoonType: ComingSoonType!,
-		$regionOverride: String!,
-		$countryOverride: ID!,
-		$releasingOnOrAfter: Date!,
-		$releasingOnOrBefore: Date!,
-		$disablePopularityFilter: Boolean!,
-		$after: ID
-	) {{
-		comingSoon(
-			comingSoonType: $comingSoonType,
-			first: 250,
-			regionOverride: $regionOverride,
-			releasingOnOrAfter: $releasingOnOrAfter,
-			releasingOnOrBefore: $releasingOnOrBefore,
-			disablePopularityFilter: $disablePopularityFilter,
-			after: $after,
-			sort: [
-				{{ sortBy: RELEASE_DATE, sortOrder: ASC }},
-				{{ sortBy: POPULARITY, sortOrder: ASC }}
-			]
-		) {{
-			pageInfo {{
-				endCursor
-				hasNextPage
-			}}
-			edges {{
-				node {{
-					...CalendarCard
-				}}
-			}}
-		}}
-	}}
-	{fragment}
-	"""
-
-	today = datetime.datetime.utcnow().date()
-	end_date = today + datetime.timedelta(days=360)
-
-	variables = {
-		"comingSoonType": coming_soon_type,
-		"regionOverride": country,
-		"countryOverride": country,
-		"releasingOnOrAfter": today.isoformat(),
-		"releasingOnOrBefore": end_date.isoformat(),
-		"disablePopularityFilter": False,
-		"isInPace": False,
-		"after": None
-	}
-
-	all_titles = []
-	while True:
-		response = requests.post(API_URL, headers=HEADERS, json={
-			"operationName": "CalendarPage",
-			"query": query,
-			"variables": variables
-		})
-		#print(response.text)
-		data = response.json()["data"]["comingSoon"]
-		titles = [edge["node"]["id"] for edge in data["edges"]]
-		all_titles.extend(titles)
-		if not data["pageInfo"]["hasNextPage"]:
-			break
-		variables["after"] = data["pageInfo"]["endCursor"]
-
-	return all_titles
-
-
-def imdb_multi(list_name):
+def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 	import requests
 	import json
-	import datetime
-
-	HEADERS = {
+	url = "https://api.graphql.imdb.com/"
+	headers = {
 		"Content-Type": "application/json",
-		"User-Agent": "Mozilla/5.0",
-		"x-imdb-client-name": "imdb-web-next"
+		"Accept": "application/json",
+		"User-Agent": "Mozilla/5.0"
 	}
-	API_URL = "https://api.graphql.imdb.com/"
+	query = """ query ($id: ID!) { title(id: $id) { spokenLanguages { spokenLanguages { id text } } countriesOfOrigin { countries(limit: 1) { id } } } } """
+	variables = {"id": imdb_id}
+	payload = {"query": query, "variables": variables}
+	imdb_url = ('https://www.imdb.com/title/' + str(imdb_id) + '/get_imdb_language').encode('utf-8')
+	imdb_header = headers
+	try:
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
+	except:
+		db_result, expired_db_result = None, None
+	if db_result:
+		return db_result
+	else:
+		response = requests.post(url, headers=headers, data=json.dumps(payload))
+		if response.status_code != 200:
+			return []
+		data = response.json()
+		spoken = data.get("data", {}).get("title", {}).get("spokenLanguages", {}).get("spokenLanguages", [])
+		countries = data.get("data", {}).get("title", {}).get("countriesOfOrigin", {}).get("countries", [])
+		language_list = [lang.get("text") for lang in spoken if "text" in lang]
+		english_speaking_countries = {"US", "UK", "GB", "CA", "AU", "NZ", "IE", "ZA"}
+		country_id = countries[0].get("id") if countries else ""
+		if "English" in language_list and country_id in english_speaking_countries:
+			language_list = ["English"] + [l for l in language_list if l != "English"]
+		results = language_list
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
 
-	BASE_TITLE_CARD_FRAGMENT = """
-	fragment BaseTitleCard on Title {
-		id
-		titleText { text }
-		titleType {
-			id
-			text
-			canHaveEpisodes
-			displayableProperty { value { plainText } }
-		}
-		originalTitleText { text }
-		primaryImage {
-			id
-			width
-			height
-			url
-			caption { plainText }
-		}
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
+	else:
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
+
+def imdb_base_title_card(imdb_id: str):
+	url = "https://api.graphql.imdb.com/"
+	headers = {
+		"Content-Type": "application/json",
+		"User-Agent": "Mozilla/5.0"
+	}
+	query = """
+	query Title_Summary_Prompt_From_Base($id: ID!) { title(id: $id) { ...BaseTitleCard } }
+	fragment BaseTitleCard on Title { 
+		id titleText { text } 
+		titleType { id text canHaveEpisodes displayableProperty { value { plainText } } }
+		originalTitleText { text } 
+		primaryImage { id width height url caption { plainText } }
 		releaseYear { year endYear }
 		ratingsSummary { aggregateRating voteCount }
 		runtime { seconds }
 		certificate { rating }
 		canRate { isRatable }
-		titleGenres {
-			genres(limit: 3) {
-				genre { text }
-			}
+		titleGenres { genres(limit: 3) { genre { text } } } 
 		}
-	}
 	"""
+	variables = {
+		"id": imdb_id
+	}
+	response = requests.post(url, json={"query": query, "variables": variables}, headers=headers)
+	if response.status_code == 200:
+		return response.json()
+	else:
+		raise Exception(f"Query failed with status code {response.status_code}: {response.text}")
 
-	def gqlmin(q):
-		return q.replace("	", "")
+def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
+	Utils.log('get_imdb_language_api')
+	results = get_imdb_language_api(imdb_id=imdb_id, cache_days=cache_days, folder='IMDB')
+	return results
 
-	def fetch_imdb_ids(category):
-		if category not in ["trending", "anticipated", "popular", "recent"]:
-			raise ValueError("Invalid category")
 
-		today = datetime.date.today().isoformat()
-		variables = {"limit": 300}
-		if category == "anticipated":
-			variables["queryFilter"] = {"releaseDateRange": {"start": today}}
-		elif category == "popular":
-			variables["queryFilter"] = {"releaseDateRange": {"end": today}}
-		elif category == "recent":
-			variables["queryFilter"] = {"contentTypes": ["TRAILER"]}
+def get_imdb_season_episodes(imdb_id, season, first=99):
+	import requests
+	import json
+	url = "https://api.graphql.imdb.com/"
+	headers = {
+		"Content-Type": "application/json",
+		"Accept": "application/json",
+		"User-Agent": "Mozilla/5.0"
+	}
+	query = """query SeasonEpisodes($id: ID!, $season: String!, $first: Int!, $originalTitleText: Boolean!) { title(id: $id) { episodes { episodes(first: $first, filter: { includeSeasons: [$season] }, sort: { by: EPISODE_THEN_RELEASE, order: ASC }) { edges { node { id titleText { text } plot { plotText { plaidHtml(showOriginalTitleText: $originalTitleText) } } releaseDate { year month day } ratingsSummary { aggregateRating voteCount } primaryImage { url } series { displayableEpisodeNumber { episodeNumber { displayableProperty { value { plainText } } } displayableSeason { displayableProperty { value { plainText } } } } } } } } } } }"""
+	variables = {
+		"id": imdb_id,
+		"season": str(season),
+		"first": first,
+		"originalTitleText": True
+	}
+	payload = {
+		"query": query,
+		"variables": variables
+	}
+	response = requests.post(url, headers=headers, data=json.dumps(payload))
+	response.raise_for_status()
+	data = response.json()
+	edges = data.get("data", {}).get("title", {}).get("episodes", {}).get("episodes", {}).get("edges", [])
+	episodes = []
+	for edge in edges:
+		try: 
+			node = edge.get("node", {})
+			displayable_episode_number = node.get("series", {}).get("displayableEpisodeNumber", {})
+			episode_number = displayable_episode_number.get("episodeNumber", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
+			season_number = displayable_episode_number.get("displayableSeason", {}).get("displayableProperty", {}).get("value", {}).get("plainText")
+			plot_html = node.get("plot", {}).get("plotText", {}).get("plaidHtml")
+			episodes.append({
+				"id": node.get("id"),
+				"title": node.get("titleText", {}).get("text"),
+				"plot": plot_html,
+				"release_date": node.get("releaseDate"),
+				"rating": node.get("ratingsSummary", {}).get("aggregateRating"),
+				"vote_count": node.get("ratingsSummary", {}).get("voteCount"),
+				"image_url": node.get("primaryImage", {}).get("url"),
+				"episode_number": episode_number,
+				"season_number": season_number
+			})
+		except: continue
+	return episodes
 
-		if category == "trending":
-			opname = "TrendingTitles"
-			query = """
-			query TrendingTitles($limit: Int!, $paginationToken: String) {
-				trendingTitles(limit: $limit, paginationToken: $paginationToken) {
-					titles {
-						...BaseTitleCard
-					}
-					paginationToken
-				}
-			}
-			"""
-		elif category == "recent":
-			opname = "RecentVideos"
-			query = """
-			query RecentVideos($limit: Int!, $paginationToken: String, $queryFilter: RecentVideosQueryFilter!) {
-				recentVideos(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) {
-					videos {
-						primaryTitle {
-							...BaseTitleCard
-						}
-					}
-					paginationToken
-				}
-			}
-			"""
+def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):
+	import requests
+	import json
+	url = "https://api.graphql.imdb.com/"
+	headers = {
+		"Content-Type": "application/json",
+		"Accept": "application/json",
+		"User-Agent": "Mozilla/5.0"
+	}
+
+	base_title_card = """fragment BaseTitleCard on Title { id titleText { text } primaryImage { url } releaseYear { year } titleType { text } } """
+	query = f""" query MoreLikeThis($id: ID!) {{ title(id: $id) {{ ...TMD_MoreLikeThis }} }} fragment TMD_MoreLikeThis on Title {{ id isAdult moreLikeThisTitles(first: 12) {{ edges {{ node {{ ...BaseTitleCard }} }} }} }}
+	{base_title_card}
+	"""
+	variables = {
+		"id": imdb_id
+	}
+	payload = {
+		"query": query,
+		"variables": variables
+	}
+
+	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
+	imdb_url2 = 'https://www.imdb.com/title/' + str(imdb_id) + '[2]'
+	imdb_url = str(imdb_url + '/get_imdb_recommendations').encode('utf-8')
+	imdb_url2 = str(imdb_url2 + '/get_imdb_recommendations').encode('utf-8')
+	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
+	try: 
+		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder, headers=imdb_header)
+	except:
+		db_result, expired_db_result = None, None
+	if db_result:
+		return db_result
+	else:
+		response = requests.post(url, headers=headers, data=json.dumps(payload))
+		if response.status_code != 200:
+			raise Exception(f"Query failed with status code {response.status_code}: {response.text}")
+		data = response.json()
+		edges = data.get("data", {}).get("title", {}).get("moreLikeThisTitles", {}).get("edges", [])
+		movies = [edge["node"]["id"] for edge in edges if "node" in edge and "id" in edge["node"]]
+
+		if return_items == False:
+			results2 = movies
+			Utils.write_db(connection=Utils.db_con,url=imdb_url, cache_days=cache_days, folder=folder,cache_val=results)
+			if not results2:
+				return []
+			return results2
 		else:
-			opname = "PopularTitles"
-			query = """
-			query PopularTitles($limit: Int!, $paginationToken: String, $queryFilter: PopularTitlesQueryFilter!) {
-				popularTitles(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) {
-					titles {
-						...BaseTitleCard
-					}
-					paginationToken
-				}
-			}
-			"""
+			results = get_imdb_watchlist_items(movies=movies, limit=0, imdb_url=imdb_url.decode('utf-8'))
+	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	#if not results:
+	#	return []
+	#else:
+	#	return results
 
-		query += BASE_TITLE_CARD_FRAGMENT
-		items = []
-		items_types = []
-		pages = 0
-		pagination_token = None
-		while len(items) < 300 and pages < 5:
-			if pagination_token:
-				variables["paginationToken"] = pagination_token
-			payload = {
-				"operationName": opname,
-				"query": gqlmin(query),
-				"variables": variables
-			}
-			response = requests.post(API_URL, headers=HEADERS, data=json.dumps(payload))
-			print(response.text)
-			if response.status_code != 200:
-				raise Exception(f"Query failed: {response.status_code} - {response.text}")
-			data = response.json().get("data", {})
-			if category == "trending":
-				result = data.get("trendingTitles", {})
-				titles = result.get("titles", [])
-				items.extend([t["id"] for t in titles if "id" in t])
-				items_types.extend([t['titleType']["id"] for t in titles if "titleType" in t])
-			elif category == "recent":
-				result = data.get("recentVideos", {})
-				videos = result.get("videos", [])
-				items.extend([v["primaryTitle"]["id"] for v in videos if v.get("primaryTitle")])
-				items_types.extend([t['titleType']["id"] for t in titles if "titleType" in t])
-			else:
-				result = data.get("popularTitles", {})
-				titles = result.get("titles", [])
-				items.extend([t["id"] for t in titles if "id" in t])
-				items_types.extend([t['titleType']["id"] for t in titles if "titleType" in t])
-			pagination_token = result.get("paginationToken")
-			if not pagination_token:
-				break
-			pages += 1
-		return items,items_types
+	if not results or len(results) == 0:
+		if expired_db_result == None:
+			return []
+		if len(expired_db_result) > 0:
+			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
+			return expired_db_result
+		return []
+	else:
+		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
+	return results
 
-	def imdb_movies_near_you(latitude,longitude,radius_meters,start_date,end_date,first=1000,sort_by="POPULARITY",sort_order="ASC"):
-		import requests
-		API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-		HEADERS = {
-			'Referer': 'https://www.imdb.com/',
-			'Origin': 'https://www.imdb.com',
-			'User-Agent': 'Mozilla/5.0',
-			'Content-Type': 'application/json'
-		}
 
-		query = '''
-		query MoviesNearYou($first: Int!, $sort: AdvancedTitleSearchSort!, $constraints: AdvancedTitleSearchConstraints!) {
-		  advancedTitleSearch(first: $first, sort: $sort, constraints: $constraints) {
-			edges {
-			  node {
-				title {
-				  id
-				  titleText { text }
-				  ratingsSummary { aggregateRating voteCount }
-				  releaseYear { year }
-				  primaryImage { url }
-				}
-			  }
-			}
-			total
-		  }
-		}
-		'''
+def get_imdb_recommendations(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):
+	Utils.log('get_imdb_recommendations_api')
+	movies = get_imdb_recommendations_api(imdb_id, return_items=return_items, cache_days=cache_days, folder='IMDB')
+	return movies
 
-		variables = {
-			"first": first,
-			"sort": {
-				"sortBy": sort_by,
-				"sortOrder": sort_order
-			},
-			"constraints": {
-				"inTheatersConstraint": {
-					"dateTimeRange": {
-						"start": f"{start_date}T00:00:00.000Z",
-						"end": f"{end_date}T00:00:00.000Z"
-					},
-					"location": {
-						"latLong": {
-							"lat": str(latitude),
-							"long": str(longitude)
-						},
-						"radiusInMeters": radius_meters
-					}
-				}
-			}
-		}
-
-		response = requests.post(API_URL, headers=HEADERS, json={
-			"operationName": "MoviesNearYou",
-			"query": query,
-			"variables": variables
-		})
-
-		def image_url(title_info):
-			try:
-				if "primaryImage" in title_info and "url" in title_info["primaryImage"]:
-					image_url = title_info["primaryImage"]["url"]
-				else:
-					image_url = ''
-				return image_url
-			except: return ''
-
-		data = response.json().get("data", {}).get("advancedTitleSearch", {})
-		#print(response.text)
-		movies = []
-		movies_list = []
-		types_list = []
-		for edge in data.get("edges", []):
-			title_info = edge["node"]["title"]
-			#print(title_info)
-			movies_list.append(title_info.get("id"))
-			types_list.append('movie')
-			movie = {
-				"id": title_info.get("id"),
-				"title": title_info.get("titleText", {}).get("text"),
-				"rating": title_info.get("ratingsSummary", {}).get("aggregateRating"),
-				"vote_count": title_info.get("ratingsSummary", {}).get("voteCount"),
-				"release_year": title_info.get("releaseYear", {}).get("year"),
-				"image_url": image_url(title_info)
-
-			}
-			movies.append(movie)
-
-		return movies_list,types_list
-
-	if list_name == 'ls_trending':
-		movies_list,types_list = fetch_imdb_ids("trending")
-	elif list_name == 'ls_anticipated':
-		movies_list,types_list = fetch_imdb_ids("anticipated")
-	elif list_name == 'ls_popular':
-		movies_list,types_list = fetch_imdb_ids("popular")
-	elif list_name == 'ls_recent':
-		movies_list,types_list = fetch_imdb_ids("recent")
-	return movies_list,types_list
 
 def get_imdb_list_ids_api2(list_str=None):
 	import requests, json
@@ -1886,44 +1536,12 @@ def get_imdb_list_ids_api2(list_str=None):
 	}
 
 	base_title_card = """
-	fragment BaseTitleCard on Title {
-		id
-		titleText { text }
-		primaryImage { url }
-		releaseYear { year }
-		titleType { text }
-	}
-	"""
-
-	query = f"""
-	query VideoPlaylistWidgetList($id: ID!, $first: Int!, $after: ID) {{
-	  list(id: $id) {{
-		items(first: $first, after: $after) {{
-		  total
-		  pageInfo {{
-			endCursor
-			hasNextPage
-		  }}
-		  edges {{
-			node {{
-			  listItem {{
-				... on Title {{
-				  ...BaseTitleCard
-				}}
-			  }}
-			}}
-		  }}
-		}}
-	  }}
-	}}
-	{base_title_card}
-	"""
+	fragment BaseTitleCard on Title { id titleText { text } primaryImage { url } releaseYear { year } titleType { text } } """
+	query = f""" query VideoPlaylistWidgetList($id: ID!, $first: Int!, $after: ID) {{   list(id: $id) {{ items(first: $first, after: $after) {{   total   pageInfo {{  endCursor hasNextPage   }}   edges {{ node {{   listItem {{ ... on Title {{   ...BaseTitleCard }}   }} }}   }} }}   }} }} {base_title_card} """
 
 	all_items = []
 	after_cursor = None
 	total = None
-
-	
 
 	while True:
 		variables = {
@@ -1965,7 +1583,9 @@ def get_imdb_list_ids_api2(list_str=None):
 	#return {"total": total,"fetched": len(all_items),"items": all_items}
 	return movies
 
+
 def get_imdb_list_ids(list_str=None, limit=0):
+	Utils.log(list_str)
 	if 'ls_top_1000' == list_str:
 		movies = imdb_top_1000()
 		return movies
@@ -1976,8 +1596,9 @@ def get_imdb_list_ids(list_str=None, limit=0):
 		return movies
 
 	if list_str in ['ls_popular','ls_trending','ls_anticipated','ls_recent']:
-		movies_list,types_list = imdb_multi(list_str)
-		return movies_list,types_list
+		Utils.log(list_str)
+		movies = imdb_multi(list_str)
+		return movies
 
 	if 'ls_imdb_movies_near_you' == list_str:
 		from datetime import date
@@ -1996,10 +1617,390 @@ def get_imdb_list_ids(list_str=None, limit=0):
 		return movies
 
 	else:
-		Utils.tools_log('get_imdb_list_ids_api2  ' + str(list_str))
+		Utils.log('get_imdb_list_ids_api2  ' + str(list_str))
 		movies = get_imdb_list_ids_api2(list_str)
 		return movies
 
+
+
+
+def imdb_top_1000():
+	import requests
+	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
+	HEADERS = {
+		'Referer': 'https://www.imdb.com/',
+		'Origin': 'https://www.imdb.com',
+		'User-Agent': 'Mozilla/5.0',
+		'Content-Type': 'application/json'
+	}
+
+	query = '''query AdvancedTitleSearch($first: Int!,$after: String,$originCountryConstraint: OriginCountrySearchConstraint,$rankedTitleListConstraint: RankedTitleListSearchConstraint,$sortBy: AdvancedTitleSearchSortBy!,$sortOrder: SortOrder!) { advancedTitleSearch(first: $first,after: $after,constraints: { originCountryConstraint: $originCountryConstraint,rankedTitleListConstraint: $rankedTitleListConstraint },sort: { sortBy: $sortBy,sortOrder: $sortOrder }) { ...AdvancedTitleSearchConnection } } fragment AdvancedTitleSearchConnection on AdvancedTitleSearchConnection { total pageInfo { endCursor hasNextPage } edges { node { title { id titleText { text } originalTitleText { text } ratingsSummary { aggregateRating voteCount } releaseYear { year } primaryImage { url } } } } }'''
+
+	variables = { "first": 1000, "after": None, "locale": "en-US", "originCountryConstraint": { "excludeCountries": ["IN"] }, "rankedTitleListConstraint": { "allRankedTitleLists": [{ "rankRange": {"max": 1000}, "rankedTitleListType": "TOP_RATED_MOVIES" }], "excludeRankedTitleLists": [] }, "sortBy": "USER_RATING", "sortOrder": "DESC" }
+
+	all_titles = []
+	while True:
+		response = requests.post(API_URL, headers=HEADERS, json={
+			"operationName": "AdvancedTitleSearch",
+			"query": query,
+			"variables": variables
+		})
+		#print(response.text)
+		data = response.json()["data"]["advancedTitleSearch"]
+
+		titles = [edge["node"]["title"]["id"] for edge in data["edges"]]
+		all_titles.extend(titles)
+
+		if not data["pageInfo"]["hasNextPage"]:
+			break
+
+		variables["after"] = data["pageInfo"]["endCursor"]
+
+	return all_titles
+
+
+
+
+def imdb_userListSearch_api(ur_id=None):
+	Utils.log('imdb_userListSearch_api')
+	user_profile_id = ur_id
+
+	import requests, json, re
+
+	def get_urconst_from_profile_id(profile_id):
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+		query = """query RatingInsightsInterestTopRatedWithProfileId($profileId: ID) { userProfile(input: { profileId: $profileId }) { userId } }"""
+		variables = {"profileId": profile_id}
+		try:
+			response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}, separators=(',', ':')))
+			#Utils.log(f"DEBUG RESPONSE: {response.text}")
+			if response.status_code != 200: return f"Error: {response.status_code}"
+			ur_const = response.json().get("data", {}).get("userProfile", {}).get("userId")
+			return ur_const if ur_const else "UR ID not found"
+		except Exception as e: return f"Failed: {str(e)}"
+
+	def get_user_lists_via_search(ur_id):
+		Utils.log('get_user_lists_via_search')
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next" }
+		query = """query UserLists($ur_id: ID!, $after: ID) { userListSearch(first: 100, listOwnerUserId: $ur_id, after: $after) { edges { node { id name { originalText } items(first: 0) { total } 	author { nickName userId } } } pageInfo { hasNextPage endCursor } } }"""
+		all_edges = []
+		after_cursor = None
+		nickname = "User"
+		try:
+			while True:
+				variables = {"ur_id": ur_id, "after": after_cursor}
+				response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}))
+				#Utils.log(response.text)
+				if response.status_code != 200: return None, f"Error: {response.status_code}"
+				payload = response.json().get("data", {}).get("userListSearch", {})
+				edges = payload.get("edges", [])
+				if not edges and not all_edges: return None, "No public lists found"
+				all_edges.extend(edges)
+				if edges and nickname == "User":
+					nickname = edges[0].get("node", {}).get("author", {}).get("nickName", "User")
+				page_info = payload.get("pageInfo", {})
+				if not page_info.get("hasNextPage"):
+					break
+				after_cursor = page_info.get("endCursor")
+			imdb_list = {"imdb_list": []}
+			for edge in all_edges:
+				node = edge.get("node", {})
+				list_id = node.get("id")
+				list_name = node.get("name", {}).get("originalText", "Unnamed List")
+				if list_name.lower() == 'watchlist':
+					list_name = f"{nickname} Watchlist"
+				list_count = node.get("items", {}).get("total", 0)
+				imdb_list["imdb_list"].append({
+					list_id: f"IMDB - {list_name} - {list_count}"
+				})
+			return nickname, imdb_list
+		except Exception as e: return None, f"Failed: {str(e)}"
+	ur_id = user_profile_id
+	if ur_id[:2].lower() == 'ur':
+		nickname, imdb_list = get_user_lists_via_search(ur_id)
+	else:
+		ur_id = get_urconst_from_profile_id(user_profile_id)
+		nickname, imdb_list = get_user_lists_via_search(ur_id)
+	return imdb_list
+
+def get_imdb_userlists():
+	imdb_id = xbmcaddon.Addon().getSetting('imdb_ur_id')
+	Utils.log(imdb_id)
+	if imdb_id == '':
+		return None
+	#imdb_list = get_imdb_userlists_search(imdb_id=imdb_id)
+	#Utils.log(imdb_id)
+	imdb_list = imdb_userListSearch_api(ur_id=imdb_id)
+	return imdb_list
+
+def get_user_watchlist_id(ur_list_str=None,return_dict=False):
+	Utils.log('get_user_watchlist_id')
+	user_profile_id = ur_list_str
+	import requests, json, re
+	def get_urconst_from_profile_id(profile_id):
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+		query = """query RatingInsightsInterestTopRatedWithProfileId($profileId: ID) { userProfile(input: { profileId: $profileId }) { userId } }"""
+		variables = {"profileId": profile_id}
+		try:
+			response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}, separators=(',', ':')))
+			#print(f"DEBUG RESPONSE: {response.text}")
+			if response.status_code != 200: return f"Error: {response.status_code}"
+			ur_const = response.json().get("data", {}).get("userProfile", {}).get("userId")
+			return ur_const if ur_const else "UR ID not found"
+		except Exception as e: return f"Failed: {str(e)}"
+	def get_watchlist_lsid_from_ur(ur_id):
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+		# Corrected to WATCH_LIST and userId based on standard IMDb GraphQL field names
+		query = """query WatchlistDiscovery($ur_id: ID!) { predefinedList(classType: WATCH_LIST, userId: $ur_id) { id items(first: 0) { total } } }"""
+		variables = {"ur_id": ur_id}
+		try:
+			response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}))
+			#print(f"DEBUG RESPONSE: {response.text}")
+			if response.status_code != 200: return f"Error: {response.status_code}"
+			data = response.json()
+			ls_id = data.get("data", {}).get("predefinedList", {}).get("id")
+			total = data.get("data", {}).get("predefinedList", {}).get("items",{}).get("total")
+			ls_dict = {'ls_id': ls_id, 'name': 'watchlist', 'count': total}
+			return ls_id,ls_dict if ls_id else "Watchlist not found (check if profile is public)"
+		except Exception as e: return f"Failed: {str(e)}"
+	ur_id = user_profile_id
+	if ur_id[:2].lower() == 'ur':
+		ls_id,ls_dict =get_watchlist_lsid_from_ur(ur_id)
+	else:
+		ur_id = get_urconst_from_profile_id(user_profile_id)
+		ls_id,ls_dict =get_watchlist_lsid_from_ur(ur_id)
+	if return_dict == False:
+		return ls_id
+	else:
+		watchlist_dict = {}
+		watchlist_dict['watchlist_id'] = ls_id
+		watchlist_dict['ur_list_str'] = ur_id
+		watchlist_dict['total'] = ls_dict['count']
+		watchlist_dict['name'] = f"IMDB - {ur_id} Watchlist - " + str(ls_dict['count'])
+		return watchlist_dict
+
+
+def get_imdb_watchlist_ids_api2(ur_list_str=None, limit=0):
+	list_id = get_user_watchlist_id(ur_list_str=ur_list_str)
+
+	url = "https://api.graphql.imdb.com/"
+	movies = get_imdb_list_ids_api2(list_str=list_id)
+	return movies
+
+
+def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
+	if ur_list_str:
+		Utils.log('get_imdb_watchlist_ids_api2')
+		movies = get_imdb_watchlist_ids_api2(ur_list_str)
+		return movies
+
+
+def imdb_coming_soon(country: str, coming_soon_type: str):
+	#titles = imdb_coming_soon(country="GB", coming_soon_type="MOVIE")
+	import requests, datetime
+	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
+	HEADERS = {
+		'Referer': 'https://www.imdb.com/',
+		'Origin': 'https://www.imdb.com',
+		'User-Agent': 'Mozilla/5.0',
+		'Content-Type': 'application/json'
+	}
+
+	fragment = """
+	fragment CalendarCard on Title {
+		id titleText { text } originalTitleText { text } titleType { id text canHaveEpisodes } isAdult
+		releaseDate { year month day country { id } displayableProperty { qualifiersInMarkdownList { plaidHtml } } }
+		releaseDates( first: 10, filter: { countries: [$countryOverride], wideRelease: WIDE_RELEASE_ONLY } ) {
+			edges { node { year month day country { id } displayableProperty { qualifiersInMarkdownList { plaidHtml } } } } }
+		primaryImage { url height width caption { plainText } }
+		titleGenres { genres(limit: 3) { genre { displayableProperty { value { plainText } } } } }
+		principalCredits(filter: { categories: ["cast"] }) { credits { name { id nameText { text } } } } 
+		releaseYear { endYear year } 
+		series {displayableEpisodeNumber { episodeNumber { text } displayableSeason { season } } series { titleText { text } originalTitleText { text } } } } """
+
+	query = f""" query CalendarPage( $comingSoonType: ComingSoonType!, $regionOverride: String!, $countryOverride: ID!, $releasingOnOrAfter: Date!, $releasingOnOrBefore: Date!, $disablePopularityFilter: Boolean!, 
+		$after: ID ) {{ comingSoon( comingSoonType: $comingSoonType, first: 250, regionOverride: $regionOverride, releasingOnOrAfter: $releasingOnOrAfter, releasingOnOrBefore: $releasingOnOrBefore,
+			disablePopularityFilter: $disablePopularityFilter, after: $after, sort: [ {{ sortBy: RELEASE_DATE, sortOrder: ASC }}, {{ sortBy: POPULARITY, sortOrder: ASC }} ] )
+			{{ pageInfo {{ endCursor hasNextPage }} edges {{ node {{...CalendarCard }} }} }} }} {fragment} """
+
+	today = datetime.datetime.utcnow().date()
+	end_date = today + datetime.timedelta(days=360)
+
+	variables = {
+		"comingSoonType": coming_soon_type,
+		"regionOverride": country,
+		"countryOverride": country,
+		"releasingOnOrAfter": today.isoformat(),
+		"releasingOnOrBefore": end_date.isoformat(),
+		"disablePopularityFilter": False,
+		"isInPace": False,
+		"after": None
+	}
+
+	all_titles = []
+	while True:
+		response = requests.post(API_URL, headers=HEADERS, json={ "operationName": "CalendarPage", "query": query, "variables": variables })
+		#print(response.text)
+		data = response.json()["data"]["comingSoon"]
+		titles = [edge["node"]["id"] for edge in data["edges"]]
+		all_titles.extend(titles)
+		if not data["pageInfo"]["hasNextPage"]:
+			break
+		variables["after"] = data["pageInfo"]["endCursor"]
+
+	return all_titles
+
+def imdb_multi(list_name):
+	import requests
+	import json
+	import datetime
+
+	HEADERS = {
+		"Content-Type": "application/json",
+		"User-Agent": "Mozilla/5.0",
+		"x-imdb-client-name": "imdb-web-next"
+	}
+	API_URL = "https://api.graphql.imdb.com/"
+
+	BASE_TITLE_CARD_FRAGMENT = """ fragment BaseTitleCard on Title { id titleText { text } titleType { id text canHaveEpisodes displayableProperty { value { plainText } } } 
+		originalTitleText { text } 
+		primaryImage {id width height url  caption { plainText } }
+		releaseYear { year endYear }
+		ratingsSummary { aggregateRating voteCount }
+		runtime { seconds }
+		certificate { rating }
+		canRate { isRatable }
+		titleGenres { genres(limit: 3) { genre { text } } }
+	}
+	"""
+
+	def gqlmin(q):
+		return q.replace("	", "")
+
+	def fetch_imdb_ids(category):
+		if category not in ["trending", "anticipated", "popular", "recent"]:
+			raise ValueError("Invalid category")
+
+		today = datetime.date.today().isoformat()
+		variables = {"limit": 600}
+		if category == "anticipated":
+			variables["queryFilter"] = {"releaseDateRange": {"start": today}}
+		elif category == "popular":
+			variables["queryFilter"] = {"releaseDateRange": {"end": today}}
+		elif category == "recent":
+			variables["queryFilter"] = {"contentTypes": ["TRAILER"]}
+
+		if category == "trending":
+			opname = "TrendingTitles"
+			query = """ query TrendingTitles($limit: Int!, $paginationToken: String) { trendingTitles(limit: $limit, paginationToken: $paginationToken) { titles { ...BaseTitleCard }  paginationToken  } } """
+		elif category == "recent":
+			opname = "RecentVideos"
+			query = """query RecentVideos($limit: Int!, $paginationToken: String, $queryFilter: RecentVideosQueryFilter!) { recentVideos(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) { videos { primaryTitle { ...BaseTitleCard } } paginationToken } }"""
+		else:
+			opname = "PopularTitles"
+			query = """query PopularTitles($limit: Int!, $paginationToken: String, $queryFilter: PopularTitlesQueryFilter!) {
+				popularTitles(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) { titles { ...BaseTitleCard  } paginationToken } }
+			"""
+
+		query += BASE_TITLE_CARD_FRAGMENT
+		items = []
+		pages = 0
+		pagination_token = None
+		while len(items) < 600 and pages < 5:
+			if pagination_token:
+				variables["paginationToken"] = pagination_token
+			payload = {
+				"operationName": opname,
+				"query": gqlmin(query),
+				"variables": variables
+			}
+			response = requests.post(API_URL, headers=HEADERS, data=json.dumps(payload))
+			print(response.text)
+			if response.status_code != 200:
+				raise Exception(f"Query failed: {response.status_code} - {response.text}")
+			data = response.json().get("data", {})
+			if category == "trending":
+				result = data.get("trendingTitles", {})
+				titles = result.get("titles", [])
+				items.extend([t["id"] for t in titles if "id" in t])
+				for t in titles:
+					print(t)
+			elif category == "recent":
+				result = data.get("recentVideos", {})
+				videos = result.get("videos", [])
+				items.extend([v["primaryTitle"]["id"] for v in videos if v.get("primaryTitle")])
+				for t in videos:
+					print(t)
+			else:
+				result = data.get("popularTitles", {})
+				titles = result.get("titles", [])
+				items.extend([t["id"] for t in titles if "id" in t])
+				for t in titles:
+					print(t)
+			pagination_token = result.get("paginationToken")
+			if not pagination_token:
+				break
+			pages += 1
+		return items
+
+	def imdb_movies_near_you(latitude,longitude,radius_meters,start_date,end_date,first=1000,sort_by="POPULARITY",sort_order="ASC"):
+		import requests
+		API_URL = "https://graphql.prod.api.imdb.a2z.com/"
+		HEADERS = {'Referer': 'https://www.imdb.com/', 'Origin': 'https://www.imdb.com', 'User-Agent': 'Mozilla/5.0','Content-Type': 'application/json'}
+
+		query = '''query MoviesNearYou($first: Int!, $sort: AdvancedTitleSearchSort!, $constraints: AdvancedTitleSearchConstraints!) { advancedTitleSearch(first: $first, sort: $sort, constraints: $constraints) {edges {  node { title {  id   titleText { text }   ratingsSummary { aggregateRating voteCount }   releaseYear { year }  primaryImage { url } }   }  } total  } } '''
+
+		variables = { "first": first, "sort": { "sortBy": sort_by, "sortOrder": sort_order },
+			"constraints": { "inTheatersConstraint": { "dateTimeRange": { 
+						"start": f"{start_date}T00:00:00.000Z",
+						"end": f"{end_date}T00:00:00.000Z"
+					}, "location": { "latLong": { "lat": str(latitude), "long": str(longitude)},"radiusInMeters": radius_meters } } } }
+
+		response = requests.post(API_URL, headers=HEADERS, json={  "operationName": "MoviesNearYou", "query": query, "variables": variables })
+
+		def image_url(title_info):
+			try:
+				if "primaryImage" in title_info and "url" in title_info["primaryImage"]:
+					image_url = title_info["primaryImage"]["url"]
+				else:
+					image_url = ''
+				return image_url
+			except: return ''
+
+		data = response.json().get("data", {}).get("advancedTitleSearch", {})
+		#print(response.text)
+		movies = []
+		movies_list = []
+		for edge in data.get("edges", []):
+			title_info = edge["node"]["title"]
+			#print(title_info)
+			movies_list.append(title_info.get("id"))
+			movie = {
+				"id": title_info.get("id"),
+				"title": title_info.get("titleText", {}).get("text"),
+				"rating": title_info.get("ratingsSummary", {}).get("aggregateRating"),
+				"vote_count": title_info.get("ratingsSummary", {}).get("voteCount"),
+				"release_year": title_info.get("releaseYear", {}).get("year"),
+				"image_url": image_url(title_info)
+
+			}
+			movies.append(movie)
+
+		return movies_list
+
+	if list_name == 'ls_trending':
+		movies_list = fetch_imdb_ids("trending")
+	elif list_name == 'ls_anticipated':
+		movies_list = fetch_imdb_ids("anticipated")
+	elif list_name == 'ls_popular':
+		movies_list = fetch_imdb_ids("popular")
+	elif list_name == 'ls_recent':
+		movies_list = fetch_imdb_ids("recent")
+	return movies_list
 
 
 
@@ -2195,113 +2196,6 @@ def filter_vod(movie_tv_items):
 	return results
 
 
-
-	"""
-	placeholders = ','.join('?' for _ in tmdb_ids)
-	query = f"SELECT * FROM vod WHERE tmdb IN ({placeholders})"
-
-	cur.execute(query, tmdb_ids)
-	results = cur.fetchall()
-	#conn.close()
-
-	Utils.tools_log(results)
-
-	#results = []
-	#for t in titles:
-	#	cur.execute("SELECT * FROM vod WHERE title LIKE ?", ('%' + t + '%',))
-	#	result1 = cur.fetchall()
-	#	if len(result1) >= 1:
-	#		Utils.tools_log(result1)
-	#	results.extend(result1)
-
-	placeholders = ','.join('?' for _ in titles)
-	query = f"SELECT * FROM vod WHERE title IN ({placeholders}) or clean_title IN ({placeholders}) or name IN ({placeholders})"
-
-	conn.close()
-
-	Utils.tools_log(results)
-
-	return 
-
-	TV = get_vod_alltv()
-	#movies = get_vod_allmovies()
-	movies_pre_processed = movies_pre_process(cache_days=1)
-	movie_tv_items = []
-	for x in movies_pre_processed:
-		tmdb_id = x['tmdb']
-		pre_processed_title_lower = x['pre_processed_title_lower']
-		pre_processed_clean_title_lower = x['pre_processed_clean_title_lower']
-		pre_processed_year = x['pre_processed_year']
-		for idx, i in enumerate(movie_tv_items2):
-			match = False
-			try: 
-				media_type = i['media_type']
-				try: tmdb_id = i['id']
-				except: tmdb_id = i['tmdb_id']
-				#imdb_id = get_imdb_id_from_movie_id(movie_id=tmdb_id)
-				#Utils.tools_log(imdb_id)
-			except: 
-				if i.get('show',False) == False:
-					media_type = 'movie'
-					try: tmdb_id = i['movie']['ids']['tmdb']
-					except: tmdb_id = i['ids']['tmdb']
-				else:
-					media_type = 'tv'
-					try: tmdb_id = i['show']['ids']['tmdb']
-					except: tmdb_id = i['ids']['tmdb']
-			if media_type == 'movie':
-				if str(tmdb_id) == str(x['tmdb']):# or str(imdb_id) == str(x['tmdb']):
-					match = True
-					break
-				if x['tmdb'] == '':
-					year = x['pre_processed_year']
-					if year == '':
-						test_imdb_year = ''
-					else:
-						test_imdb_year = i['year']
-					test_imdb_title = i['title']
-					if test_imdb_title.lower() in x['pre_processed_title_lower'] or clean_title(test_imdb_title.lower(), broken=2) in x['pre_processed_clean_title_lower'] and year == test_imdb_year:
-						match = True
-						break
-					test_imdb_title = i['OriginalTitle']
-					if test_imdb_title.lower() in x['pre_processed_title_lower'] or clean_title(test_imdb_title.lower(), broken=2) in x['pre_processed_title_lower'] and year == test_imdb_year:
-						match = True
-						break
-					test_imdb_title = i['Label']
-					if test_imdb_title.lower() in x['pre_processed_title_lower'] or clean_title(test_imdb_title.lower(), broken=2) in x['pre_processed_title_lower'] and year == test_imdb_year:
-						match = True
-						break
-		if match == True:
-			movie_tv_items.append(i)
-			movie_tv_items2.pop(idx)
-	for x in TV:
-		for idx, i in enumerate(movie_tv_items2):
-			match = False
-			try: 
-				media_type = i['media_type']
-				try: tmdb_id = i['id']
-				except: tmdb_id = i['tmdb_id']
-				#imdb_id = get_imdb_id_from_movie_id(movie_id=tmdb_id)
-				#Utils.tools_log(imdb_id)
-			except: 
-				if i.get('show',False) == False:
-					media_type = 'movie'
-					try: tmdb_id = i['movie']['ids']['tmdb']
-					except: tmdb_id = i['ids']['tmdb']
-				else:
-					media_type = 'tv'
-					try: tmdb_id = i['show']['ids']['tmdb']
-					except: tmdb_id = i['ids']['tmdb']
-			if media_type != 'movie':
-				if str(tmdb_id) == str(x['tmdb']):
-					match = True
-					break
-		if match == True:
-			movie_tv_items.append(i)
-			movie_tv_items2.pop(idx)
-
-	return movie_tv_items
-	"""
 
 def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):
 	import time, hashlib, xbmcvfs, os

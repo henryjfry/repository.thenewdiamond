@@ -5,7 +5,7 @@ from windows.base_window import BaseDialog
 
 pause_time_before_end, hold_pause_time = 10, 900
 episode_flag_base = 'fenlight_flags/episodes/%s.png'
-button_actions = {10: 'close', 11: 'play', 12: 'cancel'}
+button_actions = {10: 'close', 11: 'play', 12: 'cancel', 13: 'stop'}
 episode_status_dict = {
 'season_premiere': 'b30385b5',
 'mid_season_premiere': 'b385b503',

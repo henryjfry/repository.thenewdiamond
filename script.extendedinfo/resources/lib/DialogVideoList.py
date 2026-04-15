@@ -1739,9 +1739,11 @@ def get_tmdb_window(window_type):
 				self.search_str = get_imdb_list_ids(list_str=self.search_str,limit=0)
 				self.mode = 'imdb2'
 
-			if self.mode == 'search' and self.search_str[:2] == 'ur' and test_number:
+			if self.mode == 'search' and ((self.search_str[:2] == 'ur' and test_number) or self.search_str[:3]== 'p.n'):
+				from resources.lib.TheMovieDB import imdb_userListSearch_api
+				data = imdb_userListSearch_api(ur_id=self.search_str)
 				#fetch_data_dict_file = write_fetch_data_dict_file()
-				data = TheMovieDB.get_imdb_userlists_search(imdb_id=self.search_str)
+				#data = TheMovieDB.get_imdb_userlists_search(imdb_id=self.search_str)
 				listitems = []
 				imdb_list = []
 				imdb_list_name = []

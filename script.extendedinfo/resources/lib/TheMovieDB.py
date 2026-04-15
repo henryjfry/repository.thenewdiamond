@@ -735,150 +735,6 @@ def get_tastedive_data_scrape(url='', query='', year='', limit=20, media_type=No
 
 	return results
 
-def get_tastedive_data_scrape_old(url='', query='', year='', limit=20, media_type=None, cache_days=14, folder='TasteDive', item_id=None):
-	import time, hashlib, xbmcvfs, os
-	import re, json, requests, html
-	
-	from urllib.parse import quote_plus
-
-	if item_id:
-		url = 'https://tastedive.com/%s/%s' % (item_id,media_type)
-	else:
-		if 'show' in media_type or 'tv' in media_type:
-			response = get_tvshow_info(tvshow_label=query,year=year,use_dialog=False)
-			item_id = response['id']
-		else:
-			response = get_movie_info(movie_label=query,year=year,use_dialog=False, notify = False)
-			item_id = response['id']
-		url = 'https://tastedive.com/%s' % (item_id,media_type)
-
-	now = time.time()
-	url = url.encode('utf-8')
-	hashed_url = hashlib.md5(url).hexdigest()
-
-	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
-	cache_seconds = int(cache_days * 86400.0)
-	#if not cache_days:
-	#	xbmcgui.Window(10000).clearProperty(hashed_url)
-	#	xbmcgui.Window(10000).clearProperty('%s_timestamp' % hashed_url)
-	#prop_time = xbmcgui.Window(10000).getProperty('%s_timestamp' % hashed_url)
-	#if prop_time and now - float(prop_time) < cache_seconds:
-	#	try:
-	#		prop = json.loads(xbmcgui.Window(10000).getProperty(hashed_url))
-	#		if prop:
-	#			return prop
-	#	except Exception as e:
-	#		pass
-	path = os.path.join(cache_path, '%s.txt' % hashed_url)
-
-	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=None)
-	except:
-		db_result = None
-	if db_result:
-		return db_result
-	else:
-	#if xbmcvfs.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	results = Utils.read_from_file(path)
-	#	results_id = []
-	#	results_out = []
-	#	for i in results:
-	#		if not i['item_id'] in results_id:
-	#			results_id.append(i['item_id'])
-	#			results_out.append(i)
-	#	results = results_out
-	#else:
-		if item_id:
-			if 'show' in media_type or 'tv' in media_type:
-				#response = extended_tvshow_info(item_id)
-				response = single_tvshow_info(tvshow_id=item_id, cache_time=7)
-				type = 'show'
-			else:
-				#response = extended_movie_info(item_id)
-				response = single_movie_info(movie_id=item_id, cache_time=7, notify = False)
-				type = 'movie'
-		else:
-			if 'show' in media_type or 'tv' in media_type:
-				response = get_tvshow_info(tvshow_label=query,year=year,use_dialog=False)
-				item_id = response['id']
-				#response = extended_tvshow_info(item_id)
-				response = single_tvshow_info(tvshow_id=item_id, cache_time=7)
-				type = 'show'
-			else:
-				response = get_movie_info(movie_label=query,year=year,use_dialog=False, notify = False)
-				item_id = response['id']
-				#response = extended_movie_info(item_id)
-				response = single_movie_info(movie_id=item_id, cache_time=7, notify = False)
-				type = 'movie'
-		imdb_response = get_imdb_recommendations(imdb_id=response['imdb_id'], return_items=True)
-		#xbmc.log(str(imdb_response)+'query_get_tastedive_data_scrape===>OPENINFO', level=xbmc.LOGINFO)
-		results = []
-		results_id = []
-		for i in response['similar']['results']:
-			#xbmc.log(str(i)+'query_get_tastedive_data_scrape===>OPENINFO', level=xbmc.LOGINFO)
-			#xbmc.log(str(i['title'])+'query_get_tastedive_data_scrape===>OPENINFO', level=xbmc.LOGINFO)
-			#xbmc.log(str(i.get('poster_path',''))+'query_get_tastedive_data_scrape===>OPENINFO', level=xbmc.LOGINFO)
-			if i.get('poster_path','') == '' or i.get('poster_path','') == None or i.get('poster_path','') == 'None':
-				continue
-			try: votes = i['Votes']
-			except: votes = i.get('vote_count',0)
-			if votes >= 100:
-				try: title = i['title']
-				except: title = i['name']
-				try: year = i['year']
-				except: 
-					try: year = int(i['first_air_date'][0:4])
-					except: 
-						try: 
-							year = int(i['Premiered'][0:4])
-						except: 
-							try: year = int(i['release_date'][0:4])
-							except: continue
-				if not i['id'] in results_id:
-					results.append({'name': title, 'year': year, 'media_type':  i['media_type'], 'item_id': i['id']})
-					results_id.append(i['id'])
-		for i in imdb_response:
-			#xbmc.log(str(i)+'query_get_tastedive_data_scrape===>OPENINFO', level=xbmc.LOGINFO)
-			if i.get('poster','') == '' or i.get('poster','') == None or i.get('poster','') == 'None':
-				continue
-			try: title = i['title']
-			except: title = i['name']
-			try: year = i['year']
-			except: 
-				try: year = int(i['first_air_date'][0:4])
-				except: 
-					try: 
-						year = int(i['Premiered'][0:4])
-					except: 
-						try: year = int(i['release_date'][0:4])
-						except: continue
-			if not str("'item_id': %s" % (i['id'])) in str(results):
-				try: votes = i['Votes']
-				except: votes = i['vote_count']
-				if votes >= 100:
-					#results.append({'name': title, 'year': year, 'media_type':  i['media_type'], 'item_id': i['id']})
-					if not i['id'] in results_id:
-						results.append({'name': title, 'year': year, 'media_type':  i['media_type'], 'item_id': i['id']})
-						results_id.append(i['id'])
-
-
-	#Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-	#if not results:
-	#	return []
-	#else:
-	#	return results
-
-	if not results or len(results) == 0:
-		if expired_db_result == None:
-			return []
-		if len(expired_db_result) > 0:
-			Utils.write_db(connection=Utils.db_con,url=url, cache_days=0.25, folder=folder,cache_val=expired_db_result)
-			return expired_db_result
-		return []
-	else:
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-	return results
-
 
 def get_fanart_data(url='', tmdb_id=None, media_type=None, cache_days=14, folder='FanartTV'):
 	fanart_api = fanart_api_key()
@@ -1843,23 +1699,7 @@ def get_imdb_language_api(imdb_id=None, cache_days=14, folder='IMDB'):
 		"Accept": "application/json",
 		"User-Agent": "Mozilla/5.0"
 	}
-	query = """
-	query ($id: ID!) {
-		title(id: $id) {
-			spokenLanguages {
-				spokenLanguages {
-					id
-					text
-				}
-			}
-			countriesOfOrigin {
-				countries(limit: 1) {
-					id
-				}
-			}
-		}
-	}
-	"""
+	query = """ query ($id: ID!) { title(id: $id) { spokenLanguages { spokenLanguages { id text } } countriesOfOrigin { countries(limit: 1) { id } } } } """
 	variables = {"id": imdb_id}
 	payload = {"query": query, "variables": variables}
 	imdb_url = ('https://www.imdb.com/title/' + str(imdb_id) + '/get_imdb_language').encode('utf-8')
@@ -1907,39 +1747,19 @@ def imdb_base_title_card(imdb_id: str):
 		"User-Agent": "Mozilla/5.0"
 	}
 	query = """
-	query Title_Summary_Prompt_From_Base($id: ID!) {
-		title(id: $id) {
-			...BaseTitleCard
-		}
-	}
-	fragment BaseTitleCard on Title {
-		id
-		titleText { text }
-		titleType {
-			id
-			text
-			canHaveEpisodes
-			displayableProperty { value { plainText } }
-		}
-		originalTitleText { text }
-		primaryImage {
-			id
-			width
-			height
-			url
-			caption { plainText }
-		}
+	query Title_Summary_Prompt_From_Base($id: ID!) { title(id: $id) { ...BaseTitleCard } }
+	fragment BaseTitleCard on Title { 
+		id titleText { text } 
+		titleType { id text canHaveEpisodes displayableProperty { value { plainText } } }
+		originalTitleText { text } 
+		primaryImage { id width height url caption { plainText } }
 		releaseYear { year endYear }
 		ratingsSummary { aggregateRating voteCount }
 		runtime { seconds }
 		certificate { rating }
 		canRate { isRatable }
-		titleGenres {
-			genres(limit: 3) {
-				genre { text }
-			}
+		titleGenres { genres(limit: 3) { genre { text } } } 
 		}
-	}
 	"""
 	variables = {
 		"id": imdb_id
@@ -1951,80 +1771,10 @@ def imdb_base_title_card(imdb_id: str):
 		raise Exception(f"Query failed with status code {response.status_code}: {response.text}")
 
 def get_imdb_language(imdb_id=None, cache_days=14, folder='IMDB'):
+	Utils.log('get_imdb_language_api')
+	results = get_imdb_language_api(imdb_id=imdb_id, cache_days=cache_days, folder='IMDB')
+	return results
 
-	if 1==1:
-		Utils.log('get_imdb_language_api')
-		results = get_imdb_language_api(imdb_id=imdb_id, cache_days=cache_days, folder='IMDB')
-		return results
-
-"""
-	import time, hashlib, xbmcvfs, os
-	import re, json, requests, html
-	
-	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
-	url = imdb_url + '/get_imdb_language'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	
-	now = time.time()
-	url = url.encode('utf-8')
-	hashed_url = hashlib.md5(url).hexdigest()
-	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
-	cache_seconds = int(cache_days * 86400.0)
-	#if not cache_days:
-	#	xbmcgui.Window(10000).clearProperty(hashed_url)
-	#	xbmcgui.Window(10000).clearProperty('%s_timestamp' % hashed_url)
-	#prop_time = xbmcgui.Window(10000).getProperty('%s_timestamp' % hashed_url)
-	#if prop_time and now - float(prop_time) < cache_seconds:
-	#	try:
-	#		prop = json.loads(xbmcgui.Window(10000).getProperty(hashed_url))
-	#		if prop:
-	#			return prop
-	#	except Exception as e:
-	#		pass
-	path = os.path.join(cache_path, '%s.txt' % hashed_url)
-	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=imdb_header)
-	except:
-		db_result = None
-	if db_result:
-		return db_result
-	else:
-	#if xbmcvfs.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	results = Utils.read_from_file(path)
-	#	if not results:
-	#		return []
-	#	#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	#	#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-	#	return results
-	#else:
-		imdb_response = requests.get(imdb_url, headers=imdb_header)
-		details_section = imdb_response.text.split('<span>Details</span>')[1].split('</section>')[0]
-		language_list = []
-		for i in details_section.split('primary_language='):
-			try: language_list.append(i.split('ref_=tt_dt_ln">')[1].split('</a>')[0])
-			except: continue
-		
-		
-		country = details_section.split('?country_of_origin=')[1].split('&amp;')[0]
-		
-		results = language_list
-		if country == 'US' or country == 'UK' and results[1] == 'English':
-			results[0] = 'English'
-
-		Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-		#try:
-		#	Utils.save_to_file(results, hashed_url, cache_path)
-		#except:
-		#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-		#	Utils.log(response)
-		#	results = Utils.read_from_file(path) if xbmcvfs.exists(path) else []
-
-		if not results:
-			return []
-		#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-		#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-		return results
-"""
 
 def get_imdb_season_episodes(imdb_id, season, first=99):
 	import requests
@@ -2035,63 +1785,7 @@ def get_imdb_season_episodes(imdb_id, season, first=99):
 		"Accept": "application/json",
 		"User-Agent": "Mozilla/5.0"
 	}
-	query = """
-	query SeasonEpisodes($id: ID!, $season: String!, $first: Int!, $originalTitleText: Boolean!) {
-		title(id: $id) {
-			episodes {
-				episodes(
-					first: $first
-					filter: { includeSeasons: [$season] }
-					sort: { by: EPISODE_THEN_RELEASE, order: ASC }
-				) {
-					edges {
-						node {
-							id
-							titleText {
-								text
-							}
-							plot {
-								plotText {
-									plaidHtml(showOriginalTitleText: $originalTitleText)
-								}
-							}
-							releaseDate {
-								year
-								month
-								day
-							}
-							ratingsSummary {
-								aggregateRating
-								voteCount
-							}
-							primaryImage {
-								url
-							}
-							series {
-								displayableEpisodeNumber {
-									episodeNumber {
-										displayableProperty {
-											value {
-												plainText
-											}
-										}
-									}
-									displayableSeason {
-										displayableProperty {
-											value {
-												plainText
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	"""
+	query = """query SeasonEpisodes($id: ID!, $season: String!, $first: Int!, $originalTitleText: Boolean!) { title(id: $id) { episodes { episodes(first: $first, filter: { includeSeasons: [$season] }, sort: { by: EPISODE_THEN_RELEASE, order: ASC }) { edges { node { id titleText { text } plot { plotText { plaidHtml(showOriginalTitleText: $originalTitleText) } } releaseDate { year month day } ratingsSummary { aggregateRating voteCount } primaryImage { url } series { displayableEpisodeNumber { episodeNumber { displayableProperty { value { plainText } } } displayableSeason { displayableProperty { value { plainText } } } } } } } } } } }"""
 	variables = {
 		"id": imdb_id,
 		"season": str(season),
@@ -2137,40 +1831,9 @@ def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14
 		"Accept": "application/json",
 		"User-Agent": "Mozilla/5.0"
 	}
-	base_title_card = """
-	fragment BaseTitleCard on Title {
-		id
-		titleText {
-			text
-		}
-		primaryImage {
-			url
-		}
-		releaseYear {
-			year
-		}
-		titleType {
-			text
-		}
-	}
-	"""
-	query = f"""
-	query MoreLikeThis($id: ID!) {{
-		title(id: $id) {{
-			...TMD_MoreLikeThis
-		}}
-	}}
-	fragment TMD_MoreLikeThis on Title {{
-		id
-		isAdult
-		moreLikeThisTitles(first: 12) {{
-			edges {{
-				node {{
-					...BaseTitleCard
-				}}
-			}}
-		}}
-	}}
+
+	base_title_card = """fragment BaseTitleCard on Title { id titleText { text } primaryImage { url } releaseYear { year } titleType { text } } """
+	query = f""" query MoreLikeThis($id: ID!) {{ title(id: $id) {{ ...TMD_MoreLikeThis }} }} fragment TMD_MoreLikeThis on Title {{ id isAdult moreLikeThisTitles(first: 12) {{ edges {{ node {{ ...BaseTitleCard }} }} }} }}
 	{base_title_card}
 	"""
 	variables = {
@@ -2228,119 +1891,10 @@ def get_imdb_recommendations_api(imdb_id=None, return_items=False, cache_days=14
 
 
 def get_imdb_recommendations(imdb_id=None, return_items=False, cache_days=14, folder='IMDB'):
+	Utils.log('get_imdb_recommendations_api')
+	movies = get_imdb_recommendations_api(imdb_id, return_items=return_items, cache_days=cache_days, folder='IMDB')
+	return movies
 
-	if 1==1:
-		Utils.log('get_imdb_recommendations_api')
-		movies = get_imdb_recommendations_api(imdb_id, return_items=return_items, cache_days=cache_days, folder='IMDB')
-		return movies
-"""
-	import time, hashlib, xbmcvfs, os
-	import re, json, requests, html
-	
-	imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
-	imdb_url2 = 'https://www.imdb.com/title/' + str(imdb_id) + '[2]'
-	url = imdb_url + '/get_imdb_recommendations'
-	url2 = imdb_url2 + '/get_imdb_recommendations'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	
-	now = time.time()
-	url = url.encode('utf-8')
-	hashed_url = hashlib.md5(url).hexdigest()
-	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
-	url2 = url2.encode('utf-8')
-	hashed_url2 = hashlib.md5(url2).hexdigest()
-	cache_path2 = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
-	cache_seconds = int(cache_days * 86400.0)
-	#if not cache_days:
-	#	xbmcgui.Window(10000).clearProperty(hashed_url)
-	#	xbmcgui.Window(10000).clearProperty('%s_timestamp' % hashed_url)
-	#prop_time = xbmcgui.Window(10000).getProperty('%s_timestamp' % hashed_url)
-	#if prop_time and now - float(prop_time) < cache_seconds:
-	#	try:
-	#		prop = json.loads(xbmcgui.Window(10000).getProperty(hashed_url))
-	#		if prop:
-	#			return prop
-	#	except Exception as e:
-	#		pass
-	path = os.path.join(cache_path, '%s.txt' % hashed_url)
-	path2 = os.path.join(cache_path2, '%s[2].txt' % hashed_url2)
-
-	try: 
-		db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=imdb_header)
-		#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-	except:
-		db_result = None
-		xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-	if db_result:
-		#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-		return db_result
-	else:
-
-	#if xbmcvfs.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	results = Utils.read_from_file(path)
-	#	results2 = Utils.read_from_file(path2)
-	#	if return_items == False:
-	#		if not results2:
-	#			return []
-	#		#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url2, str(now))
-	#		#xbmcgui.Window(10000).setProperty(hashed_url2, json.dumps(results2))
-	#		return results2
-	#	else:
-	#		if not results:
-	#			return []
-	#		#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-	#		#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-	#		return results
-
-	#else:
-		imdb_response = requests.get(imdb_url, headers=imdb_header)
-		try: 
-			imdb_response = imdb_response.text.split('<span>Storyline</span>')[0].split('<span>More like this</span>')[1]
-		except:
-			Utils.log('IMDB_ERROR with URL =  %s. RETUNR_NONE_TheMovieDB.py_get_imdb_recommendations()' % imdb_url)
-			return []
-		list_container = str(imdb_response).split('poster-card__title--clickable" aria-label="')
-		toggle = False
-		movies = []
-		for i in list_container:
-			if 'href="/title/' in str(i):
-				imdb_id = i.split('href="/title/')[1].split('/?ref_')[0]
-				if imdb_id.replace('tt','').isnumeric():
-					movies.append(imdb_id)
-
-		if return_items == False:
-			results2 = movies
-
-			Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-			#try:
-			#	Utils.save_to_file(results2, hashed_url2, cache_path2)
-			#except:
-			#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-			#	Utils.log(response)
-			#	results2 = Utils.read_from_file(path2) if xbmcvfs.exists(path2) else []
-
-			if not results2:
-				return []
-			#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url2, str(now))
-			#xbmcgui.Window(10000).setProperty(hashed_url2, json.dumps(results2))
-			return results2
-		else:
-			results = get_imdb_watchlist_items(movies=movies, limit=0, imdb_url=imdb_url)
-
-			Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=results)
-			#try:
-			#	Utils.save_to_file(results, hashed_url, cache_path)
-			#except:
-			#	Utils.log('Exception: Could not get new JSON data from %s. Tryin to fallback to cache' % url)
-			#	Utils.log(response)
-			#	results = Utils.read_from_file(path) if xbmcvfs.exists(path) else []
-
-			if not results:
-				return []
-			#xbmcgui.Window(10000).setProperty('%s_timestamp' % hashed_url, str(now))
-			#xbmcgui.Window(10000).setProperty(hashed_url, json.dumps(results))
-			return results
-"""
 
 def get_imdb_list_ids_api2(list_str=None):
 	import requests, json
@@ -2352,44 +1906,12 @@ def get_imdb_list_ids_api2(list_str=None):
 	}
 
 	base_title_card = """
-	fragment BaseTitleCard on Title {
-		id
-		titleText { text }
-		primaryImage { url }
-		releaseYear { year }
-		titleType { text }
-	}
-	"""
-
-	query = f"""
-	query VideoPlaylistWidgetList($id: ID!, $first: Int!, $after: ID) {{
-	  list(id: $id) {{
-		items(first: $first, after: $after) {{
-		  total
-		  pageInfo {{
-			endCursor
-			hasNextPage
-		  }}
-		  edges {{
-			node {{
-			  listItem {{
-				... on Title {{
-				  ...BaseTitleCard
-				}}
-			  }}
-			}}
-		  }}
-		}}
-	  }}
-	}}
-	{base_title_card}
-	"""
+	fragment BaseTitleCard on Title { id titleText { text } primaryImage { url } releaseYear { year } titleType { text } } """
+	query = f""" query VideoPlaylistWidgetList($id: ID!, $first: Int!, $after: ID) {{   list(id: $id) {{ items(first: $first, after: $after) {{   total   pageInfo {{  endCursor hasNextPage   }}   edges {{ node {{   listItem {{ ... on Title {{   ...BaseTitleCard }}   }} }}   }} }}   }} }} {base_title_card} """
 
 	all_items = []
 	after_cursor = None
 	total = None
-
-	
 
 	while True:
 		variables = {
@@ -2431,60 +1953,6 @@ def get_imdb_list_ids_api2(list_str=None):
 	#return {"total": total,"fetched": len(all_items),"items": all_items}
 	return movies
 
-"""
-def get_imdb_list_ids_api(list_str=None, limit=0):
-	import requests
-	import json
-
-	url = "https://api.graphql.imdb.com/"
-
-	headers = {
-		"Content-Type": "application/json",
-		"User-Agent": "Mozilla/5.0",
-		"Accept": "application/json"
-	}
-
-	jumpToPosition = 1
-	payload = {
-		"operationName": "TitleListMainPage",
-		"variables": {
-			"first": 1000,
-			"isInPace": False,
-			"jumpToPosition": jumpToPosition,  # or 1, 251, 501, etc. for pagination
-			"locale": "en-US",
-			"lsConst": list_str,  # list ID (this one is the IMDb Top 1000)
-			"sort": {
-				"by": "LIST_ORDER",
-				"order": "ASC"
-			}
-		},
-		"extensions": {
-			"persistedQuery": {
-				"version": 1,
-				"sha256Hash": "4ce93fcade18588c948023788c0e42ee5c602148d417c828cd1712726dd24082"
-			}
-		}
-	}
-
-	response = requests.post(url, headers=headers, data=json.dumps(payload))
-
-	data = response.json()
-
-	movies = []
-	for i in data['data']['list']['titleListItemSearch']['edges']:
-		movies.append(i['listItem']['id'])
-
-	jumpToPosition = 1
-	total_items = data['data']['list']['items']['total']
-	while jumpToPosition + 1000 < total_items:
-		jumpToPosition = jumpToPosition + 1000
-		payload['variables']['jumpToPosition'] = jumpToPosition
-		response = requests.post(url, headers=headers, data=json.dumps(payload))
-		data = response.json()
-		for i in data['data']['list']['titleListItemSearch']['edges']:
-			movies.append(i['listItem']['id'])
-	return movies
-"""
 
 def get_imdb_list_ids(list_str=None, limit=0):
 	Utils.log(list_str)
@@ -2522,39 +1990,7 @@ def get_imdb_list_ids(list_str=None, limit=0):
 		Utils.log('get_imdb_list_ids_api2  ' + str(list_str))
 		movies = get_imdb_list_ids_api2(list_str)
 		return movies
-	"""
-	import requests
-	page_curr = 1
-	imdb_url = 'https://www.imdb.com/list/'+str(list_str)+'/?page=1'
-	Utils.log(imdb_url)
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	imdb_response = requests.get(imdb_url, headers=imdb_header)
-	movies = []
-	list_container = str(imdb_response.text).split('"listItem":{"id":"')
-	for i in list_container:
-		if '","titleText":' in i:
-			y = i.split('","titleText":')[0]
-			movies.append(y)
-	try:
-		page_label = imdb_response.text.split('listPagination')[1].split('>')[1].split('<')[0]
-		page_curr = page_label.split(' of ')[0]
-		page_next = int(page_curr) + 1
-		page_tot = page_label.split(' of ')[1]
-	except:
-		page_next ,page_curr, page_tot = 2, 1, 1
-	while page_next <= int(page_tot):
-		imdb_url = 'https://www.imdb.com/list/'+str(list_str)+'/?page=' + str(page_next)
-		Utils.log(imdb_url)
-		page_curr = page_next
-		imdb_response = requests.get(imdb_url, headers=imdb_header)
-		list_container = str(imdb_response.text).split('"listItem":{"id":"')
-		for i in list_container:
-			if '","titleText":' in i:
-				y = i.split('","titleText":')[0]
-				movies.append(y)
-		page_next = int(page_curr) + 1
-	return movies
-	"""
+
 
 
 
@@ -2568,69 +2004,9 @@ def imdb_top_1000():
 		'Content-Type': 'application/json'
 	}
 
-	query = '''
-	query AdvancedTitleSearch(
-		$first: Int!,
-		$after: String,
-		$originCountryConstraint: OriginCountrySearchConstraint,
-		$rankedTitleListConstraint: RankedTitleListSearchConstraint,
-		$sortBy: AdvancedTitleSearchSortBy!,
-		$sortOrder: SortOrder!
-	) {
-		advancedTitleSearch(
-			first: $first,
-			after: $after,
-			constraints: {
-				originCountryConstraint: $originCountryConstraint,
-				rankedTitleListConstraint: $rankedTitleListConstraint
-			},
-			sort: {
-				sortBy: $sortBy,
-				sortOrder: $sortOrder
-			}
-		) {
-			...AdvancedTitleSearchConnection
-		}
-	}
+	query = '''query AdvancedTitleSearch($first: Int!,$after: String,$originCountryConstraint: OriginCountrySearchConstraint,$rankedTitleListConstraint: RankedTitleListSearchConstraint,$sortBy: AdvancedTitleSearchSortBy!,$sortOrder: SortOrder!) { advancedTitleSearch(first: $first,after: $after,constraints: { originCountryConstraint: $originCountryConstraint,rankedTitleListConstraint: $rankedTitleListConstraint },sort: { sortBy: $sortBy,sortOrder: $sortOrder }) { ...AdvancedTitleSearchConnection } } fragment AdvancedTitleSearchConnection on AdvancedTitleSearchConnection { total pageInfo { endCursor hasNextPage } edges { node { title { id titleText { text } originalTitleText { text } ratingsSummary { aggregateRating voteCount } releaseYear { year } primaryImage { url } } } } }'''
 
-	fragment AdvancedTitleSearchConnection on AdvancedTitleSearchConnection {
-		total
-		pageInfo {
-			endCursor
-			hasNextPage
-		}
-		edges {
-			node {
-				title {
-					id
-					titleText { text }
-					originalTitleText { text }
-					ratingsSummary { aggregateRating voteCount }
-					releaseYear { year }
-					primaryImage { url }
-				}
-			}
-		}
-	}
-	'''
-
-	variables = {
-		"first": 1000,
-		"after": None,
-		"locale": "en-US",
-		"originCountryConstraint": {
-			"excludeCountries": ["IN"]
-		},
-		"rankedTitleListConstraint": {
-			"allRankedTitleLists": [{
-				"rankRange": {"max": 1000},
-				"rankedTitleListType": "TOP_RATED_MOVIES"
-			}],
-			"excludeRankedTitleLists": []
-		},
-		"sortBy": "USER_RATING",
-		"sortOrder": "DESC"
-	}
+	variables = { "first": 1000, "after": None, "locale": "en-US", "originCountryConstraint": { "excludeCountries": ["IN"] }, "rankedTitleListConstraint": { "allRankedTitleLists": [{ "rankRange": {"max": 1000}, "rankedTitleListType": "TOP_RATED_MOVIES" }], "excludeRankedTitleLists": [] }, "sortBy": "USER_RATING", "sortOrder": "DESC" }
 
 	all_titles = []
 	while True:
@@ -2653,311 +2029,70 @@ def imdb_top_1000():
 	return all_titles
 
 
-"""
-def imdb_top_1000():
-	import requests
-	import json, time
 
-	url = 'https://caching.graphql.imdb.com/'
-
-	headers = {'Content-Type': 'application/json','User-Agent': 'Mozilla/5.0','Accept': 'application/json',}
-
-	payload = {
-		"operationName": "AdvancedTitleSearch",
-		"variables": {
-			"after": None,
-			"first": 1000,
-			"locale": "en-US",
-			"originCountryConstraint": {
-				"excludeCountries": ["IN"]
-			},
-			"rankedTitleListConstraint": {
-				"allRankedTitleLists": [{
-					"rankRange": {"max": 1000},
-					"rankedTitleListType": "TOP_RATED_MOVIES"
-				}],
-				"excludeRankedTitleLists": []
-			},
-			"sortBy": "USER_RATING",
-			"sortOrder": "DESC"
-		},
-		"extensions": {
-			"persistedQuery": {
-				"version": 1,
-				"sha256Hash": "81b46290a78cc1e8b3d713e6a43c191c55b4dccf3e1945d6b46668945846d832"
-			}
-		}
-	}
-
-	response = requests.post(url, headers=headers, data=json.dumps(payload))
-	x = 0
-	if 'PersistedQueryNotFound' in str(response.text):
-		while 'PersistedQueryNotFound' in str(response.text):
-			response = requests.post(url, headers=headers, data=json.dumps(payload))
-			time.sleep(0.3)
-			x = x + 1
-			if x == 5:
-				break
-	if "errorType" in str(response.text):
-		xbmc.log(str(response.text)+'get_first_page'+str(x)+'===>imdb_top_1000', level=xbmc.LOGINFO)
-
-	data = response.json()
-	movies = []
-	for i in data['data']['advancedTitleSearch']['edges']:
-		movies.append(i['node']['title']['id'])
-	return movies
-"""
-
-"""
-def imdb_userListSearch_api(ur_id=None):
-	import requests
-	import json
-
-	url = 'https://caching.graphql.imdb.com/'
-
-	headers = {'Content-Type': 'application/json','User-Agent': 'Mozilla/5.0','Accept': 'application/json',}
-
-	all_items = []
-	cursor = None
-	has_next_page = True
-
-	while has_next_page:
-		payload = {
-			"operationName": "ListsPage",
-			"variables": {
-				"anyListTypes": ["TITLES"],
-				"first": 1000,
-				"locale": "en-GB",
-				"sort": {"by": "DATE_MODIFIED", "order": "DESC"},
-				"urConst": ur_id,
-				"after": cursor
-			},
-			"extensions": {
-				"persistedQuery": {
-					"version": 1,
-					"sha256Hash": "65f7594228f90dd121598ee9c4dfd05f95fb6f0d47d453501aef99cf331434d1"
-				}
-			}
-		}
-
-		response = requests.post(url, headers=headers, data=json.dumps(payload))
-		x = 0
-		if 'PersistedQueryNotFound' in str(response.text):
-			while 'PersistedQueryNotFound' in str(response.text):
-				response = requests.post(url, headers=headers, data=json.dumps(payload))
-				time.sleep(0.3)
-				x = x + 1
-				if x == 5:
-					break
-		if "errorType" in str(response.text):
-			print_log(response.text,'get_first_page'+str(x))
-
-		data = response.json()
-
-		#try:
-		if 1==1:
-			edges = data['data']['userListSearch']['edges']
-			page_info = data['data']['userListSearch']['pageInfo']
-			all_items.extend(edges)
-			has_next_page = page_info['hasNextPage']
-			cursor = page_info['endCursor']
-		#except Exception as e:
-		#	print("Error:", e)
-		#	break
-
-	#imdb_list = {'imdb_list': [{'urXXXXX': 'IMDB - USER Watchlist'}, {'ls562384988': 'IMDB - Nowtfilx'}, ]}
-	imdb_list = {'imdb_list': []}
-	imdb_list['imdb_list'].append({ur_id: 'IMDB - %s Watchlist' % str(data.get('data', {}).get('userProfile',{}).get('username','').get('text','')) })
-	results = []
-	for i in all_items:
-		imdb_list['imdb_list'].append({i['node']['id']: 'IMDB - ' + str(i['node']['name']['originalText']) + ' - ' + str(i['node']['items']['total'])})
-		#xbmc.log(str({'list_id': i['node']['id'], 'list_name': i['node']['name']['originalText'], 'list_count': i['node']['items']['total']})+'===>OPENINFO', level=xbmc.LOGINFO)
-	return imdb_list
-"""
-
-"""
-def get_imdb_userlists_search(imdb_id=None):
-	imdb_id = imdb_id
-	if imdb_id == '':
-		return None
-	import requests
-	imdb_url = 'https://www.imdb.com/user/'+str(imdb_id)+'/lists'
-	#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
-	#xbmc.log(str(imdb_url)+'===>OPENINFO', level=xbmc.LOGINFO)
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	imdb_response = requests.get(imdb_url, headers=imdb_header)
-	list_container = str(imdb_response.text,).split('<')
-	#xbmc.log(str(list_container)+'===>OPENINFO', level=xbmc.LOGINFO)
-	imdb_list = {}
-	imdb_list['imdb_list'] = []
-	processed_list = []
-	imdb_user_name = None
-
-	for i in list_container:
-		if 'meta property=\'og:title\' content="' in i:
-			imdb_user_name = i.split('"')[1].replace('Lists - IMDb','')
-			imdb_user_name = 'IMDB - %s Watchlist' % (imdb_user_name)
-			imdb_list['imdb_list'].append({imdb_id: imdb_user_name})
-		if 'title>' in i and imdb_user_name == None:
-			imdb_user_name = html.unescape(i.split('title>')[1]).replace("'s Lists",'')
-			imdb_user_name = 'IMDB - %s Watchlist' % (imdb_user_name)
-			imdb_list['imdb_list'].append({imdb_id: imdb_user_name})
-
-		if 'href="/list/ls' in i:
-			list_number = 'ls' + i.split('href="/list/ls')[1].split('/?r')[0]
-			if list_number in processed_list:
-				continue
-			processed_list.append(list_number)
-			#list_name = 'IMDB - ' + i.split('/')[3].replace('">','')
-			list_name = 'IMDB - ' + i.split('View list page for ')[1].split('">')[0]
-			imdb_list['imdb_list'].append({list_number: list_name})
-
-	if len(imdb_list['imdb_list']) == 0:
-		xbmc.log(str(imdb_url)+'===>OPENINFO', level=xbmc.LOGINFO)
-		xbmc.log(str(list_container)+'===>OPENINFO', level=xbmc.LOGINFO)
-		xbmc.log(str(imdb_url)+'===>OPENINFO', level=xbmc.LOGINFO)
-	return imdb_list
-"""
 
 def imdb_userListSearch_api(ur_id=None):
 	Utils.log('imdb_userListSearch_api')
-	import requests
-	import time
+	user_profile_id = ur_id
 
-	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-	HEADERS = {
-		'Referer': 'https://www.imdb.com/',
-		'Origin': 'https://www.imdb.com',
-		'User-Agent': 'Mozilla/5.0',
-		'Content-Type': 'application/json',
-		'Accept': 'application/json',
-	}
+	import requests, json, re
 
-	query = '''
-	query ListsPage(
-		$first: Int!,
-		$after: ID,
-		$anyListTypes: [ListTypeId!],
-		$anyVisibilities: [ListVisibilityId!],
-		$sort: ListSearchSort,
-		$urConst: ID
-	) {
-		userProfile(input: { userId: $urConst }) {
-			username { text }
-		}
-		userListSearch(
-			after: $after,
-			filter: {
-				anyClassTypes: [LIST],
-				anyListTypes: $anyListTypes,
-				anyVisibilities: $anyVisibilities
-			},
-			first: $first,
-			listOwnerUserId: $urConst,
-			sort: $sort
-		) {
-			edges {
-				node {
-					...UserListListItemMetadata
-				}
-			}
-			pageInfo {
-				endCursor
-				hasNextPage
-				hasPreviousPage
-			}
-			total
-		}
-	}
+	def get_urconst_from_profile_id(profile_id):
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+		query = """query RatingInsightsInterestTopRatedWithProfileId($profileId: ID) { userProfile(input: { profileId: $profileId }) { userId } }"""
+		variables = {"profileId": profile_id}
+		try:
+			response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}, separators=(',', ':')))
+			#Utils.log(f"DEBUG RESPONSE: {response.text}")
+			if response.status_code != 200: return f"Error: {response.status_code}"
+			ur_const = response.json().get("data", {}).get("userProfile", {}).get("userId")
+			return ur_const if ur_const else "UR ID not found"
+		except Exception as e: return f"Failed: {str(e)}"
 
-	fragment UserListListItemMetadata on List {
-		author {
-			nickName
-			userId
-		}
-		id
-		name {
-			originalText
-		}
-		listType {
-			id
-		}
-		listClass {
-			id
-			name { text }
-		}
-		description {
-			originalText {
-				plainText
-			}
-		}
-		items(first: 0) {
-			total
-		}
-		createdDate
-		lastModifiedDate
-		primaryImage {
-			image {
-				id
-				caption { plainText }
-				height
-				width
-				url
-			}
-		}
-		visibility { id }
-	}
-	'''
-
-	variables = {
-		"first": 1000,
-		"after": None,
-		"anyListTypes": ["TITLES"],
-		"anyVisibilities": ["PUBLIC", "PRIVATE"],
-		"sort": {"by": "DATE_MODIFIED", "order": "DESC"},
-		"urConst": ur_id
-	}
-
-	all_items = []
-	has_next_page = True
-	cursor = None
-
-	while has_next_page:
-		variables["after"] = cursor
-		payload = {
-			"operationName": "ListsPage",
-			"query": query,
-			"variables": variables
-		}
-
-		response = requests.post(API_URL, headers=HEADERS, json=payload)
-		response.raise_for_status()
-		data = response.json()
-
-		edges = data.get("data", {}).get("userListSearch", {}).get("edges", [])
-		page_info = data.get("data", {}).get("userListSearch", {}).get("pageInfo", {})
-		username = data.get("data", {}).get("userProfile", {}).get("username", {}).get("text", "")
-
-		all_items.extend(edges)
-		has_next_page = page_info.get("hasNextPage", False)
-		cursor = page_info.get("endCursor")
-
-		time.sleep(0.3)
-
-	imdb_list = {"imdb_list": []}
-	#imdb_list["imdb_list"].append({ur_id: f"IMDB - {username} Watchlist"})
-	watchlist_dict = get_user_watchlist_id(ur_list_str=ur_id,return_dict=True)
-	watchlist_dict['name'] = watchlist_dict['name'].replace(ur_id,username)
-	imdb_list["imdb_list"].append({watchlist_dict['watchlist_id']: watchlist_dict['name']})
-
-	for item in all_items:
-		node = item.get("node", {})
-		list_id = node.get("id")
-		list_name = node.get("name", {}).get("originalText", "")
-		list_count = node.get("items", {}).get("total", 0)
-		imdb_list["imdb_list"].append({list_id: f"IMDB - {list_name} - {list_count}"})
-
-
+	def get_user_lists_via_search(ur_id):
+		Utils.log('get_user_lists_via_search')
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next" }
+		query = """query UserLists($ur_id: ID!, $after: ID) { userListSearch(first: 100, listOwnerUserId: $ur_id, after: $after) { edges { node { id name { originalText } items(first: 0) { total } 	author { nickName userId } } } pageInfo { hasNextPage endCursor } } }"""
+		all_edges = []
+		after_cursor = None
+		nickname = "User"
+		try:
+			while True:
+				variables = {"ur_id": ur_id, "after": after_cursor}
+				response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}))
+				#Utils.log(response.text)
+				if response.status_code != 200: return None, f"Error: {response.status_code}"
+				payload = response.json().get("data", {}).get("userListSearch", {})
+				edges = payload.get("edges", [])
+				if not edges and not all_edges: return None, "No public lists found"
+				all_edges.extend(edges)
+				if edges and nickname == "User":
+					nickname = edges[0].get("node", {}).get("author", {}).get("nickName", "User")
+				page_info = payload.get("pageInfo", {})
+				if not page_info.get("hasNextPage"):
+					break
+				after_cursor = page_info.get("endCursor")
+			imdb_list = {"imdb_list": []}
+			for edge in all_edges:
+				node = edge.get("node", {})
+				list_id = node.get("id")
+				list_name = node.get("name", {}).get("originalText", "Unnamed List")
+				if list_name.lower() == 'watchlist':
+					list_name = f"{nickname} Watchlist"
+				list_count = node.get("items", {}).get("total", 0)
+				imdb_list["imdb_list"].append({
+					list_id: f"IMDB - {list_name} - {list_count}"
+				})
+			return nickname, imdb_list
+		except Exception as e: return None, f"Failed: {str(e)}"
+	ur_id = user_profile_id
+	if ur_id[:2].lower() == 'ur':
+		nickname, imdb_list = get_user_lists_via_search(ur_id)
+	else:
+		ur_id = get_urconst_from_profile_id(user_profile_id)
+		nickname, imdb_list = get_user_lists_via_search(ur_id)
 	return imdb_list
 
 def get_imdb_userlists():
@@ -2972,171 +2107,66 @@ def get_imdb_userlists():
 
 def get_user_watchlist_id(ur_list_str=None,return_dict=False):
 	Utils.log('get_user_watchlist_id')
-	import requests, json
-
-	API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-
-	HEADERS = {
-		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-		"Accept": "application/json",
-		"Content-Type": "application/json",
-		"Referer": "https://www.imdb.com/user/%s/" % (str(ur_list_str)),
-		"Origin": "https://www.imdb.com",
-		"x-imdb-client-name": "imdb-web-next",
-		"x-imdb-user-language": "en-GB",
-		"x-imdb-user-country": "GB"
-	}
-
-	GRAPHQL_QUERY = """
-
-	query YourPredefinedListsSidebar($userId: ID!) {
-	  watchlist: predefinedList(classType: WATCH_LIST, userId: $userId) {
-		...ListPreviewCard
-	  }
-	}
-
-	fragment ListPreviewCard on List {
-	  id
-	  lastModifiedDate
-	  createdDate
-	  name { originalText }
-	  listType { id }
-	  primaryImage {
-		image {
-		  url height width
-		  caption { plainText }
-		}
-	  }
-	  items(first: 0) { total }
-	}
-
-	"""
-
-	response = requests.post(API_URL, headers=HEADERS, json={"query": GRAPHQL_QUERY, "variables": {"userId": ur_list_str}})
-	#print("Status Code:", response.status_code)
-	#print("Response JSON:")
-	#print(response.text)
-	data = response.json()
-	watchlist_id = data['data']['watchlist']['id']
+	user_profile_id = ur_list_str
+	import requests, json, re
+	def get_urconst_from_profile_id(profile_id):
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+		query = """query RatingInsightsInterestTopRatedWithProfileId($profileId: ID) { userProfile(input: { profileId: $profileId }) { userId } }"""
+		variables = {"profileId": profile_id}
+		try:
+			response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}, separators=(',', ':')))
+			#print(f"DEBUG RESPONSE: {response.text}")
+			if response.status_code != 200: return f"Error: {response.status_code}"
+			ur_const = response.json().get("data", {}).get("userProfile", {}).get("userId")
+			return ur_const if ur_const else "UR ID not found"
+		except Exception as e: return f"Failed: {str(e)}"
+	def get_watchlist_lsid_from_ur(ur_id):
+		url = "https://api.graphql.imdb.com/"
+		headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+		# Corrected to WATCH_LIST and userId based on standard IMDb GraphQL field names
+		query = """query WatchlistDiscovery($ur_id: ID!) { predefinedList(classType: WATCH_LIST, userId: $ur_id) { id items(first: 0) { total } } }"""
+		variables = {"ur_id": ur_id}
+		try:
+			response = requests.post(url, headers=headers, data=json.dumps({"query": query, "variables": variables}))
+			#print(f"DEBUG RESPONSE: {response.text}")
+			if response.status_code != 200: return f"Error: {response.status_code}"
+			data = response.json()
+			ls_id = data.get("data", {}).get("predefinedList", {}).get("id")
+			total = data.get("data", {}).get("predefinedList", {}).get("items",{}).get("total")
+			ls_dict = {'ls_id': ls_id, 'name': 'watchlist', 'count': total}
+			return ls_id,ls_dict if ls_id else "Watchlist not found (check if profile is public)"
+		except Exception as e: return f"Failed: {str(e)}"
+	ur_id = user_profile_id
+	if ur_id[:2].lower() == 'ur':
+		ls_id,ls_dict =get_watchlist_lsid_from_ur(ur_id)
+	else:
+		ur_id = get_urconst_from_profile_id(user_profile_id)
+		ls_id,ls_dict =get_watchlist_lsid_from_ur(ur_id)
 	if return_dict == False:
-		return watchlist_id
+		return ls_id
 	else:
 		watchlist_dict = {}
-		watchlist_dict['watchlist_id'] = watchlist_id
-		watchlist_dict['ur_list_str'] = ur_list_str
-		watchlist_dict['total'] = data['data']['watchlist']['items']['total']
-		watchlist_dict['name'] = f"IMDB - {ur_list_str} Watchlist - " + str(data['data']['watchlist']['items']['total'])
+		watchlist_dict['watchlist_id'] = ls_id
+		watchlist_dict['ur_list_str'] = ur_id
+		watchlist_dict['total'] = ls_dict['count']
+		watchlist_dict['name'] = f"IMDB - {ur_id} Watchlist - " + str(ls_dict['count'])
 		return watchlist_dict
 
 
 def get_imdb_watchlist_ids_api2(ur_list_str=None, limit=0):
-	"""
-	import requests, json
-	url_user = 'https://www.imdb.com/user/%s/?ref_=wl_usr_ov' % (ur_list_str)
-	headers = {
-		"Content-Type": "application/json",
-		"User-Agent": "Mozilla/5.0",
-		"x-imdb-client-name": "imdb-web-next"
-	}
-	response = requests.get(url_user, headers=headers)
-	#watchlist_data = str(response.text.split('watchlistData')[1].split('"TitleListItemSearchEdge"}]')[0])
-	#xbmc.log(str(watchlist_data)+'===>OPENINFO', level=xbmc.LOGINFO)
-	list_id = 'ls' + str(response.text.split('watchlistData":{"id":"ls')[1].split('","')[0])
-	"""
 	list_id = get_user_watchlist_id(ur_list_str=ur_list_str)
 
 	url = "https://api.graphql.imdb.com/"
 	movies = get_imdb_list_ids_api2(list_str=list_id)
 	return movies
 
-"""
-def get_imdb_watchlist_ids_api(ur_list_str=None, limit=0):
-	list_str = ur_list_str
-	import requests
-	import json
-	url = "https://api.graphql.imdb.com/"
-	headers = {
-		"Content-Type": "application/json",
-		"User-Agent": "Mozilla/5.0",
-		"Accept": "application/json"
-	}
-	jumpToPosition = 1
-	payload = {
-		"operationName": "WatchListPageRefiner",
-		"variables": {
-			"first": 1000,
-			"jumpToPosition": jumpToPosition,  # You can change this to 1, 251, 501, etc.
-			"locale": "en-US",
-			"sort": {
-				"by": "LIST_ORDER",
-				"order": "ASC"
-			},
-			"urConst": list_str
-		},
-		"extensions": {
-			"persistedQuery": {
-				"version": 1,
-				"sha256Hash": "36d16110719e05e125798dec569721248a88835c64a7e853d3a80be8775eea92"
-			}
-		}
-	}
-	response = requests.post(url, headers=headers, data=json.dumps(payload))
-	data = response.json()
-	movies = []
-	for i in data['data']['predefinedList']['titleListItemSearch']['edges']:
-		movies.append(i['listItem']['id'])
-	jumpToPosition = 1
-	total_items = data['data']['predefinedList']['titleListItemSearch']['total']
-	while jumpToPosition + 1000 < total_items:
-		jumpToPosition = jumpToPosition + 1000
-		payload['variables']['jumpToPosition'] = jumpToPosition
-		response = requests.post(url, headers=headers, data=json.dumps(payload))
-		data = response.json()
-		for i in data['data']['predefinedList']['titleListItemSearch']['edges']:
-			movies.append(i['listItem']['id'])
-	return movies
-"""
 
 def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
 	if ur_list_str:
 		Utils.log('get_imdb_watchlist_ids_api2')
 		movies = get_imdb_watchlist_ids_api2(ur_list_str)
 		return movies
-	"""
-	import requests
-	list_str=ur_list_str
-
-	page_curr = 1
-	imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist?page=1'
-	Utils.log(imdb_url)
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	imdb_response = requests.get(imdb_url, headers=imdb_header)
-	movies = []
-	list_container = str(imdb_response.text).split('"listItem":{"id":"')
-	for i in list_container:
-		if '","titleText":' in i:
-			y = i.split('","titleText":')[0]
-			movies.append(y)
-	try:
-		page_label = imdb_response.text.split('listPagination')[1].split('>')[1].split('<')[0]
-		page_curr = page_label.split(' of ')[0]
-		page_next = int(page_curr) + 1
-		page_tot = page_label.split(' of ')[1]
-	except:
-		page_next ,page_curr, page_tot = 2, 1, 1
-	while page_next <= int(page_tot):
-		imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist?page=' +  str(page_next)
-		Utils.log(imdb_url)
-		page_curr = page_next
-		imdb_response = requests.get(imdb_url, headers=imdb_header)
-		list_container = str(imdb_response.text).split('"listItem":{"id":"')
-		for i in list_container:
-			if '","titleText":' in i:
-				y = i.split('","titleText":')[0]
-				movies.append(y)
-		page_next = int(page_curr) + 1
-	return movies
-	"""
 
 
 def imdb_coming_soon(country: str, coming_soon_type: str):
@@ -3152,112 +2182,20 @@ def imdb_coming_soon(country: str, coming_soon_type: str):
 
 	fragment = """
 	fragment CalendarCard on Title {
-		id
-		titleText { text }
-		originalTitleText { text }
-		titleType { id text canHaveEpisodes }
-		isAdult
-		releaseDate {
-			year
-			month
-			day
-			country { id }
-			displayableProperty {
-				qualifiersInMarkdownList { plaidHtml }
-			}
-		}
-		releaseDates(
-			first: 10,
-			filter: {
-				countries: [$countryOverride],
-				wideRelease: WIDE_RELEASE_ONLY
-			}
-		) {
-			edges {
-				node {
-					year
-					month
-					day
-					country { id }
-					displayableProperty {
-						qualifiersInMarkdownList { plaidHtml }
-					}
-				}
-			}
-		}
-		primaryImage {
-			url
-			height
-			width
-			caption { plainText }
-		}
-		titleGenres {
-			genres(limit: 3) {
-				genre {
-					displayableProperty {
-						value { plainText }
-					}
-				}
-			}
-		}
-		principalCredits(filter: { categories: ["cast"] }) {
-			credits {
-				name {
-					id
-					nameText { text }
-				}
-			}
-		}
-		releaseYear { endYear year }
-		series {
-			displayableEpisodeNumber {
-				episodeNumber { text }
-				displayableSeason { season }
-			}
-			series {
-				titleText { text }
-				originalTitleText { text }
-			}
-		}
-	}
-	"""
+		id titleText { text } originalTitleText { text } titleType { id text canHaveEpisodes } isAdult
+		releaseDate { year month day country { id } displayableProperty { qualifiersInMarkdownList { plaidHtml } } }
+		releaseDates( first: 10, filter: { countries: [$countryOverride], wideRelease: WIDE_RELEASE_ONLY } ) {
+			edges { node { year month day country { id } displayableProperty { qualifiersInMarkdownList { plaidHtml } } } } }
+		primaryImage { url height width caption { plainText } }
+		titleGenres { genres(limit: 3) { genre { displayableProperty { value { plainText } } } } }
+		principalCredits(filter: { categories: ["cast"] }) { credits { name { id nameText { text } } } } 
+		releaseYear { endYear year } 
+		series {displayableEpisodeNumber { episodeNumber { text } displayableSeason { season } } series { titleText { text } originalTitleText { text } } } } """
 
-	query = f"""
-	query CalendarPage(
-		$comingSoonType: ComingSoonType!,
-		$regionOverride: String!,
-		$countryOverride: ID!,
-		$releasingOnOrAfter: Date!,
-		$releasingOnOrBefore: Date!,
-		$disablePopularityFilter: Boolean!,
-		$after: ID
-	) {{
-		comingSoon(
-			comingSoonType: $comingSoonType,
-			first: 250,
-			regionOverride: $regionOverride,
-			releasingOnOrAfter: $releasingOnOrAfter,
-			releasingOnOrBefore: $releasingOnOrBefore,
-			disablePopularityFilter: $disablePopularityFilter,
-			after: $after,
-			sort: [
-				{{ sortBy: RELEASE_DATE, sortOrder: ASC }},
-				{{ sortBy: POPULARITY, sortOrder: ASC }}
-			]
-		) {{
-			pageInfo {{
-				endCursor
-				hasNextPage
-			}}
-			edges {{
-				node {{
-					...CalendarCard
-				}}
-			}}
-		}}
-	}}
-	{fragment}
-	"""
+	query = f""" query CalendarPage( $comingSoonType: ComingSoonType!, $regionOverride: String!, $countryOverride: ID!, $releasingOnOrAfter: Date!, $releasingOnOrBefore: Date!, $disablePopularityFilter: Boolean!, 
+		$after: ID ) {{ comingSoon( comingSoonType: $comingSoonType, first: 250, regionOverride: $regionOverride, releasingOnOrAfter: $releasingOnOrAfter, releasingOnOrBefore: $releasingOnOrBefore,
+			disablePopularityFilter: $disablePopularityFilter, after: $after, sort: [ {{ sortBy: RELEASE_DATE, sortOrder: ASC }}, {{ sortBy: POPULARITY, sortOrder: ASC }} ] )
+			{{ pageInfo {{ endCursor hasNextPage }} edges {{ node {{...CalendarCard }} }} }} }} {fragment} """
 
 	today = datetime.datetime.utcnow().date()
 	end_date = today + datetime.timedelta(days=360)
@@ -3275,11 +2213,7 @@ def imdb_coming_soon(country: str, coming_soon_type: str):
 
 	all_titles = []
 	while True:
-		response = requests.post(API_URL, headers=HEADERS, json={
-			"operationName": "CalendarPage",
-			"query": query,
-			"variables": variables
-		})
+		response = requests.post(API_URL, headers=HEADERS, json={ "operationName": "CalendarPage", "query": query, "variables": variables })
 		#print(response.text)
 		data = response.json()["data"]["comingSoon"]
 		titles = [edge["node"]["id"] for edge in data["edges"]]
@@ -3302,34 +2236,15 @@ def imdb_multi(list_name):
 	}
 	API_URL = "https://api.graphql.imdb.com/"
 
-	BASE_TITLE_CARD_FRAGMENT = """
-	fragment BaseTitleCard on Title {
-		id
-		titleText { text }
-		titleType {
-			id
-			text
-			canHaveEpisodes
-			displayableProperty { value { plainText } }
-		}
-		originalTitleText { text }
-		primaryImage {
-			id
-			width
-			height
-			url
-			caption { plainText }
-		}
+	BASE_TITLE_CARD_FRAGMENT = """ fragment BaseTitleCard on Title { id titleText { text } titleType { id text canHaveEpisodes displayableProperty { value { plainText } } } 
+		originalTitleText { text } 
+		primaryImage {id width height url  caption { plainText } }
 		releaseYear { year endYear }
 		ratingsSummary { aggregateRating voteCount }
 		runtime { seconds }
 		certificate { rating }
 		canRate { isRatable }
-		titleGenres {
-			genres(limit: 3) {
-				genre { text }
-			}
-		}
+		titleGenres { genres(limit: 3) { genre { text } } }
 	}
 	"""
 
@@ -3351,41 +2266,14 @@ def imdb_multi(list_name):
 
 		if category == "trending":
 			opname = "TrendingTitles"
-			query = """
-			query TrendingTitles($limit: Int!, $paginationToken: String) {
-				trendingTitles(limit: $limit, paginationToken: $paginationToken) {
-					titles {
-						...BaseTitleCard
-					}
-					paginationToken
-				}
-			}
-			"""
+			query = """ query TrendingTitles($limit: Int!, $paginationToken: String) { trendingTitles(limit: $limit, paginationToken: $paginationToken) { titles { ...BaseTitleCard }  paginationToken  } } """
 		elif category == "recent":
 			opname = "RecentVideos"
-			query = """
-			query RecentVideos($limit: Int!, $paginationToken: String, $queryFilter: RecentVideosQueryFilter!) {
-				recentVideos(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) {
-					videos {
-						primaryTitle {
-							...BaseTitleCard
-						}
-					}
-					paginationToken
-				}
-			}
-			"""
+			query = """query RecentVideos($limit: Int!, $paginationToken: String, $queryFilter: RecentVideosQueryFilter!) { recentVideos(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) { videos { primaryTitle { ...BaseTitleCard } } paginationToken } }"""
 		else:
 			opname = "PopularTitles"
-			query = """
-			query PopularTitles($limit: Int!, $paginationToken: String, $queryFilter: PopularTitlesQueryFilter!) {
-				popularTitles(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) {
-					titles {
-						...BaseTitleCard
-					}
-					paginationToken
-				}
-			}
+			query = """query PopularTitles($limit: Int!, $paginationToken: String, $queryFilter: PopularTitlesQueryFilter!) {
+				popularTitles(limit: $limit, paginationToken: $paginationToken, queryFilter: $queryFilter) { titles { ...BaseTitleCard  } paginationToken } }
 			"""
 
 		query += BASE_TITLE_CARD_FRAGMENT
@@ -3432,60 +2320,17 @@ def imdb_multi(list_name):
 	def imdb_movies_near_you(latitude,longitude,radius_meters,start_date,end_date,first=1000,sort_by="POPULARITY",sort_order="ASC"):
 		import requests
 		API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-		HEADERS = {
-			'Referer': 'https://www.imdb.com/',
-			'Origin': 'https://www.imdb.com',
-			'User-Agent': 'Mozilla/5.0',
-			'Content-Type': 'application/json'
-		}
+		HEADERS = {'Referer': 'https://www.imdb.com/', 'Origin': 'https://www.imdb.com', 'User-Agent': 'Mozilla/5.0','Content-Type': 'application/json'}
 
-		query = '''
-		query MoviesNearYou($first: Int!, $sort: AdvancedTitleSearchSort!, $constraints: AdvancedTitleSearchConstraints!) {
-		  advancedTitleSearch(first: $first, sort: $sort, constraints: $constraints) {
-			edges {
-			  node {
-				title {
-				  id
-				  titleText { text }
-				  ratingsSummary { aggregateRating voteCount }
-				  releaseYear { year }
-				  primaryImage { url }
-				}
-			  }
-			}
-			total
-		  }
-		}
-		'''
+		query = '''query MoviesNearYou($first: Int!, $sort: AdvancedTitleSearchSort!, $constraints: AdvancedTitleSearchConstraints!) { advancedTitleSearch(first: $first, sort: $sort, constraints: $constraints) {edges {  node { title {  id   titleText { text }   ratingsSummary { aggregateRating voteCount }   releaseYear { year }  primaryImage { url } }   }  } total  } } '''
 
-		variables = {
-			"first": first,
-			"sort": {
-				"sortBy": sort_by,
-				"sortOrder": sort_order
-			},
-			"constraints": {
-				"inTheatersConstraint": {
-					"dateTimeRange": {
+		variables = { "first": first, "sort": { "sortBy": sort_by, "sortOrder": sort_order },
+			"constraints": { "inTheatersConstraint": { "dateTimeRange": { 
 						"start": f"{start_date}T00:00:00.000Z",
 						"end": f"{end_date}T00:00:00.000Z"
-					},
-					"location": {
-						"latLong": {
-							"lat": str(latitude),
-							"long": str(longitude)
-						},
-						"radiusInMeters": radius_meters
-					}
-				}
-			}
-		}
+					}, "location": { "latLong": { "lat": str(latitude), "long": str(longitude)},"radiusInMeters": radius_meters } } } }
 
-		response = requests.post(API_URL, headers=HEADERS, json={
-			"operationName": "MoviesNearYou",
-			"query": query,
-			"variables": variables
-		})
+		response = requests.post(API_URL, headers=HEADERS, json={  "operationName": "MoviesNearYou", "query": query, "variables": variables })
 
 		def image_url(title_info):
 			try:
@@ -3528,29 +2373,6 @@ def imdb_multi(list_name):
 	return movies_list
 
 
-"""
-def get_imdb_watchlist_ids_1(ur_list_str=None, limit=0):
-	import requests
-	list_str=ur_list_str
-
-	imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist'
-	imdb_header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-	imdb_response = requests.get(imdb_url, headers=imdb_header)
-
-	list_container = str(imdb_response.text,).split('<')
-	#xbmc.log(str(list_container)+'===>OPENINFO', level=xbmc.LOGINFO)
-	processed_list = []
-	movies = []
-	for i in list_container:
-		if 'href="/title/tt' in i:
-			imdb_number = 'tt' + i.split('href="/title/tt')[1].split('/?r')[0]
-			if imdb_number in processed_list:
-				continue
-			processed_list.append(imdb_number)
-			movies.append(imdb_number)
-
-	return movies
-"""
 
 def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):
 	import time, hashlib, xbmcvfs, os
@@ -3568,17 +2390,6 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 	hashed_url = hashlib.md5(url).hexdigest()
 	cache_path = xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH, folder)) if folder else xbmcvfs.translatePath(os.path.join(Utils.ADDON_DATA_PATH))
 	cache_seconds = int(cache_days * 86400.0)
-	#if not cache_days:
-	#	xbmcgui.Window(10000).clearProperty(hashed_url)
-	#	xbmcgui.Window(10000).clearProperty('%s_timestamp' % hashed_url)
-	#prop_time = xbmcgui.Window(10000).getProperty('%s_timestamp' % hashed_url)
-	#if prop_time and now - float(prop_time) < cache_seconds:
-	#	try:
-	#		prop = json.loads(xbmcgui.Window(10000).getProperty(hashed_url))
-	#		if prop:
-	#			return prop
-	#	except Exception as e:
-	#		pass
 	path = os.path.join(cache_path, '%s.txt' % hashed_url)
 
 	try: 
@@ -3588,10 +2399,6 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 	if db_result and len(db_result) > 0:
 		return db_result
 	else:
-	#if xbmcvfs.exists(path) and ((now - os.path.getmtime(path)) < cache_seconds):
-	#	listitems = Utils.read_from_file(path)
-	#else:
-
 		listitems = None
 		x = 0
 		if not movies:
@@ -3629,38 +2436,4 @@ def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB',
 			Utils.write_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder,cache_val=listitems)
 		return listitems
 
-
-
-"""
-def get_imdb_list(list_str=None, limit=0):
-	list_str=list_str
-	from imdb import IMDb, IMDbError
-	ia = IMDb()
-	movies = ia.get_movie_list(list_str)
-	listitems = None
-	x = 0
-	for i in str(movies).split(', <'):
-		imdb_id = str('tt' + i.split(':')[1].split('[http]')[0])
-		movie_title = str(i.split(':_')[1].split('_>')[0])
-		response = get_tmdb_data('find/%s?language=%s&external_source=imdb_id&' % (imdb_id, xbmcaddon.Addon().getSetting('LanguageID')), 13)
-		try:
-			response['movie_results'][0]['media_type'] = 'movie'
-			if listitems == None:
-				listitems = handle_tmdb_multi_search(response['movie_results'])
-			else:
-				listitems += handle_tmdb_multi_search(response['movie_results'])
-		except:
-			try:
-				response['tv_results'][0]['media_type'] = 'tv'
-				if listitems == None:
-					listitems = handle_tmdb_multi_search(response['tv_results'])
-				else:
-					listitems += handle_tmdb_multi_search(response['tv_results'])
-			except:
-				continue
-		if x + 1 == int(limit) and limit != 0:
-			break
-		x = x + 1
-	return listitems
-"""
 

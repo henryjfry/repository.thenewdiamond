@@ -238,6 +238,23 @@
 								<!--onclick>AlarmClock(preview_delay,Action(stop),00:01,silent)</onclick-->
 							
 						</control>
+						<control type="button" id="13">
+							<label>Stop</label>
+							<height>56</height>
+							<width min="50">auto</width>
+                        <onleft>11</onleft>
+                        <onright>10</onright>
+                        <label>Stop</label>
+                        <font>font10</font> <!-- FENLIGHT_21 -->
+                        <textcolor>FFCCCCCC</textcolor>
+                        <focusedcolor>FF1F2020</focusedcolor>
+                        <texturefocus colordiffuse="deepskyblue" border="30">fenlight_common/white.png</texturefocus>
+                        <texturenofocus colordiffuse="AA212121" border="30">fenlight_common/white.png</texturenofocus>
+                        <align>center</align>
+                        <aligny>center</aligny>
+								<!--onclick>AlarmClock(preview_delay,Action(stop),00:01,silent)</onclick-->
+							
+						</control>
 					</control>
 					<!--<control type="image">-->
 						<!--<bottom>20</bottom>-->

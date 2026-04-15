@@ -1162,6 +1162,47 @@ def get_tmdb_window(window_type):
 				self.search_str = get_imdb_list_ids(list_str=list_str)
 				self.filter_label = 'Results for:  IMDB' + list_str
 
+			if self.mode == 'search' and ((self.search_str[:2] == 'ur' and self.search_str[2:].isdigit()) or self.search_str[:3]== 'p.n'):
+				from resources.lib.TheMovieDB import imdb_userListSearch_api
+				data = imdb_userListSearch_api(ur_id=self.search_str)
+				listitems = []
+				imdb_list = []
+				imdb_list_name = []
+				if data:
+					for i in data['imdb_list']:
+						list_name = (i[str(list(i)).replace('[\'','').replace('\']','')])
+						list_number = (str(list(i)).replace('[\'','').replace('\']',''))
+						imdb_list.append(list_number)
+						imdb_list_name.append(list_name)
+						listitems += [list_name]
+
+				if listitems == []:
+					return
+
+				if xbmcaddon.Addon(addon_ID()).getSetting('context_menu') == 'true':
+					selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
+				else:
+					selection = xbmcgui.Dialog().select(heading='Choose option', list=listitems)
+
+				if selection == -1:
+					return
+				Utils.show_busy()
+				x = 0
+				for i in imdb_list_name:
+					if i == listitems[selection]:
+						list_number = imdb_list[x]
+						self.mode = 'imdb'
+					x = x + 1
+				if self.mode == 'imdb' and 'ls' in str(list_number):
+					from resources.lib.TheMovieDB import get_imdb_list_ids
+					self.search_str = get_imdb_list_ids(list_str=list_number,limit=0)
+					self.mode = 'imdb2'
+
+				elif self.mode == 'imdb' and 'ur' in str(list_number):
+					from resources.lib.TheMovieDB import get_imdb_watchlist_ids
+					self.search_str = get_imdb_watchlist_ids(list_number)
+					self.mode = 'imdb2'
+
 			if self.mode == 'search':
 				#fetch_data_dict_file = write_fetch_data_dict_file()
 				url = 'search/multi?query=%s&page=%i&include_adult=%s&' % (urllib.parse.quote_plus(self.search_str), self.page, xbmcaddon.Addon().getSetting('include_adults'))
