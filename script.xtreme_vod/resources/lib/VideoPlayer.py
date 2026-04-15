@@ -672,7 +672,7 @@ class VideoPlayer(xbmc.Player):
 		li.setPath(full_url)
 
 		infolabels = {'year': None, 'premiered': None, 'aired': None, 'mpaa': None, 'genre': None, 'imdbnumber': None, 'duration': None, 'dateadded': None, 'rating': None, 'votes': None, 'tagline': None, 'mediatype': None, 'title': None, 'originaltitle': None, 'sorttitle': None, 'plot': None, 'plotoutline': None, 'studio': None, 'country': None, 'director': None, 'writer': None, 'status': None, 'trailer': None}
-
+		b64_encode_dict = None
 		if tmdb:
 			li.setProperty('MovieTitle', response_extended_movie_info[0]['title'])
 			li.setProperty('Duration', str(response_extended_movie_info[0]['duration']))
@@ -745,6 +745,14 @@ class VideoPlayer(xbmc.Player):
 			infolabels['studio'] = studio
 			infolabels['country'] = response_extended_movie_info[0]['Country']
 
+		subtitle_lookup = True
+		if b64_encode_dict == None:
+			encode_dict = {'TMDbHelper.PlayerInfoString': {'tmdb_type': 'movie', 'tmdb_id': '', 'imdb_id': '', 'year': ''}, 'script.xtreme_vod_started': True, 'script.xtreme_vod_player': True}
+			json_str = json.dumps(encode_dict)
+			b64_encode_dict = base64.b64encode(json_str.encode('utf-8')).decode('utf-8')
+			infolabels['sorttitle'] = b64_encode_dict
+			subtitle_lookup = False
+
 		li.setProperty('FileNameAndPath', str(full_url + '?' +  b64_encode_dict))
 
 		infolabels['path'] = full_url + '?' +  b64_encode_dict
@@ -767,7 +775,7 @@ class VideoPlayer(xbmc.Player):
 		import tools
 		import sub_lim
 
-		if Utils.subtitle_lookup == True:
+		if Utils.subtitle_lookup == True and subtitle_lookup == True:
 			subs_out_ENG, subs_out_FORCED = sub_lim.get_subs_file(cache_directory=tools.ADDON_USERDATA_PATH, video_path = full_url, same_folder=False, meta_info=meta)
 			subs_list = [subs_out_ENG]
 			if subs_out_FORCED:

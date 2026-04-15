@@ -315,7 +315,9 @@ class PlayerMonitor(xbmc.Player):
 		except IndexError: return None
 
 		response = get_trakt_data(url='https://api.trakt.tv/search/tmdb/'+str(self.player_meta['trakt_tmdb_id'])+'?type=movie', cache_days=7)
-		trakt = response[0]['movie']['ids']['trakt']
+		try:
+			trakt = response[0]['movie']['ids']['trakt']
+		except IndexError: return None
 		slug = response[0]['movie']['ids']['slug']
 		imdb = response[0]['movie']['ids']['imdb']
 		tmdb = response[0]['movie']['ids']['tmdb']

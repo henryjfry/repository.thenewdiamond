@@ -1,5 +1,5 @@
 {
-    "name" : "[COLOR FFB8D995]Diamond_Auto_Torr_Scrape[/COLOR][COLOR FF9FD1EC]iZER[/COLOR]",
+    "name" : "[COLOR FFB8D995]Diamond Search + Auto Play Torrent",
     "plugin" : "script.diamondinfo",
     "is_resolvable" : "true",
     "priority" : 202,

@@ -460,7 +460,7 @@ bad_categories = [i for  i in xtreme_sport_categories.split(',')]
 bad_category_ids = [cat['category_id']  for cat in categories  if any(bad.lower() in cat['category_name'].lower() for bad in bad_categories)]
 
 
-def get_vod_allmovies(category = None, sort_by = None, order_by = None):
+def get_vod_allmovies(category = None, sort_by = None, order_by = None, bad_categories_suppress=True):
 	#from resources.lib.TheMovieDB import get_vod_data
 	if category == None:
 		movies = get_vod_data(action= 'get_vod_streams' ,cache_days=1) 
@@ -481,8 +481,9 @@ def get_vod_allmovies(category = None, sort_by = None, order_by = None):
 	search_str = []
 	for i in movies:
 		if category == None:
-			if str(i.get('category_id',0)) in [str(x) for x in bad_category_ids]:
-				continue
+			if bad_categories_suppress==True:
+				if str(i.get('category_id',0)) in [str(x) for x in bad_category_ids]:
+					continue
 		if i['name'][:7].lower() == 'movie: ':
 			i['name'] = i['name'][7:]
 		elif i['name'][:6].lower() == 'movie:':
@@ -1568,8 +1569,8 @@ def get_imdb_list_ids_api2(list_str=None):
 				all_items.append({
 					"id": title.get("id"),
 					"title": title.get("titleText", {}).get("text"),
-					"image": title.get("primaryImage", {}).get("url"),
-					"year": title.get("releaseYear", {}).get("year"),
+					"image": title.get("primaryImage").get("url") if title.get("primaryImage") else None,
+					"year": title.get("releaseYear").get("year") if title.get("releaseYear") else None,
 					"type": title.get("titleType", {}).get("text")
 				})
 
@@ -1597,8 +1598,8 @@ def get_imdb_list_ids(list_str=None, limit=0):
 
 	if list_str in ['ls_popular','ls_trending','ls_anticipated','ls_recent']:
 		Utils.log(list_str)
-		movies = imdb_multi(list_str)
-		return movies
+		movies_list,types_list = imdb_multi(list_str)
+		return movies_list,types_list
 
 	if 'ls_imdb_movies_near_you' == list_str:
 		from datetime import date
@@ -1886,7 +1887,7 @@ def imdb_multi(list_name):
 			raise ValueError("Invalid category")
 
 		today = datetime.date.today().isoformat()
-		variables = {"limit": 600}
+		variables = {"limit": 300}
 		if category == "anticipated":
 			variables["queryFilter"] = {"releaseDateRange": {"start": today}}
 		elif category == "popular":
@@ -1908,9 +1909,10 @@ def imdb_multi(list_name):
 
 		query += BASE_TITLE_CARD_FRAGMENT
 		items = []
+		items_types = []
 		pages = 0
 		pagination_token = None
-		while len(items) < 600 and pages < 5:
+		while len(items) < 300 and pages < 5:
 			if pagination_token:
 				variables["paginationToken"] = pagination_token
 			payload = {
@@ -1927,30 +1929,32 @@ def imdb_multi(list_name):
 				result = data.get("trendingTitles", {})
 				titles = result.get("titles", [])
 				items.extend([t["id"] for t in titles if "id" in t])
-				for t in titles:
-					print(t)
+				items_types.extend([t['titleType']["id"] for t in titles if "titleType" in t])
 			elif category == "recent":
 				result = data.get("recentVideos", {})
 				videos = result.get("videos", [])
 				items.extend([v["primaryTitle"]["id"] for v in videos if v.get("primaryTitle")])
-				for t in videos:
-					print(t)
+				items_types.extend([t['titleType']["id"] for t in titles if "titleType" in t])
 			else:
 				result = data.get("popularTitles", {})
 				titles = result.get("titles", [])
 				items.extend([t["id"] for t in titles if "id" in t])
-				for t in titles:
-					print(t)
+				items_types.extend([t['titleType']["id"] for t in titles if "titleType" in t])
 			pagination_token = result.get("paginationToken")
 			if not pagination_token:
 				break
 			pages += 1
-		return items
+		return items,items_types
 
 	def imdb_movies_near_you(latitude,longitude,radius_meters,start_date,end_date,first=1000,sort_by="POPULARITY",sort_order="ASC"):
 		import requests
 		API_URL = "https://graphql.prod.api.imdb.a2z.com/"
-		HEADERS = {'Referer': 'https://www.imdb.com/', 'Origin': 'https://www.imdb.com', 'User-Agent': 'Mozilla/5.0','Content-Type': 'application/json'}
+		HEADERS = {
+			'Referer': 'https://www.imdb.com/',
+			'Origin': 'https://www.imdb.com',
+			'User-Agent': 'Mozilla/5.0',
+			'Content-Type': 'application/json'
+		}
 
 		query = '''query MoviesNearYou($first: Int!, $sort: AdvancedTitleSearchSort!, $constraints: AdvancedTitleSearchConstraints!) { advancedTitleSearch(first: $first, sort: $sort, constraints: $constraints) {edges {  node { title {  id   titleText { text }   ratingsSummary { aggregateRating voteCount }   releaseYear { year }  primaryImage { url } }   }  } total  } } '''
 
@@ -1960,7 +1964,11 @@ def imdb_multi(list_name):
 						"end": f"{end_date}T00:00:00.000Z"
 					}, "location": { "latLong": { "lat": str(latitude), "long": str(longitude)},"radiusInMeters": radius_meters } } } }
 
-		response = requests.post(API_URL, headers=HEADERS, json={  "operationName": "MoviesNearYou", "query": query, "variables": variables })
+		response = requests.post(API_URL, headers=HEADERS, json={
+			"operationName": "MoviesNearYou",
+			"query": query,
+			"variables": variables
+		})
 
 		def image_url(title_info):
 			try:
@@ -1975,10 +1983,12 @@ def imdb_multi(list_name):
 		#print(response.text)
 		movies = []
 		movies_list = []
+		types_list = []
 		for edge in data.get("edges", []):
 			title_info = edge["node"]["title"]
 			#print(title_info)
 			movies_list.append(title_info.get("id"))
+			types_list.append('movie')
 			movie = {
 				"id": title_info.get("id"),
 				"title": title_info.get("titleText", {}).get("text"),
@@ -1990,19 +2000,17 @@ def imdb_multi(list_name):
 			}
 			movies.append(movie)
 
-		return movies_list
+		return movies_list,types_list
 
 	if list_name == 'ls_trending':
-		movies_list = fetch_imdb_ids("trending")
+		movies_list,types_list = fetch_imdb_ids("trending")
 	elif list_name == 'ls_anticipated':
-		movies_list = fetch_imdb_ids("anticipated")
+		movies_list,types_list = fetch_imdb_ids("anticipated")
 	elif list_name == 'ls_popular':
-		movies_list = fetch_imdb_ids("popular")
+		movies_list,types_list = fetch_imdb_ids("popular")
 	elif list_name == 'ls_recent':
-		movies_list = fetch_imdb_ids("recent")
-	return movies_list
-
-
+		movies_list,types_list = fetch_imdb_ids("recent")
+	return movies_list,types_list
 
 
 def movies_pre_process(cache_days=7.0, folder='VOD', headers=False):

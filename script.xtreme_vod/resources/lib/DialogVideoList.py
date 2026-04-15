@@ -1147,7 +1147,16 @@ def get_tmdb_window(window_type):
 			if self.category_id:
 				if self.category_id.isnumeric():
 					if self.mode == 'allmovies2':
-						self.search_str = TheMovieDB.get_vod_allmovies(category = self.category_id,sort_by = self.sort, order_by = self.order)
+
+						categories = TheMovieDB.get_vod_data(action= 'get_vod_categories' ,cache_days=1) 
+
+						xtreme_sport_categories = xbmcaddon.Addon().getSetting('xtreme_sport_categories')
+						bad_categories = [i for  i in xtreme_sport_categories.split(',')]
+						bad_category_ids = [cat['category_id']  for cat in categories  if any(bad.lower() in cat['category_name'].lower() for bad in bad_categories)]
+						if self.category_id in bad_category_ids:
+							self.search_str = TheMovieDB.get_vod_allmovies(category = self.category_id,sort_by = self.sort, order_by = self.order, bad_categories_suppress=False)
+						else:
+							self.search_str = TheMovieDB.get_vod_allmovies(category = self.category_id,sort_by = self.sort, order_by = self.order)
 						#self.sort_label = '&' + self.sort_label + '&'
 					elif self.mode == 'alltvshows2':
 						self.search_str = TheMovieDB.get_vod_alltv(category = self.category_id,sort_by = self.sort, order_by = self.order)
@@ -1162,7 +1171,7 @@ def get_tmdb_window(window_type):
 				self.search_str = get_imdb_list_ids(list_str=list_str)
 				self.filter_label = 'Results for:  IMDB' + list_str
 
-			if self.mode == 'search' and ((self.search_str[:2] == 'ur' and self.search_str[2:].isdigit()) or self.search_str[:3]== 'p.n'):
+			if self.mode == 'search' and ((self.search_str[:2] == 'ur' and self.search_str[2:].isdigit()) or (self.search_str[:2]== 'p.' and len(self.search_str) > 10)):
 				from resources.lib.TheMovieDB import imdb_userListSearch_api
 				data = imdb_userListSearch_api(ur_id=self.search_str)
 				listitems = []

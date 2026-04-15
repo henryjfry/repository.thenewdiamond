@@ -1730,11 +1730,11 @@ def patch_tmdbh():
         else:
             db_type = 'movie'
         for idx, i in enumerate(players): ## PATCH
-            if 'auto_cloud' in str(i['meta']['name']).lower() and db_type != 'movie': ## PATCH
+            if 'Diamond check RD Cloud + Play' in str(i['meta']['name']) and db_type != 'movie': ## PATCH
                 auto_var = idx ## PATCH
                 header = str(i['item']['name']) + ' - ' + str(i['item']['title']) + ' - ' + str(i['item']['firstaired'])
                 break ## PATCH
-            if 'Auto_Torr_Scrape' in str(i['meta']['name']) and db_type == 'movie': ## PATCH
+            if 'Diamond Search + Auto Play Torrent' in str(i['meta']['name']) and db_type == 'movie': ## PATCH
                 auto_var = idx ## PATCH
                 header = str(i['item']['name']) + ' - ' + str(i['item']['year'])
                 break ## PATCH

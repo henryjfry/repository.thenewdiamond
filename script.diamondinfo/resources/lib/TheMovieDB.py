@@ -1938,8 +1938,8 @@ def get_imdb_list_ids_api2(list_str=None):
 				all_items.append({
 					"id": title.get("id"),
 					"title": title.get("titleText", {}).get("text"),
-					"image": title.get("primaryImage", {}).get("url"),
-					"year": title.get("releaseYear", {}).get("year"),
+					"image": title.get("primaryImage").get("url") if title.get("primaryImage") else None,
+					"year": title.get("releaseYear").get("year") if title.get("releaseYear") else None,
 					"type": title.get("titleType", {}).get("text")
 				})
 
