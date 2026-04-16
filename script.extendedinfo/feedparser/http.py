@@ -63,7 +63,8 @@ def get(url: str, result: dict[str, typing.Any]) -> bytes:
         return b""
 
     # Lowercase the HTTP header keys for comparisons per RFC 2616.
-    result["headers"] = {k.lower(): v for k, v in response.headers.items()}
+    try: result["headers"] = {k.lower(): v for k, v in response.headers.items()}
+    except: return {}
 
     # save HTTP headers
     if "etag" in result["headers"]:

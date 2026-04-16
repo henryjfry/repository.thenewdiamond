@@ -819,6 +819,8 @@ def get_tmdb_window(window_type):
 					except IndexError: continue
 					if tmdb_id:
 						movie = TheMovieDB.single_tvshow_info(tvshow_id=tmdb_id)
+						if 'bool' in str(type(movie)):
+							continue
 						movie['tmdb_id'] = tmdb_id
 					else:
 						continue
