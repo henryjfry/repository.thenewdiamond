@@ -2147,7 +2147,11 @@ def load_vod_to_sql():
 
 def filter_vod(movie_tv_items):
 	#from resources.lib.TheMovieDB import load_vod_to_sql
-	FILTERED = movie_tv_items[0].get('FILTERED',False)
+	try: 
+		FILTERED = movie_tv_items[0].get('FILTERED',False)
+	except IndexError: 
+		Utils.tools_log('BLANK__LIST??')
+		return movie_tv_items
 	if FILTERED == True:
 		Utils.tools_log('filter_vod__FILTERED==TRUE')
 		return movie_tv_items
@@ -2165,6 +2169,15 @@ def filter_vod(movie_tv_items):
 	for i in movie_tv_items:
 		#Utils.tools_log(i)
 		i['FILTERED'] = True
+		tmdb_id_trakt = i.get('ids',{}).get('tmdb',None)
+		if tmdb_id_trakt:
+			if 'media.trakt.tv/images/movie' in str(i):
+				i['media_type'] = 'movie'
+			elif 'media.trakt.tv/images/show' in str(i) or 'media.trakt.tv/images/episode' in str(i) or 'media.trakt.tv/images/season' in str(i):
+				i['media_type'] = 'tv'
+				i['TVShowTitle'] = i['title']
+			i['id'] = tmdb_id_trakt
+			i['tmdb_id'] = tmdb_id_trakt
 		try: 
 			media_type = i['media_type']
 			try: tmdb_id = i['id']
@@ -2177,6 +2190,7 @@ def filter_vod(movie_tv_items):
 				try: year = i['release_date'][:4]
 				except: year = i['first_air_date'][:4]
 		except: 
+#			Utils.tools_log(i,'EXCEPT__filter_vod')
 			if i.get('show',False) == False:
 				media_type = 'movie'
 				try: tmdb_id = i['movie']['ids']['tmdb']
