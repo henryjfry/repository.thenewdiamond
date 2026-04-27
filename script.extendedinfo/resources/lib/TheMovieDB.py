@@ -2372,6 +2372,22 @@ def imdb_multi(list_name):
 		movies_list = fetch_imdb_ids("recent")
 	return movies_list
 
+def search_imdb_clean(search_term):
+	import requests, json
+	url = "https://api.graphql.imdb.com/"
+	headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0", "x-imdb-client-name": "imdb-web-next"}
+	base_title_card = "fragment BaseTitleCard on Title {id titleText { text } originalTitleText { text } primaryImage { url } releaseYear { year } titleType { text } ratingsSummary { aggregateRating voteCount } runtime { seconds } certificate { rating } titleGenres { genres { genre { text } } } }"
+	query = "query Search($f: Int!, $c: AdvancedTitleSearchConstraints) { advancedTitleSearch(first: $f, constraints: $c) { edges { node { title { ...BaseTitleCard } } } } } " + base_title_card
+	variables = {"f": 1000, "c": {"titleTextConstraint": {"searchTerm": search_term}, "titleTypeConstraint": {"anyTitleTypeIds": ["movie", "tvSeries"]}}}
+	response = requests.post(url, headers=headers, json={"query": query, "variables": variables})
+	#print(response)
+	#print(response.text)
+	response.raise_for_status()
+	data = response.json()
+	results = data.get("data", {}).get("advancedTitleSearch", {}).get("edges", [])
+	#Utils.tools_log(results)
+	titles = [e["node"]["title"] for e in results]
+	return [e['id'] for e in titles]
 
 
 def get_imdb_watchlist_items(movies=None, limit=0, cache_days=14, folder='IMDB', imdb_url=None):

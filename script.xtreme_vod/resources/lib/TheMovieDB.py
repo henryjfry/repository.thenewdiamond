@@ -2157,10 +2157,10 @@ def filter_vod(movie_tv_items):
 		return movie_tv_items
 	Utils.tools_log('filter_vod')
 
-	load_vod_to_sql()
 	import sqlite3
-	
 	from tools import clean_title
+	load_vod_to_sql()
+
 	results = []
 	db_path = Utils.VOD_CACHE_PATH
 	conn = sqlite3.connect(db_path)

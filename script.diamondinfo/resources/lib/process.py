@@ -319,6 +319,7 @@ def start_info_actions(infos, params):
 			return wm.open_video_list(search_str=search_str, mode='search')
 
 
+
 		elif info == 'ep_movie_progress':
 			search_str = 'Trakt Episodes/Movies in progress'
 			wm.window_stack_empty()
@@ -333,6 +334,15 @@ def start_info_actions(infos, params):
 			search_str = params.get('search_str')
 			wm.window_stack_empty()
 			return wm.open_youtube_list(search_str=search_str)
+
+		elif info == 'test_search_imdb':
+			from resources.lib import TheMovieDB
+			results = TheMovieDB.search_imdb_clean("Transformers")
+			media_type = 'movie'
+			filter_label = 'IMDB_SEARCH'
+			imdb_url = 'https://www.imdb.com/search/' + str("Transformers")
+			listitems = TheMovieDB.get_imdb_watchlist_items(movies=results, limit=0, imdb_url=imdb_url)
+			return wm.open_video_list(media_type=media_type, mode='list_items', filter_label=filter_label, search_str=listitems, listitems=[])
 
 		elif info == 'tastedive_search':
 			search_str = params.get('search_str')

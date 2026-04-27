@@ -391,6 +391,7 @@ def get_fanart_results(tvdb_id, media_type=None, show_season = None):
 	hdclearart, seasonposter, seasonthumb, seasonbanner, tvthumb, tvbanner, showbackground, clearlogo, characterart, tvposter, clearart, hdtvlogo = '', '', '', '', '', '', '', '', '', '', '', '';
 	tv_dict = {'hdclearart': None,'seasonposter': None,'seasonthumb': None,'seasonbanner': None,'tvthumb': None,'tvbanner': None,'showbackground': None,'clearlogo': None,'characterart': None,'tvposter': None,'clearart': None,'hdtvlogo': None}
 
+	time.sleep(1)
 	if 'tv_tvdb' == media_type:
 		try: 
 			response = get_fanart_data(tmdb_id=tvdb_id,media_type='tv_tvdb')

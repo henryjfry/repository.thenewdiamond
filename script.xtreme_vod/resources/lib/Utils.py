@@ -153,7 +153,7 @@ def decode_db(base64_string):
 	return sample_string
 
 def clear_db(connection=None,table_name=None):
-	if db_con == None:
+	if db_con == None or connection is None:
 		connection = db_start()
 	cur = connection.cursor()
 	#[('Trakt',), ('TheMovieDB',), ('rss',), ('IMDB',), ('TasteDive',), ('FanartTV',), ('YouTube',), ('TVMaze',), ('show_filters',), ('Google',)]
@@ -180,10 +180,13 @@ def clear_db(connection=None,table_name=None):
 
 
 def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=None, headers=False):
-	if db_con == None:
+	if db_con == None or connection is None:
 		connection = db_start()
-	try: cur = connection.cursor()
-	except: connection = db_start()
+	try: 
+		cur = connection.cursor()
+	except: 
+		connection = db_start()
+		cur = connection.cursor()
 	try: url = url.encode('utf-8')
 	except: pass
 	hashed_url = hashlib.md5(url).hexdigest()
@@ -210,7 +213,13 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 		expire INT NOT NULL
 	); 
 	""" % (folder)
+	try: 
+		cur = connection.cursor()
+	except: 
+		connection = db_start()
+		cur = connection.cursor()
 	sql_result = cur.execute(sql_query).fetchall()
+	sql_query = None
 	try: 
 		connection.commit()
 	except:
@@ -220,6 +229,11 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 	VALUES( '%s','%s','%s',%s);
 	""" % (folder, hashed_url,cache_val,cache_type,int(expire))
 	#sql_result = cur.execute(sql_query).fetchall()
+	try: 
+		cur = connection.cursor()
+	except: 
+		connection = db_start()
+		cur = connection.cursor()
 	try: 
 		sql_result = cur.execute(sql_query).fetchall()
 	except Exception as ex:
@@ -234,12 +248,17 @@ def write_db(connection=None,url=None, cache_days=7.0, folder=False,cache_val=No
 	except:
 		try: connection.commit()
 		except: pass
+	sql_query = None
 	cur.close()
 
 def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=False):
-	if db_con == None:
+	if db_con == None or connection is None:
 		connection = db_start()
-	cur = connection.cursor()
+	try: 
+		cur = connection.cursor()
+	except: 
+		connection = db_start()
+		cur = connection.cursor()
 	#if cache_days == 0:
 	#	cache_days = 7
 	try: url = url.encode('utf-8')
@@ -252,17 +271,15 @@ def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=Fal
 	where url = '%s'
 	""" % (folder, hashed_url)
 
-
 	try: 
 		sql_result = cur.execute(sql_query).fetchall()
 	except Exception as ex:
-		if 'no such table' in str(ex):
-			return None, None
-		else:
-			tools.log(str(ex))
+		tools_log(f"SQL ERROR: {ex}")
+		raise
 	if len(sql_result) ==0:
 		cur.close()
 		return None, None
+	sql_query = None
 
 	#if cache_days <=0.00001:
 	#	tools_log(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))
@@ -282,8 +299,14 @@ def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=Fal
 		sql_query = """DELETE FROM %s
 		where url = '%s'
 		""" % (folder, hashed_url)
+		try: 
+			cur = connection.cursor()
+		except: 
+			connection = db_start()
+			cur = connection.cursor()
 		sql_result = cur.execute(sql_query).fetchall()
 		connection.commit()
+		sql_query = None
 		cur.close()
 		return None, cache_val
 	else:
@@ -291,7 +314,7 @@ def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=Fal
 		return cache_val, None
 
 def db_delete_expired(connection=None):
-	if db_con == None:
+	if db_con == None or connection is None:
 		connection = db_start()
 	cur = connection.cursor()
 	curr_time = int(time.time())
