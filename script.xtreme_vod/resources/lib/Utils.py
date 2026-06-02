@@ -267,6 +267,17 @@ def query_db(connection=None,url=None, cache_days=7.0, folder=False, headers=Fal
 	cache_seconds = int(cache_days * 86400.0)
 	hashed_url = hashlib.md5(url).hexdigest()
 
+	try:
+		cur.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name=?", (folder,))
+		if cur.fetchone() is None:
+			tools_log(f"[CACHE] Missing table: {folder} (initialising skipped or DB broken)")
+			cur.close()
+			return None, None
+	except Exception as ex:
+		tools_log(f"[CACHE] schema check failed: {ex}")
+		cur.close()
+		return None, None
+
 	sql_query = """select cache_val, expire,cache_type from %s
 	where url = '%s'
 	""" % (folder, hashed_url)
