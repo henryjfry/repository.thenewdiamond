@@ -637,6 +637,8 @@ class RealDebrid:
 			return response["download"]
 		except KeyError:
 			return None
+		except TypeError:
+			return None
 
 	def delete_torrent(self, id):
 		url = "torrents/delete/{}".format(id)

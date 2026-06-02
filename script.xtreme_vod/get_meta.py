@@ -202,9 +202,12 @@ def get_response_cache(url='', cache_days=7.0, folder=False, headers=False):
 	hashed_url = hashlib.md5(url).hexdigest()
 	cache_seconds = int(cache_days * 86400.0)
 
-	db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
-	try: 
+	try:
 		db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
+		try: 
+			db_result, expired_db_result = Utils.query_db(connection=Utils.db_con,url=url, cache_days=cache_days, folder=folder, headers=headers)
+		except:
+			db_result, expired_db_result = None, None
 	except:
 		db_result, expired_db_result = None, None
 	if db_result:

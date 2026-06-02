@@ -1019,6 +1019,10 @@ class PlayerMonitor(xbmc.Player):
 		self.player_meta['imdb_id'] = json_object['result']['VideoPlayer.IMDBNumber']
 		self.player_meta['dbID'] = json_object['result']['VideoPlayer.DBID']
 
+		count = 0
+		while player.isPlaying()==1 and count < 7501:
+			xbmc.sleep(100)
+			count = count + 100
 		Utils.tools_log(json_result)
 
 		if 'index.bdmv' != json_object['result']['Player.Filename']:
@@ -1600,6 +1604,19 @@ class PlayerMonitor(xbmc.Player):
 					prescrape = self.prescrape_test
 					xbmcgui.Window(10000).clearProperty('diamond_download_link')
 
+			if self.player_meta['percentage'] > 66 and not 'http' in str(self.prescrape_test) and self.player_meta['diamond_player'] == True:
+				title = self.player_meta['tv_title']
+				season = next_ep_details['next_ep_season']
+				episode = next_ep_details['next_ep_episode']
+				label = f"{title} - {season}x{episode:02d}"
+				kodi_url = 'RunPlugin(plugin://plugin.video.fenlight/?mode=playback.media&media_type=episode&tvshowtitle=%s&season=%s&episode=%s&tmdb_id=%s&background=true)' % (str(label), str(next_ep_details['next_ep_season']), str(next_ep_details['next_ep_episode']), str(next_ep_details['tmdb_id']))
+				if xbmcvfs.exists('special://home/addons/plugin.video.fenlight'):
+					Utils.tools_log('plugin.video.fenlight_SCRAPE!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+					xbmc.executebuiltin(kodi_url)
+					self.prescrape_test = 'fenlight'
+
+			if self.player_meta['percentage'] > 70 and self.prescrape_test == 'fenlight' and self.player_meta['diamond_player'] == True:
+				prescrape = False
 
 			if self.player_meta['percentage'] > 33 and 'http' in str(prescrape) and self.player_meta['diamond_player'] == True:
 				Utils.tools_log('next_ep_play!!!',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))

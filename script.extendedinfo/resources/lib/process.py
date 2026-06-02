@@ -80,6 +80,16 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+
+		if info == 'rd_list_downloads':
+			from a4kscrapers_wrapper import real_debrid
+			rd_api = real_debrid.RealDebrid()
+			for i in range(1,3):
+				#tools.log('download', i)
+				result = rd_api.list_downloads_page(int(i))
+				for x in result:
+					Utils.tools_log(x)
+
 		if info == 'rss_test':
 			from a4kscrapers_wrapper import get_meta
 			get_meta.get_rss_cache()

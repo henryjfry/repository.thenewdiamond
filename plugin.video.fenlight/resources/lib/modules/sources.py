@@ -180,6 +180,7 @@ class Sources():
 			if not self.ext_folder or not self.ext_name: return self.disable_external('Error Importing External Module')
 
 	def get_sources(self):
+		import xbmc
 		if not self.progress_dialog and not self.background: self._make_progress_dialog()
 		results = []
 		if self.prescrape and any(x in self.active_internal_scrapers for x in default_internal_scrapers):
@@ -195,6 +196,12 @@ class Sources():
 			if not self.orig_results and not self.active_external: self._kill_progress_dialog()
 			results = self.process_results(self.orig_results)
 		if not results: return self._process_post_results()
+
+		xbmc.log(str(self.params)+'===>get_sources', level=xbmc.LOGINFO)
+		if self.background:
+			nextep_settings = self.params.get('nextep_settings', False)
+			if nextep_settings == False:
+				return self.resolve_url(results)
 		if self.autoscrape: return results
 		else: return self.play_source(results)
 
@@ -647,6 +654,51 @@ class Sources():
 		name = chosen_result['filename']
 		self._kill_progress_dialog()
 		return FenLightPlayer().run(link, 'video')
+
+	def resolve_url(self, results, source={}):
+		#import xbmc
+		url = None
+		#xbmc.log(str(results)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		results = [i for i in results if not 'Uncached' in i.get('cache_provider', '')]
+		if not source: source = results[0]
+		items = [source]
+		if not self.limit_resolve: 
+			source_index = results.index(source)
+			results.remove(source)
+			items_prev = results[:source_index]
+			items_prev.reverse()
+			items_next = results[source_index:]
+			items = items + items_next + items_prev
+		else:
+			results.remove(source)
+		processed_items = []
+		processed_items_append = processed_items.append
+		for count, item in enumerate(items, 1):
+			resolve_item = dict(item)
+			provider = item['scrape_provider']
+			if provider == 'external': provider = item['debrid'].replace('.me', '')
+			elif provider == 'folders': provider = item['source']
+			provider_text = provider.upper()
+			extra_info = '[B]%s[/B] | [B]%s[/B] | %s' %  (item['quality'], item['size_label'], item['extraInfo'])
+			display_name = item['display_name'].upper()
+			resolve_item['resolve_display'] = '%02d. [B]%s[/B][CR]%s[CR]%s' % (count, provider_text, extra_info, display_name)
+			processed_items_append(resolve_item)
+			if provider == 'easynews':
+				for retry in range(1, 2):
+					resolve_item = dict(item)
+					resolve_item['resolve_display'] = '%02d. [B]%s (RETRYx%s)[/B][CR]%s[CR]%s' % (count, provider_text, retry, extra_info, display_name)
+					processed_items_append(resolve_item)
+		items = list(processed_items)
+
+		url = None
+		#xbmc.log(str(items)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+		for count, item in enumerate(items, 1):
+			hide_busy_dialog()
+			url = self.resolve_sources(item)
+			if url:
+				#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+				return url  # ✅ SUCCESS
+		return url
 
 	def play_file(self, results, source={}):
 		#xbmc.log(str('play_file')+'===>OPEN_INFO', level=xbmc.LOGINFO)
