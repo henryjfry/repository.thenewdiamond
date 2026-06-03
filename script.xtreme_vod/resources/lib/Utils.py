@@ -130,6 +130,36 @@ def tools_log(*args, **kwargs):
 		except:
 			print(i)
 
+
+def set_setting(setting_name, setting_value):
+	#setting_line = '    <setting id="%s">%s</setting>' % (setting_name, setting_value)
+	new_setting_file = ''
+	update = False
+	ADDON_USERDATA_PATH = ADDON_DATA_PATH
+	SETTING_XML = os.path.join(ADDON_USERDATA_PATH, 'settings.xml')
+	with open(SETTING_XML) as f:
+		lines = f.readlines()
+		for line in lines:
+			if setting_name in str(line):
+				line_split_1 = line.split('"')[0] + '"'
+				line_split_2 = setting_name
+				line_split_3 = '"' + line.split('"',2)[2].split('>')[0] + '>'
+				line_split_4 = setting_value
+				try: line_split_5 = '<' + line.split('"',2)[2].split('<')[1]
+				except: line_split_5 = '</setting>\n'
+				setting_line = str(line_split_1) + str(line_split_2) + str(line_split_3) + str(line_split_4) + str(line_split_5)
+				setting_line = setting_line.replace('default="true" />','default="true">')
+				setting_line = setting_line.replace(' />','>')
+				new_setting_file = new_setting_file + setting_line
+				if setting_line != line:
+					update = True
+			else:
+				new_setting_file = new_setting_file + line
+	if update == True:
+		with open(SETTING_XML, 'w') as file:
+			# Write new content to the file
+			file.write(new_setting_file)
+
 db_con = None
 def test_db():
 	import sqlite3

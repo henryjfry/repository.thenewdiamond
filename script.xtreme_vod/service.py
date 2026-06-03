@@ -1370,7 +1370,8 @@ class PlayerMonitor(xbmc.Player):
 			kodi_send_command = 'kodi-send --action="RunScript(%s,info=play_vod_player,type=movie,movie_year=%s,movie_title=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['movie_year'], self.player_meta['movie_title'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
 			self.setProperty('last_played_tmdb_helper', url)
-			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
+			#xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
+			Utils.set_setting('last_played_tmdb_helper', url)
 			self.speed_time = int(time.time()) + 5
 
 		if self.type == 'episode':
@@ -1381,7 +1382,8 @@ class PlayerMonitor(xbmc.Player):
 			kodi_send_command = 'kodi-send --action="RunScript(%s,info=play_vod_player,type=tv,show_title=%s,show_season=%s,show_episode=%s,tmdb=%s,test=True)"' % (addon_ID(), self.player_meta['tv_title'], self.player_meta['tv_season'], self.player_meta['tv_episode'], self.player_meta['tmdb_id'])
 			tools_log(kodi_send_command)
 			self.setProperty('last_played_tmdb_helper', url)
-			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
+			#xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
+			Utils.set_setting('last_played_tmdb_helper', url)
 
 			try: self.player_meta['resume_position'] = player.getTime()
 			except: return

@@ -1357,8 +1357,10 @@ class PlayerMonitor(xbmc.Player):
 			Utils.tools_log(kodi_send_command)
 			self.setProperty('last_played_tmdb_helper', url)
 			self.setProperty('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
-			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
-			xbmcaddon.Addon(addon_ID()).setSetting('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
+			#xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
+			Utils.set_setting('last_played_tmdb_helper', url)
+			#xbmcaddon.Addon(addon_ID()).setSetting('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
+			Utils.set_setting('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
 			self.speed_time = int(time.time()) + 5
 
 		if self.type == 'episode':
@@ -1370,8 +1372,10 @@ class PlayerMonitor(xbmc.Player):
 			Utils.tools_log(kodi_send_command)
 			self.setProperty('last_played_tmdb_helper', url)
 			self.setProperty('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
-			xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
-			xbmcaddon.Addon(addon_ID()).setSetting('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
+			#xbmcaddon.Addon(addon_ID()).setSetting('last_played_tmdb_helper', url)
+			#xbmcaddon.Addon(addon_ID()).setSetting('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
+			Utils.set_setting('last_played_tmdb_helper', url)
+			Utils.set_setting('last_played_a4kwrapper_player', kodi_send_command.replace(',test=True',''))
 
 			try: self.player_meta['resume_position'] = player.getTime()
 			except: return
