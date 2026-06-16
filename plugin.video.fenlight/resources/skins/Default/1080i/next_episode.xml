@@ -6,7 +6,7 @@
 	<onload>SetFocus(11)</onload>
 	<onload>AlarmClock(preview_delay,SetFocus(11),00:00,silent)</onload>
 	<onload>AlarmClock(preview_delay,SetFocus(11),00:01,silent)</onload--->
-	
+	<visible>Player.HasVideo</visible>
     <onload>Dialog.Close(fullscreeninfo,true)</onload>
     <onload>Dialog.Close(videoosd,true)</onload>
     <animation effect="fade" end="100" time="1600">WindowOpen</animation>

@@ -157,7 +157,7 @@
                  action="RunScript(script.diamondinfo,info=setup_magneto_scrapers)"/>
         <setting type="action" label="Magneto Scrapers Settings"
                  action="RunScript(script.diamondinfo,info=open_settings_magneto_scrapers)" />
-		<setting label="Scraper" type="select" values="Coco|Magneto" id="scraper" default="Magneto"/>
+		<setting label="Scraper" type="select" values="Coco|Magneto|Gears" id="scraper" default="Magneto"/>
 	
         <!-- Preemptive Termination -->
         <!--setting type="lsep" label="30121"/-->

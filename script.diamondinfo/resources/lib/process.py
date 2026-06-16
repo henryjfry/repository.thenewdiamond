@@ -1810,6 +1810,32 @@ def patch_tmdbh():
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
 
 	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','monitor') , 'player.py')
+	line_update = '''    def onAVStarted(self):  ## 1PATCH
+        import xbmc
+        xbmc.sleep(5*1000)
+        try: self.get_playingitem()
+        except: return
+
+    def onPlayBackStarted(self):
+        import xbmc
+        xbmc.sleep(5*1000)
+        try: self.get_playingitem()
+        except: return
+
+    def onAVChange(self):
+        import xbmc
+        xbmc.sleep(5*1000)
+        try: self.get_playingitem()
+        except: return
+
+    def onPlayBackEnded(self):  ## 1PATCH
+'''
+	first_line = '    def onAVStarted(self):'
+	last_line = '    def onPlayBackEnded(self):'
+	log_addon_name = 'TMDB_HELPER'
+	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
+
+	file_path = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'resources', 'tmdbhelper','lib','monitor') , 'player.py')
 	line_update = '''    def get_playingitem(self):  ## PATCH
         # Check that video other than dummy splash video is playing  ## PATCH
         if not self.isPlayingVideo(): ## PATCH
@@ -1822,9 +1848,12 @@ def patch_tmdbh():
         # Get fresh info tags etc. ## PATCH
 '''
 	first_line = '    def get_playingitem(self):'
-	last_line = '        # Get fresh info tags etc. '
+	last_line = '        # Get fresh info tags etc.'
 	log_addon_name = 'TMDB_HELPER'
 	do_patch(patch_file_path = file_path, patch_lines = line_update, log_addon_name = log_addon_name, start_line = first_line, end_line = last_line) 
+
+
+
 
 	Path(touch_file).touch()
 	return

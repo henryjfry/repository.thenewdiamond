@@ -3030,6 +3030,8 @@ def coco_sources(item_information=None,x264_only=False):
 				full_path = os.path.join(os.path.dirname(tools.ADDON_PATH.replace('/script.extendedinfo','')), 'script.module.cocoscrapers','lib')
 			elif scraper_flag == 'Magneto':
 				full_path = os.path.join(os.path.dirname(tools.ADDON_PATH.replace('/script.extendedinfo','')), 'script.module.magneto','lib')
+			elif scraper_flag == 'Gears':
+				full_path = os.path.join(os.path.dirname(tools.ADDON_PATH.replace('/script.extendedinfo','')), 'script.module.gearsscrapers','lib')
 			from a4kscrapers_wrapper import kodi_stub
 			#import xbmc
 			#import xbmcaddon
@@ -3085,6 +3087,9 @@ def coco_sources(item_information=None,x264_only=False):
 			elif scraper_flag == 'Magneto':
 				append_module_to_syspath('special://home/addons/script.module.magneto/lib')
 				torrents_module = import_module('magneto.providers.torrents')
+			elif scraper_flag == 'Gears':
+				append_module_to_syspath('special://home/addons/script.module.gearsscrapers/lib')
+				torrents_module = import_module('gearsscrapers.providers.torrents')
 
 			providers = torrents_module.__all__
 			tools.log(providers)
@@ -3099,6 +3104,8 @@ def coco_sources(item_information=None,x264_only=False):
 					provider_enabled = tools.get_setting(setting_name='provider.' + provider_name, var_type = 'string', SETTING_XML=tools.COCO_SETTING_XML)
 				elif scraper_flag == 'Magneto':
 					provider_enabled = tools.get_setting(setting_name='provider.' + provider_name, var_type = 'string', SETTING_XML=tools.MAGNETO_SETTING_XML)
+				elif scraper_flag == 'Gears':
+					provider_enabled = True
 				if str(provider_enabled).lower() == 'false':
 					tools.log('DISABLED_'+provider_name)
 					continue
@@ -3111,6 +3118,8 @@ def coco_sources(item_information=None,x264_only=False):
 						provider_module = import_module(f'cocoscrapers.sources_cocoscrapers.torrents.{safe_name}')
 					elif scraper_flag == 'Magneto':
 						provider_module = import_module(f'magneto.providers.torrents.{safe_name}')
+					elif scraper_flag == 'Gears':
+						provider_module = import_module(f'gearsscrapers.providers.torrents.{safe_name}')
 					scraper = provider_module.source()
 
 					if media_type == 'movie' and getattr(scraper, 'hasMovies', False):

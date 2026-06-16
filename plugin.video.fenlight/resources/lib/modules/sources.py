@@ -13,7 +13,8 @@ from modules.source_utils import get_cache_expiry, make_alias_dict
 from modules.utils import clean_file_name, string_to_float, safe_string, remove_accents, get_datetime, append_module_to_syspath, manual_function_import, manual_module_import
 # logger = kodi_utils.logger
 
-import xbmc, os, urllib.parse, threading, xbmcvfs, requests
+import xbmc, os, urllib.parse, threading, xbmcvfs, requests, xbmcgui
+import uuid
 
 get_icon, notification, sleep, xbmc_monitor = kodi_utils.get_icon, kodi_utils.notification, kodi_utils.sleep, kodi_utils.xbmc_monitor
 select_dialog, confirm_dialog, close_all_dialog = kodi_utils.select_dialog, kodi_utils.confirm_dialog, kodi_utils.close_all_dialog
@@ -57,6 +58,16 @@ class GetFileThread(threading.Thread):
 
 	def run(self):
 		self.file = get_file(self.url)
+
+
+import base64
+
+def make_sorttitle(meta):
+	try:
+		return base64.b64encode(f"{meta.get('tmdb_id')}_{meta.get('season')}_{meta.get('episode')}".encode()).decode()
+	except:
+		return ''
+
 
 def translate_path(*args):
 	return xbmcvfs.translatePath(os.path.join(*args))
@@ -180,7 +191,6 @@ class Sources():
 			if not self.ext_folder or not self.ext_name: return self.disable_external('Error Importing External Module')
 
 	def get_sources(self):
-		import xbmc
 		if not self.progress_dialog and not self.background: self._make_progress_dialog()
 		results = []
 		if self.prescrape and any(x in self.active_internal_scrapers for x in default_internal_scrapers):
@@ -362,7 +372,13 @@ class Sources():
 			append_module_to_syspath('special://home/addons/%s/lib' % self.ext_folder)
 			self.ext_sources = manual_module_import('%s.sources_%s' % (self.ext_name, self.ext_name))
 			self.provider_defaults = [k.split('.')[1] for k, v in manual_function_import('%s.modules.control' % self.ext_name, 'getProviderDefaults')().items() if v == 'true']
-		except: return False
+		except: 
+			try:
+				append_module_to_syspath('special://home/addons/%s/lib' % self.ext_folder)
+				self.ext_sources = manual_module_import('%s.providers' % (self.ext_name))
+				self.provider_defaults = [k.split('.')[1] for k, v in manual_function_import('%s.modules.control' % self.ext_name, 'getProviderDefaults')().items() if v == 'true']
+			except:
+				return False
 		return True
 
 	def disable_external(self, line1=''):
@@ -612,13 +628,21 @@ class Sources():
 		self.progress_dialog.enable_resume(percent)
 		return self.progress_dialog.resume_choice
 
+
 	def _make_nextep_dialog(self, default_action='cancel'):
-		try: 
+		try:
 			self._kill_progress_dialog()
 			close_all_dialog()
-			action = open_window(('windows.next_episode', 'NextEpisode'), 'next_episode.xml', meta=self.meta, default_action=default_action)
-		except: action = 'cancel'
-		return action
+			from threading import Thread
+			def _run():
+				try:
+					open_window(('windows.next_episode', 'NextEpisode'),'next_episode.xml',meta=self.meta,default_action=default_action)
+				except:
+					pass
+			Thread(target=_run, daemon=True).start()
+		except:
+			pass
+		return None
 
 	def _kill_progress_dialog(self):
 		success = 0
@@ -656,7 +680,6 @@ class Sources():
 		return FenLightPlayer().run(link, 'video')
 
 	def resolve_url(self, results, source={}):
-		#import xbmc
 		url = None
 		#xbmc.log(str(results)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 		results = [i for i in results if not 'Uncached' in i.get('cache_provider', '')]
@@ -752,6 +775,7 @@ class Sources():
 			if self.background: sleep(1000)
 			monitor = xbmc_monitor()
 			url = None
+			player = FenLightPlayer()
 			for count, item in enumerate(items, 1):
 				try:
 					hide_busy_dialog()
@@ -761,36 +785,103 @@ class Sources():
 					self.progress_dialog.reset_is_cancelled()
 					self.progress_dialog.update_resolver(text=item['resolve_display'])
 					self.progress_dialog.busy_spinner()
-					if count > 1:
-						sleep(1500)
-						try: del player
-						except: pass
+					#if count > 1:
+					#	sleep(1500)
+					#	try: del player
+					#	except: pass
 					url, self.playback_successful, self.cancel_all_playback = None, None, False
 					self.playing_filename = item['name']
 					self.playing_item = item
-					player = FenLightPlayer()
+					#player = FenLightPlayer()
+					#try:
+					#	if self.progress_dialog.iscanceled() or monitor.abortRequested(): break
+					#	url = self.resolve_sources(item)
+					#	if url == None:
+					#		return self.play_file(results, source=results[source_index])
+					#	if url:
+					#		#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+					#		#xbmc.log(str(item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
+					#		resolve_percent = 0
+					#		self.progress_dialog.busy_spinner('false')
+					#		self.progress_dialog.update_resolver(percent=resolve_percent)
+					#		sleep(200)
+					#		player.run(url, self)
+					#	if self.cancel_all_playback: break
+					#	if self.playback_successful: break
+					#	if count == len(items):
+					#		self.cancel_all_playback = True
+					#		player.stop()
+					#		break
+					#except: pass
+
+					# ✅ RESOLVE URL FIRST
+					url = self.resolve_sources(item)
+
+					if not url:
+						continue
+
+					player.set_constants(url, self)
+					listitem = player.make_listing()
+					listitem.setProperty('IsPlayable', 'true')
+					listitem.setPath(url)
+
+					# ✅ SORTTITLE
 					try:
-						if self.progress_dialog.iscanceled() or monitor.abortRequested(): break
-						url = self.resolve_sources(item)
-						if url == None:
-							return self.play_file(results, source=results[source_index])
-						if url:
-							#xbmc.log(str(url)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-							#xbmc.log(str(item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-							resolve_percent = 0
-							self.progress_dialog.busy_spinner('false')
-							self.progress_dialog.update_resolver(percent=resolve_percent)
-							sleep(200)
-							player.run(url, self)
-						if self.cancel_all_playback: break
-						if self.playback_successful: break
-						if count == len(items):
-							self.cancel_all_playback = True
-							player.stop()
-							break
-					except: pass
+						sorttitle_b64 = make_sorttitle(self.meta)
+						info_tag = listitem.getVideoInfoTag()
+						info_tag.setSortTitle(sorttitle_b64)
+					except:
+						pass
+
+					playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+
+					# ✅ DUPLICATE CHECK
+					for i in range(playlist.size()):
+						try:
+							existing = playlist[i].getVideoInfoTag().getSortTitle()
+							if existing == sorttitle_b64:
+								return
+						except:
+							continue
+
+					xbmc.log(f'PLAYLIST URL: {url}', xbmc.LOGINFO)
+
+					playlist.add(url, listitem)
+					xbmc.log(f'PLAYLIST SIZE: {playlist.size()}', xbmc.LOGINFO)
+
+					# ✅ START ONLY FIRST ITEM
+					if playlist.size() == 1:
+						#player.play(playlist)
+						xbmc.log(f'PLAYLIST URL2: {url}', xbmc.LOGINFO)
+						self.progress_dialog.busy_spinner('false')
+						sleep(200)
+						player.play(playlist, listitem)
+						# ✅ GUARANTEED monitor start
+						try:
+							#Thread(target=player.monitor_playlist, daemon=True).start()
+							monitor_id = str(uuid.uuid4())
+							xbmcgui.Window(10000).setProperty('fenlight.monitor_id', monitor_id)
+							if not FenLightPlayer._monitor_running:
+								FenLightPlayer._monitor_running = True
+								Thread(target=player.monitor_playlist,args=(monitor_id,), daemon=True).start()
+								xbmc.log("PLAYLIST MONITOR THREAD STARTED (play_file)", xbmc.LOGINFO)
+						except Exception as e:
+							xbmc.log(f"MONITOR START ERROR: {str(e)}", xbmc.LOGINFO)
+
+
+
+					xbmc.log(f'PLAYLIST URL3: {url}', xbmc.LOGINFO)
+					self._kill_progress_dialog()
+					self.playback_successful = True
+					return
+
+
 				except: pass
 		#except: self._kill_progress_dialog()
+
+		if self.playback_successful:
+			return
+
 		if self.cancel_all_playback: return self._kill_progress_dialog()
 		if not self.playback_successful or not url: self.playback_failed_action()
 		try: del monitor
@@ -897,6 +988,42 @@ class Sources():
 			else: return False
 		else: return False
 
+
+
+	def autoscrape_nextep_helper(self, results):
+		from modules.player import FenLightPlayer
+		player = FenLightPlayer()
+
+		next_url = self.resolve_url(results)
+		if not next_url:
+			return
+
+		listitem = player.make_listing()
+
+		try:
+			sorttitle_b64 = make_sorttitle(self.meta)
+			listitem.getVideoInfoTag().setSortTitle(sorttitle_b64)
+		except:
+			pass
+
+		playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+
+		# prevent duplicates
+		for i in range(playlist.size()):
+			try:
+				try:
+					existing = playlist[i].getVideoInfoTag().getSortTitle()
+				except:
+					existing = None
+
+				if existing == sorttitle_b64:
+					return
+			except:
+				continue
+
+		playlist.add(next_url, listitem)
+
+
 	def autoscrape_nextep_handler(self):
 		player = xbmc_player()
 		if player.isPlayingVideo():
@@ -905,7 +1032,13 @@ class Sources():
 			else:
 				notification('[B]Next Episode Ready:[/B] %s S%02dE%02d' % (self.meta.get('title'), self.meta.get('season'), self.meta.get('episode')), 6500, self.meta.get('poster'))
 				while player.isPlayingVideo(): sleep(100)
-			self.display_results(results)
+			#self.display_results(results)
+			#self.autoscrape_nextep_helper(results)
+
+			# DISABLED - playlist system handles this
+			# self.autoscrape_nextep_helper(results)
+			return
+
 		else: return
 
 	def debrid_importer(self, debrid_provider):

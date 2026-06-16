@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 from windows.base_window import BaseDialog
+from xbmc import executebuiltin
 # from modules.kodi_utils import logger
 
 pause_time_before_end, hold_pause_time = 10, 900
@@ -20,12 +21,18 @@ class NextEpisode(BaseDialog):
 		self.closed = False
 		self.meta = kwargs.get('meta')
 		self.selected = kwargs.get('default_action', 'cancel')
-		self.selected = 'play'
+		#self.selected = 'play'
+		#self._initial_file = self.player.getPlayingFile()
 		self.set_properties()
 
+
 	def onInit(self):
+		self._initial_file = self.player.getPlayingFile()
 		self.setFocusId(11)
-		self.monitor()
+
+		from threading import Thread
+		Thread(target=self.monitor, daemon=True).start()
+
 
 	def run(self):
 		self.doModal()
@@ -42,7 +49,14 @@ class NextEpisode(BaseDialog):
 	def onClick(self, controlID):
 		self.selected = button_actions[controlID]
 		self.closed = True
+		if self.selected == 'play':
+			executebuiltin('PlayerControl(BigSkipForward)')
+		elif self.selected == 'stop':
+			executebuiltin('PlayerControl(Stop)')
+		elif self.selected in ('cancel', 'close'):
+			pass  # do nothing
 		self.close()
+
 
 	def set_properties(self):
 		episode_type = self.meta.get('episode_type', '')
@@ -52,26 +66,51 @@ class NextEpisode(BaseDialog):
 		self.setProperty('episode_status.highlight', episode_status_dict[episode_type])
 		self.setProperty('episode_status.flag', episode_flag_base % episode_type)
 
+	def is_paused(self):
+		try:
+			import xbmc, json
+			result = xbmc.executeJSONRPC(
+				'{"jsonrpc":"2.0","method":"Player.GetProperties","params":{"playerid":1,"properties":["speed"]},"id":1}'
+			)
+			speed = json.loads(result)['result']['speed']
+			return int(speed) == 0
+		except:
+			return False
+
 	def monitor(self):
-		total_time = self.player.getTotalTime()
-		while self.player.isPlaying():
-			remaining_time = round(total_time - self.player.getTime())
-			if self.closed: break
-			elif self.selected == 'pause' and remaining_time <= pause_time_before_end:
-				self.player.pause()
+		start_time = time.time()
+
+		while True:
+			try:
+				if self.closed:
+					break
+
+				if not self.player.isPlayingVideo():
+					break
+
+				if self.player.getPlayingFile() != self._initial_file:
+					break
+
+				# ✅ pause-safe timeout
+				if not self.is_paused():
+					try: remaining_time = int(self.player.getTotalTime()) - int(self.player.getTime())
+					except: remaining_time = 99
+					if remaining_time < 2:
+						break
+				else:
+					start_time = time.time()
+
 				self.sleep(500)
+
+			except:
 				break
-			self.sleep(1000)
-		if self.selected == 'pause':
-			start_time = time.time()
-			end_time = start_time + hold_pause_time
-			current_time = start_time
-			while current_time <= end_time and self.selected == 'pause':
-				try:
-					current_time = time.time()
-					pause_timer = time.strftime('%M:%S', time.gmtime(max(end_time - current_time, 0)))
-					self.setProperty('pause_timer', pause_timer)
-					self.sleep(1000)
-				except: break
-			if self.selected != 'cancel': self.player.pause()
-		self.close()
+
+		self.closed = True
+		self.sleep(200)
+
+		try:
+			self.close()
+		except:
+			pass
+		return executebuiltin('Dialog.Close(next_episode.xml,true)')
+

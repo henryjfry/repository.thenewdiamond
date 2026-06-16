@@ -104,7 +104,14 @@ def external_scraper_choice(params):
 		main_folder_name = module_id.split('.')[-1]
 		manual_module_import('%s.sources_%s' % (main_folder_name, main_folder_name))
 		success = True
-	except: success = False
+	except: 
+		try:
+			append_module_to_syspath('special://home/addons/%s/lib' % module_id)
+			main_folder_name = module_id.split('.')[-1]
+			manual_module_import('%s.providers' % (main_folder_name))
+			success = True
+		except:
+			success = False
 	if success:
 		try:
 			set_setting('external_scraper.module', module_id)

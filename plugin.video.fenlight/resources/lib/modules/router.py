@@ -18,13 +18,28 @@ def routing(sys):
 	if 'easynews.' in mode:
 		from indexers import easynews
 		return exec('easynews.%s(params)' % mode.split('.')[1])
+
 	if 'playback.' in mode:
 		if mode == 'playback.media':
 			from modules.sources import Sources
+			import xbmc
+			playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+			playlist.clear()
 			return Sources().playback_prep(params)
+		#if mode == 'playback.video':
+		#	from modules.player import FenLightPlayer
+		#	return FenLightPlayer().run(_get('url', None), _get('obj', None))
+
+		# --- NEW ---
 		if mode == 'playback.video':
 			from modules.player import FenLightPlayer
-			return FenLightPlayer().run(_get('url', None), _get('obj', None))
+			# NOTE: route through playlist system
+			import xbmc
+			playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+			playlist.clear()
+			return FenLightPlayer().run_playlist(_get('url', None), _get('obj', None))
+
+
 	if 'choice' in mode:
 		from indexers import dialogs
 		return exec('dialogs.%s(params)' % mode)

@@ -354,6 +354,8 @@ class PlayerMonitor(xbmc.Player):
 			response_status_code = response.status_code
 		except:
 			return 'ERROR'
+		if response.status_code == 409:
+			return response
 		while response.status_code == 429:
 			x = x + 1
 			if x == 20:
@@ -428,6 +430,8 @@ class PlayerMonitor(xbmc.Player):
 			response_status_code = response.status_code
 		except:
 			return 'ERROR'
+		if response.status_code == 409:
+			return response
 		while response.status_code == 429:
 			x = x + 1
 			if x == 20:
@@ -515,6 +519,8 @@ class PlayerMonitor(xbmc.Player):
 			response_status_code = response.status_code
 		except:
 			return 'ERROR'
+		if response.status_code == 409:
+			return response
 		while response.status_code == 429:
 			x = x + 1
 			if x == 20:
@@ -1194,8 +1200,10 @@ class PlayerMonitor(xbmc.Player):
 		if self.player_meta['dbID'] == '' and self.type == 'episode':
 			self.player_meta['dbID'] = self.episode_populate_dbid()
 
-		try:self.playing_file = player.getPlayingFile()
-		except: return
+		try:
+			self.playing_file = player.getPlayingFile()
+		except RuntimeError:
+			return
 		self.player_meta['playing_file'] = self.playing_file
 
 		"""

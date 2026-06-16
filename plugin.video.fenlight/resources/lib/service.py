@@ -3,6 +3,8 @@ import xbmc, xbmcgui
 import json
 from threading import Thread
 
+from modules.player import FenLightPlayer
+
 pause_services_prop = 'fenlight.pause_services'
 firstrun_update_prop = 'fenlight.firstrun_update'
 current_skin_prop = 'fenlight.current_skin'
@@ -174,6 +176,36 @@ class AutoStart:
 			run_addon()
 		return logger('Fen Light', 'AutoStart Service Finished')
 
+class PlayerMonitor(xbmc.Player):
+	def __init__(self):
+		xbmc.Player.__init__(self)
+		self.player = xbmc.Player()
+
+	def onPlayBackStarted(self):
+		xbmc.log("onPlayBackStarted_FENLIGHT", xbmc.LOGINFO)
+		player  = FenLightPlayer()
+		current_ep = player.get_current_episode_from_player()
+		TMDbHelper_PlayerInfoString = xbmcgui.Window(10000).getProperty('TMDbHelper.PlayerInfoString')
+		if current_ep:
+			data = json.loads(TMDbHelper_PlayerInfoString)
+			cur_season, cur_episode = current_ep
+			TMDbHelper_NEW_PlayerInfoString = {'tmdb_type': data['tmdb_type'], 'tmdb_id': str(data['tmdb_id']), 'imdb_id': str(data['imdb_id']), 'tvdb_id': str(data['tvdb_id']), 'season': cur_season, 'episode': cur_episode}
+			xbmcgui.Window(10000).setProperty('TMDbHelper.PlayerInfoString', f'{TMDbHelper_NEW_PlayerInfoString}'.replace('\'','"'))
+
+
+	def onPlayBackStopped(self):
+		xbmc.log("onPlayBackStopped_FENLIGHT", xbmc.LOGINFO)
+		xbmcgui.Window(10000).clearProperty('script.trakt.ids')
+		xbmcgui.Window(10000).clearProperty('TMDbHelper.PlayerInfoString')
+		xbmcgui.Window(10000).clearProperty('subs.player_filename')
+
+	def onPlayBackEnded(self):
+		xbmc.log("onPlayBackEnded_FENLIGHT", xbmc.LOGINFO)
+		xbmcgui.Window(10000).clearProperty('script.trakt.ids')
+		xbmcgui.Window(10000).clearProperty('TMDbHelper.PlayerInfoString')
+		xbmcgui.Window(10000).clearProperty('subs.player_filename')
+
+
 class FenLightMonitor(xbmc.Monitor):
 	def __init__ (self):
 		xbmc.Monitor.__init__(self)
@@ -183,11 +215,12 @@ class FenLightMonitor(xbmc.Monitor):
 		SetAddonConstants().run()
 		DatabaseMaintenance().run()
 		SyncSettings().run()
+		self.player_monitor = PlayerMonitor()
 		Thread(target=CustomFonts().run).start()
 		Thread(target=TraktMonitor().run).start()
-		Thread(target=UpdateCheck().run).start()
-		Thread(target=WidgetRefresher().run).start()
-		AutoStart().run()
+		#Thread(target=UpdateCheck().run).start()
+		#Thread(target=WidgetRefresher().run).start()
+		#AutoStart().run()
 
 	def onNotification(self, sender, method, data):
 		if method in ('GUI.OnScreensaverActivated', 'System.OnSleep'):
