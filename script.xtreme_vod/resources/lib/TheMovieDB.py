@@ -59,8 +59,8 @@ def handle_tmdb_multi_search(results=[]):
 
 def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
 	response = get_tmdb_data('genre/movie/list?language=%s&' % xbmcaddon.Addon().getSetting('LanguageID'), 30)
-	id_list = [item['id'] for item in response['genres']]
-	label_list = [item['name'] for item in response['genres']]
+	id_list = [item['id'] for item in response.get('genres',[])]
+	label_list = [item['name'] for item in response.get('genres',[])]
 	movies = []
 	for movie in results:
 		if 'genre_ids' in movie:
@@ -81,9 +81,7 @@ def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
 					original_title2 = i['title']
 			if original_title2 != original_title and original_title2 != '':
 				original_title = original_title2
-		except KeyError:
-			pass
-		except TypeError:
+		except:
 			pass
 		listitem = {
 			'title': Utils.fetch(movie, 'title'),
@@ -269,8 +267,8 @@ def handle_tmdb_people(results):
 		also_known_as = ' / '.join(Utils.fetch(person, 'also_known_as'))
 		newperson = {
 			'adult': str(Utils.fetch(person, 'adult')),
-			'name': person['name'],
-			'title': person['name'],
+			'name': Utils.fetch(person, 'name'),
+			'title': Utils.fetch(person, 'name'),
 			'also_known_as': also_known_as,
 			'alsoknownas': also_known_as,
 			'biography': Utils.clean_text(Utils.fetch(person, 'biography')),
@@ -280,10 +278,10 @@ def handle_tmdb_people(results):
 			'department': Utils.fetch(person, 'department'),
 			'job': Utils.fetch(person, 'job'),
 			'media_type': 'person',
-			'id': str(person['id']),
+			'id': str(Utils.fetch(person, 'id')),
 			'cast_id': str(Utils.fetch(person, 'cast_id')),
 			'credit_id': str(Utils.fetch(person, 'credit_id')),
-			'path': 'plugin://'+str(addon_ID())+'?info=extendedactorinfo&&id=%s' % str(person['id']),
+			'path': 'plugin://'+str(addon_ID())+'?info=extendedactorinfo&&id=%s' % str(Utils.fetch(person, 'id')),
 			'deathday': Utils.fetch(person, 'deathday'),
 			'place_of_birth': Utils.fetch(person, 'place_of_birth'),
 			'placeofbirth': Utils.fetch(person, 'place_of_birth'),
@@ -720,6 +718,7 @@ def play_tv_trailer_fullscreen(id):
 	trailer = get_tvtrailer(id)
 	xbmc.executebuiltin('PlayMedia(plugin://plugin.video.youtube/play/?video_id=%s)' % str(trailer))
 
+
 def single_movie_info(movie_id=None, dbid=None, cache_time=14, notify = True):
 	if not movie_id:
 		return None
@@ -743,7 +742,7 @@ def single_movie_info(movie_id=None, dbid=None, cache_time=14, notify = True):
 			'original_title': Utils.fetch(response,'original_title'),
 			'alternative_titles': response.get('alternative_titles',[]),
 			'overview': Utils.fetch(response,'overview'),
-			'similar': Utils.fetch(response,'recommendations'),
+			'similar': response.get('recommendations',{'page': 1, 'results': []}),
 			'Rating': Utils.fetch(response, 'vote_average'),
 			'Votes': Utils.fetch(response, 'vote_count'),
 			'popularity': Utils.fetch(response,'popularity'),
@@ -765,10 +764,9 @@ def single_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
 	if not response:
 		return False
 	try: genres = [i['id'] for i in response['genres']]
-	except: genres = []
-	try: alternative_titles =  [i['title'] for i in response['alternative_titles']['results']]
-	except: alternative_titles = []
-	if Utils.fetch(response,'original_name') == Utils.fetch(response,'name') and len(alternative_titles) > 0:
+	except KeyError: genres = []
+	alternative_titles =  [i['title'] for i in response['alternative_titles']['results']]
+	if response['original_name'] == response['name'] and len(alternative_titles) > 0:
 		response['original_name'] = alternative_titles[0]
 	results = {
 		'media_type': 'tv',
@@ -785,7 +783,7 @@ def single_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
 		'original_name': Utils.fetch(response,'original_name'),
 		'alternative_titles': alternative_titles,
 		'overview': Utils.fetch(response,'overview'),
-		'similar': Utils.fetch(response,'recommendations'),
+		'similar': response.get('recommendations',{'page': 1, 'results': []}),
 		'Rating': Utils.fetch(response, 'vote_average'),
 		'Votes': Utils.fetch(response, 'vote_count'),
 		'popularity': Utils.fetch(response,'popularity'),
@@ -905,10 +903,12 @@ def extended_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
 		tvdb_id = Utils.fetch(external_ids, 'tvdb_id')
 		tvrage_id = Utils.fetch(external_ids, 'tvrage_id')
 	artwork = get_image_urls(poster=response.get('poster_path'), fanart=response.get('backdrop_path'))
-	if len(response.get('episode_run_time', -1)) > 1:
-		duration = '%i - %i' % (min(response['episode_run_time']), max(response['episode_run_time']))
-	elif len(response.get('episode_run_time', -1)) == 1:
-		duration = '%i' % response['episode_run_time'][0]
+	runtimes = response.get('episode_run_time') or []
+
+	if len(runtimes) > 1:
+		duration = '%i - %i' % (min(runtimes), max(runtimes))
+	elif len(runtimes) == 1:
+		duration = '%i' % runtimes[0]
 	else:
 		duration = ''
 	us_cert = Utils.dictfind(response['content_ratings']['results'], 'iso_3166_1', 'US')
@@ -1148,13 +1148,13 @@ def extended_actor_info(actor_id):
 	if 'tagged_images' in response:
 		tagged_images = handle_tmdb_tagged_images(response['tagged_images']['results'])
 	listitems = {
-		'movie_roles': handle_tmdb_movies(response['movie_credits']['cast']),
-		'tvshow_roles': handle_tmdb_tvshows(response['tv_credits']['cast']),
-		'movie_crew_roles': handle_tmdb_movies(response['movie_credits']['crew']),
-		'tvshow_crew_roles': handle_tmdb_tvshows(response['tv_credits']['crew']),
-		'tagged_images': tagged_images,
-		'images': handle_tmdb_images(response['images']['profiles'])
-		}
+	'movie_roles': handle_tmdb_movies(response.get('movie_credits', {}).get('cast', [])),
+	'tvshow_roles': handle_tmdb_tvshows(response.get('tv_credits', {}).get('cast', [])),
+	'movie_crew_roles': handle_tmdb_movies(response.get('movie_credits', {}).get('crew', [])),
+	'tvshow_crew_roles': handle_tmdb_tvshows(response.get('tv_credits', {}).get('crew', [])),
+	'tagged_images': tagged_images,
+	'images': handle_tmdb_images(response.get('images', {}).get('profiles', []))
+	}
 	info = handle_tmdb_people([response])[0]
 	info['DBMovies'] = str(len([d for d in listitems['movie_roles'] if 'dbid' in d]))
 	return (info, listitems)

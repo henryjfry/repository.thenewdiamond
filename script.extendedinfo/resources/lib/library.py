@@ -1165,10 +1165,32 @@ def trakt_watched_movies(cache_days=None):
 	url = 'https://api.trakt.tv/sync/watched/movies'
 	#response = requests.get(url, headers=headers).json()
 	if cache_days:
-		response = get_trakt_data(url, cache_days)
+		#response = get_trakt_data(url, cache_days)
+		x = 1
+		url = 'https://api.trakt.tv/sync/watched/movies?page=%s&limit=250' % (str(x))
+		response = get_trakt_data(url=url, cache_days=cache_days)
+		new_response = response
+		while new_response != []:
+			x = x + 1
+			url = 'https://api.trakt.tv/sync/watched/movies?page=%s&limit=250' % (str(x))
+			new_response = get_trakt_data(url=url, cache_days=cache_days)
+			if new_response == []:
+				break
+			response.extend(new_response)
 		#xbmc.log(str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename))+'===>OPENINFO', level=xbmc.LOGINFO)
 	else:
-		response = get_trakt_data(url, 1)
+		#response = get_trakt_data(url, 1)
+		x = 1
+		url = 'https://api.trakt.tv/sync/watched/movies?page=%s&limit=250' % (str(x))
+		response = get_trakt_data(url=url, cache_days=1)
+		new_response = response
+		while new_response != []:
+			x = x + 1
+			url = 'https://api.trakt.tv/sync/watched/movies?page=%s&limit=250' % (str(x))
+			new_response = get_trakt_data(url=url, cache_days=1)
+			if new_response == []:
+				break
+			response.extend(new_response)
 	reverse_order = True
 	response = sorted(response, key=lambda k: k['last_updated_at'], reverse=reverse_order)
 	return response
@@ -1176,6 +1198,7 @@ def trakt_watched_movies(cache_days=None):
 def trakt_watched_movies_full():
 	#import requests
 	#import json
+	from resources.lib.Utils import tools_log
 	from pathlib import Path
 	headers = trak_auth()
 	addon = xbmcaddon.Addon()
@@ -1185,8 +1208,18 @@ def trakt_watched_movies_full():
 	url = 'https://api.trakt.tv/sync/watched/movies'
 	trakt_watched_stats = xbmcaddon.Addon(addon_ID()).getSetting('trakt_watched_stats')
 	if trakt_watched_stats == 'true':
-		#response = requests.get(url, headers=headers).json()
+		x = 1
+		url = 'https://api.trakt.tv/sync/watched/movies?page=%s&limit=250' % (str(x))
 		response = get_trakt_data(url=url, cache_days=0.000001)
+		new_response = response
+		while new_response != []:
+			x = x + 1
+			url = 'https://api.trakt.tv/sync/watched/movies?page=%s&limit=250' % (str(x))
+			new_response = get_trakt_data(url=url, cache_days=0.000001)
+			if new_response == []:
+				break
+			response.extend(new_response)
+			#tools_log(new_response)
 	else:
 		trakt_data = None
 		return None
@@ -1221,6 +1254,9 @@ def trakt_watched_tv_shows_full():
 	import requests
 	import json
 	from pathlib import Path
+	from resources.lib.Utils import tools_log
+	#from resources.lib import Utils
+	from datetime import datetime, timedelta
 	headers = trak_auth()
 	addon = xbmcaddon.Addon()
 	addon_path = addon.getAddonInfo('path')
@@ -1228,12 +1264,32 @@ def trakt_watched_tv_shows_full():
 	addonUserDataFolder = xbmcvfs.translatePath("special://profile/addon_data/"+addonID)
 	url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
 	trakt_watched_stats = xbmcaddon.Addon(addon_ID()).getSetting('trakt_watched_stats')
+	#if trakt_watched_stats == 'true':
+	#	#response = requests.get(url, headers=headers).json()
+	#	response = get_trakt_data(url=url, cache_days=0.000001)
+	#else:
+	#	trakt_data = None
+	#	return
+#	if trakt_watched_stats == 'true':
+#	url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
+#	trakt_watched_stats = xbmcaddon.Addon(addon_ID()).getSetting('trakt_watched_stats')
 	if trakt_watched_stats == 'true':
-		#response = requests.get(url, headers=headers).json()
+		x = 1
+		url = 'https://api.trakt.tv/sync/watched/shows?extended=full&page=%s&limit=250' % (str(x))
 		response = get_trakt_data(url=url, cache_days=0.000001)
+		new_response = response
+		while new_response != []:
+			x = x + 1
+			url = 'https://api.trakt.tv/sync/watched/shows?extended=full&page=%s&limit=250' % (str(x))
+			new_response = get_trakt_data(url=url, cache_days=0.000001)
+			if new_response == []:
+				break
+			response.extend(new_response)
+			#tools_log(new_response)
 	else:
 		trakt_data = None
-		return
+		return None
+
 	import os
 	if os.path.exists(Path(addonUserDataFolder + '/trakt_tv_watched.db')):
 		try: os.remove(Path(addonUserDataFolder + '/trakt_tv_watched.db'))
@@ -1252,6 +1308,22 @@ def trakt_watched_tv_shows_full():
 	con.commit()
 
 	for i in response:
+		last_updated_at = i['last_updated_at']
+		updated_dt = datetime.strptime(last_updated_at,'%Y-%m-%dT%H:%M:%S.%fZ')
+		within_last_X_days = updated_dt >= (datetime.utcnow() - timedelta(days=9))
+		if within_last_X_days:
+			#Utils.tools_log(i)
+			response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=0.000001)
+		else:
+			response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=8)
+		i['seasons'] = []
+
+		for season in response2['seasons']:
+			new_season = {'number': season['number'],'episodes': []}
+			for ep in season['episodes']:
+				new_season['episodes'].append({'number': ep['number'],'plays': ep['stats']['play_count'], 'last_watched_at': ep['last_watched_at']})
+			i['seasons'].append(new_season)
+
 		sql_result = """
 		INSERT INTO trakt (tmdb_id,trakt)
 		VALUES( %s,%s);
@@ -1352,7 +1424,44 @@ def trakt_watched_tv_shows_progress(cache_days=None):
 	#headers = trak_auth()
 	url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
 	#response = requests.get(url, headers=headers).json()
-	response = get_trakt_data(url, 0.125)
+	#response = get_trakt_data(url, 0.125)
+
+	url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
+
+	x = 1
+	url = 'https://api.trakt.tv/sync/watched/shows?extended=full&page=%s&limit=250' % (str(x))
+	response = get_trakt_data(url=url, cache_days=0.125)
+	new_response = response
+	while new_response != []:
+		x = x + 1
+		url = 'https://api.trakt.tv/sync/watched/shows?extended=full&page=%s&limit=250' % (str(x))
+		new_response = get_trakt_data(url=url, cache_days=0.125)
+		if new_response == []:
+			break
+		response.extend(new_response)
+
+
+	new_response = []
+	for i in response:
+		last_updated_at = i['last_updated_at']
+		updated_dt = datetime.strptime(last_updated_at,'%Y-%m-%dT%H:%M:%S.%fZ')
+		within_last_X_days = updated_dt >= (datetime.utcnow() - timedelta(days=9))
+		if within_last_X_days:
+			#Utils.tools_log(i)
+			response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=0.000001)
+		else:
+			response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=8)
+		i['seasons'] = []
+
+		for season in response2['seasons']:
+			new_season = {'number': season['number'],'episodes': []}
+			for ep in season['episodes']:
+				new_season['episodes'].append({'number': ep['number'],'plays': ep['stats']['play_count'], 'last_watched_at': ep['last_watched_at']})
+			i['seasons'].append(new_season)
+		new_response.append(i)
+	response = new_response
+
+
 
 	response2 = []
 	for i in response:
@@ -1380,7 +1489,20 @@ def trakt_watched_tv_shows(cache_days=None):
 	#headers = trak_auth()
 	url = 'https://api.trakt.tv/sync/watched/shows?extended=noseasons'
 	#response = requests.get(url, headers=headers).json()
-	response = get_trakt_data(url, 0)
+	#response = get_trakt_data(url, 0)
+
+	x = 1
+	url = 'https://api.trakt.tv/sync/watched/shows?extended=noseasons&page=%s&limit=250' % (str(x))
+	response = get_trakt_data(url=url, cache_days=0)
+	new_response = response
+	while new_response != []:
+		x = x + 1
+		url = 'https://api.trakt.tv/sync/watched/shows?extended=noseasons&page=%s&limit=250' % (str(x))
+		new_response = get_trakt_data(url=url, cache_days=0)
+		if new_response == []:
+			break
+		response.extend(new_response)
+
 	reverse_order = True
 	response = sorted(response, key=lambda k: k['last_updated_at'], reverse=reverse_order)
 	return response
@@ -1409,7 +1531,41 @@ def trakt_unwatched_tv_shows(cache_days=None,conn=None):
 		Utils.db_con = conn
 	url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
 	#response = requests.get(url, headers=headers).json()
-	response = get_trakt_data(url, 0)
+	#response = get_trakt_data(url, 0)
+
+	x = 1
+	url = 'https://api.trakt.tv/sync/watched/shows?extended=full&page=%s&limit=250' % (str(x))
+	response = get_trakt_data(url=url, cache_days=0)
+	new_response = response
+	while new_response != []:
+		x = x + 1
+		url = 'https://api.trakt.tv/sync/watched/shows?extended=full&page=%s&limit=250' % (str(x))
+		new_response = get_trakt_data(url=url, cache_days=0)
+		if new_response == []:
+			break
+		response.extend(new_response)
+
+
+	new_response = []
+	for i in response:
+		last_updated_at = i['last_updated_at']
+		updated_dt = datetime.strptime(last_updated_at,'%Y-%m-%dT%H:%M:%S.%fZ')
+		within_last_X_days = updated_dt >= (datetime.utcnow() - timedelta(days=9))
+		if within_last_X_days:
+			#Utils.tools_log(i)
+			response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=0.000001)
+		else:
+			response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=8)
+		i['seasons'] = []
+
+		for season in response2['seasons']:
+			new_season = {'number': season['number'],'episodes': []}
+			for ep in season['episodes']:
+				new_season['episodes'].append({'number': ep['number'],'plays': ep['stats']['play_count'], 'last_watched_at': ep['last_watched_at']})
+			i['seasons'].append(new_season)
+		new_response.append(i)
+	response = new_response
+
 	reverse_order = True
 	response = sorted(response, key=lambda k: k['last_updated_at'], reverse=reverse_order)
 
@@ -1421,16 +1577,28 @@ def trakt_unwatched_tv_shows(cache_days=None,conn=None):
 		shows_last_watched[i['show']['ids']['tmdb']]['aired_episodes'] = i['show']['aired_episodes']
 		shows_last_watched[i['show']['ids']['tmdb']]['imdb'] = i['show']['ids']['imdb']
 		response2 = get_trakt_data(url='https://api.trakt.tv/shows/'+str(i['show']['ids']['trakt'])+'/progress/watched?extended=full', cache_days=7)
+		i['seasons'] = response2['seasons']
+		#Utils.tools_log(response2)
+		#for x in response2:
+		#	Utils.tools_log(x)
+		#	Utils.tools_log(response2[x])
+		old_shows_last_watched = None
 		for s in i['seasons']:
 			shows_last_watched[i['show']['ids']['tmdb']]['season'] = s['number']
 			for e in s['episodes']:
 				watched_episodes = watched_episodes + 1
 				shows_last_watched[i['show']['ids']['tmdb']]['episode'] = e['number']
 				shows_last_watched[i['show']['ids']['tmdb']]['last_watched_at'] = e['last_watched_at']
-				#xbmc.log(str(response2)+'===>OPEN_INFO', level=xbmc.LOGINFO)
-				shows_last_watched[i['show']['ids']['tmdb']]['last_watched_timestamp'] = datetime.fromisoformat(e['last_watched_at'][:-1] + '+00:00').timestamp()
+				#Utils.tools_log(e)
+				try: 
+					shows_last_watched[i['show']['ids']['tmdb']]['last_watched_timestamp'] = datetime.fromisoformat(e['last_watched_at'][:-1] + '+00:00').timestamp()
+					continue
+				except: 
+					shows_last_watched[i['show']['ids']['tmdb']]['last_watched_timestamp'] = datetime.fromisoformat(response2['last_watched_at'][:-1] + '+00:00').timestamp()
+					continue
 				try: shows_last_watched[i['show']['ids']['tmdb']]['last_watched_timestamp'] = datetime.fromisoformat(response2['next_episode']['first_aired'][:-1] + '+00:00').timestamp()
 				except: pass
+
 		shows_last_watched[i['show']['ids']['tmdb']]['watched_episodes'] = watched_episodes
 		#break
 

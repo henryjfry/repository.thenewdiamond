@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+
+<category label="General">
+    <setting type="action" label="Show Changelog" action="RunPlugin(plugin://script.module.gearsscrapers/?action=ShowChangelog)" />
+</category>
+
+<category label="Providers">
+    <setting id="provider.aiostreams" type="bool" label="Aiostreams" default="false" />
+	<setting id="provider.torlock" type="bool" label="Torlock" default="false" />
+	<setting id="provider.torrentproject2" type="bool" label="Torrentproject" default="false" />
+    <setting id="provider.torrentz2" type="bool" label="Torrentz" default="false" />
+	<setting id="provider.meteor" type="bool" label="Meteor" default="false" />
+    <setting id="provider.1337x" type="bool" label="1337x" default="false" />
+    <setting id="provider.kickass2" type="bool" label="Kickass" default="false" />
+    <setting id="provider.piratebay" type="bool" label="PirateBay" default="false" />
+    <setting id="provider.rutor" type="bool" label="Rutor" default="false" />
+    <setting id="provider.knaben" type="bool" label="Knaben" default="false" />
+    <setting id="provider.nyaa" type="bool" label="Nyaa (Anime)" default="false" />
+	<setting id="provider.ytsmx" type="bool" label="Yts" default="false" />
+</category>
+
+<category label="Pack Providers">
+    <setting id="provider.bitmagnet" type="bool" label="Bitmagnet" default="true" />
+	<setting id="provider.comet" type="bool" label="Comet" default="true" />
+	<setting id="provider.eztv" type="bool" label="Eztv (Shows Only)" default="false" />
+    <setting id="provider.torz" type="bool" label="Torz" default="true" />
+	<setting id="provider.torrentio" type="bool" label="Torrentio" default="true" />
+	<setting id="provider.zilean" type="bool" label="Zilean" default="false" />
+	<setting id="provider.mediafusion" type="bool" label="MediaFusion" default="false" />
+	<setting id="provider.torrentsdb" type="bool" label="torrentsdb" default="true" />
+	<setting id="provider.torrentdownload" type="bool" label="TorrentDownload" default="false" />
+</category>
+
+<category label="Dmm Setup">
+	<setting id="provider.bitsearch" type="bool" label="Bitsearch" default="false" />
+    <setting id="provider.dmm" type="bool" label="DMM" default="false" />
+	<setting id="provider.zilean" type="bool" label="Zilean" default="false" />
+</category>
+
+<category label="Prowlarr">
+    <setting label="Prowlarr" type="lsep" />
+    <setting id="provider.prowlarr" type="bool" label="PROWLARR" default="false" />
+        <setting id="prowlarr.token" type="text" label="PROWLARR apikey" subsetting="true" default="" visible="eq(-1,true)" />
+        <setting id="prowlarr.url" type="text" label="PROWLARR url" subsetting="true" default="" visible="eq(-2,true)" />
+</category>
+
+<category label="Debrid Services">
+    <setting id="debrid.premiumize" type="bool" label="Premiumize" default="true" />
+    <setting id="debrid.alldebrid" type="bool" label="AllDebrid" default="false" />
+    <setting id="debrid.torbox" type="bool" label="TorBox" default="false" />
+    <setting id="debrid.easynews" type="bool" label="EasyNews" default="false" />
+    <setting id="debrid.realdebrid" type="bool" label="Real-Debrid" default="false" />
+</category>
+
+<category label="Filters">
+    <setting id="filter.foreign.single.audio" type="bool" label="Remove Foreign Audio" default="false" />
+    <setting id="filter.undesirables" type="bool" label="Remove Undesirables" default="false" />
+</category>
+
+<category label="Maintenance">
+    <setting type="action" label="Test All Torrent Providers" action="RunPlugin(plugin://script.module.gearsscrapers/?action=healthCheck)" />
+    <setting type="action" label="Clean Settings File" action="RunPlugin(plugin://script.module.gearsscrapers/?action=cleanSettings)" />
+</category>
+
+<category label="Advanced">
+    <setting id="debug.enabled" type="bool" label="Enable Debug Logging" default="false" />
+    <setting id="debug.location" type="enum" label="Logging Location" default="0" values="Kodi Log|Addon Log" />
+</category>
+
+</settings>

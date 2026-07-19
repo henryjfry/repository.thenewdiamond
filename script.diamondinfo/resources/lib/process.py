@@ -36,6 +36,11 @@ def start_info_actions(infos, params):
 			Utils.hide_busy()
 			return
 
+		if info == 'patch_redlight':
+			from resources.lib import patcher
+
+			patcher.patch_redlight()
+
 		if info == 'log_clean':
 			#import os
 			#find /home/osmc/.kodi/temp/kodi.log -type f -exec /bin/cp /dev/null {} \;
@@ -500,6 +505,16 @@ def start_info_actions(infos, params):
 			return
 
 		elif info == 'test_route':
+			from resources.lib import library
+			#library.c(cache_days=0.00001)
+			#Utils.tools_log('trakt_watched_movies')
+			#Utils.hide_busy()
+			#return
+			wm.video_play_unpop() ##CLOSE_DIALOG
+			xbmc.sleep(3000)
+			wm.pop_stack() ##REOPEN_DIALOG
+			Utils.hide_busy()
+			return
 			#from resources.lib.con_man_fix import list_and_select_wifi
 			#list_and_select_wifi()
 			#kodi-send --action="RunScript(script.extendedinfo,info=test_route)"

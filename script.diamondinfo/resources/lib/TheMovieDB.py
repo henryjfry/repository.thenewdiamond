@@ -57,8 +57,8 @@ def handle_tmdb_multi_search(results=[]):
 
 def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
 	response = get_tmdb_data('genre/movie/list?language=%s&' % xbmcaddon.Addon().getSetting('LanguageID'), 30)
-	id_list = [item['id'] for item in response['genres']]
-	label_list = [item['name'] for item in response['genres']]
+	id_list = [item['id'] for item in response.get('genres',[])]
+	label_list = [item['name'] for item in response.get('genres',[])]
 	movies = []
 	for movie in results:
 		if 'genre_ids' in movie:
@@ -79,7 +79,7 @@ def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
 					original_title2 = i['title']
 			if original_title2 != original_title and original_title2 != '':
 				original_title = original_title2
-		except KeyError:
+		except:
 			pass
 		listitem = {
 			'title': Utils.fetch(movie, 'title'),
@@ -263,8 +263,8 @@ def handle_tmdb_people(results):
 		also_known_as = ' / '.join(Utils.fetch(person, 'also_known_as'))
 		newperson = {
 			'adult': str(Utils.fetch(person, 'adult')),
-			'name': person['name'],
-			'title': person['name'],
+			'name': Utils.fetch(person, 'name'),
+			'title': Utils.fetch(person, 'name'),
 			'also_known_as': also_known_as,
 			'alsoknownas': also_known_as,
 			'biography': Utils.clean_text(Utils.fetch(person, 'biography')),
@@ -274,10 +274,10 @@ def handle_tmdb_people(results):
 			'department': Utils.fetch(person, 'department'),
 			'job': Utils.fetch(person, 'job'),
 			'media_type': 'person',
-			'id': str(person['id']),
+			'id': str(Utils.fetch(person, 'id')),
 			'cast_id': str(Utils.fetch(person, 'cast_id')),
 			'credit_id': str(Utils.fetch(person, 'credit_id')),
-			'path': 'plugin://'+str(addon_ID())+'?info=extendedactorinfo&&id=%s' % str(person['id']),
+			'path': 'plugin://'+str(addon_ID())+'?info=extendedactorinfo&&id=%s' % str(Utils.fetch(person, 'id')),
 			'deathday': Utils.fetch(person, 'deathday'),
 			'place_of_birth': Utils.fetch(person, 'place_of_birth'),
 			'placeofbirth': Utils.fetch(person, 'place_of_birth'),
@@ -893,29 +893,30 @@ def single_movie_info(movie_id=None, dbid=None, cache_time=14, notify = True):
 	if not response and notify:
 		Utils.notify('Could not get movie information', sound=False)
 		return {}
-	genres = [i['id'] for i in response['genres']]
+	try: genres = [i['id'] for i in response['genres']]
+	except KeyError: genres = []
 	results = {
 			'media_type': 'movie',
 			'mediatype': 'movie',
-			'adult': response['adult'],
-			'backdrop_path': response['backdrop_path'],
+			'adult': Utils.fetch(response,'adult'),
+			'backdrop_path': Utils.fetch(response,'backdrop_path'),
 			'genre_ids': genres,
-			'id': response['id'],
+			'id': Utils.fetch(response,'id'),
 			'imdb_id': Utils.fetch(Utils.fetch(response, 'external_ids'), 'imdb_id'),
-			'original_language': response['original_language'],
-			'original_title': response['original_title'],
+			'original_language': Utils.fetch(response,'original_language'),
+			'original_title': Utils.fetch(response,'original_title'),
 			'alternative_titles': response.get('alternative_titles',[]),
-			'overview': response['overview'],
+			'overview': Utils.fetch(response,'overview'),
 			'similar': response.get('recommendations',{'page': 1, 'results': []}),
 			'Rating': Utils.fetch(response, 'vote_average'),
 			'Votes': Utils.fetch(response, 'vote_count'),
-			'popularity': response['popularity'],
-			'poster_path': response['poster_path'],
-			'release_date': response['release_date'],
-			'title': response['title'],
-			'video': response['video'],
-			'vote_average': response['vote_average'],
-			'vote_count': response['vote_count']
+			'popularity': Utils.fetch(response,'popularity'),
+			'poster_path': Utils.fetch(response,'poster_path'),
+			'release_date': Utils.fetch(response,'release_date'),
+			'title': Utils.fetch(response,'title'),
+			'video': Utils.fetch(response,'video'),
+			'vote_average': Utils.fetch(response,'vote_average'),
+			'vote_count': Utils.fetch(response,'vote_count')
 			}
 	return results
 
@@ -927,33 +928,34 @@ def single_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
 	#response = get_tmdb_data('tv/%s?append_to_response=alternative_titles,content_ratings,credits,external_ids,images,keywords,rating,similar,translations,videos&language=%s&include_image_language=en,null,%s&%s' % (tvshow_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
 	if not response:
 		return False
-	genres = [i['id'] for i in response['genres']]
+	try: genres = [i['id'] for i in response['genres']]
+	except KeyError: genres = []
 	alternative_titles =  [i['title'] for i in response['alternative_titles']['results']]
 	if response['original_name'] == response['name'] and len(alternative_titles) > 0:
 		response['original_name'] = alternative_titles[0]
 	results = {
 		'media_type': 'tv',
 		'mediatype': 'tv',
-		'backdrop_path': response['backdrop_path'],
-		'first_air_date': response['first_air_date'],
+		'backdrop_path': Utils.fetch(response,'backdrop_path'),
+		'first_air_date': Utils.fetch(response,'first_air_date'),
 		'genre_ids': genres,
-		'id': response['id'],
+		'id': Utils.fetch(response,'id'),
 		'imdb_id': Utils.fetch(Utils.fetch(response, 'external_ids'), 'imdb_id'),
-		'name': response['name'],
-		'title': response['name'],
-		'origin_country': response['origin_country'],
-		'original_language': response['original_language'],
-		'original_name': response['original_name'],
+		'name': Utils.fetch(response,'name'),
+		'title': Utils.fetch(response,'name'),
+		'origin_country': Utils.fetch(response,'origin_country'),
+		'original_language': Utils.fetch(response,'original_language'),
+		'original_name': Utils.fetch(response,'original_name'),
 		'alternative_titles': alternative_titles,
-		'overview': response['overview'],
+		'overview': Utils.fetch(response,'overview'),
 		'similar': response.get('recommendations',{'page': 1, 'results': []}),
 		'Rating': Utils.fetch(response, 'vote_average'),
 		'Votes': Utils.fetch(response, 'vote_count'),
-		'popularity': response['popularity'],
-		'poster_path': response['poster_path'],
-		'status': response['status'],
-		'vote_average': response['vote_average'],
-		'vote_count': response['vote_count']
+		'popularity': Utils.fetch(response,'popularity'),
+		'poster_path': Utils.fetch(response,'poster_path'),
+		'status': Utils.fetch(response,'status'),
+		'vote_average': Utils.fetch(response,'vote_average'),
+		'vote_count': Utils.fetch(response,'vote_count')
 		}
 	return results
 
@@ -1069,12 +1071,16 @@ def extended_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
 		tvdb_id = Utils.fetch(external_ids, 'tvdb_id')
 		tvrage_id = Utils.fetch(external_ids, 'tvrage_id')
 	artwork = get_image_urls(poster=response.get('poster_path'), fanart=response.get('backdrop_path'))
-	if len(response.get('episode_run_time', -1)) > 1:
-		duration = '%i - %i' % (min(response['episode_run_time']), max(response['episode_run_time']))
-	elif len(response.get('episode_run_time', -1)) == 1:
-		duration = '%i' % response['episode_run_time'][0]
+
+	runtimes = response.get('episode_run_time') or []
+
+	if len(runtimes) > 1:
+		duration = '%i - %i' % (min(runtimes), max(runtimes))
+	elif len(runtimes) == 1:
+		duration = '%i' % runtimes[0]
 	else:
 		duration = ''
+
 	us_cert = Utils.dictfind(response['content_ratings']['results'], 'iso_3166_1', 'US')
 	if us_cert:
 		mpaa = us_cert['rating']
@@ -1315,13 +1321,13 @@ def extended_actor_info(actor_id):
 	if 'tagged_images' in response:
 		tagged_images = handle_tmdb_tagged_images(response['tagged_images']['results'])
 	listitems = {
-		'movie_roles': handle_tmdb_movies(response['movie_credits']['cast']),
-		'tvshow_roles': handle_tmdb_tvshows(response['tv_credits']['cast']),
-		'movie_crew_roles': handle_tmdb_movies(response['movie_credits']['crew']),
-		'tvshow_crew_roles': handle_tmdb_tvshows(response['tv_credits']['crew']),
-		'tagged_images': tagged_images,
-		'images': handle_tmdb_images(response['images']['profiles'])
-		}
+	'movie_roles': handle_tmdb_movies(response.get('movie_credits', {}).get('cast', [])),
+	'tvshow_roles': handle_tmdb_tvshows(response.get('tv_credits', {}).get('cast', [])),
+	'movie_crew_roles': handle_tmdb_movies(response.get('movie_credits', {}).get('crew', [])),
+	'tvshow_crew_roles': handle_tmdb_tvshows(response.get('tv_credits', {}).get('crew', [])),
+	'tagged_images': tagged_images,
+	'images': handle_tmdb_images(response.get('images', {}).get('profiles', []))
+	}
 	info = handle_tmdb_people([response])[0]
 	info['DBMovies'] = str(len([d for d in listitems['movie_roles'] if 'dbid' in d]))
 	return (info, listitems)
@@ -1797,7 +1803,8 @@ def get_imdb_season_episodes(imdb_id, season, first=99):
 		"variables": variables
 	}
 	response = requests.post(url, headers=headers, data=json.dumps(payload))
-	response.raise_for_status()
+	try: response.raise_for_status()
+	except requests.exceptions.HTTPError as e: return []
 	data = response.json()
 	edges = data.get("data", {}).get("title", {}).get("episodes", {}).get("episodes", {}).get("edges", [])
 	episodes = []

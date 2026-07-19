@@ -143,6 +143,8 @@ def get_next_ep_details(show_title, season_num, ep_num, tmdb):
 		meta_source = 'tvmaze_seasons'
 	else:
 		meta_source = 'tmdb_seasons'
+	try: test = meta[meta_source]['episodes']
+	except: meta_source = 'tmdb_seasons'
 	for i in meta[meta_source]['episodes']:
 		i_air_date = str(i.get('air_date','1901-01-01'))
 		try: i_air_date = datetime.datetime.strptime(i_air_date, "%Y-%m-%d")

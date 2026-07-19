@@ -904,8 +904,13 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 				last_watched = trakt_item['last_watched_at'].split('T')[0]
 				result['playcount'] = int(playcount)
 				result['lastplayed'] = str(last_watched)
-			except:
-				pass
+			except Exception as e:
+				if sql_result == []:
+					pass
+				else:
+					tools.log('create_listitems',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+					tools.log(e)
+					pass
 		if mediatype == 'tvshow' and tmdb_id != 0 and trakt_tv:
 			try:
 			#if 1==1:
@@ -923,6 +928,7 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 						except: 
 							trakt_item = eval(sql_result[0][1].replace(" '',",' "",').replace("': ''", '\': "').replace("'', '",'", \'').replace(" ''"," '").replace("'',","',"))
 				except:
+					#tools.log(sql_result)
 					item = sql_result[0][1].replace("'",'"')
 					item = re.sub(r'(?<="")([^"]*?)"([^"]*?)(""|$)', r'\1\2\3', item)
 					item = item.replace('""','"').replace('"',"'")
@@ -945,8 +951,13 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 				listitem.setProperty('UnWatchedEpisodes', str(unwatched_episodes))
 				listitem.setProperty('WatchedEpisodes', str(played_episodes))
 				listitem.setProperty('TotalEpisodes', str(aired_episodes))
-			except:
-				pass
+			except Exception as e:
+				if sql_result == []:
+					pass
+				else:
+					tools.log('create_listitems',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+					tools.log(e)
+					pass
 
 		if mediatype == 'season' and trakt_tv:
 			try:
@@ -987,7 +998,8 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 						for k in j['episodes']:
 							if int(k['plays']) >= 1:
 								played_count = played_count + 1
-							last_watched = k['last_watched_at'].split('T')[0]
+							try: last_watched = k['last_watched_at'].split('T')[0]
+							except: last_watched = ''
 							ep_count = ep_count + 1
 				result['lastplayed'] = str(last_watched)
 				if ep_count2 > ep_count:
@@ -998,9 +1010,13 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 				listitem.setProperty('UnWatchedEpisodes', str(unwatched_episodes))
 				listitem.setProperty('WatchedEpisodes', str(played_count))
 				listitem.setProperty('TotalEpisodes', str(ep_count))
-			except:
-				#tools.log(sql_result)
-				pass
+			except Exception as e:
+				if sql_result == []:
+					pass
+				else:
+					tools.log('create_listitems',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+					tools.log(e)
+					pass
 
 		if mediatype == 'episode' and trakt_tv:
 			try:
@@ -1027,8 +1043,13 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 							if int(result['episode']) == int(k['number']):
 								result['playcount'] = k['plays']
 								result['lastplayed'] = str(k['last_watched_at'].split('T')[0])
-			except:
-				pass
+			except Exception as e:
+				if sql_result == []:
+					pass
+				else:
+					tools.log('create_listitems',str(str('Line ')+str(getframeinfo(currentframe()).lineno)+'___'+str(getframeinfo(currentframe()).filename)))
+					tools.log(e)
+					pass
 
 		if enable_clearlogo and not 'logo\':' in str(result.items()) and tmdb_id != 0 and (media_type != 0 and (media_type == 'tv' or media_type == 'movie')):
 			from resources.lib.TheMovieDB import get_fanart_clearlogo

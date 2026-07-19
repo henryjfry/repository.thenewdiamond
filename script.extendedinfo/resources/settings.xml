@@ -30,9 +30,9 @@
 		<setting label="Log Plugin URLS" type="bool" id="log_urls" default="false"/>
 		<setting label="TEST ROUTE" type="action" action="RunScript(script.extendedinfo,info=test_route)"/>
 		<setting label="setup_favourites" type="action" action="RunScript(script.extendedinfo,info=setup_favourites)"/>
-		<setting label="fenlight_open_setting" type="action" action="RunPlugin(plugin://plugin.video.fenlight/?mode=open_settings)" visible="System.HasAddon(plugin.video.fenlight)"/>
+		<!---setting label="fenlight_open_setting" type="action" action="RunPlugin(plugin://plugin.video.fenlight/?mode=open_settings)" visible="System.HasAddon(plugin.video.fenlight)"/>
 		<setting label="fenlight_patch" type="action" action="RunScript(script.extendedinfo,info=patch_fen_light)" visible="System.HasAddon(plugin.video.fenlight)"/>
-		<setting label="fen_light_players" type="action" action="RunScript(script.extendedinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/>
+		<setting label="fen_light_players" type="action" action="RunScript(script.extendedinfo,info=setup_fen_light_players)" visible="System.HasAddon(plugin.video.fenlight)"/--->
 	</category>
     <category label="Trakt Collection Library Options">
 
@@ -1010,9 +1010,9 @@
 <setting label="setup_players" type="action" action="RunScript(script.extendedinfo,info=setup_players)"/>
 <setting label="estuary_fix" type="action" action="RunScript(script.extendedinfo,info=estuary_fix)"/>
 <setting label="setup_favourites" type="action" action="RunScript(script.extendedinfo,info=setup_favourites)"/>
-<setting label="patch_seren_a4k" type="action" action="RunScript(script.extendedinfo,info=patch_seren_a4k)"/>
+<!---setting label="patch_seren_a4k" type="action" action="RunScript(script.extendedinfo,info=patch_seren_a4k)"/--->
 <setting label="patch_tmdb_helper" type="action" action="RunScript(script.extendedinfo,info=patch_tmdb_helper)"/>
-
+<setting label="patch_redlight" type="action" action="RunScript(script.extendedinfo,info=patch_redlight)"/>
 	</category>
 	<category label="RSS Manager">
 		<!---setting id="rss.timeout" type="slider" label="Rss Auto Update Time (in hours)" default="24" range="1,24" option="int" /--->

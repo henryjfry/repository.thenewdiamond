@@ -1321,7 +1321,11 @@ def match_episodes_season_pack(meta, sorted_torr_info):
 		#	from a4kscrapers_wrapper.guessit import api
 
 		last_episode_tmdb = int(meta['tmdb_seasons']['episodes'][-1]['episode'])
-		last_episode_tvmaze = int(meta['tvmaze_seasons']['episodes'][-1]['episode'])
+		try: 
+			last_episode_tvmaze = int(meta['tvmaze_seasons']['episodes'][-1]['episode'])
+		except KeyError: 
+			last_episode_tvmaze = last_episode_tmdb
+			meta['tvmaze_seasons'] = meta['tmdb_seasons']
 
 		last_abs_episode_tmdb = int(meta['tmdb_seasons']['episodes'][-1]['absoluteNumber'])
 		last_abs_episode_tvmaze = int(meta['tvmaze_seasons']['episodes'][-1]['absoluteNumber'])

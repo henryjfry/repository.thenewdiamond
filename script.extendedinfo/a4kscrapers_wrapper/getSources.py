@@ -1939,7 +1939,7 @@ getSources.check_rd_cloud(meta)
 					test2 = source_tools.run_show_filters(simple_info, release_title = x['filename'])
 			#tools.log(test2, test)
 			if download_type != 'movie':
-				if (len(x['links']) >= meta['tvmaze_seasons_episode_tot'] or len(x['links']) >= meta['tmdb_seasons_episode_tot']) and not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
+				if (len(x['links']) >= meta.get('tvmaze_seasons_episode_tot',-1) or len(x['links']) >= meta.get('tmdb_seasons_episode_tot',-1)) and not (': True' in str(test) or ': True' in str(test2)) and download_type != 'movie':
 					simple_info['imdb_id'] = meta['episode_meta']['imdbnumber']
 					test2['show_match'] = source_tools.filter_movie_title(x['filename'], source_tools.clean_title(x['filename']), simple_info['show_title'], simple_info)
 
