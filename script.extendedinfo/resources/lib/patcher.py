@@ -66,14 +66,14 @@ def patch_redlight():
 
 	##redlight.auto.json
 	file_path_in = os.path.join(os.path.join(Utils.ADDON_PATH, 'resources', 'lib','patches') , 'redlight.auto.json')
-	file_path_out = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'players') , 'redlight.auto.json')
+	file_path_out = os.path.join(os.path.join(Utils.ADDON_DATA_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'players') , 'redlight.auto.json')
 	shutil.copyfile(file_path_in, file_path_out)
 	log_message = '%s_PATCH_%s' % (file_path_out,log_addon_name)
 	Utils.tools_log(log_message)
 
 	##redlight.select.json
 	file_path_in = os.path.join(os.path.join(Utils.ADDON_PATH, 'resources', 'lib','patches') , 'redlight.select.json')
-	file_path_out = os.path.join(os.path.join(Utils.ADDON_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'players') , 'redlight.select.json')
+	file_path_out = os.path.join(os.path.join(Utils.ADDON_DATA_PATH.replace(addon_ID(),'plugin.video.themoviedb.helper'), 'players') , 'redlight.select.json')
 	shutil.copyfile(file_path_in, file_path_out)
 	log_message = '%s_PATCH_%s' % (file_path_out,log_addon_name)
 	Utils.tools_log(log_message)
